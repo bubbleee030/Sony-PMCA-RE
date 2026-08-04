@@ -1,0 +1,46 @@
+{
+  "commit": "bc32b106833f64bf105164d49f2f181b0cf39a47",
+  "results": [
+    {
+      "baseline": {
+        "commit": "bc32b106833f64bf105164d49f2f181b0cf39a47",
+        "error_class": "unknown-installer",
+        "exit_code": 1,
+        "input_sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6",
+        "safe_summary": "tool rejected the updater wrapper format",
+        "stage": "wrapper-parsing",
+        "timed_out": false,
+        "tool": "ironpayne22-fwtool"
+      },
+      "source_key": "a6400-tw-v2.00"
+    },
+    {
+      "baseline": {
+        "commit": "bc32b106833f64bf105164d49f2f181b0cf39a47",
+        "error_class": "no-decrypter",
+        "exit_code": 1,
+        "input_sha256": "d3c7db5b9b40c89b11ecf03addf0f6ff1d9b917acf9f55e46360462e86db847c",
+        "safe_summary": "tool reported no compatible decrypter",
+        "stage": "decrypter-selection",
+        "timed_out": false,
+        "tool": "ironpayne22-fwtool"
+      },
+      "source_key": "a6700-tw-v2.00"
+    },
+    {
+      "baseline": {
+        "commit": "bc32b106833f64bf105164d49f2f181b0cf39a47",
+        "error_class": "no-decrypter",
+        "exit_code": 1,
+        "input_sha256": "098290778a84236a0f2be44ac8398fd428d522b5c2c6676f19df23d09ee293d6",
+        "safe_summary": "tool reported no compatible decrypter",
+        "stage": "decrypter-selection",
+        "timed_out": false,
+        "tool": "ironpayne22-fwtool"
+      },
+      "source_key": "a7v-tw-v2.00"
+    }
+  ],
+  "schema_version": 1,
+  "tool": "ironpayne22-fwtool"
+}
