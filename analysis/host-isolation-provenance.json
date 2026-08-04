@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "host": {
+    "platform": "windows-x64",
+    "storage_ceiling_gib": 40,
+    "camera_policy": "physically-disconnected",
+    "reboot_barrier": "all-other-codex-tasks-finished"
+  },
+  "isolation": {
+    "name": "Sandboxie Plus",
+    "version": "1.18.1",
+    "source": "winget:Sandboxie.Plus",
+    "archive_verification": "winget-sha256-verified",
+    "authenticode": "valid",
+    "restore_point": "created",
+    "service": "running",
+    "driver": "running"
+  },
+  "tools": [
+    {
+      "name": "ghidra",
+      "version": "12.1.2",
+      "source_url": "https://github.com/NationalSecurityAgency/ghidra/releases/tag/Ghidra_12.1.2_build",
+      "archive": "ghidra_12.1.2_PUBLIC_20260605.zip",
+      "sha256": "b62e81a0390618466c019c60d8c2f796ced2509c4c1aea4a37644a77272cf99d",
+      "verification": "published-sha256",
+      "path_category": ".artifacts/tools/ghidra-12.1.2",
+      "purpose": "static-disassembly-and-decompilation"
+    },
+    {
+      "name": "microsoft-openjdk",
+      "version": "21.0.12",
+      "source_url": "https://aka.ms/download-jdk/microsoft-jdk-21.0.12-windows-x64.zip",
+      "archive": "microsoft-jdk-21.0.12-windows-x64.zip",
+      "sha256": "bf27a5d6298c736af8daf5b8c883098e83291446e5766118d8a5ea6a2617195d",
+      "verification": "published-sha256",
+      "path_category": ".artifacts/tools/microsoft-jdk-21.0.12",
+      "purpose": "portable-runtime-for-ghidra"
+    },
+    {
+      "name": "x64dbg",
+      "version": "2026.05.27",
+      "source_url": "https://github.com/x64dbg/x64dbg/releases/tag/2026.05.27",
+      "archive": "snapshot_2026-05-27_12-11.zip",
+      "sha256": "d41966dfc5b435a372798245300ca0ab7bb8e48bdbf48512c6fb20fcca427697",
+      "verification": "release-asset-sha256",
+      "path_category": ".artifacts/tools/x64dbg-2026.05.27",
+      "purpose": "user-mode-debugging-and-tracing"
+    },
+    {
+      "name": "sysinternals-sigcheck",
+      "version": "2.91",
+      "source_url": "https://download.sysinternals.com/files/Sigcheck.zip",
+      "archive": "Sigcheck.zip",
+      "sha256": "e28a0ee282023abefdaa422b9529bc771c2e16d96360d109807ed4c048ddf1c1",
+      "verification": "authenticode",
+      "path_category": ".artifacts/tools/sysinternals-2026.07.09",
+      "purpose": "signature-and-file-metadata-verification"
+    },
+    {
+      "name": "sysinternals-strings",
+      "version": "2.54",
+      "source_url": "https://download.sysinternals.com/files/Strings.zip",
+      "archive": "Strings.zip",
+      "sha256": "b1a0a3dc5f639af1c98ae5832676727646eb3d543640e65e310dff747e733a25",
+      "verification": "authenticode",
+      "path_category": ".artifacts/tools/sysinternals-2026.07.09",
+      "purpose": "bounded-printable-string-discovery"
+    },
+    {
+      "name": "sysinternals-procmon",
+      "version": "4.04",
+      "source_url": "https://download.sysinternals.com/files/ProcessMonitor.zip",
+      "archive": "ProcessMonitor.zip",
+      "sha256": "dc2ccfa360e5f94ac535f3fa14ba27578049b16290cbbfe5d2f11debf29efe8c",
+      "verification": "authenticode",
+      "path_category": ".artifacts/tools/sysinternals-2026.07.09",
+      "purpose": "sandboxed-process-file-and-registry-tracing"
+    }
+  ]
+}
