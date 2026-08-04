@@ -32,6 +32,23 @@ class SourceTests(unittest.TestCase):
             "e-mount-body-ilce-6000-series/ilce-6700/software/00298440",
         )
 
+    def test_a7v_vertical_ui_donor_is_exactly_allowlisted(self):
+        try:
+            source = get_source("a7v-tw-v2.00")
+        except SourceError:
+            self.fail("The approved α7 V donor must be allowlisted")
+        self.assertEqual(source.model, "ILCE-7M5")
+        self.assertEqual(source.region, "TW")
+        self.assertEqual(source.version, "2.00")
+        self.assertEqual(source.filename, "BODYDATA.DAT")
+        self.assertEqual(source.advertised_size, 376_540_720)
+        self.assertEqual(source.release_date, "2026-05-14")
+        self.assertEqual(
+            source.page_url,
+            "https://www.sony.com.tw/zh/electronics/support/"
+            "e-mount-body-ilce-7-series/ilce-7m5/software/00377086",
+        )
+
     def test_unknown_source_fails_closed(self):
         with self.assertRaises(SourceError):
             get_source("a6700-us-latest")

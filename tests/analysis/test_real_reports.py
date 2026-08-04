@@ -8,6 +8,7 @@ REPORT_DIRECTORY = ROOT / "analysis" / "reports"
 REPORT_NAMES = (
     "a6400-tw-v2.00.json",
     "a6700-tw-v2.00.json",
+    "a7v-tw-v2.00.json",
 )
 REPORT_FIELDS = {
     "schema_version",

@@ -41,6 +41,18 @@ _SOURCES = {
             "e-mount-body-ilce-6000-series/ilce-6700/software/00298440"
         ),
     ),
+    "a7v-tw-v2.00": SourceSpec(
+        model="ILCE-7M5",
+        region="TW",
+        version="2.00",
+        filename="BODYDATA.DAT",
+        advertised_size=376_540_720,
+        release_date="2026-05-14",
+        page_url=(
+            "https://www.sony.com.tw/zh/electronics/support/"
+            "e-mount-body-ilce-7-series/ilce-7m5/software/00377086"
+        ),
+    ),
 }
 
 

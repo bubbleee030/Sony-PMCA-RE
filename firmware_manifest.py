@@ -63,9 +63,17 @@ def _verify(args: argparse.Namespace) -> None:
         for entry in manifest["artifacts"]
         if entry["filename"] == args.file.name
     ]
-    if len(entries) != 1:
-        raise ManifestError("Manifest must contain exactly one entry for the file")
-    verify_manifest_entry(entries[0], args.file, args.artifacts_root)
+    matching_entries = []
+    for entry in entries:
+        try:
+            verify_manifest_entry(entry, args.file, args.artifacts_root)
+        except ManifestError:
+            continue
+        matching_entries.append(entry)
+    if len(matching_entries) != 1:
+        raise ManifestError(
+            "Manifest must contain exactly one matching entry for the file"
+        )
 
 
 def main(argv=None) -> int:

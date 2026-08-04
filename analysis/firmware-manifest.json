@@ -27,6 +27,20 @@
       "source_key": "a6700-tw-v2.00",
       "source_page": "https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6700/software/00298440",
       "version": "2.00"
+    },
+    {
+      "acquired_at": "2026-08-04T13:59:38Z",
+      "advertised_size": 376540720,
+      "filename": "BODYDATA.DAT",
+      "manufacturer": "Sony",
+      "measured_size": 376540720,
+      "model": "ILCE-7M5",
+      "region": "TW",
+      "release_date": "2026-05-14",
+      "sha256": "098290778a84236a0f2be44ac8398fd428d522b5c2c6676f19df23d09ee293d6",
+      "source_key": "a7v-tw-v2.00",
+      "source_page": "https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-7-series/ilce-7m5/software/00377086",
+      "version": "2.00"
     }
   ],
   "schema_version": 1

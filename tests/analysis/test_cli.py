@@ -4,7 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import firmware_decisions
 import firmware_inspect
@@ -84,6 +84,88 @@ class FirmwareManifestCliTests(unittest.TestCase):
         self.assertEqual(result, 0)
         load.assert_called_once_with(manifest_path)
         verify.assert_called_once_with(entry, artifact, root)
+
+    def test_verify_disambiguates_duplicate_filenames_by_full_validation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            artifact = root / "BODYDATA.DAT"
+            manifest_path = root / "manifest.json"
+            wrong = {"source_key": "a6700", "filename": "BODYDATA.DAT"}
+            matching = {"source_key": "a7v", "filename": "BODYDATA.DAT"}
+
+            def verify_entry(entry, _artifact, _root):
+                if entry is wrong:
+                    raise firmware_manifest.ManifestError("digest mismatch")
+
+            with (
+                patch(
+                    "firmware_manifest.load_manifest",
+                    return_value={
+                        "schema_version": 1,
+                        "artifacts": [wrong, matching],
+                    },
+                ),
+                patch(
+                    "firmware_manifest.verify_manifest_entry",
+                    side_effect=verify_entry,
+                ) as verify,
+            ):
+                result = firmware_manifest.main(
+                    [
+                        "verify",
+                        "--file",
+                        str(artifact),
+                        "--artifacts-root",
+                        str(root),
+                        "--manifest",
+                        str(manifest_path),
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            verify.call_args_list,
+            [
+                call(wrong, artifact, root),
+                call(matching, artifact, root),
+            ],
+        )
+
+    def test_verify_rejects_multiple_full_matches(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            artifact = root / "BODYDATA.DAT"
+            manifest_path = root / "manifest.json"
+            first = {"source_key": "first", "filename": "BODYDATA.DAT"}
+            second = {"source_key": "second", "filename": "BODYDATA.DAT"}
+            stderr = io.StringIO()
+
+            with (
+                patch(
+                    "firmware_manifest.load_manifest",
+                    return_value={
+                        "schema_version": 1,
+                        "artifacts": [first, second],
+                    },
+                ),
+                patch("firmware_manifest.verify_manifest_entry") as verify,
+                contextlib.redirect_stderr(stderr),
+            ):
+                result = firmware_manifest.main(
+                    [
+                        "verify",
+                        "--file",
+                        str(artifact),
+                        "--artifacts-root",
+                        str(root),
+                        "--manifest",
+                        str(manifest_path),
+                    ]
+                )
+
+        self.assertEqual(result, 1)
+        self.assertEqual(verify.call_count, 2)
+        self.assertIn("exactly one matching entry", stderr.getvalue())
 
     def test_only_add_and_verify_subcommands_parse(self):
         for subcommand in ("download", "flash", "inspect"):
