@@ -19,6 +19,12 @@ EXPECTED_CAPABILITIES = (
     "recovery",
 )
 
+APPROVED_REPORT = "analysis/reports/a6400-tw-v2.00.json"
+APPROVED_SONY_URL = (
+    "https://www.sony.com.tw/zh/electronics/support/"
+    "e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145"
+)
+
 
 def synthetic_document():
     statuses = (
@@ -40,7 +46,7 @@ def synthetic_document():
                 "evidence": [
                     {
                         "kind": "OBSERVATION",
-                        "source": f"analysis/reports/synthetic-{index + 1}.json",
+                        "source": APPROVED_REPORT,
                         "claim": f"Synthetic observation {index + 1}.",
                     }
                 ],
@@ -144,17 +150,32 @@ class DecisionValidationTests(unittest.TestCase):
 
     def test_evidence_sources_are_strictly_allowlisted(self):
         allowed = (
-            "https://www.sony.com.tw/official/path",
-            "https://helpguide.sony.net/official/path",
+            APPROVED_SONY_URL,
+            "https://www.sony.com.tw/zh/electronics/support/"
+            "e-mount-body-ilce-6000-series/ilce-6700/software/00298440",
+            "https://helpguide.sony.net/ilc/2320/v1/en/contents/"
+            "0411B_creative_look.html",
+            "https://helpguide.sony.net/ilc/2320/v1/en/contents/"
+            "211h_touchpanel_settings.html",
+            "https://helpguide.sony.net/ilc/2320/v1/en/contents/"
+            "221h_touch_function_icon.html",
             "analysis/reports/a6400-tw-v2.00.json",
+            "analysis/reports/a6700-tw-v2.00.json",
+            "README.md",
         )
         denied = (
             "http://www.sony.com.tw/official/path",
             "https://example.com/official/path",
             "https://user@www.sony.com.tw/official/path",
+            "https://www.sony.com.tw/unreviewed/path",
+            "https://helpguide.sony.net/unreviewed/path",
+            f"{APPROVED_SONY_URL}?download=1",
+            f"{APPROVED_SONY_URL}#requirements",
             "analysis/other/report.json",
+            "analysis/reports/unreviewed.json",
             "analysis/reports/../report.json",
             "analysis\\reports\\report.json",
+            "docs/README.md",
             "https://[",
         )
 
@@ -169,12 +190,43 @@ class DecisionValidationTests(unittest.TestCase):
                 document["capabilities"][0]["evidence"][0]["source"] = source
                 with self.assertRaises(DecisionError):
                     validate_evidence(document)
+
+    def test_free_text_rejects_line_breaks_and_control_characters(self):
+        mutations = (
+            ("summary LF", "summary", "First line\nSecond line"),
+            ("summary CR", "summary", "First line\rSecond line"),
+            ("next action tab", "next_action", "Next\taction"),
+            ("claim NUL", "claim", "Claim\x00suffix"),
+            ("claim C1 control", "claim", "Claim\u0085suffix"),
+        )
+
+        for name, field, value in mutations:
+            with self.subTest(name=name):
+                document = synthetic_document()
+                if field == "claim":
+                    document["capabilities"][0]["evidence"][0][field] = value
+                else:
+                    document["capabilities"][0][field] = value
+                with self.assertRaises(DecisionError):
+                    validate_evidence(document)
+
+    def test_free_text_fields_have_a_finite_size_limit(self):
+        for field in ("summary", "next_action", "claim"):
+            with self.subTest(field=field):
+                document = synthetic_document()
+                if field == "claim":
+                    document["capabilities"][0]["evidence"][0][field] = "x" * 5000
+                else:
+                    document["capabilities"][0][field] = "x" * 5000
+                with self.assertRaises(DecisionError):
+                    validate_evidence(document)
+
     def test_inference_requires_an_observation_in_the_same_capability(self):
         document = synthetic_document()
         document["capabilities"][0]["evidence"] = [
             {
                 "kind": "INFERENCE",
-                "source": "analysis/reports/synthetic-1.json",
+                "source": APPROVED_REPORT,
                 "claim": "Synthetic inference.",
             }
         ]
@@ -186,7 +238,7 @@ class DecisionValidationTests(unittest.TestCase):
             0,
             {
                 "kind": "OBSERVATION",
-                "source": "https://www.sony.com.tw/synthetic-fixture",
+                "source": APPROVED_SONY_URL,
                 "claim": "Synthetic observation.",
             },
         )
@@ -231,7 +283,7 @@ class DecisionRenderingTests(unittest.TestCase):
         discovery["evidence"].append(
             {
                 "kind": "INFERENCE",
-                "source": "analysis/reports/synthetic-1.json",
+                "source": APPROVED_REPORT,
                 "claim": "Synthetic inference 1.",
             }
         )
@@ -249,12 +301,12 @@ class DecisionRenderingTests(unittest.TestCase):
         offsets = [first.index(f"## {item}") for item in EXPECTED_CAPABILITIES]
         self.assertEqual(offsets, sorted(offsets))
         self.assertIn(
-            "- **OBSERVATION** — `analysis/reports/synthetic-1.json`: "
+            "- **OBSERVATION** — `analysis/reports/a6400-tw-v2.00.json`: "
             "Synthetic observation 1.",
             first,
         )
         self.assertIn(
-            "- **INFERENCE** — `analysis/reports/synthetic-1.json`: "
+            "- **INFERENCE** — `analysis/reports/a6400-tw-v2.00.json`: "
             "Synthetic inference 1.",
             first,
         )
@@ -266,6 +318,20 @@ class DecisionRenderingTests(unittest.TestCase):
     def test_renderer_rejects_invalid_documents_instead_of_adding_a_conclusion(self):
         document = synthetic_document()
         document["capabilities"][0]["status"] = "UNKNOWN"
+
+        with self.assertRaises(DecisionError):
+            render_markdown(document)
+
+    def test_renderer_rejects_output_over_a_finite_size_ceiling(self):
+        document = synthetic_document()
+        document["capabilities"][0]["evidence"] = [
+            {
+                "kind": "OBSERVATION",
+                "source": APPROVED_REPORT,
+                "claim": f"Bounded claim {index}: " + ("x" * 1900),
+            }
+            for index in range(40)
+        ]
 
         with self.assertRaises(DecisionError):
             render_markdown(document)

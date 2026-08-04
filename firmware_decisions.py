@@ -10,6 +10,9 @@ from pathlib import Path
 from pmca.analysis.decisions import DecisionError, render_markdown
 
 
+_MAX_EVIDENCE_JSON_BYTES = 128 * 1024
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -33,8 +36,13 @@ def _reject_duplicate_members(pairs):
 
 
 def _load_evidence(path: Path) -> dict:
-    with Path(path).open("r", encoding="utf-8") as stream:
-        return json.load(stream, object_pairs_hook=_reject_duplicate_members)
+    with Path(path).open("rb") as stream:
+        payload = stream.read(_MAX_EVIDENCE_JSON_BYTES + 1)
+    if len(payload) > _MAX_EVIDENCE_JSON_BYTES:
+        raise DecisionError("Evidence input exceeds the 131072-byte size limit")
+    return json.loads(
+        payload.decode("utf-8"), object_pairs_hook=_reject_duplicate_members
+    )
 
 
 def _write_markdown(path: Path, markdown: str) -> None:

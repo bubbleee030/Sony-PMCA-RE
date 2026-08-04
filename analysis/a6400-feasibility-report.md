@@ -65,6 +65,8 @@ Summary: Package metadata shows a PE certificate table for the ILCE-6400 updater
 Evidence:
 - **OBSERVATION** — `analysis/reports/a6400-tw-v2.00.json`: The ILCE-6400 Windows updater is parsed as a five-section PE with a nonzero certificate-table offset and size.
 - **OBSERVATION** — `analysis/reports/a6700-tw-v2.00.json`: The ILCE-6700 BODYDATA.DAT package is labelled opaque-dat and has no PE summary in the bounded report.
+- **OBSERVATION** — `README.md`: The repository README states that devices based on the CXD90045 and CXD90057 architectures are incompatible because their firmware is cryptographically signed; the documented PMCA tweaking workflow uses updater mode.
+- **INFERENCE** — `README.md`: Applying this architecture-level PMCA limitation to ILCE-6400 requires an independently verified mapping from ILCE-6400 to one of those architectures; no such mapping is present in the reviewed evidence.
 - **INFERENCE** — `analysis/reports/a6400-tw-v2.00.json`: A PE certificate-table entry is not proof of the camera's enforcement boundary and does not provide a signature bypass.
 - **INFERENCE** — `analysis/reports/a6700-tw-v2.00.json`: The different outer package formats do not support a direct donor-package transplant conclusion.
 

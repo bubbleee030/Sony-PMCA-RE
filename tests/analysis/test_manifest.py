@@ -24,6 +24,7 @@ SOURCE = SourceSpec(
     version="2.00",
     filename="fixture.bin",
     advertised_size=len(FIRMWARE),
+    release_date="2026-08-04",
     page_url="https://www.sony.com.tw/fixture",
 )
 
@@ -146,6 +147,7 @@ class ManifestTests(unittest.TestCase):
                 "source_page",
                 "filename",
                 "advertised_size",
+                "release_date",
                 "measured_size",
                 "sha256",
                 "acquired_at",
@@ -172,6 +174,7 @@ class ManifestTests(unittest.TestCase):
             ("version", "9.99"),
             ("source_page", "https://example.invalid/firmware"),
             ("advertised_size", 1),
+            ("release_date", "1999-01-01"),
         ):
             with self.subTest(field=field):
                 changed_entry = dict(entry)
@@ -244,6 +247,17 @@ class ManifestTests(unittest.TestCase):
 
         with self.assertRaises(ManifestError):
             load_manifest(path)
+
+    def test_load_manifest_rejects_oversized_input_before_json_parsing(self):
+        path = self.workspace / "oversized.json"
+        path.write_bytes(b" " * (128 * 1024 + 1))
+
+        with patch("pmca.analysis.manifest.json.loads") as loads:
+            with self.assertRaises(ManifestError):
+                load_manifest(path)
+
+        loads.assert_not_called()
+
     def test_write_manifest_rejects_path_below_artifacts(self):
         manifest_path = self.artifacts_root / "firmware-manifest.json"
 

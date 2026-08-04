@@ -1,8 +1,7 @@
 """Validate and render evidence-bounded firmware feasibility decisions."""
 
 from copy import deepcopy
-from pathlib import PurePosixPath
-from urllib.parse import urlsplit
+import unicodedata
 
 
 SCHEMA_VERSION = 1
@@ -20,7 +19,25 @@ _CAPABILITY_FIELDS = {"id", "status", "summary", "evidence", "next_action"}
 _EVIDENCE_FIELDS = {"kind", "source", "claim"}
 _STATUSES = {"FEASIBLE", "PARTIAL", "BLOCKED", "INSUFFICIENT_EVIDENCE"}
 _KINDS = {"OBSERVATION", "INFERENCE"}
-_OFFICIAL_HOSTS = {"www.sony.com.tw", "helpguide.sony.net"}
+_MAX_TEXT_CHARS = 2048
+_MAX_RENDERED_BYTES = 64 * 1024
+_APPROVED_SOURCES = frozenset(
+    {
+        "https://www.sony.com.tw/zh/electronics/support/"
+        "e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145",
+        "https://www.sony.com.tw/zh/electronics/support/"
+        "e-mount-body-ilce-6000-series/ilce-6700/software/00298440",
+        "https://helpguide.sony.net/ilc/2320/v1/en/contents/"
+        "0411B_creative_look.html",
+        "https://helpguide.sony.net/ilc/2320/v1/en/contents/"
+        "211h_touchpanel_settings.html",
+        "https://helpguide.sony.net/ilc/2320/v1/en/contents/"
+        "221h_touch_function_icon.html",
+        "analysis/reports/a6400-tw-v2.00.json",
+        "analysis/reports/a6700-tw-v2.00.json",
+        "README.md",
+    }
+)
 
 
 class DecisionError(ValueError):
@@ -30,33 +47,15 @@ class DecisionError(ValueError):
 def _require_text(value: object, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise DecisionError(f"{label} must be nonempty text")
+    if len(value) > _MAX_TEXT_CHARS:
+        raise DecisionError(f"{label} exceeds the text size limit")
+    if any(unicodedata.category(character).startswith("C") for character in value):
+        raise DecisionError(f"{label} contains a control character")
     return value
 
 
 def _is_approved_source(source: str) -> bool:
-    try:
-        parsed = urlsplit(source)
-    except ValueError:
-        return False
-    if parsed.scheme or parsed.netloc:
-        return (
-            parsed.scheme == "https"
-            and parsed.hostname in _OFFICIAL_HOSTS
-            and parsed.username is None
-            and parsed.password is None
-            and bool(parsed.path and parsed.path != "/")
-        )
-
-    if "\\" in source:
-        return False
-    path = PurePosixPath(source)
-    return (
-        not path.is_absolute()
-        and path.parts[:2] == ("analysis", "reports")
-        and len(path.parts) == 3
-        and path.suffix.casefold() == ".json"
-        and all(part not in {"", ".", ".."} for part in path.parts)
-    )
+    return source in _APPROVED_SOURCES
 
 
 def _validate_evidence_item(item: object, capability_id: str) -> dict:
@@ -155,4 +154,7 @@ def render_markdown(document: dict) -> str:
                 f"Next permitted action: {capability['next_action']}",
             ]
         )
-    return "\n".join(lines) + "\n"
+    markdown = "\n".join(lines) + "\n"
+    if len(markdown.encode("utf-8")) > _MAX_RENDERED_BYTES:
+        raise DecisionError("Rendered Markdown exceeds the output size limit")
+    return markdown

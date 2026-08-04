@@ -4,13 +4,14 @@ import hashlib
 import json
 import os
 import tempfile
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 from .sources import SourceError, get_source
 
 
 SCHEMA_VERSION = 1
+MAX_MANIFEST_BYTES = 128 * 1024
 _TOP_LEVEL_FIELDS = {"schema_version", "artifacts"}
 _ENTRY_FIELDS = {
     "source_key",
@@ -21,6 +22,7 @@ _ENTRY_FIELDS = {
     "source_page",
     "filename",
     "advertised_size",
+    "release_date",
     "measured_size",
     "sha256",
     "acquired_at",
@@ -33,12 +35,24 @@ _TEXT_FIELDS = {
     "version",
     "source_page",
     "filename",
+    "release_date",
     "acquired_at",
 }
 
 
 class ManifestError(ValueError):
     """Raised when an artifact or manifest fails a validation gate."""
+
+def _validate_release_date(value: object) -> str:
+    if not isinstance(value, str) or len(value) != 10:
+        raise ManifestError("Release date must use YYYY-MM-DD")
+    try:
+        parsed = date.fromisoformat(value)
+    except ValueError as error:
+        raise ManifestError("Release date must use YYYY-MM-DD") from error
+    if parsed.isoformat() != value:
+        raise ManifestError("Release date must use YYYY-MM-DD")
+    return value
 
 def _validate_acquired_at(value: object) -> str:
     if (
@@ -132,6 +146,7 @@ def _validate_entry_schema(entry: object) -> dict:
         or any(character not in "0123456789abcdef" for character in digest)
     ):
         raise ManifestError("Manifest SHA-256 must be lowercase hexadecimal")
+    _validate_release_date(entry["release_date"])
     _validate_acquired_at(entry["acquired_at"])
     return entry
 
@@ -149,6 +164,7 @@ def _validate_entry_source(entry: dict):
         "source_page": source.page_url,
         "filename": source.filename,
         "advertised_size": source.advertised_size,
+        "release_date": source.release_date,
     }
     if any(entry[field] != value for field, value in expected_metadata.items()):
         raise ManifestError("Manifest metadata does not match the allowlisted source")
@@ -201,6 +217,7 @@ def record_artifact(
         "source_page": source.page_url,
         "filename": source.filename,
         "advertised_size": source.advertised_size,
+        "release_date": source.release_date,
         "measured_size": measured_size,
         "sha256": sha256_file(resolved_artifact),
         "acquired_at": acquired_at,
@@ -208,13 +225,23 @@ def record_artifact(
 
 
 def load_manifest(path: Path) -> dict:
-    """Load and strictly validate a version 1 firmware manifest."""
+    """Load and strictly validate a bounded version 1 firmware manifest."""
     path = Path(path)
     if path.is_symlink():
         raise ManifestError("Manifest path must not be a symlink")
     try:
-        with path.open("r", encoding="utf-8") as stream:
-            data = json.load(stream, object_pairs_hook=_reject_duplicate_members)
+        if path.stat().st_size > MAX_MANIFEST_BYTES:
+            raise ManifestError("Manifest exceeds the metadata size limit")
+        with path.open("rb") as stream:
+            payload = stream.read(MAX_MANIFEST_BYTES + 1)
+        if len(payload) > MAX_MANIFEST_BYTES:
+            raise ManifestError("Manifest exceeds the metadata size limit")
+        data = json.loads(
+            payload.decode("utf-8"),
+            object_pairs_hook=_reject_duplicate_members,
+        )
+    except ManifestError:
+        raise
     except (OSError, UnicodeError, json.JSONDecodeError) as error:
         raise ManifestError("Manifest could not be loaded") from error
     return _validate_manifest(data)

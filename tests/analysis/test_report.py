@@ -1,3 +1,4 @@
+import copy
 import hashlib
 import json
 import tempfile
@@ -96,6 +97,51 @@ class ReportTests(unittest.TestCase):
                 self.entry, self.artifact, self.artifacts_root
             )
 
+    def test_artifact_outside_quarantine_is_rejected_before_any_read(self):
+        outside = self.workspace / "outside.bin"
+        outside.write_bytes(FIRMWARE)
+
+        with (
+            patch("pmca.analysis.report.sha256_file") as hash_file,
+            patch("pmca.analysis.report.verify_manifest_entry") as verify,
+            patch("pmca.analysis.report.inspect_artifact") as inspect,
+            self.assertRaises(ReportError),
+        ):
+            analyze_verified_artifact(self.entry, outside, self.artifacts_root)
+
+        hash_file.assert_not_called()
+        verify.assert_not_called()
+        inspect.assert_not_called()
+
+    def test_resolved_artifact_path_is_used_for_all_reads(self):
+        unresolved = (
+            self.artifact.parent / ".." / self.artifact.parent.name / self.artifact.name
+        )
+        resolved = self.artifact.resolve()
+        observed_paths = []
+
+        def hash_file(path):
+            observed_paths.append(Path(path))
+            return self.digest
+
+        def verify(entry, path, artifacts_root):
+            observed_paths.append(Path(path))
+
+        def inspect(path, source_key):
+            observed_paths.append(Path(path))
+            return self.inspection
+
+        with (
+            patch("pmca.analysis.report.sha256_file", side_effect=hash_file),
+            patch(
+                "pmca.analysis.report.verify_manifest_entry", side_effect=verify
+            ),
+            patch("pmca.analysis.report.inspect_artifact", side_effect=inspect),
+        ):
+            analyze_verified_artifact(self.entry, unresolved, self.artifacts_root)
+
+        self.assertEqual(observed_paths, [resolved, resolved, resolved, resolved])
+
     def test_report_schema_is_fixed_and_deterministic(self):
         first = self.analyze()
         second = self.analyze()
@@ -130,6 +176,136 @@ class ReportTests(unittest.TestCase):
                 inspection["entropy"] = {"nested": [{forbidden_key: "secret"}]}
                 with self.assertRaises(ReportError):
                     self.analyze(inspection)
+
+    def test_schema_version_boolean_is_rejected(self):
+        report = self.analyze()
+        report["schema_version"] = True
+
+        with self.assertRaises(ReportError):
+            write_report(
+                self.workspace / "analysis" / "report.json",
+                report,
+                self.artifacts_root,
+            )
+
+    def test_nested_report_schemas_reject_unknown_members(self):
+        valid = self.analyze()
+        mutations = []
+
+        entropy = copy.deepcopy(valid)
+        entropy["entropy"]["unexpected"] = 1
+        mutations.append(entropy)
+
+        window = copy.deepcopy(valid)
+        window["entropy"]["windows"][0]["unexpected"] = 1
+        mutations.append(window)
+
+        token = copy.deepcopy(valid)
+        token["token_hits"] = [
+            {"token": "ILCE6400", "count": 1, "offsets": [0], "unexpected": 1}
+        ]
+        mutations.append(token)
+
+        pe = copy.deepcopy(valid)
+        pe["pe"] = {
+            "machine": 332,
+            "section_count": 5,
+            "optional_header_kind": "PE32",
+            "certificate_offset": 0,
+            "certificate_size": 0,
+            "overlay_offset": None,
+            "unexpected": 1,
+        }
+        pe["format"] = "pe"
+        mutations.append(pe)
+
+        for report in mutations:
+            with self.subTest(report=report), self.assertRaises(ReportError):
+                write_report(
+                    self.workspace / "analysis" / "report.json",
+                    report,
+                    self.artifacts_root,
+                )
+
+    def test_nested_report_types_and_ranges_are_enforced(self):
+        valid = self.analyze()
+        mutations = []
+
+        boolean_size = copy.deepcopy(valid)
+        boolean_size["size"] = True
+        mutations.append(boolean_size)
+
+        invalid_entropy = copy.deepcopy(valid)
+        invalid_entropy["entropy"]["windows"][0]["entropy"] = 8.01
+        mutations.append(invalid_entropy)
+
+        inconsistent_count = copy.deepcopy(valid)
+        inconsistent_count["entropy"]["window_count"] = 2
+        mutations.append(inconsistent_count)
+
+        invalid_token = copy.deepcopy(valid)
+        invalid_token["token_hits"] = [
+            {"token": "NOT-ALLOWLISTED", "count": 1, "offsets": [0]}
+        ]
+        mutations.append(invalid_token)
+
+        unhashable_format = copy.deepcopy(valid)
+        unhashable_format["format"] = []
+        mutations.append(unhashable_format)
+
+        unhashable_token = copy.deepcopy(valid)
+        unhashable_token["token_hits"] = [
+            {"token": [], "count": 1, "offsets": [0]}
+        ]
+        mutations.append(unhashable_token)
+
+        unhashable_pe_kind = copy.deepcopy(valid)
+        unhashable_pe_kind["format"] = "pe"
+        unhashable_pe_kind["pe"] = {
+            "machine": 332,
+            "section_count": 5,
+            "optional_header_kind": [],
+            "certificate_offset": 0,
+            "certificate_size": 0,
+            "overlay_offset": None,
+        }
+        mutations.append(unhashable_pe_kind)
+
+        for report in mutations:
+            with self.subTest(report=report), self.assertRaises(ReportError):
+                write_report(
+                    self.workspace / "analysis" / "report.json",
+                    report,
+                    self.artifacts_root,
+                )
+
+    def test_serialized_report_size_is_bounded(self):
+        report = self.analyze()
+        report["size"] = 13_000
+        report["entropy"] = {
+            "window_size": 1,
+            "window_count": 13_000,
+            "windows": [
+                {"offset": offset, "size": 1, "entropy": 0.0}
+                for offset in range(13_000)
+            ],
+        }
+
+        with self.assertRaises(ReportError):
+            write_report(
+                self.workspace / "analysis" / "oversized.json",
+                report,
+                self.artifacts_root,
+            )
+
+    def test_committed_reports_conform_to_schema(self):
+        reports = Path(__file__).parents[2] / "analysis" / "reports"
+        for committed in reports.glob("*.json"):
+            with self.subTest(committed=committed):
+                report = json.loads(committed.read_text(encoding="utf-8"))
+                output = self.workspace / "analysis" / committed.name
+                write_report(output, report, self.artifacts_root)
+                self.assertEqual(output.read_bytes(), committed.read_bytes())
 
     def test_json_output_is_byte_for_byte_deterministic(self):
         report = self.analyze()

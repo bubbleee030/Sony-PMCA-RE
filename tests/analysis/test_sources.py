@@ -11,6 +11,7 @@ class SourceTests(unittest.TestCase):
         self.assertEqual(source.version, "2.00")
         self.assertEqual(source.filename, "Update_ILCE6400V200.exe")
         self.assertEqual(source.advertised_size, 314_230_712)
+        self.assertEqual(source.release_date, "2019-06-13")
         self.assertEqual(
             source.page_url,
             "https://www.sony.com.tw/zh/electronics/support/"
@@ -24,6 +25,7 @@ class SourceTests(unittest.TestCase):
         self.assertEqual(source.version, "2.00")
         self.assertEqual(source.filename, "BODYDATA.DAT")
         self.assertEqual(source.advertised_size, 1_024_017_848)
+        self.assertEqual(source.release_date, "2025-06-10")
         self.assertEqual(
             source.page_url,
             "https://www.sony.com.tw/zh/electronics/support/"

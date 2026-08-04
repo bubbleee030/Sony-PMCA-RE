@@ -341,6 +341,30 @@ class FirmwareDecisionsCliTests(unittest.TestCase):
         ):
             firmware_decisions.main(abbreviated)
 
+    def test_oversized_evidence_is_rejected_before_json_parsing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            evidence = root / "oversized.json"
+            output = root / "report.md"
+            evidence.write_bytes(b"{" + (b" " * 2_000_000))
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stderr(stderr):
+                result = firmware_decisions.main(
+                    [
+                        "render",
+                        "--evidence",
+                        str(evidence),
+                        "--output",
+                        str(output),
+                    ]
+                )
+
+        self.assertEqual(result, 1)
+        self.assertIn("exceeds", stderr.getvalue())
+        self.assertNotIn("JSON", stderr.getvalue())
+        self.assertFalse(output.exists())
+
     def test_expected_input_errors_are_one_line_without_traceback(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

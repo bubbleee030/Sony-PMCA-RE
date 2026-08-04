@@ -12,6 +12,7 @@ class SourceSpec:
     version: str
     filename: str
     advertised_size: int
+    release_date: str
     page_url: str
 
 
@@ -22,6 +23,7 @@ _SOURCES = {
         version="2.00",
         filename="Update_ILCE6400V200.exe",
         advertised_size=314_230_712,
+        release_date="2019-06-13",
         page_url=(
             "https://www.sony.com.tw/zh/electronics/support/"
             "e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145"
@@ -33,6 +35,7 @@ _SOURCES = {
         version="2.00",
         filename="BODYDATA.DAT",
         advertised_size=1_024_017_848,
+        release_date="2025-06-10",
         page_url=(
             "https://www.sony.com.tw/zh/electronics/support/"
             "e-mount-body-ilce-6000-series/ilce-6700/software/00298440"

@@ -581,11 +581,17 @@ Expected: FAIL with FileNotFoundError for the first report. This proves the test
 
 Run:
 
+    New-Item -ItemType Directory -Force .artifacts\analysis-inputs\a6400-tw-v2.00 | Out-Null
+    New-Item -ItemType Directory -Force .artifacts\analysis-inputs\a6700-tw-v2.00 | Out-Null
+    Copy-Item -LiteralPath .artifacts\sony-firmware\a6400-tw-v2.00\Update_ILCE6400V200.exe -Destination .artifacts\analysis-inputs\a6400-tw-v2.00\Update_ILCE6400V200.exe
+    Copy-Item -LiteralPath .artifacts\sony-firmware\a6700-tw-v2.00\BODYDATA.DAT -Destination .artifacts\analysis-inputs\a6700-tw-v2.00\BODYDATA.DAT
+    & .\.venv\Scripts\python.exe .\firmware_manifest.py verify --file .artifacts\analysis-inputs\a6400-tw-v2.00\Update_ILCE6400V200.exe --artifacts-root .artifacts --manifest analysis\firmware-manifest.json
+    & .\.venv\Scripts\python.exe .\firmware_manifest.py verify --file .artifacts\analysis-inputs\a6700-tw-v2.00\BODYDATA.DAT --artifacts-root .artifacts --manifest analysis\firmware-manifest.json
     New-Item -ItemType Directory -Force .artifacts\analysis-runs | Out-Null
-    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6400-tw-v2.00 --file .artifacts\sony-firmware\a6400-tw-v2.00\Update_ILCE6400V200.exe --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report .artifacts\analysis-runs\a6400-run1.json
-    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6400-tw-v2.00 --file .artifacts\sony-firmware\a6400-tw-v2.00\Update_ILCE6400V200.exe --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report .artifacts\analysis-runs\a6400-run2.json
-    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6700-tw-v2.00 --file .artifacts\sony-firmware\a6700-tw-v2.00\BODYDATA.DAT --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report .artifacts\analysis-runs\a6700-run1.json
-    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6700-tw-v2.00 --file .artifacts\sony-firmware\a6700-tw-v2.00\BODYDATA.DAT --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report .artifacts\analysis-runs\a6700-run2.json
+    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6400-tw-v2.00 --file .artifacts\analysis-inputs\a6400-tw-v2.00\Update_ILCE6400V200.exe --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report .artifacts\analysis-runs\a6400-run1.json
+    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6400-tw-v2.00 --file .artifacts\analysis-inputs\a6400-tw-v2.00\Update_ILCE6400V200.exe --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report .artifacts\analysis-runs\a6400-run2.json
+    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6700-tw-v2.00 --file .artifacts\analysis-inputs\a6700-tw-v2.00\BODYDATA.DAT --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report .artifacts\analysis-runs\a6700-run1.json
+    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6700-tw-v2.00 --file .artifacts\analysis-inputs\a6700-tw-v2.00\BODYDATA.DAT --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report .artifacts\analysis-runs\a6700-run2.json
 
 - [ ] **Step 4: Prove determinism and create the committed reports through the CLI**
 
@@ -593,8 +599,8 @@ Run:
 
     if ((Get-FileHash .artifacts\analysis-runs\a6400-run1.json -Algorithm SHA256).Hash -ne (Get-FileHash .artifacts\analysis-runs\a6400-run2.json -Algorithm SHA256).Hash) { throw 'α6400 report is nondeterministic' }
     if ((Get-FileHash .artifacts\analysis-runs\a6700-run1.json -Algorithm SHA256).Hash -ne (Get-FileHash .artifacts\analysis-runs\a6700-run2.json -Algorithm SHA256).Hash) { throw 'α6700 report is nondeterministic' }
-    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6400-tw-v2.00 --file .artifacts\sony-firmware\a6400-tw-v2.00\Update_ILCE6400V200.exe --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report analysis\reports\a6400-tw-v2.00.json
-    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6700-tw-v2.00 --file .artifacts\sony-firmware\a6700-tw-v2.00\BODYDATA.DAT --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report analysis\reports\a6700-tw-v2.00.json
+    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6400-tw-v2.00 --file .artifacts\analysis-inputs\a6400-tw-v2.00\Update_ILCE6400V200.exe --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report analysis\reports\a6400-tw-v2.00.json
+    & .\.venv\Scripts\python.exe .\firmware_inspect.py inspect --source a6700-tw-v2.00 --file .artifacts\analysis-inputs\a6700-tw-v2.00\BODYDATA.DAT --artifacts-root .artifacts --manifest analysis\firmware-manifest.json --report analysis\reports\a6700-tw-v2.00.json
 
 - [ ] **Step 5: Run the real-report test**
 
