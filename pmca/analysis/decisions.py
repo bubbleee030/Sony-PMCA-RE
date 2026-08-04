@@ -33,8 +33,31 @@ _APPROVED_SOURCES = frozenset(
         "211h_touchpanel_settings.html",
         "https://helpguide.sony.net/ilc/2320/v1/en/contents/"
         "221h_touch_function_icon.html",
+        "https://helpguide.sony.net/ilc/1810/v1/en/contents/"
+        "TP0002264693.html",
+        "https://helpguide.sony.net/ilc/1810/v1/en/contents/"
+        "TP0002278024.html",
+        "https://helpguide.sony.net/ilc/1810/v1/en/contents/"
+        "TP0002241295.html",
+        "https://helpguide.sony.net/ilc/1810/v1/en/contents/"
+        "TP0002280339.html",
+        "https://helpguide.sony.net/ilc/2540/v1/en/contents/"
+        "251h_vertical_ui_display.html",
         "analysis/reports/a6400-tw-v2.00.json",
         "analysis/reports/a6700-tw-v2.00.json",
+        "analysis/reports/a7v-tw-v2.00.json",
+        "analysis/structures/a6400-tw-v2.00.json",
+        "analysis/structures/a6700-tw-v2.00.json",
+        "analysis/structures/a7v-tw-v2.00.json",
+        "analysis/tool-baselines/ma1co-fwtool.json",
+        "analysis/tool-baselines/joeording3-fwtool.json",
+        "analysis/tool-baselines/ironpayne22-fwtool.json",
+        "analysis/signature-experiments.json",
+        "analysis/feature-compatibility.json",
+        "analysis/creative-look-recipes.json",
+        "analysis/a6400-creative-look-guide.md",
+        "analysis/firmware-manifest.json",
+        "analysis/tool-provenance.json",
         "README.md",
     }
 )
