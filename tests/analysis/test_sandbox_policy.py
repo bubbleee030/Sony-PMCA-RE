@@ -84,6 +84,23 @@ class SandboxPolicyTests(unittest.TestCase):
             ],
             updater["settings"],
         )
+        self.assertEqual(
+            [
+                setting
+                for setting in updater["settings"]
+                if setting[0].endswith("Trace")
+                or setting[0] == "TraceBufferPages"
+            ],
+            [
+                ["FileTrace", "adi"],
+                ["KeyTrace", "ad"],
+                ["PipeTrace", "adi"],
+                ["IpcTrace", "ad"],
+                ["GuiTrace", "ad"],
+                ["ClsidTrace", "ad"],
+                ["TraceBufferPages", "2560"],
+            ],
+        )
 
     def test_unsafe_or_ambiguous_policy_is_rejected(self):
         cases = []

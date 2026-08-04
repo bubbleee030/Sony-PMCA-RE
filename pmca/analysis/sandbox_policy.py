@@ -49,6 +49,15 @@ _BASE_SETTINGS = (
     ("NotifyInternetAccessDenied", "y"),
     ("NotifyStartRunAccessDenied", "y"),
 )
+_UPDATER_TRACE_SETTINGS = (
+    ("FileTrace", "adi"),
+    ("KeyTrace", "ad"),
+    ("PipeTrace", "adi"),
+    ("IpcTrace", "ad"),
+    ("GuiTrace", "ad"),
+    ("ClsidTrace", "ad"),
+    ("TraceBufferPages", "2560"),
+)
 
 
 def _settings_for(phase: str) -> tuple[tuple[str, str], ...]:
@@ -56,7 +65,8 @@ def _settings_for(phase: str) -> tuple[tuple[str, str], ...]:
         processes = _PROFILE_PROCESSES[phase]
     except (KeyError, TypeError) as error:
         raise SandboxPolicyError("Sandbox phase is not approved") from error
-    return _BASE_SETTINGS + (
+    trace_settings = _UPDATER_TRACE_SETTINGS if phase == "updater" else ()
+    return _BASE_SETTINGS + trace_settings + (
         ("ProcessGroup", f"<StartRunAccess>,{','.join(processes)}"),
         ("ClosedIpcPath", "!<StartRunAccess>,*"),
     )
