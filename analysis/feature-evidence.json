@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "capabilities": [
+    {
+      "id": "creative-look-discovery",
+      "status": "PARTIAL",
+      "summary": "The user-visible Creative Look behavior is documented, but its internal firmware implementation was not located.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+          "claim": "Sony documents ten named Creative Look presets, six Custom Look slots, and adjustable contrast, highlights, shadows, fade, saturation, sharpness, sharpness range, and clarity on ILCE-6700."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/221h_touch_function_icon.html",
+          "claim": "Sony documents a Creative Look touch-function icon on both the still-image and movie shooting screens of ILCE-6700."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/reports/a6700-tw-v2.00.json",
+          "claim": "The bounded ILCE-6700 report labels BODYDATA.DAT as opaque-dat and records no hits for the fixed model, version, filename, and updater token allowlist."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/reports/a6700-tw-v2.00.json",
+          "claim": "Official documentation is sufficient to define the visible Creative Look control surface, but this metadata-only scan does not locate preset tables, image-processing code, or an ILCE-6400 integration point."
+        }
+      ],
+      "next_action": "Prepare a separate offline design for approximate Creative Look targets based on the documented controls; do not access or modify the camera."
+    },
+    {
+      "id": "creative-look-emulation",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "summary": "Neither an exact nor a close on-camera Creative Look emulation path is demonstrated by the available evidence.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+          "claim": "Sony describes the intended appearance and adjustment ranges of Creative Looks but does not publish numerical color transforms or processing algorithms on this Help Guide page."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/reports/a6400-tw-v2.00.json",
+          "claim": "The bounded ILCE-6400 updater report records no hits for the fixed model, version, filename, and updater token allowlist."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/reports/a6700-tw-v2.00.json",
+          "claim": "The bounded ILCE-6700 package report records no hits for the same fixed token allowlist and does not expose raw firmware content."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/reports/a6700-tw-v2.00.json",
+          "claim": "Package metadata alone cannot validate a visual match or demonstrate a compatible ILCE-6400 image-pipeline hook."
+        }
+      ],
+      "next_action": "Require a separate color-reference and algorithm-validation design before considering emulation; do not deploy code to the camera."
+    },
+    {
+      "id": "touch-menu",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "summary": "ILCE-6700 menu and shooting-screen touch behavior is documented, but ILCE-6400 compatibility is not established.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/211h_touchpanel_settings.html",
+          "claim": "Sony documents separate ILCE-6700 touch enablement for the shooting screen, footer icons, playback screen, and menu screen, plus swipe actions and touch shooting functions."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145",
+          "claim": "Sony lists animal Eye AF, RMT-P1BT support, and stability improvements for ILCE-6400 firmware 2.00; this release-note list does not document a touch-menu interface."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/reports/a6700-tw-v2.00.json",
+          "claim": "The existence of touch menus on ILCE-6700 does not demonstrate reusable UI code, compatible touch-controller behavior, or an ILCE-6400 firmware interface."
+        }
+      ],
+      "next_action": "Obtain bounded evidence of an ILCE-6400 touch/UI interface in a separate study; do not test UI code on the camera."
+    },
+    {
+      "id": "vertical-ui",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "summary": "The official evidence covers flipped touch-icon placement, not a transplantable full portrait-oriented menu UI.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/211h_touchpanel_settings.html",
+          "claim": "Sony documents an ILCE-6700 setting that flips left and right touch-function icon positions when the monitor is flipped."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/221h_touch_function_icon.html",
+          "claim": "Sony documents touch-function icons on the left and right sides of the ILCE-6700 shooting screen and their show/hide swipe behavior."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/reports/a6700-tw-v2.00.json",
+          "claim": "These user-facing descriptions and opaque package metadata do not establish full vertical menu rotation or a compatible ILCE-6400 rendering path."
+        }
+      ],
+      "next_action": "Find an official definition and bounded implementation interface for portrait UI behavior before any separate design; do not access the camera."
+    },
+    {
+      "id": "signature-enforcement",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "summary": "Package metadata shows a PE certificate table for the ILCE-6400 updater but does not establish camera-side signature enforcement or a bypass.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/reports/a6400-tw-v2.00.json",
+          "claim": "The ILCE-6400 Windows updater is parsed as a five-section PE with a nonzero certificate-table offset and size."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/reports/a6700-tw-v2.00.json",
+          "claim": "The ILCE-6700 BODYDATA.DAT package is labelled opaque-dat and has no PE summary in the bounded report."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/reports/a6400-tw-v2.00.json",
+          "claim": "A PE certificate-table entry is not proof of the camera's enforcement boundary and does not provide a signature bypass."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/reports/a6700-tw-v2.00.json",
+          "claim": "The different outer package formats do not support a direct donor-package transplant conclusion."
+        }
+      ],
+      "next_action": "Any further signed-container research requires a separate offline design and a verified recovery gate; do not attempt a bypass."
+    },
+    {
+      "id": "hardware-dependencies",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "summary": "The study does not establish whether ILCE-6400 hardware can support the requested ILCE-6700 UI and image-processing behavior.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+          "claim": "The Creative Look Help Guide page identifies the documented camera as ILCE-6700."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/211h_touchpanel_settings.html",
+          "claim": "The Touch Panel Settings Help Guide page identifies the documented camera as ILCE-6700."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/reports/a6400-tw-v2.00.json",
+          "claim": "The ILCE-6400 artifact in this study is a Windows PE updater container."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/reports/a6700-tw-v2.00.json",
+          "claim": "The ILCE-6700 artifact in this study is an opaque DAT container."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/reports/a6700-tw-v2.00.json",
+          "claim": "These sources do not determine touch-controller, display-orientation, memory, image-processor, or firmware-ABI compatibility between the two camera models."
+        }
+      ],
+      "next_action": "Require manufacturer architecture documentation or other non-invasive hardware evidence before revisiting compatibility; do not probe the camera."
+    },
+    {
+      "id": "recovery",
+      "status": "BLOCKED",
+      "summary": "Camera-side experimentation is blocked because this study has no verified ILCE-6400 restore path for a failed modified firmware.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145",
+          "claim": "Sony warns that sudden power loss during the ILCE-6400 update may make the camera inoperable and documents only the official updater workflow on this page."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6700/software/00298440",
+          "claim": "Sony warns not to remove power during the ILCE-6700 update and documents that non-applicable system software is rejected for the target model."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/reports/a6400-tw-v2.00.json",
+          "claim": "The bounded ILCE-6400 report contains package format, PE metadata, entropy windows, and allowlisted token hits; it does not demonstrate a restore operation."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/reports/a6400-tw-v2.00.json",
+          "claim": "Without an independently verified restore path, the official inoperability warning and the lack of a demonstrated restore interface make camera-side firmware experiments unacceptable under this study's safety gate."
+        }
+      ],
+      "next_action": "End this study offline; require a separately validated ILCE-6400 recovery method and a nonessential test body before any camera-side proposal."
+    }
+  ]
+}
