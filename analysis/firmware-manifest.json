@@ -1,0 +1,31 @@
+{
+  "artifacts": [
+    {
+      "acquired_at": "2026-08-04T10:57:07Z",
+      "advertised_size": 314230712,
+      "filename": "Update_ILCE6400V200.exe",
+      "manufacturer": "Sony",
+      "measured_size": 314230712,
+      "model": "ILCE-6400",
+      "region": "TW",
+      "sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6",
+      "source_key": "a6400-tw-v2.00",
+      "source_page": "https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145",
+      "version": "2.00"
+    },
+    {
+      "acquired_at": "2026-08-04T10:57:07Z",
+      "advertised_size": 1024017848,
+      "filename": "BODYDATA.DAT",
+      "manufacturer": "Sony",
+      "measured_size": 1024017848,
+      "model": "ILCE-6700",
+      "region": "TW",
+      "sha256": "d3c7db5b9b40c89b11ecf03addf0f6ff1d9b917acf9f55e46360462e86db847c",
+      "source_key": "a6700-tw-v2.00",
+      "source_page": "https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6700/software/00298440",
+      "version": "2.00"
+    }
+  ],
+  "schema_version": 1
+}
