@@ -1,0 +1,397 @@
+{
+  "candidate_result": {
+    "installable": false,
+    "reason_codes": [
+      "unresolved-dependencies"
+    ],
+    "schema_version": 1,
+    "source_key": "a6400-ui-port",
+    "status": "rejected",
+    "unresolved_dependencies": [
+      "evidence:vertical-layout-selection",
+      "evidence:vertical-render-transform",
+      "evidence:vertical-input-transform",
+      "evidence:touch-menu-widgets",
+      "evidence:touch-event-routing",
+      "evidence:creative-look-base-tables",
+      "evidence:creative-look-adjustment-axes",
+      "a6400-updater-wrapper",
+      "firmware-decryption",
+      "signature-layer",
+      "camera-recovery-path"
+    ]
+  },
+  "features": [
+    {
+      "compatibility": {
+        "architecture": "Existing ILCE-6400 firmware already consumes camera orientation for AF and playback behavior.",
+        "dependent_services": "AF-area switching and playback rotation are documented consumers of the target orientation state.",
+        "display_geometry": "Orientation state is independent of the missing portrait layout geometry.",
+        "imports": "No donor import is required to establish the existing target orientation capability.",
+        "input_coordinates": "Three target orientations are documented, including both vertical directions.",
+        "memory": "No new state allocation is evidenced as necessary for orientation detection alone.",
+        "relocations": "No executable relocation is proposed for the existing target orientation state.",
+        "signature_layer": "Reuse of existing target behavior requires no firmware mutation at this boundary."
+      },
+      "dependencies": [],
+      "evidence": [
+        {
+          "claim": "The ILCE-6400 detects horizontal, vertical shutter-up, and vertical shutter-down orientations for Switch V/H AF Area.",
+          "level": "CONFIRMED",
+          "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002278024.html"
+        },
+        {
+          "claim": "The ILCE-6400 can rotate playback automatically by detecting camera orientation.",
+          "level": "CONFIRMED",
+          "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002241295.html"
+        }
+      ],
+      "id": "vertical-orientation-state",
+      "ready": true,
+      "selected_strategy": "direct-component-reuse",
+      "target": "ILCE-6400",
+      "unresolved_dependencies": []
+    },
+    {
+      "compatibility": {
+        "architecture": "The ILCE-7M5 behavior is documented, but no compatible target layout component or ABI has been located.",
+        "dependent_services": "A portrait layout would need shooting-state, finder, monitor, DISP-mode, and icon-placement services.",
+        "display_geometry": "The target portrait constraint and anchoring rules are unknown even though target orientation state exists.",
+        "imports": "Donor layout imports and target equivalents remain inaccessible behind the unsupported container and decrypter boundary.",
+        "input_coordinates": "Layout selection must publish the selected orientation to later input-coordinate transforms.",
+        "memory": "Widget-tree and layout-cache memory requirements are unknown.",
+        "relocations": "No donor section, relocation table, or resource boundary has been authenticated as transplantable.",
+        "signature_layer": "Any implementation would alter signed or otherwise uncharacterized firmware data."
+      },
+      "dependencies": [
+        "vertical-orientation-state"
+      ],
+      "evidence": [
+        {
+          "claim": "ILCE-7M5 Vertical Display automatically rotates shooting information for monitor and viewfinder orientation.",
+          "level": "CONFIRMED",
+          "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/251h_vertical_ui_display.html"
+        },
+        {
+          "claim": "No target-compatible layout selector was located because the ILCE-6400 updater wrapper is unsupported and donor FDAT decryption has no compatible decrypter.",
+          "level": "INSUFFICIENT_EVIDENCE",
+          "source": "analysis:tool-baselines-and-structure-reports"
+        }
+      ],
+      "id": "vertical-layout-selection",
+      "ready": false,
+      "selected_strategy": "a6400-specific-reimplementation",
+      "target": "ILCE-6400",
+      "unresolved_dependencies": [
+        "evidence:vertical-layout-selection"
+      ]
+    },
+    {
+      "compatibility": {
+        "architecture": "No renderer architecture match between donor and target has been established.",
+        "dependent_services": "The renderer depends on layout selection, live-view overlays, finder output, monitor output, and DISP modes.",
+        "display_geometry": "Official behavior preserves information while rearranging it, but target coordinates and clipping rules are unknown.",
+        "imports": "Graphics primitives, font/icon resources, and compositor entry points have not been identified.",
+        "input_coordinates": "The rendered transform must remain synchronized with control and touch transforms.",
+        "memory": "Portrait render surfaces, caches, and stack requirements are unknown.",
+        "relocations": "No executable or resource relocation evidence exists for a donor renderer.",
+        "signature_layer": "The α6400 overlay is host-Authenticode covered outside exclusions, while the camera signature layer remains unknown."
+      },
+      "dependencies": [
+        "vertical-layout-selection"
+      ],
+      "evidence": [
+        {
+          "claim": "ILCE-7M5 Vertical Display rearranges the same shooting information to match monitor and viewfinder orientation.",
+          "level": "CONFIRMED",
+          "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/251h_vertical_ui_display.html"
+        },
+        {
+          "claim": "The authenticated marker scan found no plaintext locator and no executable or resource reference is available to confirm a portable render boundary.",
+          "level": "INSUFFICIENT_EVIDENCE",
+          "source": "analysis:authenticated-marker-scan"
+        }
+      ],
+      "id": "vertical-render-transform",
+      "ready": false,
+      "selected_strategy": "a6400-specific-reimplementation",
+      "target": "ILCE-6400",
+      "unresolved_dependencies": [
+        "evidence:vertical-render-transform",
+        "evidence:vertical-layout-selection"
+      ]
+    },
+    {
+      "compatibility": {
+        "architecture": "The target has orientation-aware AF state, but a general UI input-transform layer has not been identified.",
+        "dependent_services": "Control-wheel navigation, touch hit testing, gesture routing, and custom-key behavior must remain coherent.",
+        "display_geometry": "Portrait hit boxes must match the unlocated portrait render geometry.",
+        "imports": "Input dispatcher and gesture recognizer interfaces remain unknown.",
+        "input_coordinates": "ILCE-7M5 rotates wheel directions and touch operations, but the target transform matrix and handedness are unknown.",
+        "memory": "Gesture state and transformed hit-test storage requirements are unknown.",
+        "relocations": "No donor input-transform code boundary or relocations have been authenticated.",
+        "signature_layer": "An input-dispatch patch cannot be authorized without a signed-image and recovery model."
+      },
+      "dependencies": [
+        "vertical-orientation-state",
+        "vertical-layout-selection",
+        "vertical-render-transform"
+      ],
+      "evidence": [
+        {
+          "claim": "During ILCE-7M5 Vertical Display, control-wheel directions and touch operations rotate to match monitor orientation.",
+          "level": "CONFIRMED",
+          "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/251h_vertical_ui_display.html"
+        },
+        {
+          "claim": "ILCE-6400 orientation-aware AF behavior proves orientation state consumers exist but does not establish a menu-wide coordinate transform.",
+          "level": "PARTIAL",
+          "source": "analysis:official-target-behavior-comparison"
+        },
+        {
+          "claim": "No target hit-test transform, gesture-coordinate ABI, or donor-compatible dispatcher has been located.",
+          "level": "INSUFFICIENT_EVIDENCE",
+          "source": "analysis:unlocated-input-transform"
+        }
+      ],
+      "id": "vertical-input-transform",
+      "ready": false,
+      "selected_strategy": "a6400-specific-reimplementation",
+      "target": "ILCE-6400",
+      "unresolved_dependencies": [
+        "evidence:vertical-input-transform",
+        "evidence:vertical-layout-selection",
+        "evidence:vertical-render-transform"
+      ]
+    },
+    {
+      "compatibility": {
+        "architecture": "Newer touch-function icons are documented, but their widget framework is not identified in target or donor binaries.",
+        "dependent_services": "Widgets require shooting settings, playback, focus, recording, Creative Look, and visibility-state services.",
+        "display_geometry": "Left, right, footer, flipped-monitor, and portrait icon arrangements require geometry unavailable on the target UI.",
+        "imports": "Widget constructors, icon resources, binding adapters, and gesture APIs are unknown.",
+        "input_coordinates": "Each widget needs hit boxes routed by the unconfirmed menu-wide touch dispatcher.",
+        "memory": "Widget-tree, icon-cache, and binding-state requirements are unknown.",
+        "relocations": "No resource table or executable widget section has been authenticated as transplantable.",
+        "signature_layer": "A widget/resource transplant cannot pass the current candidate gate."
+      },
+      "dependencies": [
+        "touch-event-routing"
+      ],
+      "evidence": [
+        {
+          "claim": "ILCE-6700 touch-function icons expose shooting and playback functions through left, right, and footer touch controls.",
+          "level": "CONFIRMED",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/221h_touch_function_icon.html"
+        },
+        {
+          "claim": "No compatible widget implementation, icon resource boundary, or data-binding ABI has been located for ILCE-6400.",
+          "level": "INSUFFICIENT_EVIDENCE",
+          "source": "analysis:tool-baselines-and-marker-scan"
+        }
+      ],
+      "id": "touch-menu-widgets",
+      "ready": false,
+      "selected_strategy": "a6400-specific-reimplementation",
+      "target": "ILCE-6400",
+      "unresolved_dependencies": [
+        "evidence:touch-menu-widgets",
+        "evidence:touch-event-routing"
+      ]
+    },
+    {
+      "compatibility": {
+        "architecture": "The target already routes touch coordinates into shooting functions, but not documented menu-wide controls.",
+        "dependent_services": "Existing focus and tracking consumers are known; arbitrary menu setting and navigation consumers are not.",
+        "display_geometry": "Existing shooting-screen coordinates are functional, but menu and portrait hit-test geometry are unknown.",
+        "imports": "The target touch dispatcher entry points and extension ABI have not been located.",
+        "input_coordinates": "Touch Tracking confirms positional input reaches a target shooting subsystem.",
+        "memory": "Existing touch state is present; additional menu-routing state requirements are unknown.",
+        "relocations": "A subsystem extension is more plausible than donor reuse, but no digest-pinned patch site exists.",
+        "signature_layer": "Any dispatcher extension remains blocked by image-signature and recovery prerequisites."
+      },
+      "dependencies": [],
+      "evidence": [
+        {
+          "claim": "ILCE-6400 Touch Tracking starts tracking when the user touches a subject on the monitor.",
+          "level": "CONFIRMED",
+          "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002280339.html"
+        },
+        {
+          "claim": "The documented target touch surface is limited to selected shooting operations and does not establish full menu navigation.",
+          "level": "PARTIAL",
+          "source": "analysis:official-target-touch-scope"
+        },
+        {
+          "claim": "No menu-wide target event dispatcher or safe extension point has been located.",
+          "level": "INSUFFICIENT_EVIDENCE",
+          "source": "analysis:unlocated-touch-dispatcher"
+        }
+      ],
+      "id": "touch-event-routing",
+      "ready": false,
+      "selected_strategy": "a6400-subsystem-patch",
+      "target": "ILCE-6400",
+      "unresolved_dependencies": [
+        "evidence:touch-event-routing"
+      ]
+    },
+    {
+      "compatibility": {
+        "architecture": "Both generations expose in-camera color-style presets, but exact table representation and processing pipeline compatibility are unknown.",
+        "dependent_services": "Base tables feed JPEG/movie processing, live view, preset storage, and mode restrictions.",
+        "display_geometry": "A practical recipe can use existing Style Box controls without new display geometry.",
+        "imports": "No donor table loader or target Creative Style table format has been identified.",
+        "input_coordinates": "Existing wheel-driven Style Box selection is sufficient for a practical approximation.",
+        "memory": "Target has six Style Box slots, while donor table storage layout remains unknown.",
+        "relocations": "No donor base-table resource range has been authenticated for transplantation.",
+        "signature_layer": "Native table replacement remains blocked, while user-entered recipes require no signed firmware change."
+      },
+      "dependencies": [],
+      "evidence": [
+        {
+          "claim": "ILCE-6700 documents ten Creative Look bases: ST, PT, NT, VV, VV2, FL, IN, SH, BW, and SE.",
+          "level": "CONFIRMED",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html"
+        },
+        {
+          "claim": "ILCE-6400 Creative Style includes direct semantic counterparts for ST, PT, NT, VV, BW, and SE plus six reusable Style Boxes.",
+          "level": "CONFIRMED",
+          "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html"
+        },
+        {
+          "claim": "Exact Sony base tables and colorimetric equivalence cannot be confirmed without authenticated table extraction or measurement.",
+          "level": "INSUFFICIENT_EVIDENCE",
+          "source": "analysis:unavailable-color-tables"
+        }
+      ],
+      "id": "creative-look-base-tables",
+      "ready": false,
+      "selected_strategy": "a6400-specific-reimplementation",
+      "target": "ILCE-6400",
+      "unresolved_dependencies": [
+        "evidence:creative-look-base-tables"
+      ]
+    },
+    {
+      "compatibility": {
+        "architecture": "The target supports three Creative Style axes; the donor Creative Look pipeline supports eight.",
+        "dependent_services": "Contrast, highlights, shadows, fade, saturation, sharpness, sharpness range, and clarity affect live view and output processing.",
+        "display_geometry": "Target Style Box UI can expose only contrast, saturation, and sharpness without a new UI.",
+        "imports": "No target APIs for highlights, shadows, fade, sharpness range, or clarity have been located.",
+        "input_coordinates": "Existing wheel controls can enter the three available axes; six additional touch or wheel controls are unavailable.",
+        "memory": "Target storage is documented for three per-style adjustments, not eight-axis Creative Look records.",
+        "relocations": "No adjustment-axis handler or donor table range has a confirmed relocation boundary.",
+        "signature_layer": "Native extra-axis support requires firmware changes; recipes can only approximate through existing controls."
+      },
+      "dependencies": [
+        "creative-look-base-tables"
+      ],
+      "evidence": [
+        {
+          "claim": "ILCE-6700 Creative Look exposes contrast, highlights, shadows, fade, saturation, sharpness, sharpness range, and clarity.",
+          "level": "CONFIRMED",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html"
+        },
+        {
+          "claim": "ILCE-6400 Creative Style exposes only contrast, saturation, and sharpness for each style and Style Box.",
+          "level": "CONFIRMED",
+          "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html"
+        },
+        {
+          "claim": "No exact target implementation exists for the additional donor adjustment axes, so native equivalence is unsupported.",
+          "level": "INSUFFICIENT_EVIDENCE",
+          "source": "analysis:target-axis-gap"
+        }
+      ],
+      "id": "creative-look-adjustment-axes",
+      "ready": false,
+      "selected_strategy": "a6400-specific-reimplementation",
+      "target": "ILCE-6400",
+      "unresolved_dependencies": [
+        "evidence:creative-look-adjustment-axes",
+        "evidence:creative-look-base-tables"
+      ]
+    }
+  ],
+  "marker_scan": {
+    "interpretation": "absence from encrypted data is no result",
+    "markers": [
+      "Vertical Display",
+      "Creative Look",
+      "Touch Operation",
+      "orientation",
+      "rotate",
+      "portrait"
+    ],
+    "scopes": [
+      {
+        "ascii_hits": {
+          "Creative Look": 0,
+          "Touch Operation": 0,
+          "Vertical Display": 0,
+          "orientation": 0,
+          "portrait": 0,
+          "rotate": 0
+        },
+        "scan_scope": "authenticated ILCE-6400 PE overlay excluding certificate",
+        "source_key": "a6400-tw-v2.00",
+        "utf16le_hits": {
+          "Creative Look": 0,
+          "Touch Operation": 0,
+          "Vertical Display": 0,
+          "orientation": 0,
+          "portrait": 0,
+          "rotate": 0
+        }
+      },
+      {
+        "ascii_hits": {
+          "Creative Look": 0,
+          "Touch Operation": 0,
+          "Vertical Display": 0,
+          "orientation": 0,
+          "portrait": 0,
+          "rotate": 0
+        },
+        "scan_scope": "authenticated ILCE-6700 FDAT payload",
+        "source_key": "a6700-tw-v2.00",
+        "utf16le_hits": {
+          "Creative Look": 0,
+          "Touch Operation": 0,
+          "Vertical Display": 0,
+          "orientation": 0,
+          "portrait": 0,
+          "rotate": 0
+        }
+      },
+      {
+        "ascii_hits": {
+          "Creative Look": 0,
+          "Touch Operation": 0,
+          "Vertical Display": 0,
+          "orientation": 0,
+          "portrait": 0,
+          "rotate": 0
+        },
+        "scan_scope": "authenticated ILCE-7M5 FDAT payload",
+        "source_key": "a7v-tw-v2.00",
+        "utf16le_hits": {
+          "Creative Look": 0,
+          "Touch Operation": 0,
+          "Vertical Display": 0,
+          "orientation": 0,
+          "portrait": 0,
+          "rotate": 0
+        }
+      }
+    ]
+  },
+  "schema_version": 1,
+  "strategy_order": [
+    "direct-component-reuse",
+    "resource-table-transplant",
+    "a6400-subsystem-patch",
+    "a6400-specific-reimplementation"
+  ]
+}

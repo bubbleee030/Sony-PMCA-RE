@@ -43,7 +43,7 @@ def _valid_spec(spec: object) -> bool:
         spec.parent_sha256
     ):
         return False
-    if not isinstance(spec.patches, tuple) or not spec.patches:
+    if not isinstance(spec.patches, tuple):
         return False
     for patch in spec.patches:
         if not isinstance(patch, Patch):
@@ -54,6 +54,8 @@ def _valid_spec(spec: object) -> bool:
             return False
     dependencies = spec.unresolved_dependencies
     if not isinstance(dependencies, tuple) or len(dependencies) > 1024:
+        return False
+    if not spec.patches and not dependencies:
         return False
     if any(
         not isinstance(value, str) or not value or len(value) > 128
