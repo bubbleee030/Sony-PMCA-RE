@@ -49,8 +49,12 @@ def parse_pnp_records(records):
         match = USB_ID.search(instance_id)
         if match is None:
             raise DeviceGateError("Windows device record has an invalid USB ID")
-        service = record.get("Service") or ""
-        name = record.get("Name") or ""
+        service = record.get("Service")
+        name = record.get("Name")
+        if service is None:
+            service = ""
+        if name is None:
+            name = ""
         if not isinstance(service, str) or not isinstance(name, str):
             raise DeviceGateError("Windows device record fields are malformed")
         snapshots.append(

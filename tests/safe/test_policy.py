@@ -29,6 +29,12 @@ class PolicyTests(unittest.TestCase):
                 with self.assertRaises(PolicyViolation):
                     validate_identity_query(group, payload)
 
+    def test_denies_nonzero_identity_padding(self):
+        payload = struct.pack("<IHH8x", 0, 1, 0) + b"\x01"
+
+        with self.assertRaises(PolicyViolation):
+            validate_identity_query(1, payload)
+
     def test_allows_only_read_hasp_selector_zero(self):
         payload = struct.pack("<HHB", 0, 0x001F, 0)
 

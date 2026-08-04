@@ -120,6 +120,26 @@ class CliTests(unittest.TestCase):
                     with self.assertRaisesRegex(SystemExit, "2"):
                         parser.parse_args([command])
 
+    def test_status_workflow_does_not_load_libusb_backend(self):
+        with patch("safe_service.make_libusb_backend") as make_backend:
+            workflow = safe_service.build_workflow("status")
+
+        make_backend.assert_not_called()
+        self.assertIsNone(workflow.source.backend)
+
+    def test_usb_commands_load_the_explicit_libusb_backend(self):
+        backend = object()
+        for command in ("enter", "probe"):
+            with self.subTest(command=command):
+                with patch(
+                    "safe_service.make_libusb_backend",
+                    return_value=backend,
+                ) as make_backend:
+                    workflow = safe_service.build_workflow(command)
+
+                make_backend.assert_called_once_with()
+                self.assertIs(workflow.source.backend, backend)
+
     def test_backend_construction_error_has_no_traceback(self):
         stdout = io.StringIO()
         stderr = io.StringIO()
@@ -132,6 +152,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(stdout.getvalue(), "")
         self.assertEqual(stderr.getvalue(), "Error: backend missing\n")
         self.assertNotIn("Traceback", stderr.getvalue())
+
     def test_expected_safety_errors_have_no_traceback(self):
         errors = [
             PolicyViolation("packet denied"),

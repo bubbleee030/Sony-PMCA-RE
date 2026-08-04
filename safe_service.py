@@ -36,8 +36,12 @@ def build_parser():
     return parser
 
 
-def build_workflow():
-    backend = make_libusb_backend()
+def build_workflow(command):
+    backend = None
+    if command in ("enter", "probe"):
+        backend = make_libusb_backend()
+    elif command != "status":
+        raise WorkflowError("unknown safe workflow command")
     return SafeServiceWorkflow(RealDeviceSource(backend))
 
 
@@ -58,7 +62,7 @@ def main(argv=None, workflow=None):
     args = build_parser().parse_args(argv)
     try:
         if workflow is None:
-            workflow = build_workflow()
+            workflow = build_workflow(args.command)
         if args.command == "status":
             print_status(workflow.status())
         elif args.command == "enter":

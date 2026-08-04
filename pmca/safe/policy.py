@@ -16,6 +16,8 @@ def validate_identity_query(group, payload):
         raise PolicyViolation("Sony external command is not allowlisted")
     if direction != 0 or data_size != 0:
         raise PolicyViolation("GetModelInfo must be a zero-data read")
+    if any(payload[16:]):
+        raise PolicyViolation("GetModelInfo padding must contain only zero bytes")
     return "DevInfoSender/GetModelInfo"
 
 

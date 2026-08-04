@@ -86,6 +86,11 @@ class StateTests(unittest.TestCase):
             {},
             {"DeviceID": "USB\\NOT_A_USB_ID", "Service": "", "Name": ""},
             {"DeviceID": 7, "Service": "", "Name": ""},
+            {
+                "DeviceID": "USB\\VID_054C&PID_02A9\\A",
+                "Service": 0,
+                "Name": "Sony service device",
+            },
         ]
         for record in records:
             with self.subTest(record=record):
