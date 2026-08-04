@@ -1,0 +1,44 @@
+{
+  "camera_policy": "physically-disconnected",
+  "checks": [
+    {
+      "name": "sandbox_identity",
+      "outcome": "detected",
+      "passed": true
+    },
+    {
+      "name": "file_write",
+      "outcome": "virtualized",
+      "passed": true
+    },
+    {
+      "name": "registry_write",
+      "outcome": "virtualized",
+      "passed": true
+    },
+    {
+      "name": "network",
+      "outcome": "denied",
+      "passed": true
+    },
+    {
+      "name": "device_access",
+      "outcome": "denied",
+      "passed": true
+    },
+    {
+      "name": "child_process",
+      "outcome": "denied",
+      "passed": true
+    },
+    {
+      "name": "elevation",
+      "outcome": "dropped",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "probe": "a6400-updater-lab-v1",
+  "sandboxed": true,
+  "schema_version": 1
+}

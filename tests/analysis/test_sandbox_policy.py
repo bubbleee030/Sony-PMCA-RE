@@ -32,7 +32,7 @@ CopyLimitSilent=y
 ProcessLimit=12
 NotifyInternetAccessDenied=y
 NotifyStartRunAccessDenied=y
-ProcessGroup=<StartRunAccess>,powershell.exe
+ProcessGroup=<StartRunAccess>,Start.exe,powershell.exe
 ClosedIpcPath=!<StartRunAccess>,*
 """
 
@@ -69,13 +69,19 @@ class SandboxPolicyTests(unittest.TestCase):
         probe = build_sandbox_policy("probe")
         updater = build_sandbox_policy("updater")
 
-        self.assertEqual(probe["allowed_processes"], ["powershell.exe"])
+        self.assertEqual(
+            probe["allowed_processes"],
+            ["Start.exe", "powershell.exe"],
+        )
         self.assertEqual(
             updater["allowed_processes"],
-            ["Update_ILCE6400V200.exe"],
+            ["Start.exe", "Update_ILCE6400V200.exe"],
         )
         self.assertIn(
-            ["ProcessGroup", "<StartRunAccess>,Update_ILCE6400V200.exe"],
+            [
+                "ProcessGroup",
+                "<StartRunAccess>,Start.exe,Update_ILCE6400V200.exe",
+            ],
             updater["settings"],
         )
 
@@ -115,7 +121,11 @@ class SandboxPolicyTests(unittest.TestCase):
         cases.append(duplicate_setting)
 
         wrong_allowlist = build_sandbox_policy("probe")
-        wrong_allowlist["allowed_processes"] = ["powershell.exe", "cmd.exe"]
+        wrong_allowlist["allowed_processes"] = [
+            "Start.exe",
+            "powershell.exe",
+            "cmd.exe",
+        ]
         cases.append(wrong_allowlist)
 
         boolean_schema = build_sandbox_policy("probe")

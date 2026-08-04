@@ -25,8 +25,8 @@ _TOP_FIELDS = {
     "settings",
 }
 _PROFILE_PROCESSES = {
-    "probe": ("powershell.exe",),
-    "updater": ("Update_ILCE6400V200.exe",),
+    "probe": ("Start.exe", "powershell.exe"),
+    "updater": ("Start.exe", "Update_ILCE6400V200.exe"),
 }
 _BASE_SETTINGS = (
     ("Enabled", "y"),
