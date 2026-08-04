@@ -9,6 +9,7 @@ from unittest.mock import call, patch
 import firmware_decisions
 import firmware_inspect
 import firmware_manifest
+import firmware_structure
 
 from tests.analysis.test_decisions import synthetic_document
 
@@ -344,6 +345,137 @@ class FirmwareInspectCliTests(unittest.TestCase):
                     "fixture",
                     "--file",
                     "fixture.bin",
+                    "--artifacts-root",
+                    ".artifacts",
+                    "--manifest",
+                    "manifest.json",
+                    "--report",
+                    "report.json",
+                ]
+            )
+
+        self.assertEqual(result, 1)
+        self.assertEqual(stderr.getvalue(), "error: fixture rejected\n")
+        self.assertNotIn("Traceback", stderr.getvalue())
+
+class FirmwareStructureCliTests(unittest.TestCase):
+    def test_map_writes_bounded_report_and_prints_safe_summary(self):
+        entry = {"source_key": "fixture", "filename": "BODYDATA.DAT"}
+        report = {
+            "source_key": "fixture",
+            "size": 64,
+            "sha256": "a" * 64,
+            "format": "sony-dat",
+            "dat_chunks": [{"kind": "FDAT"}],
+            "unknown_ranges": [],
+        }
+        artifact = Path(".artifacts/analysis-inputs/fixture/BODYDATA.DAT")
+        artifacts_root = Path(".artifacts")
+        manifest = Path("analysis/firmware-manifest.json")
+        output = Path("analysis/structures/fixture.json")
+        stdout = io.StringIO()
+
+        with (
+            patch(
+                "firmware_structure.load_manifest",
+                return_value={"schema_version": 1, "artifacts": [entry]},
+            ) as load,
+            patch(
+                "firmware_structure.build_structure_report",
+                return_value=report,
+            ) as build,
+            patch("firmware_structure.write_structure_report") as write,
+            contextlib.redirect_stdout(stdout),
+        ):
+            result = firmware_structure.main(
+                [
+                    "map",
+                    "--source",
+                    "fixture",
+                    "--file",
+                    str(artifact),
+                    "--artifacts-root",
+                    str(artifacts_root),
+                    "--manifest",
+                    str(manifest),
+                    "--report",
+                    str(output),
+                ]
+            )
+
+        self.assertEqual(result, 0)
+        load.assert_called_once_with(manifest)
+        build.assert_called_once_with(entry, artifact, artifacts_root)
+        write.assert_called_once_with(output, report, artifacts_root)
+        self.assertEqual(
+            stdout.getvalue(),
+            "source=fixture size=64 "
+            f"sha256={'a' * 64} format=sony-dat "
+            f"chunks=1 unknown=0 report={output}\n",
+        )
+
+    def test_only_map_and_exact_options_are_available(self):
+        for subcommand in ("extract", "decrypt", "patch", "usb", "camera"):
+            with self.subTest(subcommand=subcommand):
+                with (
+                    contextlib.redirect_stderr(io.StringIO()),
+                    self.assertRaises(SystemExit),
+                ):
+                    firmware_structure.main([subcommand])
+
+        required = [
+            "map",
+            "--source",
+            "fixture",
+            "--file",
+            "BODYDATA.DAT",
+            "--artifacts-root",
+            ".artifacts",
+            "--manifest",
+            "manifest.json",
+            "--report",
+            "report.json",
+        ]
+        for option in (
+            "--extract",
+            "--decrypt",
+            "--patch",
+            "--usb",
+            "--camera",
+            "--token",
+            "--output-bytes",
+        ):
+            with self.subTest(option=option):
+                with (
+                    contextlib.redirect_stderr(io.StringIO()),
+                    self.assertRaises(SystemExit),
+                ):
+                    firmware_structure.main(required + [option, "override"])
+
+        abbreviated = list(required)
+        abbreviated[abbreviated.index("--artifacts-root")] = "--art"
+        with (
+            contextlib.redirect_stderr(io.StringIO()),
+            self.assertRaises(SystemExit),
+        ):
+            firmware_structure.main(abbreviated)
+
+    def test_expected_validation_error_is_one_line_without_traceback(self):
+        stderr = io.StringIO()
+        with (
+            patch(
+                "firmware_structure.load_manifest",
+                side_effect=firmware_structure.StructureError("fixture rejected"),
+            ),
+            contextlib.redirect_stderr(stderr),
+        ):
+            result = firmware_structure.main(
+                [
+                    "map",
+                    "--source",
+                    "fixture",
+                    "--file",
+                    "BODYDATA.DAT",
                     "--artifacts-root",
                     ".artifacts",
                     "--manifest",

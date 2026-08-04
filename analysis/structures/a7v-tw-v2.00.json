@@ -1,0 +1,41 @@
+{
+  "dat_chunks": [
+    {
+      "header_offset": 8,
+      "kind": "DATV",
+      "payload_offset": 16,
+      "size": 4
+    },
+    {
+      "header_offset": 20,
+      "kind": "PROV",
+      "payload_offset": 28,
+      "size": 4
+    },
+    {
+      "header_offset": 32,
+      "kind": "UDID",
+      "payload_offset": 40,
+      "size": 100
+    },
+    {
+      "header_offset": 140,
+      "kind": "FDAT",
+      "payload_offset": 148,
+      "size": 376540560
+    },
+    {
+      "header_offset": 376540708,
+      "kind": "DEND",
+      "payload_offset": 376540716,
+      "size": 4
+    }
+  ],
+  "filename": "BODYDATA.DAT",
+  "format": "sony-dat",
+  "schema_version": 1,
+  "sha256": "098290778a84236a0f2be44ac8398fd428d522b5c2c6676f19df23d09ee293d6",
+  "size": 376540720,
+  "source_key": "a7v-tw-v2.00",
+  "unknown_ranges": []
+}
