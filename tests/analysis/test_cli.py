@@ -1,12 +1,16 @@
 import contextlib
 import io
+import json
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import firmware_decisions
 import firmware_inspect
 import firmware_manifest
+
+from tests.analysis.test_decisions import synthetic_document
 
 
 class FirmwareManifestCliTests(unittest.TestCase):
@@ -271,6 +275,96 @@ class FirmwareInspectCliTests(unittest.TestCase):
         self.assertEqual(stderr.getvalue(), "error: fixture rejected\n")
         self.assertNotIn("Traceback", stderr.getvalue())
 
+
+class FirmwareDecisionsCliTests(unittest.TestCase):
+    def test_render_reads_validated_evidence_and_writes_deterministic_markdown(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            evidence = root / "feature-evidence.json"
+            output = root / "report.md"
+            evidence.write_text(
+                json.dumps(synthetic_document()), encoding="utf-8"
+            )
+
+            result = firmware_decisions.main(
+                [
+                    "render",
+                    "--evidence",
+                    str(evidence),
+                    "--output",
+                    str(output),
+                ]
+            )
+
+            self.assertEqual(result, 0)
+            self.assertEqual(
+                output.read_text(encoding="utf-8"),
+                firmware_decisions.render_markdown(synthetic_document()),
+            )
+
+    def test_only_render_and_exact_options_are_available(self):
+        for subcommand in ("camera", "package", "patch", "flash", "download"):
+            with self.subTest(subcommand=subcommand):
+                with (
+                    contextlib.redirect_stderr(io.StringIO()),
+                    self.assertRaises(SystemExit),
+                ):
+                    firmware_decisions.main([subcommand])
+        required = [
+            "render",
+            "--evidence",
+            "evidence.json",
+            "--output",
+            "report.md",
+        ]
+        for option in (
+            "--camera",
+            "--package",
+            "--patch",
+            "--executable",
+            "--shell",
+            "--url",
+            "--status",
+            "--usb",
+        ):
+            with self.subTest(option=option):
+                with (
+                    contextlib.redirect_stderr(io.StringIO()),
+                    self.assertRaises(SystemExit),
+                ):
+                    firmware_decisions.main(required + [option, "override"])
+        abbreviated = list(required)
+        abbreviated[abbreviated.index("--evidence")] = "--evid"
+        with (
+            contextlib.redirect_stderr(io.StringIO()),
+            self.assertRaises(SystemExit),
+        ):
+            firmware_decisions.main(abbreviated)
+
+    def test_expected_input_errors_are_one_line_without_traceback(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            evidence = root / "invalid.json"
+            output = root / "report.md"
+            evidence.write_text("{}", encoding="utf-8")
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                result = firmware_decisions.main(
+                    [
+                        "render",
+                        "--evidence",
+                        str(evidence),
+                        "--output",
+                        str(output),
+                    ]
+                )
+        self.assertEqual(result, 1)
+        self.assertEqual(
+            stderr.getvalue(),
+            "error: Evidence document does not match schema version 1\n",
+        )
+        self.assertNotIn("Traceback", stderr.getvalue())
+        self.assertFalse(output.exists())
 
 if __name__ == "__main__":
     unittest.main()
