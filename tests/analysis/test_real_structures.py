@@ -2,7 +2,10 @@ import json
 import unittest
 from pathlib import Path
 
-from firmware_structure import validate_structure_report
+from firmware_structure import (
+    MAX_SERIALIZED_REPORT_BYTES,
+    validate_structure_report,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -72,7 +75,7 @@ class RealStructureReportTests(unittest.TestCase):
                 report = json.loads(serialized.decode("utf-8"))
                 entry = entries[source_key]
 
-                self.assertLess(len(serialized), 64 * 1024)
+                self.assertLessEqual(len(serialized), MAX_SERIALIZED_REPORT_BYTES)
                 self.assertIs(validate_structure_report(report), report)
                 self.assertEqual(report["source_key"], source_key)
                 self.assertEqual(report["size"], entry["measured_size"])
