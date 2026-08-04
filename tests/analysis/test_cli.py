@@ -8,6 +8,7 @@ from unittest.mock import call, patch
 
 import firmware_decisions
 import firmware_inspect
+import firmware_lab
 import firmware_manifest
 import firmware_structure
 
@@ -603,6 +604,62 @@ class FirmwareDecisionsCliTests(unittest.TestCase):
         )
         self.assertNotIn("Traceback", stderr.getvalue())
         self.assertFalse(output.exists())
+
+class FirmwareLabCliTests(unittest.TestCase):
+    def test_run_writes_only_fixed_offline_matrix_summary(self):
+        document = {
+            "experiments": [{}] * 8,
+            "installable": False,
+        }
+        stdout = io.StringIO()
+        with (
+            patch("firmware_lab.run_experiment_matrix", return_value=document) as run,
+            patch("firmware_lab.write_experiment_report") as write,
+            contextlib.redirect_stdout(stdout),
+        ):
+            result = firmware_lab.main(
+                [
+                    "run",
+                    "--python",
+                    "python.exe",
+                    "--checkout",
+                    ".artifacts/tools/ma1co-fwtool",
+                    "--artifacts-root",
+                    ".artifacts",
+                    "--manifest",
+                    "analysis/firmware-manifest.json",
+                    "--baseline-report",
+                    "analysis/tool-baselines/ma1co-fwtool.json",
+                    "--a6400-file",
+                    ".artifacts/analysis-inputs/a6400/Update.exe",
+                    "--a6700-file",
+                    ".artifacts/analysis-inputs/a6700/BODYDATA.DAT",
+                    "--a7v-file",
+                    ".artifacts/analysis-inputs/a7v/BODYDATA.DAT",
+                    "--tool-output-root",
+                    ".artifacts/tool-output/signature-experiments",
+                    "--report",
+                    "analysis/signature-experiments.json",
+                ]
+            )
+
+        self.assertEqual(result, 0)
+        run.assert_called_once()
+        write.assert_called_once()
+        self.assertEqual(
+            stdout.getvalue(),
+            "experiments=8 installable=false camera=false\n",
+        )
+
+    def test_only_run_subcommand_is_accepted(self):
+        for subcommand in ("flash", "camera", "install", "decrypt"):
+            with self.subTest(subcommand=subcommand):
+                with (
+                    contextlib.redirect_stderr(io.StringIO()),
+                    self.assertRaises(SystemExit),
+                ):
+                    firmware_lab.main([subcommand])
+
 
 if __name__ == "__main__":
     unittest.main()

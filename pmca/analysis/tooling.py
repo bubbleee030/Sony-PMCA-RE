@@ -1,5 +1,6 @@
 """Pinned, no-shell historical firmware tool baseline execution."""
 
+import json
 import re
 import subprocess
 from dataclasses import dataclass
@@ -167,6 +168,24 @@ def _classify(exit_code: int, captured: str) -> tuple[str, str, str]:
     lowered = captured.casefold()
     patterns = (
         (
+            "wrong data version",
+            "dat-parsing",
+            "wrong-data-version",
+            "tool rejected the DAT container version",
+        ),
+        (
+            "'nonetype' object has no attribute 'mode'",
+            "dat-parsing",
+            "invalid-device-descriptor",
+            "tool rejected the DAT device descriptor",
+        ),
+        (
+            "wrong checksum",
+            "dat-parsing",
+            "checksum-mismatch",
+            "tool rejected the DAT checksum",
+        ),
+        (
             "unknown exe file",
             "wrapper-parsing",
             "unknown-installer",
@@ -223,11 +242,86 @@ def run_unpack_baseline(
     spec = validate_tool_spec(spec)
     if type(timeout_seconds) is not int or not 1 <= timeout_seconds <= MAX_TIMEOUT_SECONDS:
         raise ToolError("Tool timeout is outside the supported range")
-    resolved_python = _validate_python(python)
-    resolved_checkout = _validate_existing_path(checkout, "tools", directory=True)
     resolved_input = _validate_existing_path(
         input_path, "analysis-inputs", directory=False
     )
+    return _run_validated_unpack_baseline(
+        spec,
+        python,
+        checkout,
+        resolved_input,
+        output_dir,
+        timeout_seconds,
+    )
+
+
+def _validated_quarantine_input(input_path: Path) -> Path:
+    resolved_input = _validate_existing_path(
+        input_path, "quarantine", directory=False
+    )
+    if "NOT_FOR_INSTALL" not in resolved_input.name:
+        raise ToolError("Quarantine input lacks the non-installable warning")
+    sidecar = resolved_input.with_suffix(resolved_input.suffix + ".json")
+    if (
+        sidecar.is_symlink()
+        or not sidecar.is_file()
+        or sidecar.stat().st_size > 64 * 1024
+    ):
+        raise ToolError("Quarantine input sidecar is missing or unsafe")
+    try:
+        document = json.loads(sidecar.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise ToolError("Quarantine input sidecar is invalid") from error
+    required = {
+        "schema_version",
+        "hypothesis_id",
+        "parent_sha256",
+        "output_sha256",
+        "installable",
+        "patches",
+    }
+    if not isinstance(document, dict) or set(document) != required:
+        raise ToolError("Quarantine input sidecar fields are invalid")
+    if document["schema_version"] != 1 or document["installable"] is not False:
+        raise ToolError("Quarantine input must be explicitly non-installable")
+    if document["output_sha256"] != sha256_file(resolved_input):
+        raise ToolError("Quarantine input digest does not match its sidecar")
+    return resolved_input
+
+
+def run_quarantined_unpack_baseline(
+    spec: ToolSpec,
+    python: Path,
+    checkout: Path,
+    input_path: Path,
+    output_dir: Path,
+    timeout_seconds: int = 300,
+) -> dict:
+    """Run a pinned tool only on a verified non-installable quarantine artifact."""
+    spec = validate_tool_spec(spec)
+    if type(timeout_seconds) is not int or not 1 <= timeout_seconds <= MAX_TIMEOUT_SECONDS:
+        raise ToolError("Tool timeout is outside the supported range")
+    resolved_input = _validated_quarantine_input(input_path)
+    return _run_validated_unpack_baseline(
+        spec,
+        python,
+        checkout,
+        resolved_input,
+        output_dir,
+        timeout_seconds,
+    )
+
+
+def _run_validated_unpack_baseline(
+    spec: ToolSpec,
+    python: Path,
+    checkout: Path,
+    resolved_input: Path,
+    output_dir: Path,
+    timeout_seconds: int,
+) -> dict:
+    resolved_python = _validate_python(python)
+    resolved_checkout = _validate_existing_path(checkout, "tools", directory=True)
     resolved_output = _validate_output_dir(output_dir)
     entrypoint = (resolved_checkout / spec.entrypoint).resolve(strict=True)
     _reject_symlink_chain(resolved_checkout, entrypoint)
