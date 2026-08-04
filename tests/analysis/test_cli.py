@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import call, patch
 
+import creative_look_recipes
 import firmware_decisions
 import firmware_inspect
 import firmware_lab
@@ -659,6 +660,33 @@ class FirmwareLabCliTests(unittest.TestCase):
                     self.assertRaises(SystemExit),
                 ):
                     firmware_lab.main([subcommand])
+
+
+class CreativeLookRecipesCliTests(unittest.TestCase):
+    def test_render_calls_validated_renderer_and_prints_safe_counts(self):
+        document = {"defaults": [{}] * 10, "community_experiments": [{}, {}]}
+        stdout = io.StringIO()
+        with (
+            patch("creative_look_recipes._load", return_value=document) as load,
+            patch("creative_look_recipes.render_recipe_guide", return_value="guide") as render,
+            patch("creative_look_recipes._write") as write,
+            contextlib.redirect_stdout(stdout),
+        ):
+            result = creative_look_recipes.main(
+                [
+                    "render",
+                    "--recipes",
+                    "analysis/creative-look-recipes.json",
+                    "--output",
+                    "analysis/a6400-creative-look-guide.md",
+                ]
+            )
+
+        self.assertEqual(result, 0)
+        load.assert_called_once()
+        render.assert_called_once_with(document)
+        write.assert_called_once()
+        self.assertEqual(stdout.getvalue(), "looks=10 community=2\n")
 
 
 if __name__ == "__main__":
