@@ -1,0 +1,254 @@
+{
+  "schema_version": 5,
+  "subject": "ILCE-6400 CXD90045 warm-boot and pre-updater selection boundary",
+  "supersedes": "analysis/a6400-cxd90045-transition-boundary.json",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "bypass_established": false,
+  "installable": false,
+  "model_mismatch_safe": false,
+  "warm_boot_images": [
+    {
+      "source": "a6400-tw-v2.00",
+      "model": "ILCE-6400",
+      "version": "2.00",
+      "file_bytes": 33486976,
+      "sha256": "19a702b030306a32f4287131da314e5c89d66163997f0f9a23b0967981b0001b",
+      "sections": 644,
+      "resume_vector": "0x00124b9c",
+      "sector_bytes": 512,
+      "compressed_bytes": 33204224,
+      "uncompressed_bytes": 145162240,
+      "first_section_sha256": "ea837bce378e9db3c6d87440075538cf60a92ba4a2a93a3afc4904654046f6e5"
+    },
+    {
+      "source": "a7m3-jp-v4.00",
+      "model": "ILCE-7M3",
+      "version": "4.00",
+      "file_bytes": 30654368,
+      "sha256": "91e9ab602a2a23a6295d222c216c086b41ad41409ca9ddd6501b972e63dc1652",
+      "sections": 621,
+      "resume_vector": "0x0012463c",
+      "sector_bytes": 512,
+      "compressed_bytes": 30372352,
+      "uncompressed_bytes": 128307200,
+      "first_section_sha256": "9000955b8c849a83d8a77820330ffda070fde5cdaa65756a823c9638e4e5711f"
+    },
+    {
+      "source": "a7m3-jp-v4.01",
+      "model": "ILCE-7M3",
+      "version": "4.01",
+      "file_bytes": 30351392,
+      "sha256": "03d431d292c1b04cebd13b12defb177d88571712f48644322efcd97846e5641c",
+      "sections": 625,
+      "resume_vector": "0x0012463c",
+      "sector_bytes": 512,
+      "compressed_bytes": 30069248,
+      "uncompressed_bytes": 128126976,
+      "first_section_sha256": "16a8ad70b75c93a20efc92946f7b3d775ef24391c9ee872de4758a2c80f3e4e9"
+    }
+  ],
+  "release_comparison": {
+    "pair": "ILCE-7M3 v4.00 -> v4.01",
+    "left_sections": 621,
+    "right_sections": 625,
+    "shared_addresses": 167,
+    "same_at_address": 75,
+    "changed_at_address": 92,
+    "identical_content_anywhere": 77,
+    "left_only_addresses": 454,
+    "right_only_addresses": 458
+  },
+  "resume_path": {
+    "role": "cpu-context-restore-trampoline",
+    "entries": [
+      {
+        "source": "a6400-tw-v2.00",
+        "entry": "0x00124b9c",
+        "decompiled": true,
+        "core_id_written": 4
+      },
+      {
+        "source": "a7m3-jp-v4.00",
+        "entry": "0x0012463c",
+        "decompiled": true,
+        "core_id_written": 4
+      }
+    ],
+    "restores": [
+      "barriers",
+      "tlb",
+      "mmu-control",
+      "translation-tables",
+      "thread-context",
+      "saved-resume-target"
+    ],
+    "reads_boot_mode": false,
+    "reads_updater_partition": false,
+    "verifies_firmware": false,
+    "updater_selector": false
+  },
+  "string_attribution": {
+    "ldr_boot_mode_updater_hits": 3,
+    "ldr_string_owner": "loaded-upm-power-management-module",
+    "exact_updater_partition_path_hits": [
+      3,
+      2,
+      3
+    ],
+    "path_string_owners": [
+      "generic-media-device-table",
+      "ordinary-application-memory"
+    ],
+    "selector_evidence": false
+  },
+  "normal_main_partition": {
+    "partition": "/dev/nflasha3",
+    "a6400_init_sha256": "0af5724ece7f60db2831b7a4e61829be369868027877cca0f921f981ae8dc7ad",
+    "a7m3_init_sha256": "1dbe18fea1aad7c78e0f87bfd2e3184885ed13309d29a13da4e146f750251b21",
+    "init_copies_identical": true,
+    "mounted_partitions": [
+      "nflasha2",
+      "nflasha3",
+      "nflasha7",
+      "nflasha10",
+      "nflasha11",
+      "nflasha12",
+      "nflasha15",
+      "nflasha18",
+      "nflasha23",
+      "nflasha24",
+      "nflasha25"
+    ],
+    "init_mounts_updater_partition": false,
+    "kernel_updater_partition_mentions": 0
+  },
+  "loader_driver": {
+    "filename": "ldr_drv.bin",
+    "bytes": 6796,
+    "sha256": "d5cec3780a459f490d1f14046864249538da2e1d9703f58e7f4966025cdd3ac7",
+    "identical_across_packages": true,
+    "role": "register-and-transfer-dispatch",
+    "dispatch_record_bytes": 80,
+    "filesystem_access": false,
+    "boot_mode_policy": false,
+    "signature_verifier": false,
+    "cryptographic_transform": false
+  },
+  "secure_start": {
+    "identical_across_packages": true,
+    "artifacts": [
+      {
+        "name": "ssboot.bin",
+        "bytes": 11280,
+        "sha256": "a707c285f8f1768481d0602e367c791efc850ab5a770ee59286c752b7ec38b8e"
+      },
+      {
+        "name": "ssboot_any.bin",
+        "bytes": 9648,
+        "sha256": "a018e8879afafce75e9881b0bf3f14199fe01028354562bc4567af9fcba310d4"
+      },
+      {
+        "name": "sa_dfdet.bin",
+        "bytes": 156292,
+        "sha256": "356d7483edc74a082a10864f517d8f76f71986dee5334d7dcb564edbe98ebf3f"
+      },
+      {
+        "name": "idt_cam.bin",
+        "bytes": 176528,
+        "sha256": "d21e2c0b6b87f49f70ccf451781093037db8093b5a378587ec0029a16dcaef92"
+      }
+    ],
+    "decoder_result": "custom-instruction-boundary",
+    "firmware_verifier_proven": false,
+    "firmware_crypto_role_proven": false
+  },
+  "service_acquisition_route": {
+    "backend": "SenserPlatformBackend",
+    "read_primitive": "readFile",
+    "existing_shell_command": "pull",
+    "candidate_source": "/dev/nflasha1",
+    "expected_bytes": 8323072,
+    "read_primitive_present": true,
+    "write_required": false,
+    "camera_validated": false,
+    "dump_acquired": false
+  },
+  "observations": [
+    {
+      "classification": "OBSERVATION",
+      "source": "historical fwtool WBI parser and decompressed section indexes",
+      "claim": "The alpha 6400 v2.00, alpha 7 III v4.00, and alpha 7 III v4.01 nflasha5 images are valid compressed WBI1 containers with 644, 621, and 625 mapped sections. The two consecutive alpha 7 III releases share only 167 physical section addresses, with 75 byte-identical at the same address and 92 changed."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "Ghidra ARM decompilation at WBI resume vectors 0x00124b9c and 0x0012463c",
+      "claim": "Both resume entries write core identifier four, issue memory and instruction barriers, invalidate the TLB, restore MMU and translation-table registers, restore thread identifiers, and jump through a saved resume target. Neither path reads boot mode, accesses nflasha1, or verifies firmware."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "address-mapped WBI string inspection",
+      "claim": "The LDR_BOOT_MODE_UPDATER string is embedded in loaded upm power-management module memory alongside battery and button-factor labels. Exact /dev/nflasha1 strings occur in generic media-device tables or ordinary application memory, not in a located boot selector."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "nflasha3 initrd/rootfs file hashes and init/vmlinux string inspection",
+      "claim": "For each camera family, the initrd and rootfs copies of sbin/init are byte-identical. Their mount table omits nflasha1, and all three packaged vmlinux binaries contain zero nflasha1 or updater strings."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "Ghidra ARM decompilation of packaged ldr_drv.bin",
+      "claim": "The byte-identical 6796-byte loader driver dispatches calls through 80-byte records and configures transfer-channel registers with optional UART output. Its located functions show no filesystem access, boot-mode policy, signature verification, or cryptographic transform."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "packaged secure-start hashes and generic Xtensa probing",
+      "claim": "ssboot.bin, ssboot_any.bin, sa_dfdet.bin, and idt_cam.bin are byte-identical across the alpha 6400 and both alpha 7 III packages. The generic Xtensa decoder stops at custom-instruction boundaries, so identity and naming do not establish a firmware-authentication role."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "CameraShell, SenserPlatformBackend, and SonySenserCamera static call path",
+      "claim": "The existing service-mode platform shell exposes pull through a readFile primitive, providing a candidate read-only route to /dev/nflasha1. This route has not been tested on the disconnected alpha 6400 and no updater-partition bytes have been acquired."
+    }
+  ],
+  "inferences": [
+    {
+      "classification": "INFERENCE",
+      "source": "resume trampoline role plus normal-main init and kernel exclusions",
+      "claim": "Updater selection occurs before the nflasha5 resume path and before the normal nflasha3 init path. The warm image and normal Main partition are therefore poor targets for the missing selector."
+    },
+    {
+      "classification": "INFERENCE",
+      "source": "persistent updater partition omitted from packages and absence of policy in packaged loader driver",
+      "claim": "The most valuable next artifact is an authentic read-only dump of /dev/nflasha1. An earlier immutable loader may still hold part of the selection or trust logic, but no examined packaged component proves that role."
+    },
+    {
+      "classification": "INFERENCE",
+      "source": "existing service-mode read primitive",
+      "claim": "If service-mode file control permits reading the device node on the alpha 6400, the updater partition may be acquired without constructing custom firmware or writing camera storage. Compatibility and read length remain unvalidated."
+    }
+  ],
+  "unresolved": [
+    {
+      "classification": "UNRESOLVED",
+      "source": "persistent camera storage",
+      "claim": "No authentic /dev/nflasha1 image has been acquired, so the updater operating system, receiver, generation-four transform, verifier, and trust-anchor locations remain unavailable for static inspection."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "pre-WBI boot chain",
+      "claim": "The immutable or non-payload component that converts updater mode state into updater-partition selection has not been identified."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "secure custom-instruction images",
+      "claim": "The generic decoder cannot fully interpret the secure-start instruction stream, and no call-site evidence connects it to firmware CBC processing or authenticity verification."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "model enforcement and output construction",
+      "claim": "No safe method to authorize a model-mismatched package, reproduce Sony authenticity metadata, or build an installable alpha 6400 image has been established."
+    }
+  ],
+  "conclusion": "The warm-boot deep dive eliminates two large false targets: nflasha5 resumes saved CPU and MMU state, while the packaged nflasha3 Main system boots the normal rootfs and never mounts the persistent updater partition. The shared loader driver is hardware-transfer support rather than policy, and the secure-start images remain opaque at custom-instruction boundaries without a proven updater role. The primary next artifact is therefore an authentic read-only /dev/nflasha1 dump, for which the existing service-mode readFile and pull path is a plausible but unvalidated acquisition route. No camera code was executed, no write was attempted, and no bypass, model-mismatch safety, or installable alpha 6400 firmware is established."
+}
