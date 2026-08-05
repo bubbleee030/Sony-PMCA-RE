@@ -1,0 +1,148 @@
+{
+  "schema_version": 2,
+  "subject": "ILCE-6400 updater receiver, transcode, and body pipeline boundary",
+  "supersedes": "analysis/a6400-updater-crypto-boundary.json",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "bypass_established": false,
+  "installable": false,
+  "model_mismatch_safe": false,
+  "receiver": {
+    "library": "libupdaterufp.so",
+    "sha256": "93ddfa0212f19ad0d204cc41a241ca3dadb0b049725812d48e2df50ba2f16f4f",
+    "system_receiver_located": true,
+    "receive_command": "0x0040",
+    "stored_path": "/tmp_updater/Firm.dat",
+    "maximum_data_bytes": 65496,
+    "completion_command": "0x0100",
+    "completion_action": "launch-crypter.elf",
+    "second_host_transfer": false,
+    "reason": "The updater-mode command dispatcher writes each command 0x0040 payload into /tmp_updater/Firm.dat, and command 0x0100 launches crypter.elf on that file; the signed host updater contains only this transfer loop before completion."
+  },
+  "crypter": {
+    "executable": "crypter.elf",
+    "sha256": "ec971fc3ae7452ff3c5a46959fdb6fa6d9a27087cb226b23cc2cce0289c84653",
+    "talk_library": "libupdatertalk.so",
+    "talk_library_sha256": "1e36b989214aafb0a426a45ee06a578d17814926226e3d39307a0124fdf90587",
+    "input_modes": [
+      "chunk=fdat",
+      "chunk=full"
+    ],
+    "frame_bytes": 1024,
+    "decrypt_api": "Dec_Scramble",
+    "decrypt_mode": "aes-128-ecb",
+    "decrypt_key_family": "historical-first-stage",
+    "key_material_omitted": true,
+    "cbc_implementation_present": false,
+    "pre_crypter_transform": "generation4-to-legacy-ecb-transcode-required",
+    "pre_crypter_transform_implementation": "unresolved",
+    "raw_fdat_bytes": 304833808,
+    "decoded_fdat_bytes": 303642112,
+    "header_bytes": 512,
+    "updater_image_bytes": 143360,
+    "firmware_archive_bytes": 303498240
+  },
+  "body_pipeline": {
+    "body_library": "libupdaterbody.so",
+    "body_library_sha256": "6daad7d8be8807e068563d09436f83b1eadb93a365248c78e6add2f15cfea01d",
+    "ring_buffer_library": "libupdatercommon.so",
+    "ring_buffer_library_sha256": "78ee7c1c9fbd62fdf395fe3ca9c71e440f33794d591bb37b93d77d12b62a11de",
+    "factory_symbols": [
+      "GetBody",
+      "ReleaseBody"
+    ],
+    "consumer_entry": "UpdaterBody::Execute",
+    "consumer_input": "Updater::RingBuffer",
+    "producer": "MsDecryptorModule",
+    "producer_frame_bytes": 1024,
+    "body_images": [
+      "/usr/bin/udtrbody.bin",
+      "/tmp_updater/updater/bodyimg"
+    ],
+    "second_host_transfer": false,
+    "role": "decrypted-stream-archive-consumer"
+  },
+  "secure_apps": {
+    "aes_program": "sa_aes_sha2.bin",
+    "aes_program_sha256": "8966f450591d7253058d4cbe9146d63831e0da128136c03d7c392ba830b25692",
+    "aes_program_id": "0x13",
+    "aes_program_architecture": "xtensa-custom-extension-image",
+    "aes_pointer_derived_image_base": "0x00048000",
+    "aes_ttable_offset": "0x00004b70",
+    "sha256_constant_offsets": [
+      "0x00001758",
+      "0x000024a8"
+    ],
+    "udrt_program": "sa_udrt.bin",
+    "udrt_program_sha256": "bd634220c7a48eb4611de09f8abf29459306c403cc2e70119eb10623d838806a",
+    "udrt_program_id": "0x3f",
+    "udrt_program_architecture": "xtensa-custom-extension-image",
+    "generic_decoder_status": "partial-unsupported-custom-instructions",
+    "key_material_omitted": true,
+    "updater_invocation_proven": false,
+    "generation4_transform_link_proven": false
+  },
+  "integrity": {
+    "dat_outer_crc32": true,
+    "decoded_inner_crc32": true,
+    "component_sum_crc32": true,
+    "outer_trailer_bytes": 272,
+    "outer_iv_bytes": 16,
+    "outer_suffix_bytes": 256,
+    "outer_suffix_role": "unresolved",
+    "signature_plausible": true,
+    "signature_proven": false
+  },
+  "observations": [
+    {
+      "classification": "OBSERVATION",
+      "source": "Static decompilation of libupdaterufp.so and the signed Windows updater transfer loop",
+      "claim": "Updater command 0x0040 writes the FDAT stream to /tmp_updater/Firm.dat, command 0x0100 launches crypter.elf on that file, and no second host transfer follows."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "Static decompilation of crypter.elf, libupdatercommon.so, and libupdaterbody.so",
+      "claim": "crypter.elf constructs an Updater::RingBuffer, its MsDecryptorModule consumes 0x400-byte frames, and the body loader resolves GetBody and ReleaseBody before invoking UpdaterBody::Execute on the produced stream."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "Static decompilation of libupdatertalk.so and digest comparison with historical updater tooling",
+      "claim": "Dec_Scramble initializes an AES-128 decryption schedule and independently decrypts 16-byte blocks in ECB mode using the historical first-stage key family; no CBC implementation is present in this library."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "Static inspection and partial generic Xtensa decoding of sa_aes_sha2.bin and sa_udrt.bin",
+      "claim": "The secure AES/SHA program is a pointer-mapped Xtensa custom-extension image containing standard AES and SHA-256 tables, while the generic decoder cannot fully decode its custom instructions."
+    }
+  ],
+  "inferences": [
+    {
+      "classification": "INFERENCE",
+      "source": "Combined generation-4 FDAT geometry, historical fwtool cipher modes, and the observed crypter AES-ECB consumer",
+      "claim": "The generation-4 remainder must be transformed into legacy first-stage ECB ciphertext before crypter.elf consumes it; sending raw CBC ciphertext or CBC plaintext directly to this consumer is inconsistent with the observed second AES decryption."
+    },
+    {
+      "classification": "INFERENCE",
+      "source": "The single host transfer and the user-space command 0x0040 write callback",
+      "claim": "The missing transform must occur at or before data reaches the user-space UFP write path, plausibly in a lower AV or secure execution layer, but the responsible component and call path are not yet established."
+    }
+  ],
+  "unresolved": [
+    {
+      "classification": "UNRESOLVED",
+      "source": "No proven cross-reference from the updater receive path to either secure program",
+      "claim": "The producer, command ABI, key derivation, and exact generation-4 transcode implementation remain unknown, including whether sa_aes_sha2.bin or sa_udrt.bin participates."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "The 0x100-byte FDAT suffix is structurally plausible as a signature but has no located verifier",
+      "claim": "The signature algorithm, verifier implementation, trust anchor, and signed byte range remain unproven."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "No model-compatible donor payload or camera-side execution evidence",
+      "claim": "Decryption and portable integration of newer-camera UI, touch-control, and Creative Look components into the ILCE-6400 remain unproven."
+    }
+  ],
+  "conclusion": "The ILCE-6400 updater-mode FDAT receiver, crypter, ring-buffer producer, and body archive consumer are now located. The evidence requires an unresolved generation-4-to-legacy ECB transcode before crypter.elf, while the secure invocation path and firmware signature boundary remain unknown. This report establishes no bypass and produces no installable or model-mismatch-safe image."
+}

@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "subject": "ILCE-6400 updater and service trust boundary",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "bypass_established": false,
+  "installable": false,
+  "host_verification": {
+    "engine_sha256": "8f2e8b229ef9e49a874cbf920301aba078727cebc490c891a992de60ff8a3528",
+    "component_count": 29,
+    "mapped_images_scanned": 30,
+    "firmware_verifier_import_hits": 0,
+    "mapped_key_marker_hits": 0,
+    "data_protection_imports": [
+      "CRYPT32.dll!CryptProtectData",
+      "CRYPT32.dll!CryptUnprotectData"
+    ],
+    "dynamic_libraries": [
+      "FirmwareUpdaterImg.dll",
+      "XpStorageDevice_WinXp2k.dll"
+    ],
+    "dynamic_symbols": [
+      "InitializeConditionVariable",
+      "SleepConditionVariableCS",
+      "WakeAllConditionVariable",
+      "XpStgDevGetVenIdAndProdId"
+    ],
+    "evidence_sources": [
+      "analysis/a6400-updater-static.json",
+      "ghidra:signed-updater-engine:LoadLibraryW-callers",
+      "ghidra:signed-updater-engine:GetProcAddress-callers",
+      "offline:all-embedded-pe-import-and-marker-scan"
+    ]
+  },
+  "updater_shell": {
+    "repository": "https://github.com/ma1co/Sony-PMCA-RE",
+    "target_architecture": "CXD90045",
+    "supported_body_architectures": [
+      "CXD4105",
+      "CXD4115",
+      "CXD4115_ilc",
+      "CXD4120",
+      "CXD4132",
+      "CXD90014"
+    ],
+    "generation_four_decryption_commit": "9d1ccf489c11fcaf445b4fa717e3413617d99c76",
+    "generation_four_decryption_date": "2019-03-21",
+    "generation_four_encrypt": "not-supported",
+    "generation_four_body_present": false,
+    "target_header_present": false,
+    "unsupported_architecture_skip_commit": "0aaf3265de3502791c1e92b2e33ad52e423485ef",
+    "signed_architecture_documentation_commit": "ee47d5a2582444091184eeec1fa94d89040d7d51",
+    "latest_updater_shell_commit": "0ce3c7e8fed88bcd855a80a75eadc518c2e324cb"
+  },
+  "camera_guard": {
+    "protocol_version": "0x0100",
+    "candidate_scope": "first-negotiated-fdat-chunk",
+    "initial_sequence_payload_bytes": 0,
+    "success_before_eof_permitted": true,
+    "camera_decrypted_prefix_bytes": 512,
+    "full_resend_after_reconnect": true,
+    "full_resend_candidate_scope": "entire-fdat",
+    "command_sequence": [
+      "init",
+      "checkGuard",
+      "getFirmwareVersion",
+      "switchMode",
+      "writeFirmware",
+      "complete"
+    ],
+    "guard_precedes_mode_switch": true,
+    "camera_rejection_statuses": {
+      "0x140": "invalid-model",
+      "0x141": "invalid-region",
+      "0x142": "invalid-version"
+    },
+    "host_firmware_verifier_located": false
+  },
+  "service_acquisition": {
+    "status": "read-only-candidate",
+    "camera_connected": false,
+    "camera_executed": false,
+    "separate_from_fdat_guard": true,
+    "authentication_hash_variants": [
+      "faulty-sha1",
+      "sha256"
+    ],
+    "implementation_has_mutating_commands": true,
+    "allowed_operations": [
+      "identity",
+      "read-file",
+      "read-memory",
+      "read-bootrom"
+    ],
+    "forbidden_operations": [
+      "interactive-shell",
+      "write-file",
+      "write-memory",
+      "write-backup",
+      "firmware-update"
+    ],
+    "acquisition_sequence": [
+      "authenticate",
+      "read-identity",
+      "read-partition-metadata",
+      "read-bootrom",
+      "hash-and-verify",
+      "disconnect"
+    ],
+    "compatibility_source": "https://github.com/ma1co/Sony-PMCA-RE/issues/513"
+  },
+  "observations": [
+    {
+      "classification": "OBSERVATION",
+      "source": "package-wide mapped-image scan",
+      "claim": "Across the outer updater and 29 embedded PE components, no firmware-verification import or allowlisted public-key marker was found; the only Crypt32 calls are DPAPI protection functions in the MFC runtime."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "updatershell/pack.py and historical fwtool source",
+      "claim": "The custom updater shell has bodies only through CXD90014, while CXD90045 supports historical decryption but its encryption method explicitly raises an unsupported error."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "pmca/commands/usb.py and pmca/usb/sony.py",
+      "claim": "Command 0x10 starts with an empty handshake, sends only the first negotiated FDAT chunk, and may return success before EOF; after the mode switch and updater-device reconnect, the host seeks back to the FDAT start and resends the complete payload through command 0x40."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "pmca service-mode implementation",
+      "claim": "Service mode is a separate authenticated protocol with file and memory reads, but the same implementation also exposes mutating operations that this acquisition design explicitly denies."
+    }
+  ],
+  "inferences": [
+    {
+      "classification": "INFERENCE",
+      "source": "host scan plus command ordering",
+      "claim": "The normal-runtime guard validates header identity fields, while any full-payload authenticity decision must occur later in the separate updater-mode environment because the Windows host does not expose a located verifier."
+    },
+    {
+      "classification": "INFERENCE",
+      "source": "service-mode source and public alpha 6400 report",
+      "claim": "A read-only service-mode acquisition is a more direct route to authenticated target firmware evidence than attempting to manufacture a signed generation-four updater."
+    }
+  ],
+  "unresolved": [
+    {
+      "classification": "UNRESOLVED",
+      "source": "camera updater firmware",
+      "claim": "The camera-resident verifier implementation, public trust anchor, signed byte range, and exact mapping from verification failure to protocol status remain unlocated."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "physically disconnected target",
+      "claim": "No alpha 6400 identity, partition metadata, boot ROM, filesystem file, or flash image has been acquired through the proposed read-only service path."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "target runtime",
+      "claim": "The alpha 6400 UI, touch dispatch, color tables, module ABI, and boot-time integrity controls cannot be mapped until authenticated target contents are available."
+    }
+  ],
+  "conclusion": "The Windows updater does not expose a located firmware-signature bypass, and the historical updater shell cannot generate a CXD90045 image. The next viable evidence step is a tightly allowlisted, read-only alpha 6400 service acquisition; it is not an install or a bypass."
+}

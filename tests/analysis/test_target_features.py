@@ -1,0 +1,226 @@
+import copy
+import json
+import unittest
+from pathlib import Path
+
+from pmca.analysis.target_features import (
+    TargetFeatureError,
+    validate_target_feature_report,
+)
+
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+REPORT_PATH = REPOSITORY_ROOT / "analysis" / "a6400-target-features.json"
+
+
+class TargetFeatureTests(unittest.TestCase):
+    def setUp(self):
+        self.document = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
+
+    def test_committed_report_preserves_the_target_only_boundary(self):
+        validated = validate_target_feature_report(self.document)
+
+        self.assertEqual(validated, self.document)
+        self.assertFalse(validated["camera_connected"])
+        self.assertFalse(validated["camera_executed"])
+        self.assertFalse(validated["bypass_established"])
+        self.assertFalse(validated["installable"])
+        self.assertEqual(validated["target"]["model_id"], "0x81030011")
+        self.assertEqual(validated["target"]["version"], "2.00")
+        self.assertEqual(validated["target"]["filesystem_count"], 1079)
+
+    def test_shipped_backup_defaults_are_exact_and_region_consistent(self):
+        backup = validate_target_feature_report(self.document)["backup_images"]
+
+        self.assertEqual(backup["main_destination"], "CX62600_UC2.bin")
+        self.assertEqual(backup["regional_image_count"], 11)
+        self.assertEqual(backup["backup_revision"], 4)
+        self.assertEqual(backup["property_count"], 28900)
+        self.assertTrue(backup["all_regions_agree"])
+        self.assertEqual(
+            backup["properties"],
+            [
+                {
+                    "id": "0x01070316",
+                    "value_hex": "43",
+                    "size": 1,
+                    "attribute": "0x01",
+                    "read_only": True,
+                },
+                {
+                    "id": "0x002a000a",
+                    "value_hex": "01",
+                    "size": 1,
+                    "attribute": "0x00",
+                    "read_only": False,
+                },
+                {
+                    "id": "0x01050002",
+                    "value_hex": "01",
+                    "size": 1,
+                    "attribute": "0x00",
+                    "read_only": False,
+                },
+                {
+                    "id": "0x010704cb",
+                    "value_hex": "28",
+                    "size": 1,
+                    "attribute": "0x01",
+                    "read_only": True,
+                },
+                {
+                    "id": "0x010701cf",
+                    "value_hex": "00",
+                    "size": 1,
+                    "attribute": "0x58",
+                    "read_only": False,
+                },
+            ],
+        )
+
+    def test_vertical_named_components_are_present_without_claiming_rotation(self):
+        vertical = validate_target_feature_report(self.document)["vertical_ui"]
+
+        self.assertEqual(vertical["classification"], "target-shooting-components")
+        self.assertEqual(vertical["view"], "ViewStlrec")
+        self.assertEqual(vertical["orientation_api"], "startOrientationRollNotify_new")
+        self.assertEqual(vertical["orientation_start_offset"], "0x1ab41c")
+        self.assertEqual(vertical["orientation_stop_offset"], "0x1ba780")
+        self.assertEqual(vertical["orientation_consumer"], 2)
+        self.assertEqual(vertical["orientation_owner_vtable_offset"], "0x8ded88")
+        self.assertEqual(vertical["orientation_owner_rtti_name"], "ViewStlrec")
+        self.assertEqual(vertical["layout_mode_attach_offset"], "0x1ab2d2")
+        self.assertFalse(vertical["layout_mode_set_call_found"])
+        self.assertEqual(vertical["af_orientation_dispatch_offset"], "0x1b1e76")
+        self.assertEqual(
+            vertical["af_orientation_read_offsets"],
+            ["0x1b1e7c", "0x1b1e90", "0x1b1ea4"],
+        )
+        self.assertEqual(len(vertical["vertical_named_layouts"]), 5)
+        self.assertEqual(
+            {item["class_id"] for item in vertical["vertical_named_layouts"]},
+            {
+                "0x61dc811c",
+                "0x186c17f6",
+                "0x8e7fdf88",
+                "0x7be1c309",
+                "0xbdbc36bd",
+            },
+        )
+        self.assertTrue(vertical["factory_model_predicate_absent"])
+        self.assertFalse(vertical["orientation_layout_selector_established"])
+        self.assertFalse(vertical["vertical_name_device_rotation_semantics_established"])
+        self.assertFalse(vertical["modern_vertical_menu_established"])
+        self.assertFalse(vertical["vertical_input_transform_established"])
+
+    def test_creative_style_graph_is_exact_and_native_look_stays_false(self):
+        creative = validate_target_feature_report(self.document)["creative_rendering"]
+
+        self.assertEqual(creative["compiled_default_graph_nodes"], 98)
+        self.assertEqual(creative["compiled_default_top_level_nodes"], 20)
+        self.assertEqual(
+            creative["compiled_graph_variants"],
+            [
+                {"name": "Default", "nodes": 98},
+                {"name": "TypeEmnt", "nodes": 91},
+                {"name": "TypeDSCEntry", "nodes": 6},
+                {"name": "Type05", "nodes": 7},
+                {"name": "Type06", "nodes": 13},
+                {"name": "Type07", "nodes": 19},
+            ],
+        )
+        self.assertEqual(creative["graph_selector_backup_id"], "0x01070316")
+        self.assertEqual(creative["graph_selector_function_offset"], "0x7db958")
+        self.assertEqual(creative["type07_selector_value"], "0x45")
+        self.assertEqual(creative["documented_visible_graph_shape"], "TypeEmnt")
+        self.assertTrue(creative["target_selector_value_confirmed"])
+        self.assertEqual(creative["target_selector_value"], "0x43")
+        self.assertEqual(creative["target_selector_graph"], "TypeEmnt")
+        self.assertTrue(creative["selector_read_only"])
+        self.assertEqual(creative["selector_backup_attribute"], "0x01")
+        self.assertFalse(creative["selector_mutation_tested"])
+        self.assertEqual(creative["compiled_extra_fixed_style"], "Real")
+        self.assertEqual(len(creative["documented_visible_fixed_styles"]), 13)
+        self.assertEqual(creative["creative_boxes"], 6)
+        self.assertEqual(creative["base_styles_per_box"], 13)
+        self.assertEqual(creative["enum_range"], [0, 97])
+        self.assertEqual(creative["target_adjustment_axes"], 3)
+        self.assertEqual(creative["donor_adjustment_axes"], 8)
+        self.assertFalse(creative["creative_look_symbol_found"])
+        self.assertFalse(creative["native_creative_look_established"])
+        self.assertTrue(creative["label_reuse_is_concept_only"])
+
+    def test_settings_menu_touch_is_not_inferred_from_low_level_capability(self):
+        touch = validate_target_feature_report(self.document)["touch_ui"]
+
+        self.assertEqual(touch["input_module"], "lib/libObj.so")
+        self.assertEqual(touch["sample_view_resource_setup_offset"], "0x6666a4")
+        self.assertEqual(touch["sample_view_owner_rtti_name"], "10SampleView")
+        self.assertEqual(touch["sample_view_rtti_name_offset"], "0xfafd26")
+        self.assertEqual(
+            touch["sample_view_vtable_function_pointer_offset"], "0x134d9c4"
+        )
+        self.assertFalse(touch["sample_view_production_menu_link_established"])
+        self.assertEqual(touch["root_setup_gate_backup_id"], "0x01050002")
+        self.assertEqual(touch["root_setup_gate_read_offset"], "0x6666c0")
+        self.assertEqual(touch["root_setup_gate_default_value"], "0x01")
+        self.assertEqual(touch["root_setup_gate_backup_attribute"], "0x00")
+        self.assertFalse(touch["root_setup_gate_read_only"])
+        self.assertTrue(touch["root_setup_gate_nonzero_skips_resource_setup"])
+        self.assertFalse(touch["root_setup_gate_label_established"])
+        self.assertEqual(touch["device_capability_backup_id"], "0x002a000a")
+        self.assertEqual(
+            touch["device_capability_backup_label"], "BKID_DISPLAY_TP_DEVICE"
+        )
+        self.assertEqual(
+            touch["device_capability_read_offsets"], ["0xdc30b6", "0xdc597a"]
+        )
+        self.assertEqual(touch["device_capability_default_value"], "0x01")
+        self.assertEqual(touch["device_capability_backup_attribute"], "0x00")
+        self.assertFalse(touch["device_capability_read_only"])
+        self.assertEqual(touch["configuration_default_value"], "0x28")
+        self.assertEqual(touch["configuration_backup_attribute"], "0x01")
+        self.assertTrue(touch["configuration_read_only"])
+        self.assertFalse(touch["device_capability_linked_to_root_gate"])
+        self.assertTrue(touch["low_level_resource_routing_present"])
+        self.assertTrue(touch["select_widget_touch_mode_present"])
+        self.assertFalse(touch["setting_menu_resource_hooks_found"])
+        self.assertFalse(touch["full_setting_menu_touch_established"])
+
+    def test_report_rejects_any_runtime_or_capability_promotion(self):
+        mutations = (
+            ("camera_connected", True),
+            ("camera_executed", True),
+            ("bypass_established", True),
+            ("installable", True),
+        )
+        for field, value in mutations:
+            candidate = copy.deepcopy(self.document)
+            candidate[field] = value
+            with self.subTest(field=field), self.assertRaises(TargetFeatureError):
+                validate_target_feature_report(candidate)
+
+        candidates = []
+        candidate = copy.deepcopy(self.document)
+        candidate["vertical_ui"]["modern_vertical_menu_established"] = True
+        candidates.append(candidate)
+        candidate = copy.deepcopy(self.document)
+        candidate["touch_ui"]["full_setting_menu_touch_established"] = True
+        candidates.append(candidate)
+        candidate = copy.deepcopy(self.document)
+        candidate["creative_rendering"]["native_creative_look_established"] = True
+        candidates.append(candidate)
+        for candidate in candidates:
+            with self.assertRaises(TargetFeatureError):
+                validate_target_feature_report(candidate)
+
+    def test_report_rejects_raw_or_reconstructive_fields(self):
+        candidate = copy.deepcopy(self.document)
+        candidate["raw_payload"] = "not-allowed"
+
+        with self.assertRaises(TargetFeatureError):
+            validate_target_feature_report(candidate)
+
+
+if __name__ == "__main__":
+    unittest.main()

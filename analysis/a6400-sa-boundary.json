@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "subject": "ILCE-6400 SA updater-crypto registry boundary",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "aes_program_registered": true,
+  "udrt_program_registered": true,
+  "programs_loaded_by_updater": false,
+  "imdb_namespace_link": "unproven",
+  "firmware_decryption_link": "unproven",
+  "evidence": {
+    "registry_sha256": "04ca34dfe47e205aae570abeaa3302338bc24d35010de17126fa40da24235720",
+    "sabin_sha256": "8966f450591d7253058d4cbe9146d63831e0da128136c03d7c392ba830b25692",
+    "names_offset": 705028,
+    "name_slot_size": 32,
+    "record_length_offset": 710346,
+    "record_bytes": 1200,
+    "record_count": 150,
+    "filename_index": 54,
+    "record_u16_le": [54, 147, 19, 1],
+    "container_identity": "SA_AESSH0x01",
+    "container_module": "AES_SHA20x01",
+    "container_header_u16_be": [19, 1],
+    "udrt_sabin_sha256": "bd634220c7a48eb4611de09f8abf29459306c403cc2e70119eb10623d838806a",
+    "udrt_filename_index": 91,
+    "udrt_record_u16_le": [91, 147, 63, 1],
+    "udrt_container_identity": "SA_UDRT_0x04",
+    "udrt_container_module": "UDRT____0x04",
+    "udrt_container_header_u16_be": [63, 1],
+    "registry_type_interpretation": "common-type-not-program-id"
+  },
+  "observations": [
+    {
+      "classification": "OBSERVATION",
+      "source": "CX62600_ALLLANG.bin filename slots and eight-byte registry records",
+      "claim": "The unique sa_aes_sha2.bin filename is slot 54 and record 54 is the four-word tuple [54, 147, 19, 1]."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "sa_aes_sha2.bin outer header",
+      "claim": "The container has the observed magic, identity SA_AESSH0x01, module AES_SHA20x01, and big-endian header words [19, 1]."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "sa_udrt.bin registry record and outer header",
+      "claim": "The unique sa_udrt.bin filename is slot 91, its record is [91, 147, 63, 1], and its observed container header words are [63, 1]."
+    }
+  ],
+  "unresolved": [
+    {
+      "classification": "UNRESOLVED",
+      "source": "Static cross-reference search of currently extracted updater and camera components",
+      "claim": "No verified updater path has been found that invokes either registered program; registry type 147 and program IDs 19 and 63 do not establish a caller."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "Custom SA instruction image and unavailable public ISA tooling",
+      "claim": "The secure-application ABI, any relationship to firmware payload processing, and any relationship between SA program ID 63 and the separate IMDB entry ID 63 remain unknown."
+    }
+  ],
+  "conclusion": "The AES/SHA and UDRT secure applications are registered by the alpha 6400 runtime, but registration and matching numeric values across separate tables do not prove updater invocation, firmware processing, or a usable cryptographic boundary."
+}
