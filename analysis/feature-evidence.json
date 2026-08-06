@@ -172,30 +172,30 @@
     {
       "id": "recovery",
       "status": "BLOCKED",
-      "summary": "Camera-side execution remains prohibited because no independently verified laptop-based route can yet restore the exact original Taiwan/region-0 α6400 2.00 firmware identity after a failed modified image.",
+      "summary": "The exact Taiwan/region-0 alpha 6400 2.00 stock source is authenticated, but all three external restore candidates and all six mandatory failure scenarios remain unestablished; recovery and camera testing are unvalidated.",
       "evidence": [
         {
           "kind": "OBSERVATION",
-          "source": "https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145",
-          "claim": "Sony warns that power loss during the α6400 update may make the camera inoperable and documents only the official updater workflow."
+          "source": "analysis/a6400-stock-200-bundle.json",
+          "claim": "The official Sony Taiwan updater and its embedded stock container are digest-pinned to ILCE-6400 model 0x81030011, region code 0, and version 2.00."
         },
         {
           "kind": "OBSERVATION",
-          "source": "analysis/feature-compatibility.json",
-          "claim": "The real candidate gate rejected an empty guessed-patch set with eleven unresolved dependencies, including updater wrapper, decryption, signature layer, and camera recovery path."
+          "source": "analysis/a6400-recovery-scenarios.json",
+          "claim": "All six mandatory failure scenarios and every one of their three candidate coverage records remain UNESTABLISHED."
         },
         {
           "kind": "OBSERVATION",
-          "source": "analysis/signature-experiments.json",
-          "claim": "All mutation experiments are offline-only, camera_executed is false, installable is false, and outputs are quarantined."
+          "source": "analysis/a6400-stock-200-recovery.json",
+          "claim": "The strict report records BLOCKED_STATIC_EVIDENCE, recovery_validated false, camera_test_eligible false, and no runtime-independent entry or complete write and verification path."
         },
         {
           "kind": "INFERENCE",
-          "source": "analysis/feature-compatibility.json",
-          "claim": "Without an independently demonstrated external restore path to the pinned original regional 2.00 updater identity and a nonessential test body, a camera-side experiment cannot satisfy the study's safety gate."
+          "source": "analysis/a6400-stock-200-recovery.json",
+          "claim": "Host-side updater mapping cannot establish camera-side reinstall acceptance, boot recovery, complete stock restoration, or safe interrupted-restore behavior."
         }
       ],
-      "next_action": "End at offline artifacts; require a separately verified laptop-based recovery to the pinned original Taiwan/region-0 α6400 2.00 identity and a nonessential test body before any future camera-side proposal."
+      "next_action": "Continue static work on the missing pre-normal-runtime updater selector or authentic earlier installing receiver; do not draft camera steps until the strict report reaches a separately reviewed future-validation-design gate and fresh authorization exists."
     }
   ]
 }

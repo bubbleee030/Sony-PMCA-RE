@@ -1,9 +1,15 @@
 import copy
+import json
 import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from pmca.analysis.recovery_path import validate_recovery_report
 
 from pmca.analysis.decisions import (
     DecisionError,
     REQUIRED_CAPABILITIES,
+    derive_recovery_capability,
     render_markdown,
     validate_evidence,
 )
@@ -20,6 +26,15 @@ EXPECTED_CAPABILITIES = (
 )
 
 APPROVED_REPORT = "analysis/reports/a6400-tw-v2.00.json"
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+EVIDENCE_PATH = REPOSITORY_ROOT / "analysis" / "feature-evidence.json"
+RUNBOOK_PATH = (
+    REPOSITORY_ROOT
+    / "docs"
+    / "superpowers"
+    / "runbooks"
+    / "a6400-stock-200-recovery-readiness.md"
+)
 APPROVED_SONY_URL = (
     "https://www.sony.com.tw/zh/electronics/support/"
     "e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145"
@@ -53,6 +68,7 @@ def synthetic_document():
                 "next_action": f"Synthetic next action {index + 1}.",
             }
         )
+    capabilities[-1] = derive_recovery_capability()
     return {"schema_version": 1, "capabilities": capabilities}
 
 
@@ -73,7 +89,7 @@ class DecisionValidationTests(unittest.TestCase):
         )
         self.assertEqual(
             normalized["capabilities"][-1]["evidence"][0]["claim"],
-            "Synthetic observation 7.",
+            derive_recovery_capability()["evidence"][0]["claim"],
         )
         self.assertIsNot(normalized, document)
         self.assertIsNot(normalized["capabilities"], document["capabilities"])
@@ -184,6 +200,9 @@ class DecisionValidationTests(unittest.TestCase):
             "analysis/a6400-creative-look-guide.md",
             "analysis/firmware-manifest.json",
             "analysis/tool-provenance.json",
+            "analysis/a6400-stock-200-bundle.json",
+            "analysis/a6400-recovery-scenarios.json",
+            "analysis/a6400-stock-200-recovery.json",
             "README.md",
         )
         denied = (
@@ -292,6 +311,101 @@ class DecisionValidationTests(unittest.TestCase):
         for document in cases:
             with self.subTest(document=document), self.assertRaises(DecisionError):
                 validate_evidence(document)
+
+    def test_real_recovery_decision_is_derived_from_strict_reports(self):
+        document = json.loads(EVIDENCE_PATH.read_text(encoding="utf-8"))
+        recovery = next(
+            item
+            for item in validate_evidence(document)["capabilities"]
+            if item["id"] == "recovery"
+        )
+
+        self.assertEqual(recovery, derive_recovery_capability())
+        self.assertEqual(recovery["status"], "BLOCKED")
+        self.assertEqual(
+            [item["source"] for item in recovery["evidence"]],
+            [
+                "analysis/a6400-stock-200-bundle.json",
+                "analysis/a6400-recovery-scenarios.json",
+                "analysis/a6400-stock-200-recovery.json",
+                "analysis/a6400-stock-200-recovery.json",
+            ],
+        )
+
+    def test_recovery_decision_cannot_be_manually_promoted_or_reworded(self):
+        base = json.loads(EVIDENCE_PATH.read_text(encoding="utf-8"))
+        index = next(
+            index
+            for index, item in enumerate(base["capabilities"])
+            if item["id"] == "recovery"
+        )
+        mutations = (
+            ("status", "FEASIBLE"),
+            ("summary", "Recovery works."),
+            ("next_action", "Proceed."),
+        )
+        for field, value in mutations:
+            document = copy.deepcopy(base)
+            document["capabilities"][index][field] = value
+            with self.subTest(field=field), self.assertRaises(DecisionError):
+                validate_evidence(document)
+
+    def test_future_static_readiness_still_cannot_authorize_camera_testing(self):
+        recovery_path = REPOSITORY_ROOT / "analysis" / "a6400-stock-200-recovery.json"
+        future = validate_recovery_report(
+            json.loads(recovery_path.read_text(encoding="utf-8"))
+        )
+        future["readiness"] = "READY_FOR_FUTURE_VALIDATION_DESIGN"
+        future["readiness_basis"] = {
+            "authenticated_stock_bundle": True,
+            "runtime_independent_entry_established": True,
+            "write_scope_established": True,
+            "write_order_established": True,
+            "post_write_verification_established": True,
+            "scenario_overclaim_count": 0,
+        }
+
+        with patch(
+            "pmca.analysis.decisions.validate_recovery_report",
+            return_value=future,
+        ):
+            recovery = derive_recovery_capability({})
+
+        self.assertEqual(recovery["status"], "BLOCKED")
+        self.assertIn("design", recovery["summary"].lower())
+        self.assertIn("fresh authorization", recovery["next_action"].lower())
+        self.assertNotIn("camera_test_eligible true", str(recovery).lower())
+
+    def test_recovery_readiness_runbook_is_non_operational_and_complete(self):
+        text = RUNBOOK_PATH.read_text(encoding="utf-8")
+
+        for required in (
+            "a6400-tw-v2.00",
+            "official-updater-reinstall",
+            "usb-recovery-or-updater-mode",
+            "independent-maintenance-path",
+            "modified-ui-runtime-failure",
+            "interrupted-feature-update",
+            "nonbooting-application-layer",
+            "version-or-downgrade-rejection",
+            "boot-chain-failure",
+            "power-loss-during-stock-restore",
+            "BLOCKED_STATIC_EVIDENCE",
+            "camera_test_eligible=false",
+            "recovery_validated=false",
+        ):
+            with self.subTest(required=required):
+                self.assertIn(required, text)
+        for forbidden in (
+            "diskpart",
+            "fastboot",
+            "DeviceIoControl",
+            "write partition",
+            "service-mode command",
+            "firmware payload path",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden.lower(), text.lower())
 
 
 class DecisionRenderingTests(unittest.TestCase):

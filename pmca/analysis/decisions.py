@@ -1,7 +1,11 @@
 """Validate and render evidence-bounded firmware feasibility decisions."""
 
 from copy import deepcopy
+import json
+from pathlib import Path
 import unicodedata
+
+from .recovery_path import RecoveryPathError, validate_recovery_report
 
 
 SCHEMA_VERSION = 1
@@ -58,13 +62,104 @@ _APPROVED_SOURCES = frozenset(
         "analysis/a6400-creative-look-guide.md",
         "analysis/firmware-manifest.json",
         "analysis/tool-provenance.json",
+        "analysis/a6400-stock-200-bundle.json",
+        "analysis/a6400-recovery-scenarios.json",
+        "analysis/a6400-stock-200-recovery.json",
         "README.md",
     }
 )
+_REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+_RECOVERY_REPORT_REFERENCE = "analysis/a6400-stock-200-recovery.json"
 
 
 class DecisionError(ValueError):
     """Raised when feasibility evidence does not match the fixed schema."""
+
+
+def derive_recovery_capability(document: dict | None = None) -> dict:
+    """Derive the repository recovery decision from the strict recovery report."""
+
+    try:
+        if document is None:
+            document = json.loads(
+                (_REPOSITORY_ROOT / _RECOVERY_REPORT_REFERENCE).read_text(
+                    encoding="utf-8"
+                )
+            )
+        recovery = validate_recovery_report(document)
+    except (OSError, UnicodeError, json.JSONDecodeError, RecoveryPathError) as error:
+        raise DecisionError("Strict recovery evidence is unavailable") from error
+
+    if recovery["recovery_validated"] or recovery["camera_test_eligible"]:
+        raise DecisionError("Static recovery evidence cannot authorize camera testing")
+    readiness = recovery["readiness"]
+    if readiness == "READY_FOR_FUTURE_VALIDATION_DESIGN":
+        expected_basis = {
+            "authenticated_stock_bundle": True,
+            "runtime_independent_entry_established": True,
+            "write_scope_established": True,
+            "write_order_established": True,
+            "post_write_verification_established": True,
+            "scenario_overclaim_count": 0,
+        }
+        if recovery["readiness_basis"] != expected_basis:
+            raise DecisionError("Future validation design readiness is inconsistent")
+        return {
+            "id": "recovery",
+            "status": "BLOCKED",
+            "summary": "Static evidence is sufficient only to design a future stock-recovery validation; recovery itself and camera testing remain unvalidated.",
+            "evidence": [
+                {
+                    "kind": "OBSERVATION",
+                    "source": "analysis/a6400-stock-200-bundle.json",
+                    "claim": "The official Sony Taiwan updater and its embedded stock container remain digest-pinned to ILCE-6400 model 0x81030011, region code 0, and version 2.00.",
+                },
+                {
+                    "kind": "OBSERVATION",
+                    "source": _RECOVERY_REPORT_REFERENCE,
+                    "claim": "The strict static report records READY_FOR_FUTURE_VALIDATION_DESIGN while recovery_validated and camera_test_eligible remain false.",
+                },
+                {
+                    "kind": "INFERENCE",
+                    "source": _RECOVERY_REPORT_REFERENCE,
+                    "claim": "Static readiness can authorize a separately reviewed validation design but cannot establish physical recovery or authorize camera operations.",
+                },
+            ],
+            "next_action": "Draft and separately review a non-operational stock-recovery validation design; keep the camera disconnected until fresh authorization is given for a later supervised phase.",
+        }
+    if readiness != "BLOCKED_STATIC_EVIDENCE":
+        raise DecisionError("Recovery readiness is not recognized")
+    if any(item["status"] != "UNESTABLISHED" for item in recovery["candidates"]):
+        raise DecisionError("Blocked recovery candidate status is inconsistent")
+
+    return {
+        "id": "recovery",
+        "status": "BLOCKED",
+        "summary": "The exact Taiwan/region-0 alpha 6400 2.00 stock source is authenticated, but all three external restore candidates and all six mandatory failure scenarios remain unestablished; recovery and camera testing are unvalidated.",
+        "evidence": [
+            {
+                "kind": "OBSERVATION",
+                "source": "analysis/a6400-stock-200-bundle.json",
+                "claim": "The official Sony Taiwan updater and its embedded stock container are digest-pinned to ILCE-6400 model 0x81030011, region code 0, and version 2.00.",
+            },
+            {
+                "kind": "OBSERVATION",
+                "source": "analysis/a6400-recovery-scenarios.json",
+                "claim": "All six mandatory failure scenarios and every one of their three candidate coverage records remain UNESTABLISHED.",
+            },
+            {
+                "kind": "OBSERVATION",
+                "source": _RECOVERY_REPORT_REFERENCE,
+                "claim": "The strict report records BLOCKED_STATIC_EVIDENCE, recovery_validated false, camera_test_eligible false, and no runtime-independent entry or complete write and verification path.",
+            },
+            {
+                "kind": "INFERENCE",
+                "source": _RECOVERY_REPORT_REFERENCE,
+                "claim": "Host-side updater mapping cannot establish camera-side reinstall acceptance, boot recovery, complete stock restoration, or safe interrupted-restore behavior.",
+            },
+        ],
+        "next_action": "Continue static work on the missing pre-normal-runtime updater selector or authentic earlier installing receiver; do not draft camera steps until the strict report reaches a separately reviewed future-validation-design gate and fresh authorization exists.",
+    }
 
 
 def _require_text(value: object, label: str) -> str:
@@ -139,6 +234,8 @@ def validate_evidence(document: dict) -> dict:
         by_id[capability_id] = item
     if set(by_id) != set(REQUIRED_CAPABILITIES):
         raise DecisionError("Evidence must contain exactly the required capabilities")
+    if by_id["recovery"] != derive_recovery_capability():
+        raise DecisionError("Recovery capability must be derived from strict reports")
     normalized["capabilities"] = [
         by_id[capability_id] for capability_id in REQUIRED_CAPABILITIES
     ]
