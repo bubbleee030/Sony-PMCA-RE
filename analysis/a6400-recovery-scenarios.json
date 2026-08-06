@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "subject": "ILCE-6400 external stock 2.00 recovery failure scenarios",
+  "camera_policy": "physically-disconnected",
+  "camera_connected": false,
+  "camera_executed": false,
+  "recovery_validated": false,
+  "stock_bundle": {
+    "reference": "analysis/a6400-stock-200-bundle.json",
+    "source_key": "a6400-tw-v2.00",
+    "model_id": "0x81030011",
+    "region": "TW",
+    "region_code": 0,
+    "version": "2.00"
+  },
+  "scenarios": [
+    {
+      "id": "modified-ui-runtime-failure",
+      "status": "UNESTABLISHED",
+      "entry_available": false,
+      "runtime_independent": false,
+      "write_scope_known": false,
+      "verification_available": false,
+      "power_loss_behavior_known": false,
+      "evidence": [
+        {
+          "classification": "BOUNDED_STATIC",
+          "source": "analysis/a6400-updater-transition-boundary.json",
+          "direct": false,
+          "claim": "The analyzed 2.00 receiver is a post-install artifact; the earlier receiver that installs 2.00 has not been identified."
+        }
+      ],
+      "blocker": "No external entry path independent of the modified normal UI and application runtime has been established."
+    },
+    {
+      "id": "interrupted-feature-update",
+      "status": "UNESTABLISHED",
+      "entry_available": false,
+      "runtime_independent": false,
+      "write_scope_known": false,
+      "verification_available": false,
+      "power_loss_behavior_known": false,
+      "evidence": [
+        {
+          "classification": "BOUNDED_STATIC",
+          "source": "analysis/a6400-updater-crypto-boundary.json",
+          "direct": false,
+          "claim": "The camera-side receiver, authenticity boundary, and failure mapping remain unresolved in the static evidence."
+        }
+      ],
+      "blocker": "No resume, rollback, atomicity, or independently verified complete-stock rewrite behavior is known after an interrupted feature update."
+    },
+    {
+      "id": "nonbooting-application-layer",
+      "status": "UNESTABLISHED",
+      "entry_available": false,
+      "runtime_independent": false,
+      "write_scope_known": false,
+      "verification_available": false,
+      "power_loss_behavior_known": false,
+      "evidence": [
+        {
+          "classification": "BOUNDED_STATIC",
+          "source": "analysis/a6400-warm-boot-boundary.json",
+          "direct": false,
+          "claim": "The packaged main system follows the normal boot path, while the pre-normal-runtime updater selector remains unidentified."
+        }
+      ],
+      "blocker": "No independently bootable maintenance or updater entry has been established for a failed application layer."
+    },
+    {
+      "id": "version-or-downgrade-rejection",
+      "status": "UNESTABLISHED",
+      "entry_available": false,
+      "runtime_independent": false,
+      "write_scope_known": false,
+      "verification_available": false,
+      "power_loss_behavior_known": false,
+      "evidence": [
+        {
+          "classification": "BOUNDED_STATIC",
+          "source": "analysis/a6400-updater-gates.json",
+          "direct": false,
+          "claim": "Host-side model and version statuses are mapped, but the enforcing camera logic and its acceptance policy remain unknown."
+        }
+      ],
+      "blocker": "Acceptance of an exact 2.00 reinstall after modification, including same-version or downgrade gates, has not been established."
+    },
+    {
+      "id": "boot-chain-failure",
+      "status": "UNESTABLISHED",
+      "entry_available": false,
+      "runtime_independent": false,
+      "write_scope_known": false,
+      "verification_available": false,
+      "power_loss_behavior_known": false,
+      "evidence": [
+        {
+          "classification": "BOUNDED_STATIC",
+          "source": "analysis/a6400-warm-boot-boundary.json",
+          "direct": false,
+          "claim": "The warm-resume path is not an updater selector, and the earlier component that selects the updater system has not been located."
+        }
+      ],
+      "blocker": "No external recovery entry independent of the affected boot-chain stages and normal application runtime has been established."
+    },
+    {
+      "id": "power-loss-during-stock-restore",
+      "status": "UNESTABLISHED",
+      "entry_available": false,
+      "runtime_independent": false,
+      "write_scope_known": false,
+      "verification_available": false,
+      "power_loss_behavior_known": false,
+      "evidence": [],
+      "blocker": "Restart, resume, rollback, and safe terminal behavior after power loss during stock restoration are not known."
+    }
+  ],
+  "conclusion": "All six mandatory failure scenarios remain unestablished. The exact stock source is authenticated, but static evidence does not establish an external runtime-independent entry, complete write scope, post-write verification, downgrade acceptance, boot-chain recovery, or power-loss safety."
+}
