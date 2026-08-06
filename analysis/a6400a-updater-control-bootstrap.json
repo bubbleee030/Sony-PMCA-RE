@@ -45,6 +45,30 @@
     {"caller": "ufp-branch", "callee": "input-feeder", "kind": "STATIC_SCRIPT_REFERENCE"},
     {"caller": "ufp-branch", "callee": "reboot-boundary", "kind": "STATIC_SCRIPT_REFERENCE"}
   ],
+  "sauu_control_export": {
+    "program": "sauu",
+    "program_sha256": "d79af0e6958e47c9b50622b1bedb4afe86b7384e3513ffd62ce09f9e2c18a322",
+    "canonical_export_sha256": "0e80cb19f9d4f227f04503e6d3f6ace4f1b0c7fe6194e2a3c7ede89a8ed9ad38",
+    "analysis_mode": {"read_only": true, "noanalysis": true},
+    "function_count": 37,
+    "call_count": 71,
+    "unresolved_direct_calls": 0,
+    "unresolved_indirect_calls": 3,
+    "max_depth": 2,
+    "truncated": false,
+    "root_resolutions": [
+      {"id": "guard-dispatch", "source_address": 57180, "resolution": "function", "function_address": 57180},
+      {"id": "model-compare", "source_address": 56994, "resolution": "function", "function_address": 56994},
+      {"id": "region-compare", "source_address": 56964, "resolution": "function", "function_address": 56964},
+      {"id": "version-compare", "source_address": 57024, "resolution": "function", "function_address": 57024},
+      {"id": "verification-key-hash", "source_address": 66408, "resolution": "function", "function_address": 66408},
+      {"id": "signature-verifier", "source_address": 66784, "resolution": "function", "function_address": 66784},
+      {"id": "signature-workflow-caller", "source_address": 68232, "resolution": "instruction-only", "function_address": null}
+    ],
+    "write_orchestrator_identified": false,
+    "completion_verification_identified": false,
+    "target_transferable": false
+  },
   "sauu_boundaries": [
     {"id": "guard-dispatch", "status": "BOUNDED_CONTROL", "address": 57180, "semantic": "model-region-version guard handler"},
     {"id": "model-compare", "status": "BOUNDED_CONTROL", "address": 56994, "semantic": "model comparison helper"},
@@ -52,7 +76,7 @@
     {"id": "version-compare", "status": "BOUNDED_CONTROL", "address": 57024, "semantic": "version comparison helper"},
     {"id": "verification-key-hash", "status": "BOUNDED_CONTROL", "address": 66408, "semantic": "verification-key hash workflow"},
     {"id": "signature-verifier", "status": "BOUNDED_CONTROL", "address": 66784, "semantic": "package signature verification helper"},
-    {"id": "signature-workflow-caller", "status": "BOUNDED_CONTROL", "address": 68232, "semantic": "signature workflow caller"},
+    {"id": "signature-workflow-caller", "status": "BOUNDED_CONTROL", "address": 68232, "semantic": "signature workflow instruction site; no containing function resolved"},
     {"id": "write-orchestrator", "status": "UNESTABLISHED", "address": null, "semantic": "complete ordered stock write workflow"},
     {"id": "completion-verification", "status": "UNESTABLISHED", "address": null, "semantic": "post-write verification and safe terminal state"}
   ],
