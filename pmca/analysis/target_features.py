@@ -22,6 +22,7 @@ _TOP_FIELDS = {
     "backup_images",
     "vertical_ui",
     "touch_ui",
+    "ui_static_trace",
     "creative_rendering",
     "observations",
     "inferences",
@@ -149,6 +150,32 @@ _CREATIVE_FIELDS = {
     "creative_look_symbol_found",
     "native_creative_look_established",
     "label_reuse_is_concept_only",
+}
+_UI_STATIC_TRACE_FIELDS = {
+    "analysis_scope",
+    "module",
+    "candidate_paths",
+    "negative_searches",
+    "coordinate_consumer_found",
+    "menu_selection_dispatch_found",
+}
+_UI_STATIC_PATH_FIELDS = {
+    "entry_name",
+    "entry_offset",
+    "target_name",
+    "target_offset",
+    "path_offsets",
+    "semantic_boundary",
+}
+_UI_STATIC_NEGATIVE_FIELDS = {
+    "root_set",
+    "requested_roots",
+    "resolved_roots",
+    "target_name",
+    "target_requested_offset",
+    "target_function_offset",
+    "search_method",
+    "path_found",
 }
 _CLAIM_FIELDS = {"classification", "source", "claim"}
 _FORBIDDEN_KEYS = {
@@ -299,7 +326,7 @@ def validate_target_feature_report(document: object) -> dict:
     """Validate target-only metadata without claiming a portable or installable patch."""
     _require_fields(document, _TOP_FIELDS, "Target feature report")
     _reject_reconstructive_fields(document)
-    if document["schema_version"] != 1:
+    if document["schema_version"] != 2:
         raise TargetFeatureError("Target feature schema is unsupported")
     if document["subject"] != "ILCE-6400 Taiwan 2.00 target feature boundaries":
         raise TargetFeatureError("Target feature subject is invalid")
@@ -467,6 +494,118 @@ def validate_target_feature_report(document: object) -> dict:
         "full_setting_menu_touch_established": False,
     }:
         raise TargetFeatureError("Touch UI evidence is invalid or overclaimed")
+
+    trace = _require_fields(
+        document["ui_static_trace"], _UI_STATIC_TRACE_FIELDS, "UI static trace"
+    )
+    candidate_paths = trace["candidate_paths"]
+    if not isinstance(candidate_paths, list):
+        raise TargetFeatureError("UI static candidate paths are invalid")
+    for path in candidate_paths:
+        _require_fields(path, _UI_STATIC_PATH_FIELDS, "UI static candidate path")
+    negative_searches = trace["negative_searches"]
+    if not isinstance(negative_searches, list):
+        raise TargetFeatureError("UI static negative searches are invalid")
+    for search in negative_searches:
+        _require_fields(search, _UI_STATIC_NEGATIVE_FIELDS, "UI static negative search")
+    if trace != {
+        "analysis_scope": "offline-static-target-filesystem",
+        "module": "lib/viewUnified2.so",
+        "candidate_paths": [
+            {
+                "entry_name": "ViewSettingMenu",
+                "entry_offset": "0x22355e",
+                "target_name": "touch_detect_mode_status_read",
+                "target_offset": "0x1613f0",
+                "path_offsets": [
+                    "0x22355e",
+                    "0x222f68",
+                    "0x43156c",
+                    "0x1613f0",
+                ],
+                "semantic_boundary": "status-read-not-coordinate-dispatch",
+            },
+            {
+                "entry_name": "ViewSettingMenu",
+                "entry_offset": "0x22355e",
+                "target_name": "display_transition_touchpad_area_reconfiguration",
+                "target_offset": "0x41ae08",
+                "path_offsets": [
+                    "0x22355e",
+                    "0x21c644",
+                    "0x1626cc",
+                    "0x41b244",
+                    "0x41ae08",
+                ],
+                "semantic_boundary": "configuration-not-menu-selection",
+            },
+        ],
+        "negative_searches": [
+            {
+                "root_set": "ViewSettingMenu-candidate-functions",
+                "requested_roots": 21,
+                "resolved_roots": 21,
+                "target_name": "master_layout_factory",
+                "target_requested_offset": "0x181f18",
+                "target_function_offset": "0x181f18",
+                "search_method": "static-direct-call-graph",
+                "path_found": False,
+            },
+            {
+                "root_set": "ViewSettingMenu-candidate-functions",
+                "requested_roots": 21,
+                "resolved_roots": 21,
+                "target_name": "vertical_info_layout_factory",
+                "target_requested_offset": "0x24222c",
+                "target_function_offset": "0x24222c",
+                "search_method": "static-direct-call-graph",
+                "path_found": False,
+            },
+            {
+                "root_set": "ViewSettingMenu-candidate-functions",
+                "requested_roots": 21,
+                "resolved_roots": 21,
+                "target_name": "root_resource_call_owner",
+                "target_requested_offset": "0x2307d0",
+                "target_function_offset": "0x223b8c",
+                "search_method": "static-direct-call-graph",
+                "path_found": False,
+            },
+            {
+                "root_set": "ViewSettingMenu-candidate-functions",
+                "requested_roots": 21,
+                "resolved_roots": 21,
+                "target_name": "sample_view_resource_setup_owner",
+                "target_requested_offset": "0x6666a4",
+                "target_function_offset": "0x6695d8",
+                "search_method": "static-direct-call-graph",
+                "path_found": False,
+            },
+            {
+                "root_set": "ViewStlrec-candidate-functions",
+                "requested_roots": 25,
+                "resolved_roots": 10,
+                "target_name": "master_layout_factory",
+                "target_requested_offset": "0x181f18",
+                "target_function_offset": "0x181f18",
+                "search_method": "static-direct-call-graph",
+                "path_found": False,
+            },
+            {
+                "root_set": "ViewStlrec-candidate-functions",
+                "requested_roots": 25,
+                "resolved_roots": 10,
+                "target_name": "vertical_info_layout_factory",
+                "target_requested_offset": "0x24222c",
+                "target_function_offset": "0x24222c",
+                "search_method": "static-direct-call-graph",
+                "path_found": False,
+            },
+        ],
+        "coordinate_consumer_found": False,
+        "menu_selection_dispatch_found": False,
+    }:
+        raise TargetFeatureError("UI static trace is invalid or overclaimed")
 
     creative = _require_fields(
         document["creative_rendering"], _CREATIVE_FIELDS, "Creative rendering"

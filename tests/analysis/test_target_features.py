@@ -187,6 +187,132 @@ class TargetFeatureTests(unittest.TestCase):
         self.assertFalse(touch["setting_menu_resource_hooks_found"])
         self.assertFalse(touch["full_setting_menu_touch_established"])
 
+    def test_static_ui_trace_separates_touch_status_from_coordinate_dispatch(self):
+        validated = validate_target_feature_report(self.document)
+        trace = validated["ui_static_trace"]
+
+        self.assertEqual(validated["schema_version"], 2)
+        self.assertEqual(trace["analysis_scope"], "offline-static-target-filesystem")
+        self.assertEqual(trace["module"], "lib/viewUnified2.so")
+        self.assertEqual(
+            trace["candidate_paths"],
+            [
+                {
+                    "entry_name": "ViewSettingMenu",
+                    "entry_offset": "0x22355e",
+                    "target_name": "touch_detect_mode_status_read",
+                    "target_offset": "0x1613f0",
+                    "path_offsets": [
+                        "0x22355e",
+                        "0x222f68",
+                        "0x43156c",
+                        "0x1613f0",
+                    ],
+                    "semantic_boundary": "status-read-not-coordinate-dispatch",
+                },
+                {
+                    "entry_name": "ViewSettingMenu",
+                    "entry_offset": "0x22355e",
+                    "target_name": "display_transition_touchpad_area_reconfiguration",
+                    "target_offset": "0x41ae08",
+                    "path_offsets": [
+                        "0x22355e",
+                        "0x21c644",
+                        "0x1626cc",
+                        "0x41b244",
+                        "0x41ae08",
+                    ],
+                    "semantic_boundary": "configuration-not-menu-selection",
+                },
+            ],
+        )
+        self.assertEqual(
+            trace["negative_searches"],
+            [
+                {
+                    "root_set": "ViewSettingMenu-candidate-functions",
+                    "requested_roots": 21,
+                    "resolved_roots": 21,
+                    "target_name": "master_layout_factory",
+                    "target_requested_offset": "0x181f18",
+                    "target_function_offset": "0x181f18",
+                    "search_method": "static-direct-call-graph",
+                    "path_found": False,
+                },
+                {
+                    "root_set": "ViewSettingMenu-candidate-functions",
+                    "requested_roots": 21,
+                    "resolved_roots": 21,
+                    "target_name": "vertical_info_layout_factory",
+                    "target_requested_offset": "0x24222c",
+                    "target_function_offset": "0x24222c",
+                    "search_method": "static-direct-call-graph",
+                    "path_found": False,
+                },
+                {
+                    "root_set": "ViewSettingMenu-candidate-functions",
+                    "requested_roots": 21,
+                    "resolved_roots": 21,
+                    "target_name": "root_resource_call_owner",
+                    "target_requested_offset": "0x2307d0",
+                    "target_function_offset": "0x223b8c",
+                    "search_method": "static-direct-call-graph",
+                    "path_found": False,
+                },
+                {
+                    "root_set": "ViewSettingMenu-candidate-functions",
+                    "requested_roots": 21,
+                    "resolved_roots": 21,
+                    "target_name": "sample_view_resource_setup_owner",
+                    "target_requested_offset": "0x6666a4",
+                    "target_function_offset": "0x6695d8",
+                    "search_method": "static-direct-call-graph",
+                    "path_found": False,
+                },
+                {
+                    "root_set": "ViewStlrec-candidate-functions",
+                    "requested_roots": 25,
+                    "resolved_roots": 10,
+                    "target_name": "master_layout_factory",
+                    "target_requested_offset": "0x181f18",
+                    "target_function_offset": "0x181f18",
+                    "search_method": "static-direct-call-graph",
+                    "path_found": False,
+                },
+                {
+                    "root_set": "ViewStlrec-candidate-functions",
+                    "requested_roots": 25,
+                    "resolved_roots": 10,
+                    "target_name": "vertical_info_layout_factory",
+                    "target_requested_offset": "0x24222c",
+                    "target_function_offset": "0x24222c",
+                    "search_method": "static-direct-call-graph",
+                    "path_found": False,
+                },
+            ],
+        )
+        self.assertFalse(trace["coordinate_consumer_found"])
+        self.assertFalse(trace["menu_selection_dispatch_found"])
+
+    def test_static_ui_trace_rejects_semantic_promotion(self):
+        for field in ("coordinate_consumer_found", "menu_selection_dispatch_found"):
+            candidate = copy.deepcopy(self.document)
+            candidate["ui_static_trace"][field] = True
+            with self.subTest(field=field), self.assertRaises(TargetFeatureError):
+                validate_target_feature_report(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["ui_static_trace"]["candidate_paths"][0]["semantic_boundary"] = (
+            "coordinate-dispatch"
+        )
+        with self.assertRaises(TargetFeatureError):
+            validate_target_feature_report(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["ui_static_trace"]["negative_searches"][0]["path_found"] = True
+        with self.assertRaises(TargetFeatureError):
+            validate_target_feature_report(candidate)
+
     def test_report_rejects_any_runtime_or_capability_promotion(self):
         mutations = (
             ("camera_connected", True),

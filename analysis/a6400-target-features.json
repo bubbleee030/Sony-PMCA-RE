@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "subject": "ILCE-6400 Taiwan 2.00 target feature boundaries",
   "camera_policy": "physically-disconnected",
   "camera_connected": false,
@@ -236,6 +236,103 @@
     "setting_menu_resource_hooks_found": false,
     "full_setting_menu_touch_established": false
   },
+  "ui_static_trace": {
+    "analysis_scope": "offline-static-target-filesystem",
+    "module": "lib/viewUnified2.so",
+    "candidate_paths": [
+      {
+        "entry_name": "ViewSettingMenu",
+        "entry_offset": "0x22355e",
+        "target_name": "touch_detect_mode_status_read",
+        "target_offset": "0x1613f0",
+        "path_offsets": [
+          "0x22355e",
+          "0x222f68",
+          "0x43156c",
+          "0x1613f0"
+        ],
+        "semantic_boundary": "status-read-not-coordinate-dispatch"
+      },
+      {
+        "entry_name": "ViewSettingMenu",
+        "entry_offset": "0x22355e",
+        "target_name": "display_transition_touchpad_area_reconfiguration",
+        "target_offset": "0x41ae08",
+        "path_offsets": [
+          "0x22355e",
+          "0x21c644",
+          "0x1626cc",
+          "0x41b244",
+          "0x41ae08"
+        ],
+        "semantic_boundary": "configuration-not-menu-selection"
+      }
+    ],
+    "negative_searches": [
+      {
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "target_name": "master_layout_factory",
+        "target_requested_offset": "0x181f18",
+        "target_function_offset": "0x181f18",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      },
+      {
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "target_name": "vertical_info_layout_factory",
+        "target_requested_offset": "0x24222c",
+        "target_function_offset": "0x24222c",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      },
+      {
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "target_name": "root_resource_call_owner",
+        "target_requested_offset": "0x2307d0",
+        "target_function_offset": "0x223b8c",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      },
+      {
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "target_name": "sample_view_resource_setup_owner",
+        "target_requested_offset": "0x6666a4",
+        "target_function_offset": "0x6695d8",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      },
+      {
+        "root_set": "ViewStlrec-candidate-functions",
+        "requested_roots": 25,
+        "resolved_roots": 10,
+        "target_name": "master_layout_factory",
+        "target_requested_offset": "0x181f18",
+        "target_function_offset": "0x181f18",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      },
+      {
+        "root_set": "ViewStlrec-candidate-functions",
+        "requested_roots": 25,
+        "resolved_roots": 10,
+        "target_name": "vertical_info_layout_factory",
+        "target_requested_offset": "0x24222c",
+        "target_function_offset": "0x24222c",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      }
+    ],
+    "coordinate_consumer_found": false,
+    "menu_selection_dispatch_found": false
+  },
   "creative_rendering": {
     "module": "lib/CautionConfig.so",
     "compiled_default_graph_offset": "0xb836cc",
@@ -347,6 +444,11 @@
     },
     {
       "classification": "OBSERVATION",
+      "source": "lib/viewUnified2.so ViewSettingMenu event switch at 0x22355e and schema-v2 offline direct-call trace",
+      "claim": "The recovered settings-menu event graph reaches a touch detect-mode status read through 0x222f68 and 0x43156c, plus display-transition touch-pad area reconfiguration through 0x21c644 and 0x41ae08; neither path consumes coordinates or dispatches a menu selection."
+    },
+    {
+      "classification": "OBSERVATION",
       "source": "lib/libObj.so SampleView vtable/RTTI, resource setup at 0x6666a4, and ObjDisplay backup reads at 0xdc30b6 and 0xdc597a",
       "claim": "Backup 0x01050002 conditionally skips resource touch setup inside SampleView, while the separately identified BKID_DISPLAY_TP_DEVICE key is 0x002a000a; no production-menu link or code link between these two keys has been established."
     },
@@ -384,8 +486,8 @@
     },
     {
       "classification": "INFERENCE",
-      "source": "ViewSettingMenu call-region scan, SampleView ownership, and low-level target touch APIs",
-      "claim": "Full menu touch likely requires production resource bindings and widget event routes; the writable SampleView gate is not evidence of a hidden global enable switch."
+      "source": "ViewSettingMenu direct-call trace, SampleView ownership, and low-level target touch APIs",
+      "claim": "The production settings menu is aware of touch status and display-transition touch-pad state, but full menu touch still requires an unlocated coordinate consumer, selection dispatcher, and production resource binding; the writable SampleView gate is not evidence of a hidden global enable switch."
     }
   ],
   "unresolved": [
@@ -397,7 +499,7 @@
     {
       "classification": "UNRESOLVED",
       "source": "ViewSettingMenu UXC and widget event graph",
-      "claim": "The resource or product predicate that prevents full settings-menu touch control has not yet been isolated."
+      "claim": "No coordinate consumer, menu-selection dispatcher, or production resource hook was recovered from the bounded ViewSettingMenu direct-call graph; indirect and data-driven dispatch remain untested, and the blocking resource or product predicate has not been isolated."
     },
     {
       "classification": "UNRESOLVED",
@@ -415,5 +517,5 @@
       "claim": "An authenticated package reconstruction and safe install path remain absent, so none of the target feature hypotheses can be installed."
     }
   ],
-  "conclusion": "The stock ILCE-6400 image contains vertical-named shooting layouts, orientation-aware AF handling, low-level touch machinery, and a richer Creative Style graph than its exposed interface suggests. Sony's own backup images prove the selected 0x43 TypeEmnt graph and its read-only boundary, while vtable evidence limits the tempting writable touch gate to SampleView rather than the production menu. The corrected orientation ownership establishes that ViewStlrec subscribes to the new roll service and separately attaches layout-mode updates, but no call or UXC predicate links roll state to the vertical-named layouts, and the word vertical alone does not prove device-rotation semantics. The evidence therefore does not establish the modern rotating menu, full menu touch, native Creative Look, a safe selector mutation, a bypass, or an installable package."
+  "conclusion": "The stock ILCE-6400 image contains vertical-named shooting layouts, orientation-aware AF handling, low-level touch machinery, and a richer Creative Style graph than its interface exposes. Sony backup images prove the selected read-only 0x43 TypeEmnt graph, while vtable evidence limits the writable touch gate to SampleView rather than the production menu. The ViewSettingMenu event graph reaches touch-status reads and display-transition touch-pad reconfiguration, but no recovered direct path consumes coordinates or dispatches a menu selection. ViewStlrec subscribes to the new roll service and separately attaches layout-mode updates, but no call or UXC predicate links roll state to the vertical-named layouts; their names alone do not prove device-rotation semantics. The evidence does not establish the modern rotating menu, full menu touch, native Creative Look, a safe selector mutation, a bypass, or an installable package."
 }
