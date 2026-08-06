@@ -1,0 +1,168 @@
+"""Validate bounded α6400A updater bootstrap control evidence."""
+
+from copy import deepcopy
+
+
+class UpdaterControlBootstrapError(ValueError):
+    """Raised when control-sample evidence is malformed or promoted to target proof."""
+
+
+_FORBIDDEN_KEYS = {
+    "device_path",
+    "firmware_path",
+    "key_material",
+    "partition_bytes",
+    "private_key",
+    "raw_bytes",
+    "raw_command",
+    "raw_payload",
+    "write_command",
+}
+
+EXPECTED_BOOTSTRAP = {
+    "schema_version": 1,
+    "subject": "ILCE-6400A persistent updater bootstrap architecture control",
+    "camera_policy": "physically-disconnected",
+    "camera_executed": False,
+    "sony_binary_executed": False,
+    "installable": False,
+    "source": {
+        "id": "a6400a-eu-v1.01",
+        "model": "ILCE-6400A",
+        "model_id": "0x81030017",
+        "version": "1.01",
+        "updater_partition_sha256": "c9040270ad886214c5656894b90fb1e839a3ab942cb65726633d8f1f1221c093",
+        "role": "different-model-architecture-control",
+    },
+    "target": {
+        "model": "ILCE-6400",
+        "model_id": "0x81030011",
+        "version": "2.00",
+        "architecture_transfer_proven": False,
+        "recovery_supported": False,
+        "camera_test_eligible": False,
+    },
+    "artifacts": [
+        {
+            "id": "updater-init",
+            "name": "sbin/init",
+            "size": 1451,
+            "sha256": "23773fcd4c931b4d5df84d367090191c956c9a531f045f6bb9699cbe419dc693",
+            "kind": "shell-script",
+        },
+        {
+            "id": "boot-validity-check",
+            "name": "usr/bin/is_valid_boot.sh",
+            "size": 483,
+            "sha256": "51a9aec51413eead0debd856afa60ad06ad4726bab2502a11415fe5c3a3a1b8a",
+            "kind": "shell-script",
+        },
+        {
+            "id": "mode-dispatcher",
+            "name": "usr/bin/UdtrMain.sh",
+            "size": 2174,
+            "sha256": "001220e5fa3b5242a48a107223dcf99d505225ef59d88872c7829135494418d9",
+            "kind": "shell-script",
+        },
+        {
+            "id": "production-branch",
+            "name": "usr/bin/execute_prod.sh",
+            "size": 874,
+            "sha256": "b4757905611421b212033aa2a1f15f5539466ce89097c13b64234476fa9ab4d8",
+            "kind": "shell-script",
+        },
+        {
+            "id": "ufp-branch",
+            "name": "usr/bin/execute_ufp.sh",
+            "size": 2030,
+            "sha256": "274112942c49135999b39e0c750209d0d0f7a2cfa35269ac2f40c38486a2d428",
+            "kind": "shell-script",
+        },
+        {
+            "id": "usb-preparation",
+            "name": "usr/bin/prepare-usb.sh",
+            "size": 421,
+            "sha256": "356b8d57144752dc8eb013f84b7af1937c7616cbd558c56b9df44bd19792b55f",
+            "kind": "shell-script",
+        },
+        {
+            "id": "production-engine",
+            "name": "usr/bin/sen.elf",
+            "size": 22604,
+            "sha256": "c257e5fc9a7f5738af8f4c5125527a9a0e7c0325a86ba51fc6413d5853706aaa",
+            "kind": "elf-control-binary",
+        },
+        {
+            "id": "system-update-receiver",
+            "name": "usr/bin/sauu",
+            "size": 84428,
+            "sha256": "d79af0e6958e47c9b50622b1bedb4afe86b7384e3513ffd62ce09f9e2c18a322",
+            "kind": "elf-control-binary",
+        },
+        {
+            "id": "input-feeder",
+            "name": "usr/bin/sdfileinput.elf",
+            "size": 49536,
+            "sha256": "3bb68f04e7eb633bb08099277c36ea388c4e4a0ecb786ef1c2cb1c160d64f4cb",
+            "kind": "elf-control-binary",
+        },
+        {
+            "id": "reboot-boundary",
+            "name": "usr/bin/ud_reboot.elf",
+            "size": 8804,
+            "sha256": "dd584cc4854f336992d85a4bebf68288b76feabeeb699b276c6943460d39f7e2",
+            "kind": "elf-control-binary",
+        },
+    ],
+    "edges": [
+        {"caller": "updater-init", "callee": "boot-validity-check", "kind": "STATIC_SCRIPT_REFERENCE"},
+        {"caller": "updater-init", "callee": "mode-dispatcher", "kind": "STATIC_SCRIPT_REFERENCE"},
+        {"caller": "mode-dispatcher", "callee": "production-branch", "kind": "STATIC_SCRIPT_REFERENCE"},
+        {"caller": "mode-dispatcher", "callee": "ufp-branch", "kind": "STATIC_SCRIPT_REFERENCE"},
+        {"caller": "production-branch", "callee": "usb-preparation", "kind": "STATIC_SCRIPT_REFERENCE"},
+        {"caller": "production-branch", "callee": "production-engine", "kind": "STATIC_SCRIPT_REFERENCE"},
+        {"caller": "ufp-branch", "callee": "usb-preparation", "kind": "STATIC_SCRIPT_REFERENCE"},
+        {"caller": "ufp-branch", "callee": "system-update-receiver", "kind": "STATIC_SCRIPT_REFERENCE"},
+        {"caller": "ufp-branch", "callee": "input-feeder", "kind": "STATIC_SCRIPT_REFERENCE"},
+        {"caller": "ufp-branch", "callee": "reboot-boundary", "kind": "STATIC_SCRIPT_REFERENCE"},
+    ],
+    "sauu_boundaries": [
+        {"id": "guard-dispatch", "status": "BOUNDED_CONTROL", "address": 0xDF5C, "semantic": "model-region-version guard handler"},
+        {"id": "model-compare", "status": "BOUNDED_CONTROL", "address": 0xDEA2, "semantic": "model comparison helper"},
+        {"id": "region-compare", "status": "BOUNDED_CONTROL", "address": 0xDE84, "semantic": "region comparison helper"},
+        {"id": "version-compare", "status": "BOUNDED_CONTROL", "address": 0xDEC0, "semantic": "version comparison helper"},
+        {"id": "verification-key-hash", "status": "BOUNDED_CONTROL", "address": 0x10368, "semantic": "verification-key hash workflow"},
+        {"id": "signature-verifier", "status": "BOUNDED_CONTROL", "address": 0x104E0, "semantic": "package signature verification helper"},
+        {"id": "signature-workflow-caller", "status": "BOUNDED_CONTROL", "address": 0x10A88, "semantic": "signature workflow caller"},
+        {"id": "write-orchestrator", "status": "UNESTABLISHED", "address": None, "semantic": "complete ordered stock write workflow"},
+        {"id": "completion-verification", "status": "UNESTABLISHED", "address": None, "semantic": "post-write verification and safe terminal state"},
+    ],
+    "conclusion": "The different-model control proves a persistent updater boot script chain into an enforced receiver and signature workflow. It does not identify the original α6400 pre-normal selector, installing receiver, complete write order, completion verification, or recovery behavior.",
+}
+
+
+def _reject_forbidden_fields(value: object) -> None:
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise UpdaterControlBootstrapError("Control graph keys must be text")
+            normalized = key.strip().lower().replace("-", "_")
+            if normalized in _FORBIDDEN_KEYS:
+                raise UpdaterControlBootstrapError(
+                    "Raw, secret, device, or operational fields are forbidden"
+                )
+            _reject_forbidden_fields(item)
+    elif isinstance(value, list):
+        for item in value:
+            _reject_forbidden_fields(item)
+
+
+def validate_updater_control_bootstrap(document: object) -> dict:
+    """Return an isolated graph only for the exact non-transferable control result."""
+
+    _reject_forbidden_fields(document)
+    if not isinstance(document, dict) or document != EXPECTED_BOOTSTRAP:
+        raise UpdaterControlBootstrapError(
+            "Updater control bootstrap is not the pinned fail-closed result"
+        )
+    return deepcopy(document)
