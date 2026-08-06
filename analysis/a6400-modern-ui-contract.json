@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "target": "ILCE-6400",
+  "reference": "ILCE-7M5-interface-behavior",
+  "behaviors": [
+    {
+      "id": "shooting-layout-landscape",
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "acceptance": "The shooting display uses a verified landscape geometry with all required information visible and no portrait-only coordinate assumptions."
+    },
+    {
+      "id": "shooting-layout-portrait-shutter-up",
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "acceptance": "The shooting display rearranges the required information for portrait shutter-up orientation without clipping, overlap, or a landscape-only fallback."
+    },
+    {
+      "id": "shooting-layout-portrait-shutter-down",
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "acceptance": "The shooting display rearranges the required information for portrait shutter-down orientation without clipping, overlap, or a landscape-only fallback."
+    },
+    {
+      "id": "orientation-layout-selection",
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "acceptance": "A verified target path selects the matching landscape or portrait layout from camera orientation state and updates it at the required transition points."
+    },
+    {
+      "id": "control-direction-transform",
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "acceptance": "Wheel and directional-control behavior stays visually coherent with the selected landscape or portrait layout in both vertical orientations."
+    },
+    {
+      "id": "touch-coordinate-transform",
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "acceptance": "Touch coordinates are transformed into the same orientation and geometry used to render the active interface layout."
+    },
+    {
+      "id": "menu-touch-hit-test",
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "acceptance": "A verified production-menu path consumes transformed touch coordinates and resolves them against the visible target widget hit area."
+    },
+    {
+      "id": "menu-touch-selection",
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "acceptance": "A successful production-menu hit test reaches the corresponding selection or state-change dispatcher exactly once."
+    },
+    {
+      "id": "ui-state-persistence",
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "acceptance": "The enabled interface behavior and user-visible state persist through supported mode and power transitions without corrupting unrelated settings."
+    }
+  ]
+}
