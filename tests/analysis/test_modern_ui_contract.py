@@ -54,6 +54,51 @@ class ModernUiContractTests(unittest.TestCase):
             with self.subTest(status=status), self.assertRaises(ModernUiContractError):
                 validate_modern_ui_contract(candidate)
 
+    def test_contract_rejects_unpinned_or_behavior_mismatched_evidence(self):
+        unpinned = copy.deepcopy(self.document)
+        unpinned["behaviors"][3]["status"] = "TARGET_NATIVE"
+        unpinned["behaviors"][3]["evidence"] = ["unverified analyst assertion"]
+
+        mismatched = copy.deepcopy(self.document)
+        mismatched["behaviors"][3]["status"] = "TARGET_NATIVE"
+        mismatched["behaviors"][3]["evidence"] = [
+            {
+                "source": "analysis/a6400-ui-dispatch-boundary.json",
+                "module": "lib/viewUnified2.so",
+                "path_id": "path-touch-transform",
+                "semantic": "touch-coordinate-transform",
+                "level": "CONFIRMED",
+                "claim": "A touch transform exists, but this is not layout selection.",
+            }
+        ]
+
+        for candidate in (unpinned, mismatched):
+            with self.subTest(candidate=candidate), self.assertRaises(
+                ModernUiContractError
+            ):
+                validate_modern_ui_contract(candidate)
+
+    def test_matching_pinned_evidence_can_promote_one_behavior(self):
+        candidate = copy.deepcopy(self.document)
+        candidate["behaviors"][3]["status"] = "TARGET_NATIVE"
+        candidate["behaviors"][3]["evidence"] = [
+            {
+                "source": "analysis/a6400-ui-dispatch-boundary.json",
+                "module": "lib/viewUnified2.so",
+                "path_id": "path-orientation-selector",
+                "semantic": "orientation-layout-selection",
+                "level": "CONFIRMED",
+                "claim": "A resolved target path selects the active layout from orientation state.",
+            }
+        ]
+
+        validated = validate_modern_ui_contract(candidate)
+
+        self.assertEqual(
+            validated["behaviors"][3]["evidence"][0]["path_id"],
+            "path-orientation-selector",
+        )
+
     def test_contract_rejects_wrong_identity_membership_and_order(self):
         candidates = []
 

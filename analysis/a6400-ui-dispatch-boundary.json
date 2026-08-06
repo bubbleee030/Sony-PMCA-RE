@@ -1,31 +1,88 @@
 {
   "schema_version": 1,
   "analysis_scope": "offline-static-target-filesystem",
-  "module": {
-    "name": "lib/viewUnified2.so",
-    "size": 11530552,
-    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
-  },
-  "roots": [
+  "modules": [
     {
-      "name": "ViewSettingMenu",
-      "offset": "0x22355e"
+      "name": "lib/viewUnified2.so",
+      "size": 11530552,
+      "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
     },
     {
-      "name": "ViewStlrec",
-      "offset": "0x1ab41c"
+      "name": "lib/viewUnified7.so",
+      "size": 541024,
+      "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+    },
+    {
+      "name": "share/app/master_camera.uxc",
+      "size": 101720,
+      "sha256": "5a0370408dff25dab43ed677c3b8e6c9be3b8bb8630d7ea15273d4f996cca7ec"
+    },
+    {
+      "name": "share/app/viewStlrec.uxc",
+      "size": 32104,
+      "sha256": "f5aaa2f70f9b262b515a529ee2d80bf21928f0898504643cc7f174efa405d4f5"
+    }
+  ],
+  "roots": [
+    {
+      "name": "ViewSettingMenuEventSwitch",
+      "role": "setting-menu-event-switch",
+      "module": "lib/viewUnified2.so",
+      "source_kind": "analysis-address",
+      "source_offset": "0x22355e",
+      "analysis_address": "0x22355e",
+      "function_address": "0x22355e"
+    },
+    {
+      "name": "ViewStlrecOrientationRegistration",
+      "role": "orientation-registration",
+      "module": "lib/viewUnified2.so",
+      "source_kind": "elf-file-offset",
+      "source_offset": "0x1ab41c",
+      "analysis_address": "0x1bb41c",
+      "function_address": "0x1bb41c"
+    },
+    {
+      "name": "ViewStlrecLayoutModeAttach",
+      "role": "layout-mode-attach",
+      "module": "lib/viewUnified2.so",
+      "source_kind": "elf-file-offset",
+      "source_offset": "0x1ab2d2",
+      "analysis_address": "0x1bb2d2",
+      "function_address": "0x1bb2d2"
+    },
+    {
+      "name": "ViewStlrecAfOrientationDispatch",
+      "role": "af-orientation-dispatch",
+      "module": "lib/viewUnified2.so",
+      "source_kind": "elf-file-offset",
+      "source_offset": "0x1b1e76",
+      "analysis_address": "0x1c1e76",
+      "function_address": "0x1c1e76"
     }
   ],
   "edges": [],
   "paths": [
     {
       "id": "direct-status-read",
-      "root": "ViewSettingMenu",
+      "root": "ViewSettingMenuEventSwitch",
       "offsets": [
-        "0x22355e",
-        "0x222f68",
-        "0x43156c",
-        "0x1613f0"
+        {
+          "module": "lib/viewUnified2.so",
+          "offset": "0x22355e"
+        },
+        {
+          "module": "lib/viewUnified2.so",
+          "offset": "0x222f68"
+        },
+        {
+          "module": "lib/viewUnified2.so",
+          "offset": "0x43156c"
+        },
+        {
+          "module": "lib/viewUnified2.so",
+          "offset": "0x1613f0"
+        }
       ],
       "edge_ids": [],
       "semantic": "status-read-not-coordinate-dispatch",
@@ -33,13 +90,28 @@
     },
     {
       "id": "direct-touchpad-reconfiguration",
-      "root": "ViewSettingMenu",
+      "root": "ViewSettingMenuEventSwitch",
       "offsets": [
-        "0x22355e",
-        "0x21c644",
-        "0x1626cc",
-        "0x41b244",
-        "0x41ae08"
+        {
+          "module": "lib/viewUnified2.so",
+          "offset": "0x22355e"
+        },
+        {
+          "module": "lib/viewUnified2.so",
+          "offset": "0x21c644"
+        },
+        {
+          "module": "lib/viewUnified2.so",
+          "offset": "0x1626cc"
+        },
+        {
+          "module": "lib/viewUnified2.so",
+          "offset": "0x41b244"
+        },
+        {
+          "module": "lib/viewUnified2.so",
+          "offset": "0x41ae08"
+        }
       ],
       "edge_ids": [],
       "semantic": "configuration-not-menu-selection",
@@ -53,9 +125,14 @@
       "requested_roots": 21,
       "resolved_roots": 21,
       "target_name": "master_layout_factory",
+      "target_module": "lib/viewUnified2.so",
       "target_requested_offset": "0x181f18",
       "target_function_offset": "0x181f18",
       "search_method": "static-direct-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "depth_cap": null,
       "path_found": false
     },
     {
@@ -63,9 +140,14 @@
       "requested_roots": 21,
       "resolved_roots": 21,
       "target_name": "vertical_info_layout_factory",
+      "target_module": "lib/viewUnified2.so",
       "target_requested_offset": "0x24222c",
       "target_function_offset": "0x24222c",
       "search_method": "static-direct-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "depth_cap": null,
       "path_found": false
     },
     {
@@ -73,9 +155,14 @@
       "requested_roots": 21,
       "resolved_roots": 21,
       "target_name": "root_resource_call_owner",
+      "target_module": "lib/viewUnified2.so",
       "target_requested_offset": "0x2307d0",
       "target_function_offset": "0x223b8c",
       "search_method": "static-direct-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "depth_cap": null,
       "path_found": false
     },
     {
@@ -83,9 +170,14 @@
       "requested_roots": 21,
       "resolved_roots": 21,
       "target_name": "sample_view_resource_setup_owner",
+      "target_module": "lib/viewUnified2.so",
       "target_requested_offset": "0x6666a4",
       "target_function_offset": "0x6695d8",
       "search_method": "static-direct-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "depth_cap": null,
       "path_found": false
     },
     {
@@ -93,9 +185,14 @@
       "requested_roots": 25,
       "resolved_roots": 10,
       "target_name": "master_layout_factory",
+      "target_module": "lib/viewUnified2.so",
       "target_requested_offset": "0x181f18",
       "target_function_offset": "0x181f18",
       "search_method": "static-direct-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "depth_cap": null,
       "path_found": false
     },
     {
@@ -103,9 +200,14 @@
       "requested_roots": 25,
       "resolved_roots": 10,
       "target_name": "vertical_info_layout_factory",
+      "target_module": "lib/viewUnified2.so",
       "target_requested_offset": "0x24222c",
       "target_function_offset": "0x24222c",
       "search_method": "static-direct-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "depth_cap": null,
       "path_found": false
     }
   ],
@@ -113,5 +215,16 @@
     "coordinate_consumer_found": false,
     "menu_selection_dispatch_found": false,
     "orientation_layout_selector_found": false
+  },
+  "behavior_support": {
+    "shooting-layout-landscape": false,
+    "shooting-layout-portrait-shutter-up": false,
+    "shooting-layout-portrait-shutter-down": false,
+    "orientation-layout-selection": false,
+    "control-direction-transform": false,
+    "touch-coordinate-transform": false,
+    "menu-touch-hit-test": false,
+    "menu-touch-selection": false,
+    "ui-state-persistence": false
   }
 }

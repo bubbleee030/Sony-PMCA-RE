@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import re
 import unicodedata
 
 
@@ -27,6 +28,16 @@ STATUSES = {
 }
 _DOCUMENT_FIELDS = {"schema_version", "target", "reference", "behaviors"}
 _BEHAVIOR_FIELDS = {"id", "status", "evidence", "acceptance"}
+_EVIDENCE_FIELDS = {"source", "module", "path_id", "semantic", "level", "claim"}
+_EVIDENCE_SOURCE = "analysis/a6400-ui-dispatch-boundary.json"
+_EVIDENCE_MODULES = {
+    "lib/viewUnified2.so",
+    "lib/viewUnified7.so",
+    "share/app/master_camera.uxc",
+    "share/app/viewStlrec.uxc",
+}
+_EVIDENCE_LEVELS = {"CONFIRMED", "PARTIAL"}
+_PATH_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,63}\Z")
 _MAX_TEXT_CHARS = 2048
 
 
@@ -72,10 +83,36 @@ def validate_modern_ui_contract(document: dict) -> dict:
         evidence = item["evidence"]
         if not isinstance(evidence, list):
             raise ModernUiContractError("behavior evidence must be a list")
+        levels = set()
         for source in evidence:
-            _require_text(source, "Behavior evidence")
+            if not isinstance(source, dict) or set(source) != _EVIDENCE_FIELDS:
+                raise ModernUiContractError("behavior evidence fields are not exact")
+            if source["source"] != _EVIDENCE_SOURCE:
+                raise ModernUiContractError("behavior evidence source is not pinned")
+            if source["module"] not in _EVIDENCE_MODULES:
+                raise ModernUiContractError("behavior evidence module is invalid")
+            if not isinstance(source["path_id"], str) or not _PATH_ID.fullmatch(
+                source["path_id"]
+            ):
+                raise ModernUiContractError("behavior evidence path id is invalid")
+            if source["semantic"] != item["id"]:
+                raise ModernUiContractError(
+                    "behavior evidence semantic does not match its behavior"
+                )
+            if source["level"] not in _EVIDENCE_LEVELS:
+                raise ModernUiContractError("behavior evidence level is invalid")
+            levels.add(source["level"])
+            _require_text(source["claim"], "Behavior evidence claim")
         if item["status"] != "UNESTABLISHED" and not evidence:
             raise ModernUiContractError("established behavior requires evidence")
+        if item["status"] in {
+            "TARGET_NATIVE",
+            "TARGET_REIMPLEMENTABLE",
+            "DONOR_COMPATIBLE",
+        } and "CONFIRMED" not in levels:
+            raise ModernUiContractError(
+                "native-capable behavior requires confirmed pinned evidence"
+            )
         _require_text(item["acceptance"], "Behavior acceptance")
 
     return copy.deepcopy(document)
