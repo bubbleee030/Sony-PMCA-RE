@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "target": "ILCE-6400",
+  "reference": "ILCE-7M5-creative-look-behavior",
+  "looks": [
+    "ST",
+    "PT",
+    "NT",
+    "VV",
+    "VV2",
+    "FL",
+    "IN",
+    "SH",
+    "BW",
+    "SE"
+  ],
+  "axes": [
+    "contrast",
+    "highlights",
+    "shadows",
+    "fade",
+    "saturation",
+    "sharpness",
+    "sharpness_range",
+    "clarity"
+  ],
+  "layers": {
+    "interface": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No resolved target path currently establishes a first-class Creative Look entry, preset browser, edit screen, reset, copy, and selection workflow.",
+      "acceptance": "A dedicated Creative Look workflow exposes ten looks and their supported controls without relabeling the Creative Style menu."
+    },
+    "state": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No target state model is yet proven for Creative Look identifiers, defaults, per-look adjustments, validation, reset, copy, and persistence.",
+      "acceptance": "Validated per-look records persist exact supported values across documented mode and power transitions."
+    },
+    "base_looks": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No authenticated Creative Look base tables or evidence-backed target-native representation has been located.",
+      "acceptance": "All ten named looks have authenticated or independently validated processing representations with explicit provenance."
+    },
+    "adjustment_axes": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "The eight Creative Look axes have not been independently connected to target UI, state, and processing boundaries.",
+      "acceptance": "Every axis has separately proven UI handling, state/default/range semantics, and a target processing path or an explicit blocker."
+    },
+    "pipeline_binding": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No Creative Look processing path is yet bound to live view, still JPEG, or movie output on the target.",
+      "acceptance": "Each supported output uses the selected look and adjustments consistently, with unsupported modes reported explicitly."
+    }
+  },
+  "axis_records": {
+    "contrast": {
+      "status": "UNESTABLISHED",
+      "ui": false,
+      "state": false,
+      "pipeline": false,
+      "evidence": [],
+      "blocker": "Creative Style contrast is fallback evidence only; matching Creative Look UI, state, and processing semantics remain unproven."
+    },
+    "highlights": {
+      "status": "UNESTABLISHED",
+      "ui": false,
+      "state": false,
+      "pipeline": false,
+      "evidence": [],
+      "blocker": "No independent highlights control path is established on the target."
+    },
+    "shadows": {
+      "status": "UNESTABLISHED",
+      "ui": false,
+      "state": false,
+      "pipeline": false,
+      "evidence": [],
+      "blocker": "No independent shadows control path is established on the target."
+    },
+    "fade": {
+      "status": "UNESTABLISHED",
+      "ui": false,
+      "state": false,
+      "pipeline": false,
+      "evidence": [],
+      "blocker": "No independent fade control path is established on the target."
+    },
+    "saturation": {
+      "status": "UNESTABLISHED",
+      "ui": false,
+      "state": false,
+      "pipeline": false,
+      "evidence": [],
+      "blocker": "Creative Style saturation is fallback evidence only; matching Creative Look UI, state, and processing semantics remain unproven."
+    },
+    "sharpness": {
+      "status": "UNESTABLISHED",
+      "ui": false,
+      "state": false,
+      "pipeline": false,
+      "evidence": [],
+      "blocker": "Creative Style sharpness is fallback evidence only; matching Creative Look UI, state, and processing semantics remain unproven."
+    },
+    "sharpness_range": {
+      "status": "UNESTABLISHED",
+      "ui": false,
+      "state": false,
+      "pipeline": false,
+      "evidence": [],
+      "blocker": "No sharpness-range control distinct from sharpness is established on the target."
+    },
+    "clarity": {
+      "status": "UNESTABLISHED",
+      "ui": false,
+      "state": false,
+      "pipeline": false,
+      "evidence": [],
+      "blocker": "No clarity control distinct from sharpening is established on the target."
+    }
+  },
+  "pipeline_outputs": {
+    "live_view": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No live-view Creative Look sink is resolved."
+    },
+    "still_jpeg": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No still-JPEG Creative Look sink is resolved."
+    },
+    "movie": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No movie Creative Look sink is resolved."
+    }
+  },
+  "fallback": {
+    "creative_style_available": true,
+    "status": "APPROXIMATION_ONLY",
+    "policy": "LAST_RESORT_ONLY",
+    "source": "analysis/a6400-creative-look-guide.md",
+    "native_claim_basis": false
+  },
+  "native_creative_look_established": false
+}
