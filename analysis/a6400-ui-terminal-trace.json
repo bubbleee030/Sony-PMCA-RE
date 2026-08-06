@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-target-ui-terminal-trace",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/viewUnified2.so",
+    "size": 11530552,
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+    "ui_boundary_reference": "analysis/a6400-ui-dispatch-boundary.json",
+    "source_graph_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22"
+  },
+  "export_summary": {
+    "canonical_export_sha256": "caf4f85e3edc4f558915fcbe5e6926f901c64c75a5a24c83b742449d94d8a16c",
+    "resolution_methods": [
+      "instruction-flow",
+      "pcode-literal",
+      "reference-target"
+    ],
+    "resolved_track_count": 0,
+    "ambiguous_track_count": 0,
+    "unresolved_track_count": 2
+  },
+  "tracks": [
+    {
+      "id": "orientation-handler-terminal",
+      "root": "0x1bb41c",
+      "terminal": {
+        "caller": "0x1b9b44",
+        "site": "0x1b9b6a",
+        "kind": "unresolved-indirect"
+      },
+      "resolution": {
+        "status": "UNRESOLVED",
+        "candidate_count": 0,
+        "kind": null,
+        "target": null,
+        "table": null,
+        "slot": null,
+        "provenance": null
+      }
+    },
+    {
+      "id": "layout-attach-terminal",
+      "root": "0x1bb2d2",
+      "terminal": {
+        "caller": "0x1bb2d2",
+        "site": "0x1bb30e",
+        "kind": "unresolved-indirect"
+      },
+      "resolution": {
+        "status": "UNRESOLVED",
+        "candidate_count": 0,
+        "kind": null,
+        "target": null,
+        "table": null,
+        "slot": null,
+        "provenance": null
+      }
+    }
+  ],
+  "claims": {
+    "orientation_layout_selector_found": false
+  },
+  "behavior_support": {
+    "orientation-layout-selection": false
+  },
+  "readiness": "UNRESOLVED",
+  "conclusion": "The two smallest orientation/layout indirect terminals are bounded, but no complete ordered path from orientation state to a vertical layout owner is established. All modern UI behavior claims remain false."
+}
