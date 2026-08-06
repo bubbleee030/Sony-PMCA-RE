@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-ui-factory-owner-registration",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/viewUnified7.so",
+    "size": 541024,
+    "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+  },
+  "export_summary": {
+    "canonical_export_sha256": "a6a669db167c7335a65cd3015c59a20a08af4b8de46330a4ca1c3231fa2b8e0a",
+    "typed_registration_reference_count": 5,
+    "direct_owner_caller_count": 0
+  },
+  "owner": {
+    "range": {"start": "0x529cc", "end": "0x529e8"},
+    "forwarding_edge": {"caller": "0x529cc", "site": "0x529d6", "target": "0x52840", "kind": "direct"},
+    "direct_callers": []
+  },
+  "orientation_imports": [
+    {
+      "id": "camera_orientation",
+      "symbol": "_ZN27CmnWrpOrientationRegisterAF20getCameraOrientationEv",
+      "plt": "0x14958",
+      "owners": [{"owner": "0x2d2c6", "site": "0x2d2cc"}, {"owner": "0x30750", "site": "0x30934"}]
+    },
+    {
+      "id": "status_orientation",
+      "symbol": "_ZN27CmnWrpOrientationRegisterAF23getStsCameraOrientationEv",
+      "plt": "0x15008",
+      "owners": [{"owner": "0x189dc", "site": "0x189ee"}, {"owner": "0x1b070", "site": "0x1b08c"}, {"owner": "0x1c56c", "site": "0x1c584"}, {"owner": "0x1c56c", "site": "0x1c5e4"}]
+    }
+  ],
+  "direct_path_summary": {
+    "max_depth": 32,
+    "orientation_roots": ["0x2d2c6", "0x30750", "0x189dc", "0x1b070", "0x1c56c"],
+    "layout_mode_roots": ["0x193e0", "0x27458", "0x27540", "0x29660", "0x2d68c", "0x2d770", "0x2d82c", "0x3260c", "0x53598", "0x53b9c", "0x54440", "0x56ccc", "0x56d8c", "0x56e4c", "0x56f0c"],
+    "paths_to_owner": [],
+    "paths_to_factory": []
+  },
+  "claims": {
+    "vertical_layout_factory_found": true,
+    "factory_forwarding_owner_found": true,
+    "typed_owner_registration_found": true,
+    "orientation_layout_selector_found": false
+  },
+  "behavior_support": {
+    "touch-coordinate-transform": false,
+    "menu-touch-hit-test": false,
+    "menu-touch-selection": false
+  },
+  "readiness": "TYPED_OWNER_REGISTRATION_BOUNDED_ROUTE_UNESTABLISHED",
+  "conclusion": "Five typed .rel.dyn R_ARM_RELATIVE registrations preserve the unnamed forwarding owner's Thumb pointer through PT_LOAD-mapped addends. No direct orientation/layout-mode path to that owner or the factory is established within depth 32; this does not exclude an indirect, callback, dataflow, or cross-module route."
+}
