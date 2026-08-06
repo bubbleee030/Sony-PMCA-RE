@@ -1,9 +1,18 @@
+import hashlib
 import struct
 import tempfile
 import unittest
+import zlib
 from pathlib import Path
 
-from pmca.analysis.dat import DAT_MAGIC, DatChunk, DatError, parse_dat_chunks
+from pmca.analysis.dat import (
+    DAT_MAGIC,
+    DatChunk,
+    DatError,
+    extract_dat_container,
+    locate_dat_container,
+    parse_dat_chunks,
+)
 from pmca.analysis.ranges import ByteRange, unknown_ranges
 
 
@@ -19,6 +28,11 @@ def fixture_bytes() -> bytes:
         + chunk(b"UDID", b"camera-id")
         + chunk(b"FDAT", b"encrypted-payload")
     )
+
+
+def terminated_fixture() -> bytes:
+    body = fixture_bytes()
+    return body + chunk(b"DEND", struct.pack(">I", zlib.crc32(body)))
 
 
 class DatParserTests(unittest.TestCase):
@@ -125,6 +139,79 @@ class DatParserTests(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_embedded_locator_requires_dend_and_validates_crc(self):
+        prefix = b"outer-prefix"
+        container = terminated_fixture()
+        path = self._write(prefix + container + b"next-component")
+
+        result = locate_dat_container(path, len(prefix))
+
+        self.assertEqual(result.offset, len(prefix))
+        self.assertEqual(result.size, len(container))
+        self.assertEqual(result.end, len(prefix) + len(container))
+        self.assertEqual(result.crc32, zlib.crc32(fixture_bytes()))
+        self.assertEqual(
+            [value.kind for value in result.chunks],
+            ["DATV", "PROV", "UDID", "FDAT", "DEND"],
+        )
+
+    def test_embedded_locator_rejects_bad_crc_or_missing_terminator(self):
+        prefix = b"prefix"
+        for container in (
+            terminated_fixture()[:-1] + b"x",
+            fixture_bytes(),
+        ):
+            with self.subTest(size=len(container)):
+                path = self._write(prefix + container)
+                with self.assertRaises(DatError):
+                    locate_dat_container(path, len(prefix))
+
+    def test_extractor_writes_only_an_exact_validated_artifact_slice(self):
+        prefix = b"outer-prefix"
+        container = terminated_fixture()
+        path = self._write(prefix + container + b"next-component")
+        artifacts = self.root / ".artifacts"
+        artifacts.mkdir()
+        output = artifacts / "FirmwareData.dat"
+
+        result = extract_dat_container(
+            path,
+            output,
+            offset=len(prefix),
+            artifacts_root=artifacts,
+        )
+
+        self.assertEqual(output.read_bytes(), container)
+        self.assertEqual(result["size"], len(container))
+        self.assertEqual(result["sha256"], hashlib.sha256(container).hexdigest())
+        self.assertEqual(result["source_offset"], len(prefix))
+        self.assertNotIn("data", result)
+
+    def test_extractor_rejects_overwrite_or_output_outside_artifacts(self):
+        prefix = b"prefix"
+        path = self._write(prefix + terminated_fixture())
+        artifacts = self.root / ".artifacts"
+        artifacts.mkdir()
+
+        with self.assertRaises(DatError):
+            extract_dat_container(
+                path,
+                self.root / "outside.dat",
+                offset=len(prefix),
+                artifacts_root=artifacts,
+            )
+
+        output = artifacts / "existing.dat"
+        output.write_bytes(b"keep")
+        with self.assertRaises(DatError):
+            extract_dat_container(
+                path,
+                output,
+                offset=len(prefix),
+                artifacts_root=artifacts,
+            )
+        self.assertEqual(output.read_bytes(), b"keep")
 
 
 if __name__ == "__main__":

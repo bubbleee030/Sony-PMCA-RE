@@ -1,0 +1,95 @@
+{
+  "schema_version": 3,
+  "subject": "ILCE-6400 v2.00 updater transition and receiver-version boundary",
+  "supersedes": "analysis/a6400-updater-pipeline-boundary-v2.json",
+  "camera_policy": "physically-disconnected",
+  "package_target_version": "2.00",
+  "analyzed_system_version": "2.00",
+  "installing_system_version": "pre-2.00",
+  "same_receiver_artifact_proven": false,
+  "camera_executed": false,
+  "bypass_established": false,
+  "installable": false,
+  "model_mismatch_safe": false,
+  "host_path": {
+    "signed_updater_sha256": "8f2e8b229ef9e49a874cbf920301aba078727cebc490c891a992de60ff8a3528",
+    "fdat_source": "direct-DAT-file-read",
+    "raw_fdat_sent": true,
+    "transform_before_usb": false,
+    "transfer_command": "0x0040",
+    "completion_command": "0x0100"
+  },
+  "v2_system_path": {
+    "receiver_sha256": "93ddfa0212f19ad0d204cc41a241ca3dadb0b049725812d48e2df50ba2f16f4f",
+    "crypter_sha256": "ec971fc3ae7452ff3c5a46959fdb6fa6d9a27087cb226b23cc2cce0289c84653",
+    "artifact_role": "post-install-v2-system",
+    "raw_fdat_written": true,
+    "direct_file_read": true,
+    "module_chain": [
+      "BaseFirmware",
+      "MsDecryptorModule",
+      "FileInputBodyLoaderModule"
+    ],
+    "frame_bytes": 1024,
+    "block_bytes": 16,
+    "decrypt_api": "Dec_Scramble",
+    "decrypt_mode": "aes-128-ecb",
+    "cbc_stage_present": false,
+    "key_material_omitted": true
+  },
+  "installing_receiver": {
+    "version_relationship": "runs-before-v2-system-partitions-are-installed",
+    "artifact_located": false,
+    "artifact_source_needed": "pre-2.00-camera-system-image",
+    "generation4_transform_location": "unresolved",
+    "v2_system_crypter_is_installing_crypter": false,
+    "safe_next_evidence": "authentic-pre-2.00-receiver-or-equivalent-transition-build"
+  },
+  "observations": [
+    {
+      "classification": "OBSERVATION",
+      "source": "signed Windows updater embedded PE FUN_004012d0, FUN_00406900, and FUN_00406a70",
+      "claim": "The official host parses the DAT container, seeks to the FDAT extent, reads bytes directly from that file extent, and sends them through command 0x0040 before command 0x0100. No host-side decrypt or transcode was found."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "v2.00 libupdaterufp.so command handlers",
+      "claim": "The analyzed v2.00 receiver writes command-0x0040 payload bytes directly to /tmp_updater/Firm.dat and launches crypter.elf on command 0x0100."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "v2.00 crypter.elf FUN_0000b0c8, FUN_0000b03e, FUN_0000cabc, FUN_0000e1f0, and FUN_0000e02c",
+      "claim": "The v2.00 system crypter directly reads Firm.dat, forwards raw chunks into MsDecryptorModule, buffers up to 0x400 bytes, and invokes Dec_Scramble independently for every 0x10-byte block before the body loader consumes the stream."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "v2.00 crypter.elf imports and complete MsDecryptor vtable trace",
+      "claim": "No CBC primitive, IV consumer, or separate pre-decrypt transform appears in the executing v2.00 system module chain."
+    }
+  ],
+  "inferences": [
+    {
+      "classification": "INFERENCE",
+      "source": "package transition ordering and v2.00 system-partition provenance",
+      "claim": "The crypter and receiver extracted from the v2.00 target system are post-install artifacts. They cannot be assumed to be the pre-update receiver that processes the package which installs them."
+    },
+    {
+      "classification": "INFERENCE",
+      "source": "raw generation-4 FDAT geometry compared with the v2.00 ECB-only system path",
+      "claim": "The earlier report's required pre-crypter transcode was a version-conflation hypothesis, not a located implementation. The generation-4 transform must remain unresolved until the authentic pre-2.00 receiver or an equivalent transition build is examined."
+    }
+  ],
+  "unresolved": [
+    {
+      "classification": "UNRESOLVED",
+      "source": "missing pre-2.00 camera system artifact",
+      "claim": "The exact receiver and crypter binaries that install ILCE-6400 v2.00 have not been located."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "generation-4 FDAT outer protection",
+      "claim": "The camera-side location of the AES-CBC remainder transform, its signature-verification range, and its trust anchor are not established."
+    }
+  ],
+  "conclusion": "Static evidence now separates the v2.00 target-system updater components from the older receiver that must install them. The v2.00 crypter is an ECB-only post-install artifact and does not locate the generation-4 conversion path. No bypass, safe donor conversion, or installable alpha 6400 package has been established."
+}

@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "subject": "ILCE-6400 firmware updater transport boundary",
+  "camera_policy": "physically-disconnected",
+  "dynamic_boundary": {
+    "classification": "OBSERVATION",
+    "source": "analysis/a6400-updater-no-camera.json",
+    "boundary": "no-camera-boundary",
+    "camera_present": false,
+    "device_open_group_count": 0,
+    "protocol_reached": false
+  },
+  "static_boundary": [
+    {
+      "classification": "OBSERVATION",
+      "component_role": "signed-updater-engine",
+      "sha256": "8f2e8b229ef9e49a874cbf920301aba078727cebc490c891a992de60ff8a3528",
+      "evidence": [
+        "imports:CreateFileW,DeviceIoControl",
+        "ioctl:0x002d0c00",
+        "ioctl:0x002d1400",
+        "ioctl:0x0004d014",
+        "string:FirmwareData*.dat",
+        "string:Device Open"
+      ]
+    },
+    {
+      "classification": "OBSERVATION",
+      "component_role": "signed-storage-identity-helper",
+      "sha256": "f4a3ac69dd7a580b67260bcb6236d9ab8b7d59fa0cc488a035abd1182b5d294c",
+      "evidence": [
+        "imports:SetupDiEnumDeviceInterfaces,DeviceIoControl",
+        "exports:XpStgDevGetVenIdAndProdId",
+        "exports:XpStgDeviceGetUSBSerial",
+        "exports:XpStgDeviceGetUSBSerialAndBcdDevice"
+      ]
+    }
+  ],
+  "harness": {
+    "classification": "OBSERVATION",
+    "mode": "synthetic-replay-only",
+    "physical_device_enumeration": "not-implemented",
+    "physical_device_open": "not-implemented",
+    "unknown_request_action": "terminate",
+    "model_mismatch_action": "terminate"
+  },
+  "inferences": [
+    {
+      "classification": "INFERENCE",
+      "claim": "The updater engine is consistent with a mass-storage and SCSI pass-through transport boundary.",
+      "basis": [
+        "ioctl:0x0004d014",
+        "string:FirmwareData*.dat"
+      ]
+    },
+    {
+      "classification": "INFERENCE",
+      "claim": "The signed storage helper appears limited to USB identity discovery; it is not evidence of a firmware write path.",
+      "basis": [
+        "exports:XpStgDevGetVenIdAndProdId",
+        "exports:XpStgDeviceGetUSBSerial",
+        "exports:XpStgDeviceGetUSBSerialAndBcdDevice"
+      ]
+    }
+  ],
+  "unresolved": [
+    {
+      "classification": "UNRESOLVED",
+      "gate": "camera-command-payload",
+      "next_experiment": "Map the three DeviceIoControl call sites statically before adding any non-synthetic fixture."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "gate": "camera-command-sequence",
+      "next_experiment": "Recover the updater-engine call graph and state transitions without executing a camera transport."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "gate": "model-identity-comparison",
+      "next_experiment": "Locate the ModelName and status-invalid-model references in the signed updater engine and identify their callers."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "gate": "transport-dynamic-corroboration",
+      "next_experiment": "Instrument only synthetic host API shims in the sandbox; terminate before any physical-device enumeration or open."
+    }
+  ],
+  "conclusion": "No physical transport command has been observed; protocol replay remains synthetic only."
+}

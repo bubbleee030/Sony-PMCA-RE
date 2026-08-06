@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "subject": "ILCE-6400 updater crypto and receiver boundary",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "bypass_established": false,
+  "installable": false,
+  "model_mismatch_safe": false,
+  "host_transfer": {
+    "engine_sha256": "8f2e8b229ef9e49a874cbf920301aba078727cebc490c891a992de60ff8a3528",
+    "raw_fdat_bytes": 304833808,
+    "dat_chunk_order": [
+      "UDID",
+      "FDAT"
+    ],
+    "fdat_payload_start_recorded": true,
+    "negotiated_request_bytes": 65536,
+    "maximum_data_bytes": 65496,
+    "guard_command": "0x0010",
+    "guard_sequence1_payload_bytes": 0,
+    "guard_sequence2_scope": "first-negotiated-chunk",
+    "guard_stops_on_status_ok_before_eof": true,
+    "reconnect_resets_to_fdat_start": true,
+    "full_write_command": "0x0040"
+  },
+  "normal_runtime": {
+    "library": "libupdaterufp.so",
+    "role": "header-guard-mode-switch-and-accessory-update",
+    "guard_decryption": "aes-128-ecb",
+    "guard_decrypted_prefix_bytes": 512,
+    "guard_fields": [
+      "model",
+      "region",
+      "version"
+    ],
+    "mode_switch_scripts": [
+      "up.sh ver",
+      "up.sh user"
+    ],
+    "mode_switch_reboots": true,
+    "full_write_scope": "accessory-only",
+    "accessory_tmpfs_bytes": 5242880,
+    "accessory_output": "ACCYFIRM.BIN",
+    "system_full_fdat_receiver": false
+  },
+  "updater_mode_receiver": {
+    "status": "unresolved",
+    "system_receiver_located": false,
+    "libupdaterufp_is_system_receiver": false,
+    "reason": "The located command 0x40 handler writes to a 5 MiB accessory staging area and extracts ACCYFIRM.BIN; that cannot account for the 304833808-byte system FDAT resent after updater-mode reconnect."
+  },
+  "crypter": {
+    "input_modes": [
+      "chunk=fdat",
+      "chunk=full"
+    ],
+    "frame_bytes": 1024,
+    "decrypt_api": "Dec_Scramble",
+    "decrypt_mode": "aes-128-ecb",
+    "cbc_implementation_present": false,
+    "missing_cbc_stage": "inferred-before-crypter",
+    "decoded_fdat_bytes": 303642112,
+    "header_bytes": 512,
+    "updater_image_bytes": 143360,
+    "firmware_archive_bytes": 303498240
+  },
+  "integrity": {
+    "dat_outer_crc32": true,
+    "decoded_inner_crc32": true,
+    "component_sum_crc32": true,
+    "outer_trailer_bytes": 272,
+    "outer_iv_bytes": 16,
+    "outer_suffix_bytes": 256,
+    "outer_suffix_role": "unresolved",
+    "signature_plausible": true,
+    "signature_proven": false
+  },
+  "sa_boundary": {
+    "aes_program_registered": true,
+    "aes_program_sha256": "8966f450591d7253058d4cbe9146d63831e0da128136c03d7c392ba830b25692",
+    "aes_program_id": "0x13",
+    "udrt_program_registered": true,
+    "udrt_program_sha256": "bd634220c7a48eb4611de09f8abf29459306c403cc2e70119eb10623d838806a",
+    "udrt_program_id": "0x3f",
+    "registry_type": "0x93",
+    "imdb_namespace_link_proven": false,
+    "updater_invocation_proven": false
+  },
+  "observations": [
+    {
+      "classification": "OBSERVATION",
+      "source": "Signed Windows updater engine decompilation and pmca protocol source",
+      "claim": "The guard transfer starts with a zero-payload handshake and can terminate successfully after the first negotiated data chunk; the updater-mode recursion seeks back to the saved FDAT start before the complete command 0x40 transfer."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "alpha 6400 libupdaterufp.so decompilation",
+      "claim": "The normal-runtime guard decrypts only the first 512 bytes for model, region, and version fields, and its located full-write path stages an accessory image named ACCYFIRM.BIN in a 5 MiB tmpfs."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "alpha 6400 crypter.elf and libupdatertalk.so decompilation",
+      "claim": "The located Dec_Scramble path processes 1024-byte frames with AES-128 ECB and exposes no CBC implementation, while the validated decoded layout is a 512-byte header, 143360-byte updater image, and 303498240-byte firmware archive."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "historical generation-four decryptor and alpha 6400 size arithmetic",
+      "claim": "The historical decryptor treats the final 272 bytes as a 16-byte IV followed by an ignored 256-byte suffix; subtracting that trailer leaves a 1024-byte-aligned ciphertext region."
+    }
+  ],
+  "inferences": [
+    {
+      "classification": "INFERENCE",
+      "source": "Valid split ECB/CBC reconstruction combined with crypter ECB-only implementation",
+      "claim": "A CBC transformation probably occurs in the updater-mode ingress path before crypter.elf, but its implementation, caller, and key origin have not been located."
+    },
+    {
+      "classification": "INFERENCE",
+      "source": "Fixed 256-byte outer suffix and signed-generation documentation",
+      "claim": "The outer suffix is a plausible authenticity object, but no verifier, signed range, trust anchor, or failure mapping has been proven."
+    }
+  ],
+  "unresolved": [
+    {
+      "classification": "UNRESOLVED",
+      "source": "Updater-mode runtime",
+      "claim": "The system receiver that accepts the full command 0x40 FDAT after re-enumeration remains unlocated."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "Updater-mode ingress and secure-application boundaries",
+      "claim": "No proven call chain connects the registered AES or UDRT secure application to the firmware CBC stage or to authenticity verification."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "Outer protection trailer",
+      "claim": "The semantic role and verification algorithm for the final 256 bytes remain unknown."
+    }
+  ],
+  "conclusion": "The two-stage transport, normal-runtime header guard, accessory-only UFP write path, ECB crypter, decoded layout, and CRC layers are mapped. The separate system receiver, pre-crypter CBC implementation, outer-suffix verifier, and any SA invocation remain unresolved, so no bypass or installable model-mismatched image has been established."
+}

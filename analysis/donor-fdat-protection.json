@@ -1,0 +1,290 @@
+{
+  "schema_version": 1,
+  "subject": "Sony donor FDAT protection boundary",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "decryption_established": false,
+  "installable": false,
+  "artifacts": [
+    {
+      "source_key": "a6700-tw-v2.00",
+      "sha256": "d3c7db5b9b40c89b11ecf03addf0f6ff1d9b917acf9f55e46360462e86db847c",
+      "fdat_offset": 156,
+      "fdat_size": 1024017680,
+      "profile": {
+        "size": 1024017680,
+        "aes_block_aligned": true,
+        "sample_profile": {
+          "sample_bytes": 196608,
+          "entropy_bits_per_byte": 7.999164,
+          "total_16_byte_blocks": 12288,
+          "unique_16_byte_blocks": 12263,
+          "adjacent_equal_16_byte_blocks": 25
+        },
+        "trailer_candidates": [
+          {
+            "encrypted_size": 1024017408,
+            "prefix_size": 16,
+            "suffix_size": 256,
+            "trailer_size": 272
+          }
+        ],
+        "boundary_metadata": {
+          "prefix_sha256": "694b8e6e0c0c98af6c3d50896220ffa1e311a88df71e65fc3faee502ed10eaed",
+          "prefix_entropy_bits_per_byte": 3.875,
+          "prefix_unique_bytes": 15,
+          "prefix_all_zero": false,
+          "suffix_sha256": "f3ba1a4b884dc51a0103565ae9c5caa9854123d5f40c809bfd9937336c3dbbfb",
+          "suffix_entropy_bits_per_byte": 7.143116,
+          "suffix_unique_bytes": 159,
+          "suffix_all_zero": false,
+          "cryptographic_role_established": false
+        }
+      }
+    },
+    {
+      "source_key": "a7v-tw-v2.00",
+      "sha256": "098290778a84236a0f2be44ac8398fd428d522b5c2c6676f19df23d09ee293d6",
+      "fdat_offset": 148,
+      "fdat_size": 376540560,
+      "profile": {
+        "size": 376540560,
+        "aes_block_aligned": true,
+        "sample_profile": {
+          "sample_bytes": 196608,
+          "entropy_bits_per_byte": 7.998969,
+          "total_16_byte_blocks": 12288,
+          "unique_16_byte_blocks": 12288,
+          "adjacent_equal_16_byte_blocks": 0
+        },
+        "trailer_candidates": [
+          {
+            "encrypted_size": 376540160,
+            "prefix_size": 16,
+            "suffix_size": 384,
+            "trailer_size": 400
+          }
+        ],
+        "boundary_metadata": {
+          "prefix_sha256": "e3d36adeb1deadad6107f947bc060bdd62bb9b09dbdef2ba56c356ed0ee1ebba",
+          "prefix_entropy_bits_per_byte": 3.875,
+          "prefix_unique_bytes": 15,
+          "prefix_all_zero": false,
+          "suffix_sha256": "0b99e98c5215a66ca6789c25ce56f932021fdbae22a444d9cefba868fa5d7a81",
+          "suffix_entropy_bits_per_byte": 7.425028,
+          "suffix_unique_bytes": 197,
+          "suffix_all_zero": false,
+          "cryptographic_role_established": false
+        }
+      }
+    },
+    {
+      "source_key": "a7s3-jp-v2.15",
+      "sha256": "e3e11308c4b0dd661c2c2231bd5a4ccdbd5320976694bd2ed8b19d3e89617c01",
+      "fdat_offset": 108,
+      "fdat_size": 645741840,
+      "profile": {
+        "size": 645741840,
+        "aes_block_aligned": true,
+        "sample_profile": {
+          "sample_bytes": 196608,
+          "entropy_bits_per_byte": 7.999008,
+          "total_16_byte_blocks": 12288,
+          "unique_16_byte_blocks": 12263,
+          "adjacent_equal_16_byte_blocks": 25
+        },
+        "trailer_candidates": [
+          {
+            "encrypted_size": 645741568,
+            "prefix_size": 16,
+            "suffix_size": 256,
+            "trailer_size": 272
+          }
+        ],
+        "boundary_metadata": {
+          "prefix_sha256": "3088fb85a6be49f74af1f696be08fda00f915192a1801ddd59935c683f34e6dc",
+          "prefix_entropy_bits_per_byte": 4.0,
+          "prefix_unique_bytes": 16,
+          "prefix_all_zero": false,
+          "suffix_sha256": "307c5084e1c24644464ca01defc79c4fb4c8babbc7bbeed868c1789f0b949239",
+          "suffix_entropy_bits_per_byte": 7.217411,
+          "suffix_unique_bytes": 166,
+          "suffix_all_zero": false,
+          "cryptographic_role_established": false
+        }
+      }
+    },
+    {
+      "source_key": "a7s3-jp-v3.01",
+      "sha256": "0dcbc601d73b319cd03283363c156fec1efebf61a8e2855be11453603dc08d73",
+      "fdat_offset": 108,
+      "fdat_size": 739118352,
+      "profile": {
+        "size": 739118352,
+        "aes_block_aligned": true,
+        "sample_profile": {
+          "sample_bytes": 196608,
+          "entropy_bits_per_byte": 7.998983,
+          "total_16_byte_blocks": 12288,
+          "unique_16_byte_blocks": 12263,
+          "adjacent_equal_16_byte_blocks": 25
+        },
+        "trailer_candidates": [
+          {
+            "encrypted_size": 739118080,
+            "prefix_size": 16,
+            "suffix_size": 256,
+            "trailer_size": 272
+          }
+        ],
+        "boundary_metadata": {
+          "prefix_sha256": "ea9f3cc8bbcdda9b8141764b11f6a955fdbefa72b9acad701a812685d511cd7b",
+          "prefix_entropy_bits_per_byte": 3.875,
+          "prefix_unique_bytes": 15,
+          "prefix_all_zero": false,
+          "suffix_sha256": "71e9007bf7fec066c993a9fa8454462fc1b2938dcfc3817cd5495c16309ef75f",
+          "suffix_entropy_bits_per_byte": 7.147098,
+          "suffix_unique_bytes": 158,
+          "suffix_all_zero": false,
+          "cryptographic_role_established": false
+        }
+      }
+    }
+  ],
+  "historical_tool_probe": {
+    "repository": "https://github.com/ma1co/fwtool.py",
+    "commit": "cdba742b73eed5981480c326aeb30033aabf0223",
+    "module": "fwtool/sony/fdat.py",
+    "results": [
+      {
+        "source_key": "a6700-tw-v2.00",
+        "shared_stage_result": "HEADER_MATCH",
+        "block_declared_size": 1020,
+        "internal_version": "2.00",
+        "model_id": "0x20030001",
+        "region": 0,
+        "firmware_offset": 1253888,
+        "firmware_size": 1018763264,
+        "filesystem_count": 2,
+        "known_cbc_key_result": "BLOCK_CHECKSUM_MISMATCH"
+      },
+      {
+        "source_key": "a7v-tw-v2.00",
+        "shared_stage_result": "HEADER_MISMATCH",
+        "block_declared_size": null,
+        "internal_version": null,
+        "model_id": null,
+        "region": null,
+        "firmware_offset": null,
+        "firmware_size": null,
+        "filesystem_count": null,
+        "known_cbc_key_result": "BLOCK_CHECKSUM_MISMATCH"
+      },
+      {
+        "source_key": "a7s3-jp-v2.15",
+        "shared_stage_result": "HEADER_MATCH",
+        "block_declared_size": 1020,
+        "internal_version": "2.15",
+        "model_id": "0x91030083",
+        "region": 0,
+        "firmware_offset": 1253888,
+        "firmware_size": 641965056,
+        "filesystem_count": 2,
+        "known_cbc_key_result": "NO_DECRYPTER_FOUND_AFTER_KEY_TRIALS"
+      },
+      {
+        "source_key": "a7s3-jp-v3.01",
+        "shared_stage_result": "HEADER_MATCH",
+        "block_declared_size": 1020,
+        "internal_version": "3.01",
+        "model_id": "0x91030083",
+        "region": 0,
+        "firmware_offset": 1253888,
+        "firmware_size": 734976000,
+        "filesystem_count": 2,
+        "known_cbc_key_result": "NO_DECRYPTER_FOUND_AFTER_KEY_TRIALS"
+      }
+    ]
+  },
+  "source_survey": {
+    "performed_at": "2026-08-05",
+    "upstream_forks_surveyed": 37,
+    "forks_with_new_decrypter_paths": 0,
+    "recent_implementation_repository": "https://github.com/theubusu/unixtract",
+    "recent_implementation_commit": "392c3229030adafa9f8f64824d3d11cd727c7d04",
+    "recent_implementation_result": "same historical common, CXD90014, and CXD90045 key paths with a fixed 0x110 fourth-generation trailer",
+    "new_decrypter_paths_found": 0
+  },
+  "observations": [
+    {
+      "classification": "OBSERVATION",
+      "source": "bounded donor samples and exact FDAT sizes",
+      "claim": "The alpha 6700 FDAT is compatible with one allowlisted 0x110 trailer geometry; the alpha 7 V FDAT is compatible with one allowlisted 0x190 trailer geometry."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "historical fwtool first-stage probe",
+      "claim": "The alpha 6700 historical shared first stage produces the expected UDTRFIRM header and bounded metadata, while the alpha 7 V historical shared first stage does not."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "historical fwtool known-key trials",
+      "claim": "Every locally available historical decrypter path terminates at a block checksum mismatch for both donors."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "GitHub fork and recent implementation survey",
+      "claim": "No surveyed public implementation adds a donor-generation decrypter path beyond the historical key and geometry set."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "official alpha 7S III 2.15 and 3.01 payloads plus metadata-only boundary hashes",
+      "claim": "Both same-model payloads preserve the 0x110 geometry and shared UDTRFIRM first stage, while their 16-byte prefixes and 256-byte suffixes are nonzero and differ across versions."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "byte-identical FirmwareUpdaterEg.exe and FirmwareUpdaterImg.dll across alpha 7S III 2.15 and 3.01",
+      "claim": "The host-side updater engine is unchanged across the two packages and imports transport and UI APIs but no host cryptographic API, placing the unresolved second-stage operation on the camera side."
+    }
+  ],
+  "inferences": [
+    {
+      "classification": "INFERENCE",
+      "source": "alpha 6700 first-stage match plus second-stage checksum failure",
+      "claim": "The alpha 6700 likely retains the historical wrapper and shared first stage, with its unresolved boundary at or before the second protected stage."
+    },
+    {
+      "classification": "INFERENCE",
+      "source": "alpha 7 V first-stage mismatch and distinct trailer geometry",
+      "claim": "The alpha 7 V likely uses a newer first-stage key, cipher, or input transformation and a changed trailer structure."
+    },
+    {
+      "classification": "INFERENCE",
+      "source": "trailer suffix lengths only",
+      "claim": "The 256-byte and 384-byte suffixes are consistent with different signature widths, but no signature algorithm or semantics are established."
+    },
+    {
+      "classification": "INFERENCE",
+      "source": "same-model alpha 7S III first-stage matches, differing boundary hashes, and byte-identical host engines",
+      "claim": "Alpha 7S III 2.15 and 3.01 likely share a camera-resident second-stage key family or derivation, but known plaintext and cross-version ciphertext do not make that key recoverable."
+    }
+  ],
+  "unresolved": [
+    {
+      "classification": "UNRESOLVED",
+      "source": "alpha 6700 second protected stage",
+      "claim": "The alpha 6700 second-stage key or derivation and any authenticated full decryption remain unknown."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "alpha 7 V first protected stage",
+      "claim": "The alpha 7 V first-stage algorithm or key and the actual semantics of its 0x190 trailer remain unknown."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "camera-side enforcement",
+      "claim": "The camera-side signature verification implementation, public trust anchor, and signed byte range remain unlocated."
+    }
+  ],
+  "conclusion": "The donors expose at least two protection geometries. The alpha 7S III 2.15 and 3.01 pair precisely places the usable decryption boundary after the shared UDTRFIRM first stage and before the camera-resident second protected stage. Their nonzero, version-varying 16-byte prefixes and 256-byte suffixes are now fingerprinted without exposing bytes, but those shapes do not prove IV or signature roles, no signature implementation or trust anchor is located, neither donor is fully decrypted, and no installable alpha 6400 artifact exists."
+}

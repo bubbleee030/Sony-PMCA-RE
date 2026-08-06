@@ -1,0 +1,857 @@
+{
+  "boundary": "no-camera-boundary",
+  "boundary_reproduced": true,
+  "camera_policy": "physically-disconnected",
+  "passed": true,
+  "run_count": 2,
+  "runs": [
+    {
+      "boundary": "no-camera-boundary",
+      "camera_present": false,
+      "elevated": false,
+      "events": [
+        {
+          "category": "com",
+          "count": 3,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "09e711b170d7b4c2be6cb3e7be8b1573901644dc7f3f99f66d9ae52d0e39fc27",
+            "27574ad4effc36e961ae591e6e3620489f4c85227e8cb74d149e7f15cbdd9971",
+            "62a096a1b64325efb1b0697cc2ad1a92be45f137b45c1889d79455b784e895cf"
+          ],
+          "unique_target_count": 3
+        },
+        {
+          "category": "com",
+          "count": 15,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "09e711b170d7b4c2be6cb3e7be8b1573901644dc7f3f99f66d9ae52d0e39fc27",
+            "22c151dd67aeadb6767a8b976470cf259f6a2a2b177e4ff6742fe9c831c69a44",
+            "27574ad4effc36e961ae591e6e3620489f4c85227e8cb74d149e7f15cbdd9971",
+            "3b0ad42c2bf28a70f434cc2f7616b127ff74a3ceaf98b983a8f461ae3b2f83de",
+            "62a096a1b64325efb1b0697cc2ad1a92be45f137b45c1889d79455b784e895cf",
+            "674b2b2d8e1ec2569b32ec2bee1917f0e7b64140db62ffba6386c894b98b0f61",
+            "82a6bad54bffd718521db87380305d2ae35d7eea38e8886ef6025528e81d7103",
+            "a5a803c8600a1edf4d2edc27095e19775f7b89b5f7b0d5e67b64e81d27038923",
+            "b0d2fdc614f4c9ea2b78eaa357d2e9a0c3e84560876fc2990ce13d9e10a39cad"
+          ],
+          "unique_target_count": 9
+        },
+        {
+          "category": "file",
+          "count": 973,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "01ddfaf96481d9bd6f2373886fc86ff1be118ccc0512134c6458cbcd5a16b5ba",
+            "028d048d73aa6d98c0706d3840e549efcc78609e86d7f7a9fd16d28b3cc73226",
+            "090c9a5e2778d1f56b59475425b9354ef03a4207e999c1f6edf4d7088addec68",
+            "104469999728c39610cbb77a8a36d206f7282051ee25f13c868f934e3f3997b8",
+            "106f3b81e85d8f696a8a0231a196a16b8fdcd8d9ef1dac62bf8e70320bad036f",
+            "14368747019355dbb32797435284c08274b6aac330ca6f70d2a8fd7bbece8d06",
+            "1496e52f040bc3b708c81462db191eb698920c1f7bfe5057762dcf701fb34685",
+            "1556f7701cff713bb3251c2d840782634698b0ed9c2adcd778de353dc3605598",
+            "16bd5daa4d1d827b3288cad773fad8eef41a7ec2a19a47fb131d17ef57937728",
+            "16cdbe471c89d85bd1199ad006a7ac49d8457e6794b94dfea87591096f412164",
+            "1860696d38f83a998ee30e7a8e6ea86a1c3efd935c16ab82858dc6bb1bb22f9e",
+            "198f7417eaaf3f59ec1726dff89ccd56cd065568a2f94e5c3c91d17f76a72ec9",
+            "1a4574f80c1dd2e1347dcae2434f1ba50805dd8bf6239c3ca29b61bbadd77171",
+            "285fd17777a57830e3bcafa8f79255fcad9abdaf5be73bc1682bae914d9aa985",
+            "29916137fb7e83cb79fea575cb9af37ad79b96c608cf8c59b236deb0df8e64d3",
+            "2bf82433fa3fe994c751fccc4cf9ba0fb16c0abec3fb3006424aedcf12efe475",
+            "2ff52792cd9be73565d3f3e195f5a94415df7fe36e22e8b599c450d88a7d33ab",
+            "32040811e67dd59366bb8f27c13078964348a232a0532fde844a9da213fa4071",
+            "320f03bb87622da0c0014665b3a1d746d208bbc2351100ec70f12e75eb3fb00a",
+            "360c5b0a9a749732b408996bf302facccea3c194ebbbe27fb0f1efbb049574e3",
+            "36d85f7e6dedfefd3f94a6cc6333cc7ed6faed44cc29d091256ceef90025f9d2",
+            "3879014ec96c442f6b561fde383e53109db4e26377b606cb38414f147fa60390",
+            "3a1880e6d737aa78fedd55131b9858935bed9b6dfda831221f36e31e683ff16b",
+            "3a440c134444a3621329497caebb38635ac2267993ad47c25f0b21d203180110",
+            "3b51b2413951d9281f03f6d07d7b58e148d2a9bac9f0402f4e2539e38d87aa02",
+            "3b6cc8918f021c02e78b71510cb6a23ab91ece117f6acbf3ed0181bde9d12a34",
+            "437d1ad6a99c4cba8259fde0bccefb4597d64545033f3e13e6df4fadd1e82edb",
+            "4775becb5d474fc5daf6f51ecff2dcf067eb9a4fdf4369cb09a1f0ef72491c74",
+            "4a1cac59a8665ba00abb2e25c355a55d0f0c3412ea7762a13aa4bb34c92dda60",
+            "4aae9765f59f13757ef4b29e688adb7b6d72e586278ac40667c735337bd1b9df",
+            "4f68196fc1860d9e0e42ad880ff2804bbe0e942d474a0a24a5b2d0fac7e53045",
+            "4fe2c1f601987c8139cc1fb02998006a17a6f3b1b098718b6d1cda9b9dba764e"
+          ],
+          "unique_target_count": 97
+        },
+        {
+          "category": "file",
+          "count": 1506,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "01c59f12c0f28c0a6785cc95d8a48e7c944f2266e2604acc10c2fae2263f6aca",
+            "01ddfaf96481d9bd6f2373886fc86ff1be118ccc0512134c6458cbcd5a16b5ba",
+            "062e0fd2ea2f6889c01b1ca9baeb7554fb2e284256b7e9703d7dd03ce18ff3b6",
+            "0806a833e87d9ef1cccf891c8b76c74f1b552aa79a19ad301c6e4a2440e81300",
+            "090c9a5e2778d1f56b59475425b9354ef03a4207e999c1f6edf4d7088addec68",
+            "0969a42f1f527376074bbec2ed3b167e2ea3000ee00feea7b228a9dfde990cdc",
+            "0a62a168450bd6058170c37cf61b8b4e1be806380be7a3af5605e9983262d4d6",
+            "0b3963ccb2d426e855687f048433ca1fc1bcef1d63726f2cac1c2f15c849b350",
+            "0b79bdb15d8a96d3ab2334015c2867eb19b9bbc495b2ec51efdfd001080d1777",
+            "0bb6144a95b1ddd0b8c23ad74afacbe74e163d1154d8c267c5a1d35dd7637d83",
+            "0c3716f4bf58701c24e3347b3984328d11d8cf4ffcf5b6baf1c14d827fed1e80",
+            "10015e0f176b0d04e70bc55ef7cd3fc808104eca533a6d7bdf848b51572dedec",
+            "11e20b99e913cd0cc15bae095c340ff7dba023d01eff1417c2ddb9ddba9a9ca6",
+            "125a901fdb5950c0d99eb98f2343aae387e08fe16c06da1a8474e00d5f962f88",
+            "1399856d22258d81d1cc1edb105c6793ce2289aa55cae6df456ecc4337d7a2fa",
+            "14368747019355dbb32797435284c08274b6aac330ca6f70d2a8fd7bbece8d06",
+            "14b35e5c4929ce5ed882a6ec8d0a26dfe4079e66077ec0f709ff751ecf1d718b",
+            "15f6a305165ba7b632d366d62724cc0ed797d58b2aba4b0e203575f44e55348c",
+            "160283bdf9f195d45e537e2684bd52ecef1629c6757134c39148379ccba91e5d",
+            "17620085c40fe5f5adb0e1426c7735c7ab0bc7050d9c4d14b59aa82bab0e06a5",
+            "1860696d38f83a998ee30e7a8e6ea86a1c3efd935c16ab82858dc6bb1bb22f9e",
+            "1afcd2cf7599c21299471db14620d82cb5d9977e76ec97c334f9807cef47d707",
+            "1b402abbad9b450a50f4c7cf1e5293c3363834c7d06ce1fcc824741f7c0bce5c",
+            "1b579c1b2608ac2ac7a35dd93df1f73837cd05ae42502dea38e420c8f5b67546",
+            "1bca0b952a2b2f5e6cd36664d0573cca626c8bf16d833da8024bfa62fd70903d",
+            "1c65ef076b05fc56bcf6e6adfb1e71fa6882f2488f299da7f2a870618c432d61",
+            "1ca0de970ce55b0d50a6e7f63ac88cb5a546df0d6e1b250c018cc25ca7ed59e6",
+            "1cbe8f7420846eebb1a476de072e376dbc8e6f5b01b682e8dd67018eee39ab4e",
+            "1e75bbd8eba9baa1277d5b2c2b040660a0cd1af715bf59be8031e19cb9e1248f",
+            "1eac14c78936f38a9f856bf7a0ab25d1d5d517504c67f69996ddaf39c2df9065",
+            "1f6d1f4f0472b30db239667625f8a78a6e0f5fb7897e09bdeb03f1fe6a9606aa",
+            "1f7405e146b248abcab2270bfcac916a753c3a6f48e8475f303cf3c1980aba2d"
+          ],
+          "unique_target_count": 291
+        },
+        {
+          "category": "ipc",
+          "count": 25,
+          "outcome": "allowed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "1a30588e55ddbcba80ca14fcc6e93820575d5a826d300d528cab3616a689887e",
+            "317a3c6f96bc543c4b5e672a15d9734a5867282cffad3e8ee1b78c432e7d5021",
+            "325438b55ea735018afee32027759712104ecef11264dd10a94cd00fd2138f7d",
+            "4181a8d5bc1767bc1648ee18ff7819244f8584476aeb13bcd89175535311b348",
+            "43e16775ab3e025c7eca4489c5f62af225e4b8172aa453d380f4bd7df9182d26",
+            "6f2fd55d9390ca3ffdfb99b03f591be60cc8a1879b9bd1c09ed0060e8b2d1f89",
+            "7e47fbca74acf44821faeee6ed3179576f7827010ab41c5b5973a0422d5e2e0a",
+            "86705119a3dd17ebb7ab8feb558a3ea509f56f4dda2fd2bf4ce65d479a9547af",
+            "90113a3aca81adbdf33f2a2b21033a5a606189feef5dce0279fe22515491f266",
+            "94a234f82a35854ca9202e6652bfb082d4e3bfd9df91e8e0f3f8812bf4e20a73",
+            "b1492da0eefffa2b028ca6872935ee1c725cd0d4edb918fbf145a041eaf76d3d",
+            "c63cce002ddcaff33d9e3f1470db6b30d6fce01ea6c6852ff4cce3498238135d",
+            "d8153b769094691caad229cc916050ea18d3a1b3e1e34450d69111c1636127e0",
+            "e2c4c23180b5175afaa098b0470b3398c4988cf77eb8d599ed9ae8d244b8593b",
+            "e8c971ed528efbdc4aaaa2c1348bb432da7687d9f038b9c272ffe2a8daf54a8b",
+            "f3c5b81ee17119a6bc9794abc5acbfed7b0d7eaacfe6b666721d4f3d77e45c3d",
+            "f5b7aa9e2de321fcea23fbc136631f812542282a0915482c76fd7115d63c8b52",
+            "f8c3d21bb18a3b608ebccf81472689dacd76f2fb610e5bb9a6dd8acdd2879635"
+          ],
+          "unique_target_count": 18
+        },
+        {
+          "category": "ipc",
+          "count": 3,
+          "outcome": "allowed",
+          "process_role": "updater",
+          "target_sha256": [
+            "7e47fbca74acf44821faeee6ed3179576f7827010ab41c5b5973a0422d5e2e0a",
+            "af5720c5ca6ffd6d77a01896d8e26f06ae95b4f28875b4241ef8bd667d43406b"
+          ],
+          "unique_target_count": 2
+        },
+        {
+          "category": "ipc",
+          "count": 13,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "3af7afea46ce2ffecc641dc649af2e2a9de1ff010e1663c73d1381f7cf9b6a51",
+            "5327c4b92dd37e959ed3b2ff85a5e584a8045d406adc8d520aca62040ece054d",
+            "7e47fbca74acf44821faeee6ed3179576f7827010ab41c5b5973a0422d5e2e0a",
+            "7f642c69e3259e9a9bf409f502fb969a193fba67b360f8796aff167941dda427",
+            "94a234f82a35854ca9202e6652bfb082d4e3bfd9df91e8e0f3f8812bf4e20a73",
+            "b5d925a07336471a0874f03529567919fd71e06d4f75b4dc5291d64c092a3a1b",
+            "bb5aba0315186e456581a754b00942e387f39aeacf1675e60331ce1eeaf24cdb",
+            "e75a077648313b17506b12789081d31307c9defabf2ab6c1eb92f986a9aecd4d",
+            "eef551d0318cfb9818df3b81825ec88cd73bb0567a1b3e42f63d86dc69aa6640",
+            "f80518e27a163507751714d1124e7ba6cab463e91293c8773441edfbb4fcf7a6"
+          ],
+          "unique_target_count": 10
+        },
+        {
+          "category": "ipc",
+          "count": 27,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "1e66aef558a1f4b1f0ad9e4790ea09fc463bdf392618b5922da2302ab1ab91d1",
+            "288483a63c36aec0ceb2a21a3d747d9075bc17461a46a8c997b006244055f378",
+            "335608f732e401439d9802f7b5adc7271988ef23fe58fb75d06ce9c7c852adbd",
+            "375e5d8a8e406243fe36e9138e6e0634b9458990883efbc4bd7a6c33fa01e8d3",
+            "3a92aecd52e1dece59db032e49d77c0e3a6ca5a16a6734117340b49f86ce184c",
+            "40f89eeafa3c217140abf3f56929c37a2b08ec1839a436f761aa2cab3f333336",
+            "419ecf4f88998920d854c1006722221e70688e65a09e4ea7e54fba827378f401",
+            "50be3a26b52242e52262523652dbc5b142a6aa583bcd0a67f09de3bd699ccc6f",
+            "6279261021f6b295ca5bc78383ba9f5c1259bdcdf3364b225788bc87b87c9ac1",
+            "64a1737f4d554d89bb1233e5e9a65e6ca415dcd11a6611a69a19cdc9f08ac7ac",
+            "7800f234e2602a45549c8fcb6a0c190921b55234cb9f0885c41c3d826e92f663",
+            "7af0b7e883d06f7ff5e143ac59818e017c481138ebadd31c02317454806269cd",
+            "7e478f9c57b34d975c8e871ed702d920e64974e10e6b0037b5de09ae4fc61494",
+            "7e47fbca74acf44821faeee6ed3179576f7827010ab41c5b5973a0422d5e2e0a",
+            "9825e3e934ccaacdb62d1bb97402a35b27ad2ac2392408306e90dfb66202b7f7",
+            "af9d706050a797ba7cab272f610d01b3c660c93f3de61cf6048f8616df0d32eb",
+            "b6a7de3016c0ce053d8565bdc52bf667b80e7c8233ee63c2de44aba38b798a2d",
+            "ccbe1c6dc036d6d9ef81fe22be41f5b17b0248ed3efc98f08f53f250fe35911b",
+            "e88ebe0f4e3c011680d645b23faa4bc84c1300089e40effd3f50d39a1180ecfb"
+          ],
+          "unique_target_count": 19
+        },
+        {
+          "category": "pipe",
+          "count": 8,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "c94691829edd2465eed39c7fbaf2a15004211936f6b646bda79425dc5a281b75",
+            "eb732d059ca1010fd70f39021c08ea44fb80365cfa5b15d1e767061009500a68"
+          ],
+          "unique_target_count": 2
+        },
+        {
+          "category": "pipe",
+          "count": 4,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "c94691829edd2465eed39c7fbaf2a15004211936f6b646bda79425dc5a281b75",
+            "eb732d059ca1010fd70f39021c08ea44fb80365cfa5b15d1e767061009500a68"
+          ],
+          "unique_target_count": 2
+        },
+        {
+          "category": "registry",
+          "count": 12,
+          "outcome": "allowed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "a016c00bf638d6604ba0891ae7436f09c89e5bfc8c13742548a68213fc1c5d98",
+            "a67db5a7db35a6145d54190baacd1bb1502eab7e58000bf3b778f689a7cbf4c3"
+          ],
+          "unique_target_count": 2
+        },
+        {
+          "category": "registry",
+          "count": 1531,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "03c6fa6ec3a2ade34c55a08c681986f57b929e80c6366a5226f6d77a539c681c",
+            "04de6b4681632aaec15b447b42fc3c9278b1f4c1d52e33352d89f5847a7dfe2d",
+            "0600a063bf74fa2b264a82fd05d620cffeab22c2636b7ffe84f7773c9a4552ed",
+            "060d4a14f3c183fc49ea9269a608dc740697cc07e9abff9a6346ee08e910f861",
+            "10e27b75a2bd9e31d25e4fa52887781d46f2de9571d2417f1df8b0358f4c58c8",
+            "146cb3967071516e2601eb08bfb06465b4953bf55ac326662522f8c97a0eb3f3",
+            "14bca282725fe46fdf0001c3db69ccaa71b86aa7cb15eb6b1ceb62ec130a416c",
+            "15f0e566640f2a15ec34aa1b25a03b3193eb12dafa45920a149232816aa0fa32",
+            "17abebe41648131c735e2080ab534955ebaf023fa6d88c5a70933ebb90330246",
+            "18835e5f7a80142c0bee38c95b74a7fefb4072451f4473562e9fc92849b06464",
+            "18abc36971346e1375773887d3876a7217d3a58b3b120572d1f4d3391ac5ba2c",
+            "1a503ea5fcd1f1f18fdf79594eba7822b930f216c40f72af599d1a25e2318fef",
+            "1b116572dc034d825d3b4bf00a7b036b593c4611697d649610c2ac0e069ab5a5",
+            "1b34167b71a56607665b9f804966d4f36375a058f087ed4a3acf06fda96d37f8",
+            "1c9d6e6184021a217d91d4ec6332cc8e30e5dcec10a6a4afd219937c95202124",
+            "1e4aa1236cf6303371cc6422880071f713a997277251439f63d8726273daf9e1",
+            "202613a866c8e024d8e7dfa54fbe6bc3151dc3806366a0cc954ff0735cb8da99",
+            "23b98e7347410ed18f512f0b5538a941a938d1e0454eef984489ba3dcdafbea1",
+            "2712d8b4dc37a824da4c6bb4e6d31dd2a0710a9fe4e6251038a7ffc072bdea02",
+            "2baa87f4a279b118f1b243c5793def4433b030f22842fec640ef69b5c15e5e4a",
+            "2d15be1c3067721909db5aeb8fcfa0f8aec480990381f81288eaba52319fec1a",
+            "30432457602663a3f9257b1cefa2d250566ad84b7683429ff73d91055388044b",
+            "35924bb9e9ccc349d5b92493107a8b8e3cd07c03a3f44f2447c95ba9f2c49261",
+            "35d8c165032c1d7e49f18e74e911ff00eb9cf55d0dbe631a430dcf2dcba9c5a9",
+            "3688ca11ce92bf88f7b87cbe4ef86542786378cd1f412a40741f6efcb6890cc7",
+            "3d3d799014b84594a0b0530a511889cb314ff07c70a8e8a06d69a634cefff1e5",
+            "3d528778f414abbb28b0039191b274b87b67510b9974356c8e56aaeb3deb637a",
+            "407b7ca8595c9e88db0063f018d764e49c5b4ee0034b8994e5f0b8e4543bdbee",
+            "43a1880ebdbf724fcd3840bd33899a00ce07fba11cde4ff9dde6ba18cf3d95f2",
+            "445353381fa3ed8f7237e8a01c7d2690f9644292b727031bf4cc58d5bce6ee7a",
+            "449a5d1ce7defb7bb6b5b8f72950214c761c4fa5bf37430de73202c0621762d5",
+            "44b2eb3e0b5a9a4bc51a3ccef207fae50f5f522d4c3f6ef5a777325ff49e269d"
+          ],
+          "unique_target_count": 116
+        },
+        {
+          "category": "registry",
+          "count": 11544,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "00315fba21bbfb33fa8b38a5a9606f4f10f22884d4d7cbb94e3a836794980687",
+            "0052d0e7317b5f62c95c61258112b4ae3c0dd011af8efde1ea14604d7c9f18ea",
+            "0089d9321d592a760482c51486c9ef90b8943e47093a4bf190edc67fcc0968c7",
+            "01178c3295ecdf6914d74458cdf4313d9c8cc85a1ee724d244f4284caabe1567",
+            "015857b9680f6990232c6a5175b46cec215dcaa810925981b0f68adf3101124a",
+            "01ae323aaea323d3a3c6640e61f1f8f9038f915a461b58f74331d42865b3d3cd",
+            "01edcee99ba2ab44586cb305e01522cbaba150b4d9587d8fe0632c5cd0f9522e",
+            "02438117807b36585164d0893f7348825edb0f58c49f84271f92b1678f0eac58",
+            "027924183a97037027e6e5b727ed9e51683e58987c745a72c49694b49e6edfe2",
+            "029dfe3dc9c3394dc10681ca569144bbde21f81d7d5b1834d211cf885447ea8a",
+            "032442d93b1d3e379c4ac40623186cc8d6e117198f93e00bc7dc4782141637f2",
+            "03b8dbf6158640ab79282b49e667550a1dd365c4bbfe46f92e715125b735148e",
+            "03f6c9899a28fdbdba5acd09132813139f074dd28b350807d846b5a460b4c6e9",
+            "053838d64181e043cb4f8112e228b9023e06dbe5e1e4b405ea2474f735391ce6",
+            "05904ff34f501ac2320a224fd25795fc071c8d2603297dfaa54075e4956540f8",
+            "0674dd0a5b7e034bcd43d5ce39bc7038626140c8cc31dc0ca0a0a804d0b0b412",
+            "067c2649d8befdd7c8326b1af6fc6a134230389ee0ec7bde683537e5d4cfb589",
+            "068d4c0decfb160d25b7580cdd3327dcc886a827c9e701a5287b49f77bf5eb83",
+            "074e4091ed4e4686ad5cae385bed1364a48b6a3bd340f1a44d28b5b30216d45b",
+            "076b3add13f2dfc70b40e3e4fed34f1b28d7fd31cc0096280adf1c46cb32f267",
+            "07a78639d33d828de42bfbeba732161544a817b38ff99cf2ae93be996307c7e8",
+            "07bbb4da7a7003bdc42f9d51e1fab536e81ca8278170d5716c2e413ae225b60a",
+            "08882bb8c3e0ea3e09d225309df3e5091510b4a38daf52909c0fc1b6ac83fba5",
+            "0aa85669f386ee16a61318774e19c65a531f626528b6c71b984cb3b3a2d2adc9",
+            "0ac88e6b81e0413b6c6145fc5c0388ddc38007c506503d1d89a02c55e2b93a5d",
+            "0beda795aee0cd495c08ea2ac6da2883a908df37b2e874029b15e2b9ae894ad9",
+            "0bf431003dbfa5f0dd28b349936b323da27e76ea89f76631e44cbe261ec7ed56",
+            "0c3b766cac42a94c2b600b6f4337ad7f7fc16e74fd4ece3cad8e1c15ebf24ab2",
+            "0c42036cd945acfba672b8e639ec6fa112f8806998e0f43dea8db92ed6781eb2",
+            "0c688561199b4eb18e926cc556d020be7e709b5d6f756d6f920ae5b6c93716db",
+            "0d0cb894baea275d5879dc0de25b0dd951e1828caf113e742207581241af30fe",
+            "0df7579dd7b52b8afe18bc215d74cad7e9709e50e47e88387a1523b522e5ea5a"
+          ],
+          "unique_target_count": 631
+        },
+        {
+          "category": "syscall",
+          "count": 857,
+          "outcome": "allowed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "22b98ab22e3faa60d277f74b4b6bad967851a4a67633f1cf0a530b0f51fcf717",
+            "3449161a4228b18ab320bb07a6fa179b30eb5d32c0d0d1c785a647943823458e",
+            "a2d05375d3b81d699dcf41d75697371350139e3ae1e9067232b5037530ded332",
+            "b41ee7302b6c78224961d215e7c2fabfb1433dd9190a94878aa94bde06efc337",
+            "cac59ce2f94b14a58721e0cb766224879ffe07ac26bc488e580c8338c5ad5706",
+            "f3ce85a170a6884652ea0824dc6194a9514dfbbfbc446010604f1d951d16b1c6"
+          ],
+          "unique_target_count": 6
+        },
+        {
+          "category": "syscall",
+          "count": 1333,
+          "outcome": "allowed",
+          "process_role": "updater",
+          "target_sha256": [
+            "22b98ab22e3faa60d277f74b4b6bad967851a4a67633f1cf0a530b0f51fcf717",
+            "3449161a4228b18ab320bb07a6fa179b30eb5d32c0d0d1c785a647943823458e",
+            "8a59e5dc524e928d214be551534ec0227f14ab3f796bf8ddad9340fb5cb284e2",
+            "f3ce85a170a6884652ea0824dc6194a9514dfbbfbc446010604f1d951d16b1c6"
+          ],
+          "unique_target_count": 4
+        },
+        {
+          "category": "syscall",
+          "count": 948,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "310ff200149b44a32f124023d7caba19a1a890763a980606813d3a3d4a085d36",
+            "5bb8d62c1cef823035c022087f7c74a528f68cac7cdc9cb386db3dfb5393649f",
+            "ed9c1e6b77f090c9608565601ec7d919253904efbac8dc23cd252b4d44f8bdc3"
+          ],
+          "unique_target_count": 3
+        },
+        {
+          "category": "syscall",
+          "count": 6239,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "310ff200149b44a32f124023d7caba19a1a890763a980606813d3a3d4a085d36",
+            "5bb8d62c1cef823035c022087f7c74a528f68cac7cdc9cb386db3dfb5393649f",
+            "ed9c1e6b77f090c9608565601ec7d919253904efbac8dc23cd252b4d44f8bdc3"
+          ],
+          "unique_target_count": 3
+        },
+        {
+          "category": "window",
+          "count": 4,
+          "outcome": "allowed",
+          "process_role": "updater",
+          "target_sha256": [
+            "3d14d0903e82b2665e0e066715280dd7c645153924769fd5ee4bdac9a8859837"
+          ],
+          "unique_target_count": 1
+        },
+        {
+          "category": "window",
+          "count": 4,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "72a191e079bba6e21848571c6cdf9a649b28a016dc49d469b79259d1f67597ad"
+          ],
+          "unique_target_count": 1
+        }
+      ],
+      "exit_code_class": "not-observed",
+      "fingerprint_sha256": "58b3d79754a91c0912ca195622115af51f40e3070a6c18e9d8f4d384cd3947a3",
+      "launched": true,
+      "network_blocked": true,
+      "passed": true,
+      "process_roles": [
+        "sandbox-helper",
+        "updater"
+      ],
+      "sandbox_policy_sha256": "77c7717ed41f14382b27270a6002d8a3694f09a79b40586adc9c3d9c1fe9f75f",
+      "sandboxed": true,
+      "schema_version": 1,
+      "termination": "timeout-terminated",
+      "updater_sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6"
+    },
+    {
+      "boundary": "no-camera-boundary",
+      "camera_present": false,
+      "elevated": false,
+      "events": [
+        {
+          "category": "com",
+          "count": 6,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "09e711b170d7b4c2be6cb3e7be8b1573901644dc7f3f99f66d9ae52d0e39fc27",
+            "27574ad4effc36e961ae591e6e3620489f4c85227e8cb74d149e7f15cbdd9971",
+            "62a096a1b64325efb1b0697cc2ad1a92be45f137b45c1889d79455b784e895cf",
+            "d4ea91a24721c8785cb7682d15ad951f6f185157a1065f88b68c63c98ab63590",
+            "edfcf4d323fee718f47c99047fafa43107d9c9aea708bfd860a9ba9c03647a7f"
+          ],
+          "unique_target_count": 5
+        },
+        {
+          "category": "com",
+          "count": 10,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "09e711b170d7b4c2be6cb3e7be8b1573901644dc7f3f99f66d9ae52d0e39fc27",
+            "22c151dd67aeadb6767a8b976470cf259f6a2a2b177e4ff6742fe9c831c69a44",
+            "27574ad4effc36e961ae591e6e3620489f4c85227e8cb74d149e7f15cbdd9971",
+            "3b0ad42c2bf28a70f434cc2f7616b127ff74a3ceaf98b983a8f461ae3b2f83de",
+            "62a096a1b64325efb1b0697cc2ad1a92be45f137b45c1889d79455b784e895cf",
+            "674b2b2d8e1ec2569b32ec2bee1917f0e7b64140db62ffba6386c894b98b0f61",
+            "6ad586ad7ad6c684ae6dd390189a254723de796e643363a213f40fb771abf689",
+            "82a6bad54bffd718521db87380305d2ae35d7eea38e8886ef6025528e81d7103"
+          ],
+          "unique_target_count": 8
+        },
+        {
+          "category": "file",
+          "count": 718,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "028d048d73aa6d98c0706d3840e549efcc78609e86d7f7a9fd16d28b3cc73226",
+            "07b97b247699ff4511de9ae7e59749b3dd016e353d1d1b6ed2ef5357f3be3622",
+            "082b4eab5f6e5d2df487c992468b330a3036b679daa57649534df1234d425ed0",
+            "091696ced967f4e326217e2d0901591791e7847f0db4c1e9ebd41e41227f1e65",
+            "0f8dd3708c71e535b7b1f657b33a9313eaf4892e4c3d3bd136673928332a64fd",
+            "104469999728c39610cbb77a8a36d206f7282051ee25f13c868f934e3f3997b8",
+            "106f3b81e85d8f696a8a0231a196a16b8fdcd8d9ef1dac62bf8e70320bad036f",
+            "107140147962eccf753ebba2910ba5fb46a085634c23cf1cc5604fc8ce0f1004",
+            "14368747019355dbb32797435284c08274b6aac330ca6f70d2a8fd7bbece8d06",
+            "1479468c972bb42f22696780642c441dcbdc45de09cce6be2fb460691d3dc622",
+            "1556f7701cff713bb3251c2d840782634698b0ed9c2adcd778de353dc3605598",
+            "16cdbe471c89d85bd1199ad006a7ac49d8457e6794b94dfea87591096f412164",
+            "1860696d38f83a998ee30e7a8e6ea86a1c3efd935c16ab82858dc6bb1bb22f9e",
+            "1a4574f80c1dd2e1347dcae2434f1ba50805dd8bf6239c3ca29b61bbadd77171",
+            "296b9e02a8cf560e483d06613bc4dd5419973aa1bf27a32fdc8c4a0bc36cbf0c",
+            "2b550175bfbaa490efbe7792890096bae1c8d931c01461292f3756fc05f3ed51",
+            "2cd226a062c03e9895f2aec510a4aca29c84287bef5d9611b386a4a7f1ee8ba3",
+            "369375714ecce63fb81f950f0fcb7061874d55bac81a0c60c6ce62e060989125",
+            "37d6d3a82d6bb43e31fc67cfa62427866c3882e2afd2e809c2c9850b2ea28182",
+            "3879014ec96c442f6b561fde383e53109db4e26377b606cb38414f147fa60390",
+            "3a1880e6d737aa78fedd55131b9858935bed9b6dfda831221f36e31e683ff16b",
+            "3a440c134444a3621329497caebb38635ac2267993ad47c25f0b21d203180110",
+            "3d3adf4d3805ebb1c26c42ec40d78abfb0e7aed708b4e695deec9cb56da161a4",
+            "428ff64dfd206de3852ce1f18feb57ac62077720611fa28eec1b1fa1845ea427",
+            "446b871b9fe15c27c58aa078f57e364cb77b0cbab4737e3359b4ecf8e01659bf",
+            "4735d22ebcc586e8679b36c910a71530ca07a455dc82b1708a948399cb35013a",
+            "4a12444caa7f2a328896f03f89b8481d150d034655507b3784028e9141afe7eb",
+            "4e9e08e424600513f3daee01644d8f43b4ee72656d7911607dcc5a576d4241f3",
+            "4fe2c1f601987c8139cc1fb02998006a17a6f3b1b098718b6d1cda9b9dba764e",
+            "51cb8c423d304a42c69ccc2e634073c366a49a6588e7fae2d890cf6e715a5976",
+            "51eea1b913ce3ab98256f837b9e14a694b9f101637073d5abf792e7ec531a31d",
+            "538e8caa6e20e8ccc8f1f5a5ea435fac1aedfbf9fbe75c181c870d578975ba72"
+          ],
+          "unique_target_count": 104
+        },
+        {
+          "category": "file",
+          "count": 972,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "01c59f12c0f28c0a6785cc95d8a48e7c944f2266e2604acc10c2fae2263f6aca",
+            "01ddfaf96481d9bd6f2373886fc86ff1be118ccc0512134c6458cbcd5a16b5ba",
+            "028d048d73aa6d98c0706d3840e549efcc78609e86d7f7a9fd16d28b3cc73226",
+            "049bff56c2c82cf116e0a8492bf207f7801c36331e8c7ae41dcec098580d8961",
+            "062e0fd2ea2f6889c01b1ca9baeb7554fb2e284256b7e9703d7dd03ce18ff3b6",
+            "082b4eab5f6e5d2df487c992468b330a3036b679daa57649534df1234d425ed0",
+            "09dc7d7a12809cdd1b854c4e13e9ce32517cb5b6b89b7fd60df2212f1e008b66",
+            "0b79bdb15d8a96d3ab2334015c2867eb19b9bbc495b2ec51efdfd001080d1777",
+            "0c3716f4bf58701c24e3347b3984328d11d8cf4ffcf5b6baf1c14d827fed1e80",
+            "11e20b99e913cd0cc15bae095c340ff7dba023d01eff1417c2ddb9ddba9a9ca6",
+            "14368747019355dbb32797435284c08274b6aac330ca6f70d2a8fd7bbece8d06",
+            "160283bdf9f195d45e537e2684bd52ecef1629c6757134c39148379ccba91e5d",
+            "1860696d38f83a998ee30e7a8e6ea86a1c3efd935c16ab82858dc6bb1bb22f9e",
+            "1b402abbad9b450a50f4c7cf1e5293c3363834c7d06ce1fcc824741f7c0bce5c",
+            "1c20b159b55859b86a7f473d86056bf107d5cf49b6516f46d403c727aad525f8",
+            "1ca0de970ce55b0d50a6e7f63ac88cb5a546df0d6e1b250c018cc25ca7ed59e6",
+            "1cbe8f7420846eebb1a476de072e376dbc8e6f5b01b682e8dd67018eee39ab4e",
+            "1eac14c78936f38a9f856bf7a0ab25d1d5d517504c67f69996ddaf39c2df9065",
+            "21613eea150dc630056e8f97fafae278856530fc8497915e1443b745f59c6f68",
+            "21adac4032b66eb314559413fb500242cb6a4de114be4ff704311e7a743a800d",
+            "2371fe5e5fa8c9070abaa75edb7f9167a546ef8337eb3b645a3c3e5e764b2bd2",
+            "26250becf7c0ff51710d05375575a138b3902440ef99e9a728e21725f4be30f5",
+            "29e17057809addb00fc5cf21c8479139b42898d9e812e512de7472a961bd9de5",
+            "2cd226a062c03e9895f2aec510a4aca29c84287bef5d9611b386a4a7f1ee8ba3",
+            "2da827a9336038bd57f2af78f91ed8861ac6f666a20243ef793f3a70da2f8e62",
+            "2f2ee6e8cfc7305a764e9de523febe5d7d42dfe4980f34cbc45e72130feb770e",
+            "326281fd798c8cd1ff953432fa0ad4001a321faa9331391a25ff2a947bdc6940",
+            "33e51240de087fc27111b8e8a20a018c45d241762880504d559fc6f239a1c36d",
+            "36044576c78b2e8704f86463620505f7f3c361946c36c2a95a66f0c3ff486e20",
+            "3a1880e6d737aa78fedd55131b9858935bed9b6dfda831221f36e31e683ff16b",
+            "3c2913a6f614b47934e269dd080aa2fe4fbe78bd56923333155ae24d86fa92a4",
+            "3d1df88838744e0ca958b6a661f3e6b716ec857658a98393e29704cd891407d6"
+          ],
+          "unique_target_count": 179
+        },
+        {
+          "category": "ipc",
+          "count": 38,
+          "outcome": "allowed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "0b8fb01ce24f5f62540a72cdee8fb69cee2b5cc6b4ee89ae5294716ea6f6902e",
+            "317a3c6f96bc543c4b5e672a15d9734a5867282cffad3e8ee1b78c432e7d5021",
+            "43e16775ab3e025c7eca4489c5f62af225e4b8172aa453d380f4bd7df9182d26",
+            "46e8b8d3b11d75113d415c33876919d13849a245380d18ce6bb91e41f4ba99ec",
+            "46fbb2ef2c66e615776aea62db0a056afbfb28b4acccb4ae51b466914b3ce7f3",
+            "4b38c9b76d47452b5d4bd2795e30425bc4734b87f415b0d6aa8dad8ca99c37a2",
+            "5b981312b34ce5a5b1bf960e01abea03313386d27dee20ea433a1b6a3c3dfc03",
+            "6f2fd55d9390ca3ffdfb99b03f591be60cc8a1879b9bd1c09ed0060e8b2d1f89",
+            "7148947c8e6ab3afd8217ca43613f9702f993a2358f377e987063daf435cee3d",
+            "7e47fbca74acf44821faeee6ed3179576f7827010ab41c5b5973a0422d5e2e0a",
+            "86705119a3dd17ebb7ab8feb558a3ea509f56f4dda2fd2bf4ce65d479a9547af",
+            "898a4bc7e0ef229823afc668b4e7218ba891b3257e7adcd280fcefb678fe8079",
+            "90113a3aca81adbdf33f2a2b21033a5a606189feef5dce0279fe22515491f266",
+            "94a234f82a35854ca9202e6652bfb082d4e3bfd9df91e8e0f3f8812bf4e20a73",
+            "96f28778922805776f8a626ea6e3e8aca11b76b256b30025111c56ddd3c4e6e3",
+            "adc50c320f8ed41219a626754ffef6a0d2d048988ab31d48aafd950f9c6530f2",
+            "b1492da0eefffa2b028ca6872935ee1c725cd0d4edb918fbf145a041eaf76d3d",
+            "d8153b769094691caad229cc916050ea18d3a1b3e1e34450d69111c1636127e0",
+            "e8c971ed528efbdc4aaaa2c1348bb432da7687d9f038b9c272ffe2a8daf54a8b",
+            "ef8add70065930a16b35719819460893e8bff085aa018dc173847f21e0595beb",
+            "f3c5b81ee17119a6bc9794abc5acbfed7b0d7eaacfe6b666721d4f3d77e45c3d",
+            "f5b7aa9e2de321fcea23fbc136631f812542282a0915482c76fd7115d63c8b52"
+          ],
+          "unique_target_count": 22
+        },
+        {
+          "category": "ipc",
+          "count": 30,
+          "outcome": "allowed",
+          "process_role": "updater",
+          "target_sha256": [
+            "1c14732f713dce52eba1d9cf4360048ca0fe91af57682b7536ac97c1d22ee217",
+            "2719cb5f903ded9a4abd4fbf9bf477733a6ac460b960b074f76a951e01725c23",
+            "2ddb964d72727d6c427781ef26b27e5fa7b32c500a57ab99c897280de64c2f2a",
+            "317a3c6f96bc543c4b5e672a15d9734a5867282cffad3e8ee1b78c432e7d5021",
+            "41e0e5d1b2550b94e2b038660dd41153a69033a15cd3dd4093028f6200c6a489",
+            "426de8861544646d25d011fe2d1c5fe39dd78b8679cd44e115e167ebc6e90380",
+            "43e16775ab3e025c7eca4489c5f62af225e4b8172aa453d380f4bd7df9182d26",
+            "46072a3c990e925b078c6cd73a0d0c6cb9744aa6130527437d8a8d151cff3287",
+            "5e9364cacd110bf638bf3c05aef103ffea22fde8f3f8d42813c0af2d842ec20e",
+            "6f2fd55d9390ca3ffdfb99b03f591be60cc8a1879b9bd1c09ed0060e8b2d1f89",
+            "7e47fbca74acf44821faeee6ed3179576f7827010ab41c5b5973a0422d5e2e0a",
+            "86242ce329401d78ec47fda1451f2037cb654ce914edaddb669a2932833c7842",
+            "86705119a3dd17ebb7ab8feb558a3ea509f56f4dda2fd2bf4ce65d479a9547af",
+            "90113a3aca81adbdf33f2a2b21033a5a606189feef5dce0279fe22515491f266",
+            "af5720c5ca6ffd6d77a01896d8e26f06ae95b4f28875b4241ef8bd667d43406b",
+            "b34706234bbbffbf6606d7263d3e505f024c955f651726c1db2a108535daad2b",
+            "d4edccd2b7c3b9e3f50007ea5aa63fda2a21f395b130632991470a1faa7d1459",
+            "d6318e5f9acf3e8c37e97accba462342f6479e824319c61ce0719288db57c19a",
+            "d8153b769094691caad229cc916050ea18d3a1b3e1e34450d69111c1636127e0",
+            "db354c2afba7ec29ce36700eaaea3fc7df54c3fd6831ecd75dac8c4e531c8145",
+            "e8c971ed528efbdc4aaaa2c1348bb432da7687d9f038b9c272ffe2a8daf54a8b",
+            "ea8aa902fa9e2ba7fd2a8a433a6c720bc38be09f9b538a0863152e76c7b1220e",
+            "f5b7aa9e2de321fcea23fbc136631f812542282a0915482c76fd7115d63c8b52"
+          ],
+          "unique_target_count": 23
+        },
+        {
+          "category": "ipc",
+          "count": 16,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "033bf061878713418700a818ba1a11ed30b411940fc66164de35de195c46e316",
+            "1216f670a23aebf1726412c1e1f840c76057acd286bee174784f3da86754ffd0",
+            "1cf729880c4e68ee70a35c05b8c93ecb6fc30d54d0aef02189deb17a4054734d",
+            "3ed6eae3cc88c3a4e82e2097d7b900e83845ca0de51deb68f210f346b0baf917",
+            "4bd93571fa342cacff69271f67fd52db4da11ca6746cced3aa88d03f87c02d9f",
+            "59545b7da7ae2c523c858fba0d1a109e7ae351ec53f21b0ad3fe53f7180e6cdc",
+            "5d0f3ec05fffc5679a222378540853d6aa5dd42e929624a668e62da10a07a1e3",
+            "68c7d7cc30b0c1189ffde2c46f0d3dc7fd188c1c8e6b5b0a0532aaada4c64ad1",
+            "7e47fbca74acf44821faeee6ed3179576f7827010ab41c5b5973a0422d5e2e0a",
+            "94a234f82a35854ca9202e6652bfb082d4e3bfd9df91e8e0f3f8812bf4e20a73",
+            "ce88b32e291d51e9409f6c7406ce123cc5973775dcc2b2362745078354e2b3c0",
+            "ec25ea68bf11fe9518f5a8ca18c86c638ae4d73058f0592c91f508bee160319b"
+          ],
+          "unique_target_count": 12
+        },
+        {
+          "category": "ipc",
+          "count": 21,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "0bf55da689a7cb08e9e1b94be1bec8efd0be80e24e55052937b1581df0acd6c3",
+            "16967ecee8173bcfa70299936668820d7f80824a940c71adbc85ae6fbbd55ffe",
+            "1e66aef558a1f4b1f0ad9e4790ea09fc463bdf392618b5922da2302ab1ab91d1",
+            "2719cb5f903ded9a4abd4fbf9bf477733a6ac460b960b074f76a951e01725c23",
+            "335608f732e401439d9802f7b5adc7271988ef23fe58fb75d06ce9c7c852adbd",
+            "375e5d8a8e406243fe36e9138e6e0634b9458990883efbc4bd7a6c33fa01e8d3",
+            "55d199029675286aba050bcc07aa04a4baf0714ed7fb30a910f810c8be081b6d",
+            "718c5369b53f0c65584d9a2bd8386b40b68663adf28dcf99ab31914e89a733cb",
+            "7e47fbca74acf44821faeee6ed3179576f7827010ab41c5b5973a0422d5e2e0a",
+            "89895552ca63905e9e969e4df6a40c65d18850e3b9703ae037a27b8431ad0a4c",
+            "9299e3196c5966ebcfd652b778df58793baaddb9c66dd19af64bd9db538ef8df",
+            "db354c2afba7ec29ce36700eaaea3fc7df54c3fd6831ecd75dac8c4e531c8145",
+            "e8cc74f96f31effffac219cc8c6f8edfb6e665bfbe4cc06fdaaf4b5abcf8f62a",
+            "ec25ea68bf11fe9518f5a8ca18c86c638ae4d73058f0592c91f508bee160319b"
+          ],
+          "unique_target_count": 14
+        },
+        {
+          "category": "pipe",
+          "count": 1,
+          "outcome": "denied",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "6e7bb9e49d7d21624a8cc09579a26172092837eaaab6720ca1a710bfc6d645f8"
+          ],
+          "unique_target_count": 1
+        },
+        {
+          "category": "pipe",
+          "count": 4,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "c94691829edd2465eed39c7fbaf2a15004211936f6b646bda79425dc5a281b75",
+            "eb732d059ca1010fd70f39021c08ea44fb80365cfa5b15d1e767061009500a68"
+          ],
+          "unique_target_count": 2
+        },
+        {
+          "category": "pipe",
+          "count": 3,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "c94691829edd2465eed39c7fbaf2a15004211936f6b646bda79425dc5a281b75",
+            "eb732d059ca1010fd70f39021c08ea44fb80365cfa5b15d1e767061009500a68"
+          ],
+          "unique_target_count": 2
+        },
+        {
+          "category": "registry",
+          "count": 24,
+          "outcome": "allowed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "a016c00bf638d6604ba0891ae7436f09c89e5bfc8c13742548a68213fc1c5d98",
+            "a67db5a7db35a6145d54190baacd1bb1502eab7e58000bf3b778f689a7cbf4c3"
+          ],
+          "unique_target_count": 2
+        },
+        {
+          "category": "registry",
+          "count": 12,
+          "outcome": "allowed",
+          "process_role": "updater",
+          "target_sha256": [
+            "a016c00bf638d6604ba0891ae7436f09c89e5bfc8c13742548a68213fc1c5d98",
+            "a67db5a7db35a6145d54190baacd1bb1502eab7e58000bf3b778f689a7cbf4c3"
+          ],
+          "unique_target_count": 2
+        },
+        {
+          "category": "registry",
+          "count": 2113,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "0052d0e7317b5f62c95c61258112b4ae3c0dd011af8efde1ea14604d7c9f18ea",
+            "01b1ceb06cf75edcbf2cf22ededcc754f3b22d1584f3ff2b7770e8019507d159",
+            "03c6fa6ec3a2ade34c55a08c681986f57b929e80c6366a5226f6d77a539c681c",
+            "04de6b4681632aaec15b447b42fc3c9278b1f4c1d52e33352d89f5847a7dfe2d",
+            "0600a063bf74fa2b264a82fd05d620cffeab22c2636b7ffe84f7773c9a4552ed",
+            "0d0cb894baea275d5879dc0de25b0dd951e1828caf113e742207581241af30fe",
+            "10e27b75a2bd9e31d25e4fa52887781d46f2de9571d2417f1df8b0358f4c58c8",
+            "135f52643cccd687675bc5e3435f0c4ffdf6bda049fe1d15211feb29974ecbdf",
+            "146cb3967071516e2601eb08bfb06465b4953bf55ac326662522f8c97a0eb3f3",
+            "14bca282725fe46fdf0001c3db69ccaa71b86aa7cb15eb6b1ceb62ec130a416c",
+            "151a8c0da6b3cc4f6fd244364541121e50a3df6f4db80bb193ea5528e7f4c861",
+            "15f0e566640f2a15ec34aa1b25a03b3193eb12dafa45920a149232816aa0fa32",
+            "16fe5c8dde3224500c1d817868ae963aa0a0f1128fa9cbe748d30be86fe4c9f1",
+            "18835e5f7a80142c0bee38c95b74a7fefb4072451f4473562e9fc92849b06464",
+            "18abc36971346e1375773887d3876a7217d3a58b3b120572d1f4d3391ac5ba2c",
+            "191826cd1e72eb743ae815ff9cd658de426c08b0f36168a52311e219236f14f9",
+            "1a503ea5fcd1f1f18fdf79594eba7822b930f216c40f72af599d1a25e2318fef",
+            "1abab3249c24eb65432f32aa4e19396783142c12d58a45f80615dc1d75e500e0",
+            "1b116572dc034d825d3b4bf00a7b036b593c4611697d649610c2ac0e069ab5a5",
+            "1b34167b71a56607665b9f804966d4f36375a058f087ed4a3acf06fda96d37f8",
+            "1c34f43b18330d4f8bd55dbc4e96fb7f09e789c6ec061e3677b69c50a553ea94",
+            "1c9d6e6184021a217d91d4ec6332cc8e30e5dcec10a6a4afd219937c95202124",
+            "1ceeb90614591d144168e9bb13a4558cc47c37b1efb653223fd62e66549d7f04",
+            "1e4aa1236cf6303371cc6422880071f713a997277251439f63d8726273daf9e1",
+            "1ebfb5b79802a3f1ff38c48e392ea62f516e3adf96925ca4565db296ebbe1202",
+            "20c7b0d67960804ee25cbe4c89836a2068bb3136bf22fee9030e909fc3c7cf23",
+            "23b98e7347410ed18f512f0b5538a941a938d1e0454eef984489ba3dcdafbea1",
+            "29bb67e934ebb4a5575e4110b45d2a6ebfdfdab0bc75af088cddfd83b1b8dffa",
+            "2d15be1c3067721909db5aeb8fcfa0f8aec480990381f81288eaba52319fec1a",
+            "3009ddc2c81f35672f3ad3da0dc47bf4cf6e4ed14a300762633909214015fe30",
+            "301be2d3e8910407dce49542dca92f4ad1042e0758b48f9a0159a2c40b240a5f",
+            "30432457602663a3f9257b1cefa2d250566ad84b7683429ff73d91055388044b"
+          ],
+          "unique_target_count": 157
+        },
+        {
+          "category": "registry",
+          "count": 11473,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "0017444a2e2ec0b5b8ac0bb29e6af3bc4aabc8a5466817c4fb97910e34d0719c",
+            "00315fba21bbfb33fa8b38a5a9606f4f10f22884d4d7cbb94e3a836794980687",
+            "0052d0e7317b5f62c95c61258112b4ae3c0dd011af8efde1ea14604d7c9f18ea",
+            "00950e32866407c083281d6f82c1fd50790de60614a58866128036c338fba5de",
+            "01178c3295ecdf6914d74458cdf4313d9c8cc85a1ee724d244f4284caabe1567",
+            "015857b9680f6990232c6a5175b46cec215dcaa810925981b0f68adf3101124a",
+            "01edcee99ba2ab44586cb305e01522cbaba150b4d9587d8fe0632c5cd0f9522e",
+            "02438117807b36585164d0893f7348825edb0f58c49f84271f92b1678f0eac58",
+            "027924183a97037027e6e5b727ed9e51683e58987c745a72c49694b49e6edfe2",
+            "029dfe3dc9c3394dc10681ca569144bbde21f81d7d5b1834d211cf885447ea8a",
+            "032442d93b1d3e379c4ac40623186cc8d6e117198f93e00bc7dc4782141637f2",
+            "03b8dbf6158640ab79282b49e667550a1dd365c4bbfe46f92e715125b735148e",
+            "0400e8c07e646af56f755e1ce521cafdf65e87eddd3dcaab78244a4fce7178fe",
+            "053838d64181e043cb4f8112e228b9023e06dbe5e1e4b405ea2474f735391ce6",
+            "05904ff34f501ac2320a224fd25795fc071c8d2603297dfaa54075e4956540f8",
+            "0674dd0a5b7e034bcd43d5ce39bc7038626140c8cc31dc0ca0a0a804d0b0b412",
+            "068d4c0decfb160d25b7580cdd3327dcc886a827c9e701a5287b49f77bf5eb83",
+            "074e4091ed4e4686ad5cae385bed1364a48b6a3bd340f1a44d28b5b30216d45b",
+            "076b3add13f2dfc70b40e3e4fed34f1b28d7fd31cc0096280adf1c46cb32f267",
+            "07a78639d33d828de42bfbeba732161544a817b38ff99cf2ae93be996307c7e8",
+            "07bbb4da7a7003bdc42f9d51e1fab536e81ca8278170d5716c2e413ae225b60a",
+            "089ae808cbc1280f988a4d90f0d8b4f3f83a281649a154ea6b3625b31e7fe1fb",
+            "0a478f0a2978e5dc3a5de29638f9c7bce94bd1d4710447d233cf9811623f538c",
+            "0aa85669f386ee16a61318774e19c65a531f626528b6c71b984cb3b3a2d2adc9",
+            "0c3b766cac42a94c2b600b6f4337ad7f7fc16e74fd4ece3cad8e1c15ebf24ab2",
+            "0c688561199b4eb18e926cc556d020be7e709b5d6f756d6f920ae5b6c93716db",
+            "0d0cb894baea275d5879dc0de25b0dd951e1828caf113e742207581241af30fe",
+            "0df7579dd7b52b8afe18bc215d74cad7e9709e50e47e88387a1523b522e5ea5a",
+            "0e4193adfedbb6977377b76219131555e23da21e606cbe18baac75f98a841fcd",
+            "0e81fc285c017fdf597cd92d2480310bf1b32f5f2128cc9e7a7e36a08f89b876",
+            "0ee159d56bebf9cf48c4fd6dfbb954536eab241ece4bac3371bd445d3a16829e",
+            "0f2f5b07d8ab4dbddc73b9fa2277d4b1bdcfcdc9cc20d99a3a1f5e47c2ab5b7f"
+          ],
+          "unique_target_count": 587
+        },
+        {
+          "category": "syscall",
+          "count": 620,
+          "outcome": "allowed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "22b98ab22e3faa60d277f74b4b6bad967851a4a67633f1cf0a530b0f51fcf717",
+            "3449161a4228b18ab320bb07a6fa179b30eb5d32c0d0d1c785a647943823458e",
+            "b41ee7302b6c78224961d215e7c2fabfb1433dd9190a94878aa94bde06efc337",
+            "cac59ce2f94b14a58721e0cb766224879ffe07ac26bc488e580c8338c5ad5706",
+            "f3ce85a170a6884652ea0824dc6194a9514dfbbfbc446010604f1d951d16b1c6"
+          ],
+          "unique_target_count": 5
+        },
+        {
+          "category": "syscall",
+          "count": 834,
+          "outcome": "allowed",
+          "process_role": "updater",
+          "target_sha256": [
+            "22b98ab22e3faa60d277f74b4b6bad967851a4a67633f1cf0a530b0f51fcf717",
+            "3449161a4228b18ab320bb07a6fa179b30eb5d32c0d0d1c785a647943823458e",
+            "b41ee7302b6c78224961d215e7c2fabfb1433dd9190a94878aa94bde06efc337",
+            "cac59ce2f94b14a58721e0cb766224879ffe07ac26bc488e580c8338c5ad5706",
+            "f3ce85a170a6884652ea0824dc6194a9514dfbbfbc446010604f1d951d16b1c6"
+          ],
+          "unique_target_count": 5
+        },
+        {
+          "category": "syscall",
+          "count": 1126,
+          "outcome": "observed",
+          "process_role": "sandbox-helper",
+          "target_sha256": [
+            "310ff200149b44a32f124023d7caba19a1a890763a980606813d3a3d4a085d36",
+            "5bb8d62c1cef823035c022087f7c74a528f68cac7cdc9cb386db3dfb5393649f",
+            "ed9c1e6b77f090c9608565601ec7d919253904efbac8dc23cd252b4d44f8bdc3"
+          ],
+          "unique_target_count": 3
+        },
+        {
+          "category": "syscall",
+          "count": 5975,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "310ff200149b44a32f124023d7caba19a1a890763a980606813d3a3d4a085d36",
+            "5bb8d62c1cef823035c022087f7c74a528f68cac7cdc9cb386db3dfb5393649f",
+            "ed9c1e6b77f090c9608565601ec7d919253904efbac8dc23cd252b4d44f8bdc3"
+          ],
+          "unique_target_count": 3
+        },
+        {
+          "category": "window",
+          "count": 4,
+          "outcome": "observed",
+          "process_role": "updater",
+          "target_sha256": [
+            "72a191e079bba6e21848571c6cdf9a649b28a016dc49d469b79259d1f67597ad"
+          ],
+          "unique_target_count": 1
+        }
+      ],
+      "exit_code_class": "not-observed",
+      "fingerprint_sha256": "da49799fc533b25babfded561fe1cf33a6297f12f286a263be4263b2a13eb808",
+      "launched": true,
+      "network_blocked": true,
+      "passed": true,
+      "process_roles": [
+        "sandbox-helper",
+        "updater"
+      ],
+      "sandbox_policy_sha256": "77c7717ed41f14382b27270a6002d8a3694f09a79b40586adc9c3d9c1fe9f75f",
+      "sandboxed": true,
+      "schema_version": 1,
+      "termination": "timeout-terminated",
+      "updater_sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6"
+    }
+  ],
+  "sandbox_policy_sha256": "77c7717ed41f14382b27270a6002d8a3694f09a79b40586adc9c3d9c1fe9f75f",
+  "schema_version": 1,
+  "trace": "a6400-updater-no-camera-v1",
+  "updater_sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6"
+}

@@ -1,0 +1,521 @@
+{
+  "schema_version": 2,
+  "subject": "ILCE-6400 Taiwan 2.00 target feature boundaries",
+  "camera_policy": "physically-disconnected",
+  "camera_connected": false,
+  "camera_executed": false,
+  "bypass_established": false,
+  "installable": false,
+  "target": {
+    "outer_updater_sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6",
+    "firmware_dat_sha256": "78a6881eddd16609758951c80d533ac82042858eac919bd94453941ba6b766f2",
+    "firmware_dat_offset": 715220,
+    "fdat_size": 304833808,
+    "architecture": "CXD90045",
+    "model_id": "0x81030011",
+    "region": 0,
+    "version": "2.00",
+    "filesystem_count": 1079,
+    "offline_unpack_succeeded": true
+  },
+  "module_inventory": [
+    {
+      "name": "lib/CautionConfig.so",
+      "size": 12070800,
+      "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7"
+    },
+    {
+      "name": "lib/libObj.so",
+      "size": 20860436,
+      "sha256": "60ffd2b0f31f4bc139a7c13a4f62c25cdeb6a531ad5ef35df48471e6e36e88b1"
+    },
+    {
+      "name": "lib/viewUnified2.so",
+      "size": 11530552,
+      "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
+    },
+    {
+      "name": "lib/viewUnified7.so",
+      "size": 541024,
+      "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+    },
+    {
+      "name": "share/app/master_camera.uxc",
+      "size": 101720,
+      "sha256": "5a0370408dff25dab43ed677c3b8e6c9be3b8bb8630d7ea15273d4f996cca7ec"
+    },
+    {
+      "name": "share/app/viewStlrec.uxc",
+      "size": 32104,
+      "sha256": "f5aaa2f70f9b262b515a529ee2d80bf21928f0898504643cc7f174efa405d4f5"
+    }
+  ],
+  "backup_images": {
+    "source_directory": "0110_backup/SYSASTRA-DSLR/DX2",
+    "main_destination": "CX62600_UC2.bin",
+    "regional_image_count": 11,
+    "image_size": 1148036,
+    "backup_revision": 4,
+    "property_count": 28900,
+    "all_regions_agree": true,
+    "image_fingerprints": [
+      {
+        "name": "CX62600_ALLLANG.bin",
+        "sha256": "04ca34dfe47e205aae570abeaa3302338bc24d35010de17126fa40da24235720"
+      },
+      {
+        "name": "CX62600_E38.bin",
+        "sha256": "5171763b31386bf67e490a05a8c14da9ca03c9426c1b9dbc94f6ccfb43e22469"
+      },
+      {
+        "name": "CX62600_J1.bin",
+        "sha256": "e83b9d21641e2a4ba29f4ad93955ee0cba1be47189d9c3ed92de482af74827ab"
+      },
+      {
+        "name": "CX62600_KR2.bin",
+        "sha256": "161bab48d242a2e912f1b016f3a6f3eca55af1ed7efbc7946f2f9814c86fc714"
+      },
+      {
+        "name": "CX62600_UC2.bin",
+        "sha256": "241c8521035bc9ff1edbe66cf3d42d81879a4bef8ff9e21cbfb84530a1446154"
+      },
+      {
+        "name": "CX62601_ALLLANG.bin",
+        "sha256": "13e3f2600923f1289d79f1452d8d62e11f1715af1e4ca7364886011a0752cd5b"
+      },
+      {
+        "name": "CX62601_AP2.bin",
+        "sha256": "6109fa82e88b26097b8c4d3ee42909a1f131cf6e7bb9fe23e7156b793006417e"
+      },
+      {
+        "name": "CX62601_CEC.bin",
+        "sha256": "e4b2aef35169d0d5fe0f91f07944a8287796fd2fd3731581c9a1ed60b37ef4b3"
+      },
+      {
+        "name": "CX62601_CN2.bin",
+        "sha256": "abf17ac691c5aaf25486e20a0f7d771a60796cbcfd8aea3db24059dccc74e454"
+      },
+      {
+        "name": "CX62601_IN5.bin",
+        "sha256": "f8d997fcc608f814898f05c15b296cd310bd7bf073338b7f5eadff194b26e12a"
+      },
+      {
+        "name": "CX62601_JE3.bin",
+        "sha256": "9edc4aec8a5e90f8a52853e2988400957fc2dbee232dd44f95d9c2defadb57b1"
+      }
+    ],
+    "properties": [
+      {
+        "id": "0x01070316",
+        "value_hex": "43",
+        "size": 1,
+        "attribute": "0x01",
+        "read_only": true
+      },
+      {
+        "id": "0x002a000a",
+        "value_hex": "01",
+        "size": 1,
+        "attribute": "0x00",
+        "read_only": false
+      },
+      {
+        "id": "0x01050002",
+        "value_hex": "01",
+        "size": 1,
+        "attribute": "0x00",
+        "read_only": false
+      },
+      {
+        "id": "0x010704cb",
+        "value_hex": "28",
+        "size": 1,
+        "attribute": "0x01",
+        "read_only": true
+      },
+      {
+        "id": "0x010701cf",
+        "value_hex": "00",
+        "size": 1,
+        "attribute": "0x58",
+        "read_only": false
+      }
+    ]
+  },
+  "vertical_ui": {
+    "classification": "target-shooting-components",
+    "view": "ViewStlrec",
+    "orientation_module": "lib/viewUnified2.so",
+    "orientation_api": "startOrientationRollNotify_new",
+    "orientation_start_offset": "0x1ab41c",
+    "orientation_stop_offset": "0x1ba780",
+    "orientation_consumer": 2,
+    "orientation_owner_vtable_offset": "0x8ded88",
+    "orientation_owner_rtti_name": "ViewStlrec",
+    "layout_mode_attach_offset": "0x1ab2d2",
+    "layout_mode_set_call_found": false,
+    "af_orientation_dispatch_offset": "0x1b1e76",
+    "af_orientation_read_offsets": [
+      "0x1b1e7c",
+      "0x1b1e90",
+      "0x1b1ea4"
+    ],
+    "layout_factory_module": "lib/viewUnified7.so",
+    "layout_factory_offset": "0x52840",
+    "layout_group_id": "0x1b906244",
+    "factory_model_predicate_absent": true,
+    "orientation_layout_selector_established": false,
+    "vertical_named_layouts": [
+      {
+        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_INFO_LR",
+        "class_id": "0x61dc811c"
+      },
+      {
+        "name": "Layoutlayout_CMN_M_REC_FOOTER_VERTICAL_CLASSICAL_LR",
+        "class_id": "0x186c17f6"
+      },
+      {
+        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_HEADER_MANUALINFO_LR",
+        "class_id": "0x8e7fdf88"
+      },
+      {
+        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_MANUAL_LR",
+        "class_id": "0x7be1c309"
+      },
+      {
+        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_ERROR_LR",
+        "class_id": "0xbdbc36bd"
+      }
+    ],
+    "uxc_resources": [
+      "share/app/master_camera.uxc",
+      "share/app/viewStlrec.uxc"
+    ],
+    "vertical_name_device_rotation_semantics_established": false,
+    "modern_vertical_menu_established": false,
+    "vertical_input_transform_established": false
+  },
+  "touch_ui": {
+    "view_module": "lib/viewUnified2.so",
+    "input_module": "lib/libObj.so",
+    "root_resource_call_offset": "0x2307d0",
+    "configuration_backup_id": "0x010704cb",
+    "configuration_default_value": "0x28",
+    "configuration_backup_attribute": "0x01",
+    "configuration_read_only": true,
+    "sample_view_resource_setup_offset": "0x6666a4",
+    "sample_view_owner_rtti_name": "10SampleView",
+    "sample_view_rtti_name_offset": "0xfafd26",
+    "sample_view_vtable_function_pointer_offset": "0x134d9c4",
+    "sample_view_production_menu_link_established": false,
+    "root_setup_gate_backup_id": "0x01050002",
+    "root_setup_gate_read_offset": "0x6666c0",
+    "root_setup_gate_default_value": "0x01",
+    "root_setup_gate_backup_attribute": "0x00",
+    "root_setup_gate_read_only": false,
+    "root_setup_gate_nonzero_skips_resource_setup": true,
+    "root_setup_gate_label_established": false,
+    "device_capability_backup_id": "0x002a000a",
+    "device_capability_backup_label": "BKID_DISPLAY_TP_DEVICE",
+    "device_capability_read_offsets": [
+      "0xdc30b6",
+      "0xdc597a"
+    ],
+    "device_capability_default_value": "0x01",
+    "device_capability_backup_attribute": "0x00",
+    "device_capability_read_only": false,
+    "device_capability_linked_to_root_gate": false,
+    "restore_modes": [
+      0,
+      40
+    ],
+    "view_specific_mode": 20,
+    "low_level_resource_routing_present": true,
+    "select_widget_touch_mode_present": true,
+    "setting_menu_instance_offset": "0x205575",
+    "setting_menu_resource_hooks_found": false,
+    "full_setting_menu_touch_established": false
+  },
+  "ui_static_trace": {
+    "analysis_scope": "offline-static-target-filesystem",
+    "module": "lib/viewUnified2.so",
+    "candidate_paths": [
+      {
+        "entry_name": "ViewSettingMenu",
+        "entry_offset": "0x22355e",
+        "target_name": "touch_detect_mode_status_read",
+        "target_offset": "0x1613f0",
+        "path_offsets": [
+          "0x22355e",
+          "0x222f68",
+          "0x43156c",
+          "0x1613f0"
+        ],
+        "semantic_boundary": "status-read-not-coordinate-dispatch"
+      },
+      {
+        "entry_name": "ViewSettingMenu",
+        "entry_offset": "0x22355e",
+        "target_name": "display_transition_touchpad_area_reconfiguration",
+        "target_offset": "0x41ae08",
+        "path_offsets": [
+          "0x22355e",
+          "0x21c644",
+          "0x1626cc",
+          "0x41b244",
+          "0x41ae08"
+        ],
+        "semantic_boundary": "configuration-not-menu-selection"
+      }
+    ],
+    "negative_searches": [
+      {
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "target_name": "master_layout_factory",
+        "target_requested_offset": "0x181f18",
+        "target_function_offset": "0x181f18",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      },
+      {
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "target_name": "vertical_info_layout_factory",
+        "target_requested_offset": "0x24222c",
+        "target_function_offset": "0x24222c",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      },
+      {
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "target_name": "root_resource_call_owner",
+        "target_requested_offset": "0x2307d0",
+        "target_function_offset": "0x223b8c",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      },
+      {
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "target_name": "sample_view_resource_setup_owner",
+        "target_requested_offset": "0x6666a4",
+        "target_function_offset": "0x6695d8",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      },
+      {
+        "root_set": "ViewStlrec-candidate-functions",
+        "requested_roots": 25,
+        "resolved_roots": 10,
+        "target_name": "master_layout_factory",
+        "target_requested_offset": "0x181f18",
+        "target_function_offset": "0x181f18",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      },
+      {
+        "root_set": "ViewStlrec-candidate-functions",
+        "requested_roots": 25,
+        "resolved_roots": 10,
+        "target_name": "vertical_info_layout_factory",
+        "target_requested_offset": "0x24222c",
+        "target_function_offset": "0x24222c",
+        "search_method": "static-direct-call-graph",
+        "path_found": false
+      }
+    ],
+    "coordinate_consumer_found": false,
+    "menu_selection_dispatch_found": false
+  },
+  "creative_rendering": {
+    "module": "lib/CautionConfig.so",
+    "compiled_default_graph_offset": "0xb836cc",
+    "compiled_default_graph_nodes": 98,
+    "compiled_default_top_level_nodes": 20,
+    "compiled_graph_variants": [
+      {
+        "name": "Default",
+        "nodes": 98
+      },
+      {
+        "name": "TypeEmnt",
+        "nodes": 91
+      },
+      {
+        "name": "TypeDSCEntry",
+        "nodes": 6
+      },
+      {
+        "name": "Type05",
+        "nodes": 7
+      },
+      {
+        "name": "Type06",
+        "nodes": 13
+      },
+      {
+        "name": "Type07",
+        "nodes": 19
+      }
+    ],
+    "graph_selector_backup_id": "0x01070316",
+    "graph_selector_function_offset": "0x7db958",
+    "type07_selector_value": "0x45",
+    "documented_visible_graph_shape": "TypeEmnt",
+    "target_selector_value_confirmed": true,
+    "target_selector_value": "0x43",
+    "target_selector_graph": "TypeEmnt",
+    "selector_backup_attribute": "0x01",
+    "selector_read_only": true,
+    "selector_mutation_tested": false,
+    "compiled_extra_fixed_style": "Real",
+    "documented_visible_fixed_styles": [
+      "Standard",
+      "Vivid",
+      "Neutral",
+      "Clear",
+      "Deep",
+      "Light",
+      "Portrait",
+      "Landscape",
+      "Sunset",
+      "NightScene",
+      "Autumnleaves",
+      "Black_White",
+      "Sepia"
+    ],
+    "creative_boxes": 6,
+    "base_styles_per_box": 13,
+    "enum_range": [
+      0,
+      97
+    ],
+    "compiled_fixed_styles": [
+      "Standard",
+      "Vivid",
+      "Neutral",
+      "Clear",
+      "Deep",
+      "Light",
+      "Portrait",
+      "Landscape",
+      "Sunset",
+      "NightScene",
+      "Autumnleaves",
+      "Black_White",
+      "Real",
+      "Sepia"
+    ],
+    "creative_box_names": [
+      "CreativeBox1",
+      "CreativeBox2",
+      "CreativeBox3",
+      "CreativeBox4",
+      "CreativeBox5",
+      "CreativeBox6"
+    ],
+    "target_adjustment_axes": 3,
+    "donor_adjustment_axes": 8,
+    "creative_look_symbol_found": false,
+    "native_creative_look_established": false,
+    "label_reuse_is_concept_only": true
+  },
+  "observations": [
+    {
+      "classification": "OBSERVATION",
+      "source": "ILCE-6400 Taiwan 2.00 FirmwareData.dat and extracted target filesystem fingerprints in this report",
+      "claim": "The official updater contains a bounded CXD90045 target for model 0x81030011, and the historical reader successfully unpacked 1,079 target filesystem entries offline."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "lib/viewUnified2.so, lib/viewUnified7.so, master_camera.uxc, and viewStlrec.uxc fingerprints in this report",
+      "claim": "ViewStlrec registers the new orientation-roll service as consumer bit 2, attaches layout-mode updates, and five vertical-named shooting layout classes are accepted by the layout factory and referenced by target UXC resources."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "lib/viewUnified2.so fingerprint and recorded call offsets in this report",
+      "claim": "The target has low-level resource touch routing and a touch-capable selection widget, but no direct resource touch start or stop call was found in the ViewSettingMenu region."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "lib/viewUnified2.so ViewSettingMenu event switch at 0x22355e and schema-v2 offline direct-call trace",
+      "claim": "The recovered settings-menu event graph reaches a touch detect-mode status read through 0x222f68 and 0x43156c, plus display-transition touch-pad area reconfiguration through 0x21c644 and 0x41ae08; neither path consumes coordinates or dispatches a menu selection."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "lib/libObj.so SampleView vtable/RTTI, resource setup at 0x6666a4, and ObjDisplay backup reads at 0xdc30b6 and 0xdc597a",
+      "claim": "Backup 0x01050002 conditionally skips resource touch setup inside SampleView, while the separately identified BKID_DISPLAY_TP_DEVICE key is 0x002a000a; no production-menu link or code link between these two keys has been established."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "eleven parsed Sony backup images, lib/CautionConfig.so graph selector at 0x7db958, and compiled node tables",
+      "claim": "Every regional backup image stores read-only selector 0x01070316 as 0x43, which maps to the 91-node TypeEmnt Creative Style graph; the 98-node Default graph and 19-node Type07 graph are compiled but not selected."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "eleven parsed revision-4 Sony backup images in 0110_backup/SYSASTRA-DSLR/DX2",
+      "claim": "All regional images agree that BKID_DISPLAY_TP_DEVICE and the SampleView touch gate default to 1, while the read-only resource-touch configuration defaults to 0x28."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html",
+      "claim": "Sony documents three adjustable Creative Style parameters on the ILCE-6400: contrast, saturation, and sharpness."
+    },
+    {
+      "classification": "OBSERVATION",
+      "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+      "claim": "Sony documents eight adjustable Creative Look parameters on the ILCE-6700, including highlights, shadows, fade, sharpness range, and clarity beyond the three target axes."
+    }
+  ],
+  "inferences": [
+    {
+      "classification": "INFERENCE",
+      "source": "ViewStlrec vtable/RTTI ownership, orientation registration, target UXC records, and the unguarded target layout factory",
+      "claim": "The vertical-named layouts are target-resident shooting components rather than strings alone, but their names do not establish device-rotation semantics and no orientation-to-layout selector was found."
+    },
+    {
+      "classification": "INFERENCE",
+      "source": "Shipped backup defaults, TypeEmnt graph shape, and official adjustment-axis documentation",
+      "claim": "The α6400's shipped 0x43 selector and 91-node TypeEmnt graph account for 13 fixed styles plus six groups of 13 selectable box bases; those six Style Boxes remain the safest target-native storage for approximate Creative Look recipes."
+    },
+    {
+      "classification": "INFERENCE",
+      "source": "ViewSettingMenu direct-call trace, SampleView ownership, and low-level target touch APIs",
+      "claim": "The production settings menu is aware of touch status and display-transition touch-pad state, but full menu touch still requires an unlocated coordinate consumer, selection dispatcher, and production resource binding; the writable SampleView gate is not evidence of a hidden global enable switch."
+    }
+  ],
+  "unresolved": [
+    {
+      "classification": "UNRESOLVED",
+      "source": "ViewStlrec event dispatch, AF-orientation branch, and layout-mode handlers",
+      "claim": "ViewStlrec uses camera orientation for AF-coordinate handling, but no exact orientation event that selects the vertical-named layouts or any matching touch-coordinate transform has been proven."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "ViewSettingMenu UXC and widget event graph",
+      "claim": "No coordinate consumer, menu-selection dispatcher, or production resource hook was recovered from the bounded ViewSettingMenu direct-call graph; indirect and data-driven dispatch remain untested, and the blocking resource or product predicate has not been isolated."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "ILCE-6400 target rendering pipeline versus ILCE-6700 Creative Look behavior",
+      "claim": "No native implementations of the five additional Creative Look adjustment axes or exact donor look algorithms have been located in the target."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "Read-only Creative Style selector 0x01070316 and compiled alternate graphs",
+      "claim": "The runtime consequences of forcing an alternate compiled graph are unknown, the normal backup API marks the selector read-only, and no mutation has been attempted."
+    },
+    {
+      "classification": "UNRESOLVED",
+      "source": "Sony CXD90045 protected update path",
+      "claim": "An authenticated package reconstruction and safe install path remain absent, so none of the target feature hypotheses can be installed."
+    }
+  ],
+  "conclusion": "The stock ILCE-6400 image contains vertical-named shooting layouts, orientation-aware AF handling, low-level touch machinery, and a richer Creative Style graph than its interface exposes. Sony backup images prove the selected read-only 0x43 TypeEmnt graph, while vtable evidence limits the writable touch gate to SampleView rather than the production menu. The ViewSettingMenu event graph reaches touch-status reads and display-transition touch-pad reconfiguration, but no recovered direct path consumes coordinates or dispatches a menu selection. ViewStlrec subscribes to the new roll service and separately attaches layout-mode updates, but no call or UXC predicate links roll state to the vertical-named layouts; their names alone do not prove device-rotation semantics. The evidence does not establish the modern rotating menu, full menu touch, native Creative Look, a safe selector mutation, a bypass, or an installable package."
+}
