@@ -1,5 +1,5 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "subject": "ILCE-6400 Taiwan 2.00 target feature boundaries",
   "camera_policy": "physically-disconnected",
   "camera_connected": false,
@@ -957,6 +957,733 @@
       "menu-touch-hit-test": false,
       "menu-touch-selection": false,
       "ui-state-persistence": false
+    }
+  },
+  "creative_look_stack": {
+    "schema_version": 1,
+    "target": "ILCE-6400",
+    "reference": "ILCE-7M5-creative-look-behavior",
+    "looks": [
+      "ST",
+      "PT",
+      "NT",
+      "VV",
+      "VV2",
+      "FL",
+      "IN",
+      "SH",
+      "BW",
+      "SE"
+    ],
+    "axes": [
+      "contrast",
+      "highlights",
+      "shadows",
+      "fade",
+      "saturation",
+      "sharpness",
+      "sharpness_range",
+      "clarity"
+    ],
+    "layers": {
+      "interface": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No resolved target path currently establishes a first-class Creative Look entry, preset browser, edit screen, reset, copy, and selection workflow.",
+        "acceptance": "A dedicated Creative Look workflow exposes ten looks and their supported controls without relabeling the Creative Style menu."
+      },
+      "state": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No target state model is yet proven for Creative Look identifiers, defaults, per-look adjustments, validation, reset, copy, and persistence.",
+        "acceptance": "Validated per-look records persist exact supported values across documented mode and power transitions."
+      },
+      "base_looks": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No authenticated Creative Look base tables or evidence-backed target-native representation has been located.",
+        "acceptance": "All ten named looks have authenticated or independently validated processing representations with explicit provenance."
+      },
+      "adjustment_axes": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "The eight Creative Look axes have not been independently connected to target UI, state, and processing boundaries.",
+        "acceptance": "Every axis has separately proven UI handling, state/default/range semantics, and a target processing path or an explicit blocker."
+      },
+      "pipeline_binding": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No Creative Look processing path is yet bound to live view, still JPEG, or movie output on the target.",
+        "acceptance": "Each supported output uses the selected look and adjustments consistently, with unsupported modes reported explicitly."
+      }
+    },
+    "workflow_records": {
+      "menu_entry": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No dedicated Creative Look menu entry or production selection dispatcher is established on the target."
+      },
+      "ten_preset_browser": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No target-native browser presenting the exact ten Creative Look presets is established."
+      },
+      "edit_screen": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No Creative Look edit screen wired to eight independent adjustment records is established."
+      },
+      "reset_to_default": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No per-look reset-to-default state transition is established."
+      },
+      "copy_select": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No Creative Look copy and selection behavior is established independently of Creative Style."
+      },
+      "range_display": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No UI path displaying authenticated ranges for all eight axes is established."
+      },
+      "persistence": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No Creative Look record persistence across documented mode and power transitions is established."
+      },
+      "mode_restrictions": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No verified availability matrix identifies Creative Look restrictions for live view, still JPEG, and movie modes."
+      }
+    },
+    "axis_records": {
+      "contrast": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "Creative Style contrast is fallback evidence only; matching Creative Look UI, state, and processing semantics remain unproven."
+      },
+      "highlights": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "No independent highlights control path is established on the target."
+      },
+      "shadows": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "No independent shadows control path is established on the target."
+      },
+      "fade": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "No independent fade control path is established on the target."
+      },
+      "saturation": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "Creative Style saturation is fallback evidence only; matching Creative Look UI, state, and processing semantics remain unproven."
+      },
+      "sharpness": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "Creative Style sharpness is fallback evidence only; matching Creative Look UI, state, and processing semantics remain unproven."
+      },
+      "sharpness_range": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "No sharpness-range control distinct from sharpness is established on the target."
+      },
+      "clarity": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "No clarity control distinct from sharpening is established on the target."
+      }
+    },
+    "pipeline_outputs": {
+      "live_view": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No live-view Creative Look sink is resolved."
+      },
+      "still_jpeg": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No still-JPEG Creative Look sink is resolved."
+      },
+      "movie": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No movie Creative Look sink is resolved."
+      }
+    },
+    "fallback": {
+      "creative_style_available": true,
+      "status": "APPROXIMATION_ONLY",
+      "policy": "LAST_RESORT_ONLY",
+      "source": "analysis/a6400-creative-look-guide.md",
+      "native_claim_basis": false
+    },
+    "native_creative_look_established": false
+  },
+  "creative_look_sources": {
+    "schema_version": 1,
+    "target": "ILCE-6400",
+    "sources": [
+      {
+        "id": "a6400-tw-v2.00",
+        "display_name": "α6400",
+        "model": "ILCE-6400",
+        "region": "TW",
+        "version": "2.00",
+        "role": "target",
+        "state": "AUTHENTICATED_EXTRACTED",
+        "executable_evidence_available": true,
+        "artifact": {
+          "filename": "Update_ILCE6400V200.exe",
+          "size": 314230712,
+          "sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6",
+          "source_kind": "official-windows-updater"
+        },
+        "extracted_evidence": [
+          {
+            "artifact_kind": "module",
+            "name": "lib/CautionConfig.so",
+            "size": 12070800,
+            "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7"
+          }
+        ],
+        "committed_evidence": [
+          "analysis/firmware-manifest.json",
+          "analysis/a6400-target-features.json"
+        ],
+        "creative_look_limit": "The extracted target module proves Creative Style selector and graph structure only; it does not establish native Creative Look processing."
+      },
+      {
+        "id": "a6400a-eu-v1.01",
+        "display_name": "α6400A",
+        "model": "ILCE-6400A",
+        "region": "EU",
+        "version": "1.01",
+        "role": "control-sample",
+        "state": "AUTHENTICATED_EXTRACTED",
+        "executable_evidence_available": true,
+        "artifact": {
+          "filename": "Update_ILCE6400AV101.exe",
+          "size": 324175032,
+          "sha256": "fd6ae50755a9202a8b506b6b77aa27ab41ae717e96f05a0d4e2ad699b40d9ad1",
+          "source_kind": "official-windows-updater"
+        },
+        "extracted_evidence": [
+          {
+            "artifact_kind": "module",
+            "name": "lib/CautionConfig.so",
+            "size": 12070832,
+            "sha256": "5ff622c8a30595fe88195d3e492643ceeb5ad2da68e556076eed593851a4d3e9"
+          }
+        ],
+        "committed_evidence": [
+          "analysis/a6400a-updater-and-creative-style-deep-dive.md"
+        ],
+        "creative_look_limit": "Static comparison found maintenance changes and no Creative Look symbol or resource; α6400A is a control sample, not a modern UI or Creative Look donor."
+      },
+      {
+        "id": "a6700-tw-v2.00",
+        "display_name": "α6700",
+        "model": "ILCE-6700",
+        "region": "TW",
+        "version": "2.00",
+        "role": "interface-reference",
+        "state": "AUTHENTICATED_OPAQUE",
+        "executable_evidence_available": false,
+        "artifact": {
+          "filename": "BODYDATA.DAT",
+          "size": 1024017848,
+          "sha256": "d3c7db5b9b40c89b11ecf03addf0f6ff1d9b917acf9f55e46360462e86db847c",
+          "source_kind": "official-bodydata"
+        },
+        "extracted_evidence": [],
+        "committed_evidence": [
+          "analysis/firmware-manifest.json",
+          "analysis/reports/a6700-tw-v2.00.json",
+          "analysis/structures/a6700-tw-v2.00.json",
+          "analysis/a6400-feasibility-report.md"
+        ],
+        "creative_look_limit": "The authenticated FDAT remains opaque and cannot provide donor functions, offsets, tables, decryption, or processing evidence."
+      },
+      {
+        "id": "a7v-tw-v2.00",
+        "display_name": "α7 V",
+        "model": "ILCE-7M5",
+        "region": "TW",
+        "version": "2.00",
+        "role": "interface-reference",
+        "state": "AUTHENTICATED_OPAQUE",
+        "executable_evidence_available": false,
+        "artifact": {
+          "filename": "BODYDATA.DAT",
+          "size": 376540720,
+          "sha256": "098290778a84236a0f2be44ac8398fd428d522b5c2c6676f19df23d09ee293d6",
+          "source_kind": "official-bodydata"
+        },
+        "extracted_evidence": [],
+        "committed_evidence": [
+          "analysis/firmware-manifest.json",
+          "analysis/reports/a7v-tw-v2.00.json",
+          "analysis/structures/a7v-tw-v2.00.json",
+          "analysis/a6400-feasibility-report.md"
+        ],
+        "creative_look_limit": "The authenticated FDAT remains opaque and cannot provide donor functions, offsets, tables, decryption, or processing evidence."
+      }
+    ],
+    "claim_boundary": "Opaque FDAT sources provide container and format evidence only; they do not provide donor functions, offsets, tables, decryption, or processing behavior."
+  },
+  "creative_look_boundary": {
+    "schema_version": 1,
+    "analysis_scope": "offline-static-creative-look-boundaries",
+    "source_states": [
+      {
+        "id": "a6400-tw-v2.00",
+        "state": "AUTHENTICATED_EXTRACTED",
+        "executable_evidence_available": true
+      },
+      {
+        "id": "a6400a-eu-v1.01",
+        "state": "AUTHENTICATED_EXTRACTED",
+        "executable_evidence_available": true
+      },
+      {
+        "id": "a6700-tw-v2.00",
+        "state": "AUTHENTICATED_OPAQUE",
+        "executable_evidence_available": false
+      },
+      {
+        "id": "a7v-tw-v2.00",
+        "state": "AUTHENTICATED_OPAQUE",
+        "executable_evidence_available": false
+      }
+    ],
+    "modules": [
+      {
+        "source_id": "a6400-tw-v2.00",
+        "name": "lib/CautionConfig.so",
+        "size": 12070800,
+        "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7"
+      },
+      {
+        "source_id": "a6400a-eu-v1.01",
+        "name": "lib/CautionConfig.so",
+        "size": 12070832,
+        "sha256": "5ff622c8a30595fe88195d3e492643ceeb5ad2da68e556076eed593851a4d3e9"
+      }
+    ],
+    "bounded_export_summary": {
+      "root_count": 11,
+      "function_root_count": 10,
+      "data_root_count": 1,
+      "call_count": 9,
+      "direct_call_count": 9,
+      "unresolved_direct_call_count": 0,
+      "unresolved_indirect_call_count": 0,
+      "reference_count": 1,
+      "truncated": false,
+      "depth_cap": 16,
+      "artifact_sha256": "6913dae65b94671c4c9162b818c7b8c7c19eace86c7f4a8be48c80f03a55227c"
+    },
+    "roots": [
+      {
+        "id": "selector-function",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-selector",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7db958",
+        "analysis_address": "0x7eb958",
+        "symbol": "CmnViewSettingNodeCreativeStyle::_getSubNodeEv"
+      },
+      {
+        "id": "compiled-default-graph",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "compiled-creative-style-graph",
+        "kind": "data",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0xb836cc",
+        "analysis_address": "0xb936cc",
+        "symbol": "Default"
+      },
+      {
+        "id": "creative-style-function-001",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7b7eac",
+        "analysis_address": "0x7c7eac",
+        "symbol": "CmnViewSettingNodeCreativeStyle::_getSubNode"
+      },
+      {
+        "id": "creative-style-function-002",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7bd2bc",
+        "analysis_address": "0x7cd2bc",
+        "symbol": "CmnViewSettingNodeCreativeStyle::~CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-003",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7bdae4",
+        "analysis_address": "0x7cdae4",
+        "symbol": "CmnViewSettingNodeCreativeStyle::CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-004",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7be79c",
+        "analysis_address": "0x7ce79c",
+        "symbol": "CmnViewSettingNodeCreativeStyle::CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-005",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7c7d78",
+        "analysis_address": "0x7d7d78",
+        "symbol": "CmnViewSettingNodeCreativeStyle::~CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-006",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7c7d9c",
+        "analysis_address": "0x7d7d9c",
+        "symbol": "CmnViewSettingNodeCreativeStyle::~CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-007",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7db910",
+        "analysis_address": "0x7eb910",
+        "symbol": "CmnViewSettingNodeCreativeStyle::CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-008",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7db934",
+        "analysis_address": "0x7eb934",
+        "symbol": "CmnViewSettingNodeCreativeStyle::clone"
+      },
+      {
+        "id": "creative-style-function-010",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7dba40",
+        "analysis_address": "0x7eba40",
+        "symbol": "CmnViewSettingNodeCreativeStyle::CmnViewSettingNodeCreativeStyle"
+      }
+    ],
+    "paths": [
+      {
+        "id": "selector-graph-reference-001",
+        "source_id": "a6400-tw-v2.00",
+        "source_module": "lib/CautionConfig.so",
+        "source": "0x7eb958",
+        "sink_module": "lib/CautionConfig.so",
+        "sink": "0xb936cc",
+        "semantic": "menu-graph-selection",
+        "resolved": true,
+        "output_scope": [],
+        "evidence_kind": "compiled-graph-selector"
+      }
+    ],
+    "negative_searches": [
+      {
+        "id": "first-class-interface-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "first-class-interface",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No first-class Creative Look interface root or sink was identified in the bounded Creative Style call graph."
+      },
+      {
+        "id": "preset-state-read-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "preset-state-read",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No Creative Look preset-state read boundary was identified in the bounded Creative Style call graph."
+      },
+      {
+        "id": "preset-state-write-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "preset-state-write",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No Creative Look preset-state write boundary was identified in the bounded Creative Style call graph."
+      },
+      {
+        "id": "axis-range-validation-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No validation boundary for the eight Creative Look axes was identified in the bounded Creative Style call graph."
+      },
+      {
+        "id": "axis-contrast-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent contrast UI, state, range, and Creative Look processing boundary was identified."
+      },
+      {
+        "id": "axis-highlights-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent highlights UI, state, range, and processing boundary was identified."
+      },
+      {
+        "id": "axis-shadows-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent shadows UI, state, range, and processing boundary was identified."
+      },
+      {
+        "id": "axis-fade-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent fade UI, state, range, and processing boundary was identified."
+      },
+      {
+        "id": "axis-saturation-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent saturation UI, state, range, and Creative Look processing boundary was identified."
+      },
+      {
+        "id": "axis-sharpness-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent sharpness UI, state, range, and Creative Look processing boundary was identified."
+      },
+      {
+        "id": "axis-sharpness-range-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No sharpness-range UI, state, range, and processing boundary distinct from sharpness was identified."
+      },
+      {
+        "id": "axis-clarity-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No clarity UI, state, range, and processing boundary distinct from sharpening was identified."
+      },
+      {
+        "id": "base-look-table-load-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "base-look-table-load",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "The compiled Creative Style menu graph does not identify a native Creative Look base-look table load."
+      },
+      {
+        "id": "live-view-sink-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "live-view-sink",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No path from the bounded Creative Style roots to a live-view processing sink was identified."
+      },
+      {
+        "id": "still-jpeg-sink-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "still-jpeg-sink",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No path from the bounded Creative Style roots to a still-JPEG processing sink was identified."
+      },
+      {
+        "id": "movie-sink-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "movie-sink",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No path from the bounded Creative Style roots to a movie processing sink was identified."
+      }
+    ],
+    "source_skips": [
+      {
+        "source_id": "a6700-tw-v2.00",
+        "state": "AUTHENTICATED_OPAQUE",
+        "reason": "source-not-extracted"
+      },
+      {
+        "source_id": "a7v-tw-v2.00",
+        "state": "AUTHENTICATED_OPAQUE",
+        "reason": "source-not-extracted"
+      }
+    ],
+    "claims": {
+      "native_creative_look_interface_found": false,
+      "state_persistence_found": false,
+      "base_look_processing_found": false,
+      "pipeline_binding_found": false
+    },
+    "output_support": {
+      "live_view": false,
+      "still_jpeg": false,
+      "movie": false
     }
   },
   "creative_rendering": {

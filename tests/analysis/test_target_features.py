@@ -15,6 +15,15 @@ UI_TRACE_PATH = REPOSITORY_ROOT / "analysis" / "a6400-ui-dispatch-boundary.json"
 MODERN_UI_CONTRACT_PATH = (
     REPOSITORY_ROOT / "analysis" / "a6400-modern-ui-contract.json"
 )
+CREATIVE_LOOK_STACK_PATH = (
+    REPOSITORY_ROOT / "analysis" / "a6400-creative-look-stack.json"
+)
+CREATIVE_LOOK_SOURCES_PATH = (
+    REPOSITORY_ROOT / "analysis" / "a6400-creative-look-sources.json"
+)
+CREATIVE_LOOK_BOUNDARY_PATH = (
+    REPOSITORY_ROOT / "analysis" / "a6400-creative-look-boundary.json"
+)
 
 
 class TargetFeatureTests(unittest.TestCase):
@@ -25,7 +34,7 @@ class TargetFeatureTests(unittest.TestCase):
         validated = validate_target_feature_report(self.document)
 
         self.assertEqual(validated, self.document)
-        self.assertEqual(validated["schema_version"], 3)
+        self.assertEqual(validated["schema_version"], 4)
         self.assertFalse(validated["camera_connected"])
         self.assertFalse(validated["camera_executed"])
         self.assertFalse(validated["bypass_established"])
@@ -43,6 +52,25 @@ class TargetFeatureTests(unittest.TestCase):
 
         self.assertEqual(validated["ui_indirect_trace"], standalone_trace)
         self.assertEqual(validated["modern_ui_contract"], standalone_contract)
+
+    def test_creative_look_evidence_matches_all_standalone_reports(self):
+        validated = validate_target_feature_report(self.document)
+
+        self.assertEqual(
+            validated["creative_look_stack"],
+            json.loads(CREATIVE_LOOK_STACK_PATH.read_text(encoding="utf-8")),
+        )
+        self.assertEqual(
+            validated["creative_look_sources"],
+            json.loads(CREATIVE_LOOK_SOURCES_PATH.read_text(encoding="utf-8")),
+        )
+        self.assertEqual(
+            validated["creative_look_boundary"],
+            json.loads(CREATIVE_LOOK_BOUNDARY_PATH.read_text(encoding="utf-8")),
+        )
+        self.assertFalse(
+            validated["creative_rendering"]["native_creative_look_established"]
+        )
 
     def test_nested_ui_evidence_is_fail_closed_and_digest_pinned(self):
         candidates = []
@@ -88,7 +116,7 @@ class TargetFeatureTests(unittest.TestCase):
             ):
                 validate_target_feature_report(candidate)
 
-    def test_schema_three_requires_both_nested_ui_reports_exactly(self):
+    def test_schema_four_requires_both_nested_ui_reports_exactly(self):
         for field in ("ui_indirect_trace", "modern_ui_contract"):
             candidate = copy.deepcopy(self.document)
             del candidate[field]
@@ -97,6 +125,24 @@ class TargetFeatureTests(unittest.TestCase):
 
         candidate = copy.deepcopy(self.document)
         candidate["ui_indirect_trace"]["unexpected"] = False
+        with self.assertRaises(TargetFeatureError):
+            validate_target_feature_report(candidate)
+
+    def test_schema_four_requires_all_nested_creative_look_reports_exactly(self):
+        for field in (
+            "creative_look_stack",
+            "creative_look_sources",
+            "creative_look_boundary",
+        ):
+            candidate = copy.deepcopy(self.document)
+            del candidate[field]
+            with self.subTest(field=field), self.assertRaises(TargetFeatureError):
+                validate_target_feature_report(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["creative_look_boundary"]["claims"][
+            "base_look_processing_found"
+        ] = True
         with self.assertRaises(TargetFeatureError):
             validate_target_feature_report(candidate)
 
@@ -262,7 +308,7 @@ class TargetFeatureTests(unittest.TestCase):
         validated = validate_target_feature_report(self.document)
         trace = validated["ui_static_trace"]
 
-        self.assertEqual(validated["schema_version"], 3)
+        self.assertEqual(validated["schema_version"], 4)
         self.assertEqual(trace["analysis_scope"], "offline-static-target-filesystem")
         self.assertEqual(trace["module"], "lib/viewUnified2.so")
         self.assertEqual(
@@ -410,6 +456,14 @@ class TargetFeatureTests(unittest.TestCase):
         for candidate in candidates:
             with self.assertRaises(TargetFeatureError):
                 validate_target_feature_report(candidate)
+
+    def test_default_creative_style_graph_cannot_promote_native_creative_look(self):
+        candidate = copy.deepcopy(self.document)
+        candidate["creative_rendering"]["target_selector_graph"] = "Default"
+        candidate["creative_rendering"]["native_creative_look_established"] = True
+
+        with self.assertRaises(TargetFeatureError):
+            validate_target_feature_report(candidate)
 
     def test_report_rejects_raw_or_reconstructive_fields(self):
         candidate = copy.deepcopy(self.document)

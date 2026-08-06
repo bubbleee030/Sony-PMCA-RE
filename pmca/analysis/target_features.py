@@ -1,7 +1,22 @@
 """Fail-closed validation for offline ILCE-6400 target feature evidence."""
 
 import copy
+import json
 import re
+from pathlib import Path
+
+from pmca.analysis.creative_look_sources import (
+    CreativeLookSourceError,
+    validate_creative_look_sources,
+)
+from pmca.analysis.creative_look_stack import (
+    CreativeLookStackError,
+    validate_creative_look_stack,
+)
+from pmca.analysis.creative_look_trace import (
+    CreativeLookTraceError,
+    validate_creative_look_boundary,
+)
 
 from pmca.analysis.modern_ui_contract import (
     ModernUiContractError,
@@ -31,6 +46,9 @@ _TOP_FIELDS = {
     "ui_static_trace",
     "modern_ui_contract",
     "ui_indirect_trace",
+    "creative_look_stack",
+    "creative_look_sources",
+    "creative_look_boundary",
     "creative_rendering",
     "observations",
     "inferences",
@@ -200,6 +218,12 @@ _ESTABLISHED_CONTRACT_STATUSES = {
     "TARGET_REIMPLEMENTABLE",
     "DONOR_COMPATIBLE",
 }
+_ANALYSIS_ROOT = Path(__file__).resolve().parents[2] / "analysis"
+_CREATIVE_LOOK_REPORTS = {
+    "creative_look_stack": "a6400-creative-look-stack.json",
+    "creative_look_sources": "a6400-creative-look-sources.json",
+    "creative_look_boundary": "a6400-creative-look-boundary.json",
+}
 _MODULES = {
     "lib/CautionConfig.so": (
         12070800,
@@ -335,11 +359,21 @@ def _validate_claims(document: dict) -> None:
             _bounded_text(claim["claim"], "Target feature claim")
 
 
+def _load_committed_report(filename: str) -> dict:
+    try:
+        value = json.loads((_ANALYSIS_ROOT / filename).read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise TargetFeatureError("Committed Creative Look evidence is unavailable") from error
+    if not isinstance(value, dict):
+        raise TargetFeatureError("Committed Creative Look evidence is invalid")
+    return value
+
+
 def validate_target_feature_report(document: object) -> dict:
     """Validate target-only metadata without claiming a portable or installable patch."""
     _require_fields(document, _TOP_FIELDS, "Target feature report")
     _reject_reconstructive_fields(document)
-    if document["schema_version"] != 3:
+    if document["schema_version"] != 4:
         raise TargetFeatureError("Target feature schema is unsupported")
     if document["subject"] != "ILCE-6400 Taiwan 2.00 target feature boundaries":
         raise TargetFeatureError("Target feature subject is invalid")
@@ -703,6 +737,48 @@ def validate_target_feature_report(document: object) -> dict:
         "label_reuse_is_concept_only": True,
     }:
         raise TargetFeatureError("Creative rendering evidence is invalid or overclaimed")
+
+    try:
+        creative_stack = validate_creative_look_stack(document["creative_look_stack"])
+        creative_sources = validate_creative_look_sources(
+            document["creative_look_sources"]
+        )
+        creative_boundary = validate_creative_look_boundary(
+            document["creative_look_boundary"]
+        )
+    except (
+        CreativeLookStackError,
+        CreativeLookSourceError,
+        CreativeLookTraceError,
+    ) as error:
+        raise TargetFeatureError("Nested Creative Look evidence is invalid") from error
+
+    nested_reports = {
+        "creative_look_stack": creative_stack,
+        "creative_look_sources": creative_sources,
+        "creative_look_boundary": creative_boundary,
+    }
+    for field, filename in _CREATIVE_LOOK_REPORTS.items():
+        if nested_reports[field] != _load_committed_report(filename):
+            raise TargetFeatureError(
+                "Nested Creative Look evidence does not match its committed report"
+            )
+
+    boundary_native = (
+        creative_boundary["claims"]["native_creative_look_interface_found"]
+        and creative_boundary["claims"]["state_persistence_found"]
+        and creative_boundary["claims"]["base_look_processing_found"]
+        and creative_boundary["claims"]["pipeline_binding_found"]
+        and all(creative_boundary["output_support"].values())
+    )
+    expected_native_creative_look = (
+        creative_stack["native_creative_look_established"] and boundary_native
+    )
+    if (
+        creative["native_creative_look_established"]
+        is not expected_native_creative_look
+    ):
+        raise TargetFeatureError("Native Creative Look evidence is inconsistent")
 
     _validate_claims(document)
     _bounded_text(document["conclusion"], "Target feature conclusion")
