@@ -25,6 +25,16 @@ LAYER_IDS = (
     "adjustment_axes",
     "pipeline_binding",
 )
+WORKFLOW_IDS = (
+    "menu_entry",
+    "ten_preset_browser",
+    "edit_screen",
+    "reset_to_default",
+    "copy_select",
+    "range_display",
+    "persistence",
+    "mode_restrictions",
+)
 PIPELINE_OUTPUT_IDS = ("live_view", "still_jpeg", "movie")
 STATUSES = {
     "TARGET_NATIVE",
@@ -47,12 +57,14 @@ _DOCUMENT_FIELDS = {
     "looks",
     "axes",
     "layers",
+    "workflow_records",
     "axis_records",
     "pipeline_outputs",
     "fallback",
     "native_creative_look_established",
 }
 _LAYER_FIELDS = {"status", "evidence", "blocker", "acceptance"}
+_WORKFLOW_FIELDS = {"status", "evidence", "blocker"}
 _AXIS_FIELDS = {"status", "ui", "state", "pipeline", "evidence", "blocker"}
 _OUTPUT_FIELDS = {"status", "evidence", "blocker"}
 _FALLBACK_FIELDS = {
@@ -141,6 +153,10 @@ def _native_stack_complete(document: dict) -> bool:
     return (
         all(document["layers"][layer]["status"] in NATIVE_CAPABLE for layer in LAYER_IDS)
         and all(
+            document["workflow_records"][workflow]["status"] in NATIVE_CAPABLE
+            for workflow in WORKFLOW_IDS
+        )
+        and all(
             document["axis_records"][axis]["status"] in NATIVE_CAPABLE
             for axis in AXIS_IDS
         )
@@ -177,6 +193,20 @@ def validate_creative_look_stack(document: dict) -> dict:
         _validate_evidence(record["evidence"], layer_id, status)
         _require_blocker(record["blocker"], layer_id, status)
         _require_text(record["acceptance"], f"{layer_id} acceptance")
+
+    workflow_records = document["workflow_records"]
+    if not isinstance(workflow_records, dict) or list(workflow_records) != list(
+        WORKFLOW_IDS
+    ):
+        raise CreativeLookStackError("Creative Look workflow records are not exact")
+    for workflow_id, record in workflow_records.items():
+        if not isinstance(record, dict) or set(record) != _WORKFLOW_FIELDS:
+            raise CreativeLookStackError(
+                f"{workflow_id} workflow fields are not exact"
+            )
+        status = _require_status(record["status"], workflow_id)
+        _validate_evidence(record["evidence"], workflow_id, status)
+        _require_blocker(record["blocker"], workflow_id, status)
 
     axis_records = document["axis_records"]
     if not isinstance(axis_records, dict) or list(axis_records) != list(AXIS_IDS):

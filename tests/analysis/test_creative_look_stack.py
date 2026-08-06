@@ -7,6 +7,7 @@ from pmca.analysis.creative_look_stack import (
     AXIS_IDS,
     LAYER_IDS,
     LOOK_IDS,
+    WORKFLOW_IDS,
     CreativeLookStackError,
     validate_creative_look_stack,
 )
@@ -27,6 +28,7 @@ class CreativeLookStackTests(unittest.TestCase):
         self.assertEqual(validated["axes"], list(AXIS_IDS))
         self.assertEqual(list(validated["layers"]), list(LAYER_IDS))
         self.assertEqual(list(validated["axis_records"]), list(AXIS_IDS))
+        self.assertEqual(list(validated["workflow_records"]), list(WORKFLOW_IDS))
         self.assertEqual(
             list(validated["pipeline_outputs"]),
             ["live_view", "still_jpeg", "movie"],
@@ -38,6 +40,29 @@ class CreativeLookStackTests(unittest.TestCase):
             )
         )
         self.assertFalse(validated["native_creative_look_established"])
+
+    def test_first_class_workflow_actions_are_classified_independently(self):
+        validated = validate_creative_look_stack(self.document)
+
+        self.assertEqual(
+            list(validated["workflow_records"]),
+            [
+                "menu_entry",
+                "ten_preset_browser",
+                "edit_screen",
+                "reset_to_default",
+                "copy_select",
+                "range_display",
+                "persistence",
+                "mode_restrictions",
+            ],
+        )
+        for workflow_id, record in validated["workflow_records"].items():
+            with self.subTest(workflow_id=workflow_id):
+                self.assertEqual(set(record), {"status", "evidence", "blocker"})
+                self.assertEqual(record["status"], "UNESTABLISHED")
+                self.assertEqual(record["evidence"], [])
+                self.assertTrue(record["blocker"])
 
     def test_creative_style_fallback_cannot_establish_native_stack(self):
         candidate = copy.deepcopy(self.document)
@@ -116,6 +141,25 @@ class CreativeLookStackTests(unittest.TestCase):
 
     def test_native_claim_requires_every_native_layer_axis_and_output(self):
         candidate = copy.deepcopy(self.document)
+        candidate["native_creative_look_established"] = True
+
+        with self.assertRaises(CreativeLookStackError):
+            validate_creative_look_stack(candidate)
+
+    def test_three_creative_style_axes_cannot_become_eight_axis_creative_look(self):
+        candidate = copy.deepcopy(self.document)
+        for axis in ("contrast", "saturation", "sharpness"):
+            record = candidate["axis_records"][axis]
+            record["status"] = "APPROXIMATION_ONLY"
+            record["evidence"] = [
+                {
+                    "source": "analysis/a6400-creative-look-boundary.json",
+                    "path_id": f"creative-style-{axis}-fallback",
+                    "semantic": axis,
+                    "level": "PARTIAL",
+                    "claim": "Creative Style exposes only a fallback control.",
+                }
+            ]
         candidate["native_creative_look_established"] = True
 
         with self.assertRaises(CreativeLookStackError):

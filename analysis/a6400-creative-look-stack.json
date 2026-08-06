@@ -56,6 +56,48 @@
       "acceptance": "Each supported output uses the selected look and adjustments consistently, with unsupported modes reported explicitly."
     }
   },
+  "workflow_records": {
+    "menu_entry": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No dedicated Creative Look menu entry or production selection dispatcher is established on the target."
+    },
+    "ten_preset_browser": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No target-native browser presenting the exact ten Creative Look presets is established."
+    },
+    "edit_screen": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No Creative Look edit screen wired to eight independent adjustment records is established."
+    },
+    "reset_to_default": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No per-look reset-to-default state transition is established."
+    },
+    "copy_select": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No Creative Look copy and selection behavior is established independently of Creative Style."
+    },
+    "range_display": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No UI path displaying authenticated ranges for all eight axes is established."
+    },
+    "persistence": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No Creative Look record persistence across documented mode and power transitions is established."
+    },
+    "mode_restrictions": {
+      "status": "UNESTABLISHED",
+      "evidence": [],
+      "blocker": "No verified availability matrix identifies Creative Look restrictions for live view, still JPEG, and movie modes."
+    }
+  },
   "axis_records": {
     "contrast": {
       "status": "UNESTABLISHED",
