@@ -40,6 +40,7 @@ class RecoveryScenarioTests(unittest.TestCase):
             "write_scope_known",
             "verification_available",
             "power_loss_behavior_known",
+            "candidate_coverage",
             "evidence",
             "blocker",
         }
@@ -57,6 +58,50 @@ class RecoveryScenarioTests(unittest.TestCase):
                     self.assertIs(scenario[field], False)
                 self.assertIsInstance(scenario["evidence"], list)
                 self.assertTrue(scenario["blocker"])
+
+    def test_every_scenario_assesses_all_three_candidates_independently(self):
+        validated = validate_recovery_scenarios(self.document)
+        candidate_ids = [
+            "official-updater-reinstall",
+            "usb-recovery-or-updater-mode",
+            "independent-maintenance-path",
+        ]
+
+        for scenario in validated["scenarios"]:
+            with self.subTest(scenario=scenario["id"]):
+                self.assertEqual(
+                    [item["id"] for item in scenario["candidate_coverage"]],
+                    candidate_ids,
+                )
+                self.assertTrue(
+                    all(
+                        item == {"id": candidate_id, "status": "UNESTABLISHED"}
+                        for item, candidate_id in zip(
+                            scenario["candidate_coverage"], candidate_ids
+                        )
+                    )
+                )
+
+    def test_candidate_coverage_cannot_be_aggregated_or_promoted(self):
+        candidates = []
+
+        candidate = copy.deepcopy(self.document)
+        candidate["scenarios"][0]["candidate_coverage"].pop()
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["scenarios"][0]["candidate_coverage"][0]["status"] = "PARTIAL"
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["scenarios"][0]["candidate_coverage"][0]["id"] = "aggregate"
+        candidates.append(candidate)
+
+        for candidate in candidates:
+            with self.subTest(candidate=candidate), self.assertRaises(
+                RecoveryScenarioError
+            ):
+                validate_recovery_scenarios(candidate)
 
     def test_report_consumes_exact_authenticated_stock_bundle(self):
         validated = validate_recovery_scenarios(self.document)
@@ -135,6 +180,7 @@ class RecoveryScenarioTests(unittest.TestCase):
             scenario[field] = True
         scenario["evidence"] = [
             {
+                "evidence_id": "unknown-static-evidence",
                 "classification": "BOUNDED_STATIC",
                 "source": "analysis/a6400-updater-gates.json",
                 "direct": False,
@@ -195,6 +241,7 @@ class RecoveryScenarioTests(unittest.TestCase):
         scenario["entry_available"] = True
         scenario["evidence"] = [
             {
+                "evidence_id": "missing-installing-receiver",
                 "classification": "BOUNDED_STATIC",
                 "source": "analysis/a6400-updater-gates.json",
                 "direct": False,
@@ -233,6 +280,7 @@ class RecoveryScenarioTests(unittest.TestCase):
         candidate = copy.deepcopy(self.document)
         candidate["scenarios"][0]["evidence"] = [
             {
+                "evidence_id": "future-authorized-physical-validation",
                 "classification": "BOUNDED_STATIC",
                 "source": "future-authorized-physical-validation",
                 "direct": True,

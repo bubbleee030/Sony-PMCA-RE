@@ -22,8 +22,14 @@
       "write_scope_known": false,
       "verification_available": false,
       "power_loss_behavior_known": false,
+      "candidate_coverage": [
+        {"id": "official-updater-reinstall", "status": "UNESTABLISHED"},
+        {"id": "usb-recovery-or-updater-mode", "status": "UNESTABLISHED"},
+        {"id": "independent-maintenance-path", "status": "UNESTABLISHED"}
+      ],
       "evidence": [
         {
+          "evidence_id": "missing-installing-receiver",
           "classification": "BOUNDED_STATIC",
           "source": "analysis/a6400-updater-transition-boundary.json",
           "direct": false,
@@ -40,8 +46,14 @@
       "write_scope_known": false,
       "verification_available": false,
       "power_loss_behavior_known": false,
+      "candidate_coverage": [
+        {"id": "official-updater-reinstall", "status": "UNESTABLISHED"},
+        {"id": "usb-recovery-or-updater-mode", "status": "UNESTABLISHED"},
+        {"id": "independent-maintenance-path", "status": "UNESTABLISHED"}
+      ],
       "evidence": [
         {
+          "evidence_id": "missing-authenticity-failure-boundary",
           "classification": "BOUNDED_STATIC",
           "source": "analysis/a6400-updater-crypto-boundary.json",
           "direct": false,
@@ -58,8 +70,14 @@
       "write_scope_known": false,
       "verification_available": false,
       "power_loss_behavior_known": false,
+      "candidate_coverage": [
+        {"id": "official-updater-reinstall", "status": "UNESTABLISHED"},
+        {"id": "usb-recovery-or-updater-mode", "status": "UNESTABLISHED"},
+        {"id": "independent-maintenance-path", "status": "UNESTABLISHED"}
+      ],
       "evidence": [
         {
+          "evidence_id": "missing-application-independent-selector",
           "classification": "BOUNDED_STATIC",
           "source": "analysis/a6400-warm-boot-boundary.json",
           "direct": false,
@@ -76,8 +94,14 @@
       "write_scope_known": false,
       "verification_available": false,
       "power_loss_behavior_known": false,
+      "candidate_coverage": [
+        {"id": "official-updater-reinstall", "status": "UNESTABLISHED"},
+        {"id": "usb-recovery-or-updater-mode", "status": "UNESTABLISHED"},
+        {"id": "independent-maintenance-path", "status": "UNESTABLISHED"}
+      ],
       "evidence": [
         {
+          "evidence_id": "missing-version-acceptance-policy",
           "classification": "BOUNDED_STATIC",
           "source": "analysis/a6400-updater-gates.json",
           "direct": false,
@@ -94,8 +118,14 @@
       "write_scope_known": false,
       "verification_available": false,
       "power_loss_behavior_known": false,
+      "candidate_coverage": [
+        {"id": "official-updater-reinstall", "status": "UNESTABLISHED"},
+        {"id": "usb-recovery-or-updater-mode", "status": "UNESTABLISHED"},
+        {"id": "independent-maintenance-path", "status": "UNESTABLISHED"}
+      ],
       "evidence": [
         {
+          "evidence_id": "missing-boot-chain-selector",
           "classification": "BOUNDED_STATIC",
           "source": "analysis/a6400-warm-boot-boundary.json",
           "direct": false,
@@ -112,6 +142,11 @@
       "write_scope_known": false,
       "verification_available": false,
       "power_loss_behavior_known": false,
+      "candidate_coverage": [
+        {"id": "official-updater-reinstall", "status": "UNESTABLISHED"},
+        {"id": "usb-recovery-or-updater-mode", "status": "UNESTABLISHED"},
+        {"id": "independent-maintenance-path", "status": "UNESTABLISHED"}
+      ],
       "evidence": [],
       "blocker": "Restart, resume, rollback, and safe terminal behavior after power loss during stock restoration are not known."
     }

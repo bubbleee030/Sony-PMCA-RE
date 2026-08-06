@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 from pmca.analysis.recovery_path import (
+    CANDIDATE_IDS,
     DETAIL_IDS,
     GATE_IDS,
     RecoveryPathError,
@@ -182,6 +183,84 @@ class RecoveryPathTests(unittest.TestCase):
             validated["details"][0]["blocker"],
             self.document["details"][0]["blocker"],
         )
+
+    def test_candidate_paths_are_independent_and_non_equivalent(self):
+        validated = validate_recovery_report(self.document)
+
+        self.assertEqual(
+            [item["id"] for item in validated["candidates"]],
+            list(CANDIDATE_IDS),
+        )
+        expected_fields = {
+            "id",
+            "status",
+            "entry_layer",
+            "runtime_independent",
+            "stock_source",
+            "write_scope",
+            "verification",
+            "evidence",
+            "blocker",
+        }
+        for candidate in validated["candidates"]:
+            with self.subTest(candidate=candidate["id"]):
+                self.assertEqual(set(candidate), expected_fields)
+                self.assertEqual(candidate["status"], "UNESTABLISHED")
+                self.assertIs(candidate["runtime_independent"], False)
+                self.assertEqual(candidate["stock_source"], "a6400-tw-v2.00")
+                self.assertEqual(candidate["write_scope"], "UNESTABLISHED")
+                self.assertEqual(candidate["verification"], "UNESTABLISHED")
+
+    def test_official_candidate_stops_at_the_windows_host_layer(self):
+        official = validate_recovery_report(self.document)["candidates"][0]
+
+        self.assertEqual(official["entry_layer"], "windows-host-updater-only")
+        self.assertEqual(
+            [item["evidence_id"] for item in official["evidence"]],
+            [
+                "candidate-official-host-engine-static",
+                "candidate-official-installer-missing",
+            ],
+        )
+
+    def test_candidate_runtime_scope_or_verification_cannot_be_promoted(self):
+        mutations = (
+            ("runtime_independent", True),
+            ("write_scope", "ESTABLISHED"),
+            ("verification", "ESTABLISHED"),
+            ("status", "PARTIAL"),
+        )
+        for index, candidate_id in enumerate(CANDIDATE_IDS):
+            for field, value in mutations:
+                candidate = copy.deepcopy(self.document)
+                candidate["candidates"][index][field] = value
+                with self.subTest(
+                    candidate_id=candidate_id, field=field
+                ), self.assertRaises(RecoveryPathError):
+                    validate_recovery_report(candidate)
+
+    def test_candidate_aggregation_or_string_only_maintenance_claim_is_rejected(self):
+        candidates = []
+
+        candidate = copy.deepcopy(self.document)
+        candidate["candidates"].pop(1)
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["candidates"][2]["entry_layer"] = "maintenance string found"
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["candidates"][2]["evidence"][0]["claim"] = (
+            "A maintenance path is established by a string."
+        )
+        candidates.append(candidate)
+
+        for candidate in candidates:
+            with self.subTest(candidate=candidate), self.assertRaises(
+                RecoveryPathError
+            ):
+                validate_recovery_report(candidate)
 
 
 class RestoreGateExportTests(unittest.TestCase):

@@ -47,6 +47,11 @@ DETAIL_IDS = (
     "downgrade_or_reinstall",
     "power_loss_behavior",
 )
+CANDIDATE_IDS = (
+    "official-updater-reinstall",
+    "usb-recovery-or-updater-mode",
+    "independent-maintenance-path",
+)
 STATUSES = {"ESTABLISHED", "PARTIAL", "UNESTABLISHED"}
 
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -153,6 +158,7 @@ _TOP_FIELDS = {
     "static_gate_export",
     "gates",
     "details",
+    "candidates",
     "readiness_basis",
     "readiness",
     "conclusion",
@@ -167,6 +173,17 @@ _STOCK_FIELDS = {
 }
 _SCENARIO_REFERENCE_FIELDS = {"reference", "scenario_count", "recoverable_count"}
 _BOUNDARY_FIELDS = {"id", "status", "evidence", "blocker"}
+_CANDIDATE_FIELDS = {
+    "id",
+    "status",
+    "entry_layer",
+    "runtime_independent",
+    "stock_source",
+    "write_scope",
+    "verification",
+    "evidence",
+    "blocker",
+}
 _EVIDENCE_FIELDS = {"evidence_id", "source", "claim"}
 _READINESS_FIELDS = {
     "authenticated_stock_bundle",
@@ -268,6 +285,70 @@ _EVIDENCE_REGISTRY = {
         "support": "UNESTABLISHED",
         "source": "analysis/a6400-updater-transition-boundary.json",
         "claim": "No bounded evidence establishes restart, resume, rollback, or safe terminal behavior after power loss.",
+    },
+}
+
+_CANDIDATE_EVIDENCE_REGISTRY = {
+    "candidate-official-host-engine-static": {
+        "candidate_id": "official-updater-reinstall",
+        "source": "analysis/a6400-updater-gates.json",
+        "claim": "The authenticated Windows host engine exposes bounded DAT, transport, state, model-status, and version-status paths, but camera-side reinstall acceptance and entry independence remain unresolved.",
+    },
+    "candidate-official-installer-missing": {
+        "candidate_id": "official-updater-reinstall",
+        "source": "analysis/a6400-updater-transition-boundary.json",
+        "claim": "The available target 2.00 receiver is post-install; the earlier receiver that installs 2.00 remains unavailable.",
+    },
+    "candidate-usb-mode-transition-static": {
+        "candidate_id": "usb-recovery-or-updater-mode",
+        "source": "analysis/a6400-trust-boundary.json",
+        "claim": "The host path contains a bounded mode-switch and reconnect boundary, but no physical exchange or camera-side updater selector is established.",
+    },
+    "candidate-usb-selector-missing": {
+        "candidate_id": "usb-recovery-or-updater-mode",
+        "source": "analysis/a6400-warm-boot-boundary.json",
+        "claim": "The pre-normal-runtime component that selects the updater system remains unidentified, so runtime-independent USB entry is unestablished.",
+    },
+    "candidate-maintenance-read-only-hypothesis": {
+        "candidate_id": "independent-maintenance-path",
+        "source": "analysis/a6400-warm-boot-boundary.json",
+        "claim": "A separate service acquisition hypothesis remains unvalidated and read-only; it does not establish an independently booted stock restore path.",
+    },
+}
+
+_EXPECTED_CANDIDATES = {
+    "official-updater-reinstall": {
+        "status": "UNESTABLISHED",
+        "entry_layer": "windows-host-updater-only",
+        "runtime_independent": False,
+        "write_scope": "UNESTABLISHED",
+        "verification": "UNESTABLISHED",
+        "evidence_ids": (
+            "candidate-official-host-engine-static",
+            "candidate-official-installer-missing",
+        ),
+        "blocker": "The camera-side installing receiver, exact same-version acceptance, runtime-independent entry, write scope and order, post-write verification, and power-loss behavior remain unresolved.",
+    },
+    "usb-recovery-or-updater-mode": {
+        "status": "UNESTABLISHED",
+        "entry_layer": "windows-host-mode-switch-only",
+        "runtime_independent": False,
+        "write_scope": "UNESTABLISHED",
+        "verification": "UNESTABLISHED",
+        "evidence_ids": (
+            "candidate-usb-mode-transition-static",
+            "candidate-usb-selector-missing",
+        ),
+        "blocker": "A camera-side selector, earliest receiving component, runtime independence, complete stock write behavior, and terminal verification remain unestablished.",
+    },
+    "independent-maintenance-path": {
+        "status": "UNESTABLISHED",
+        "entry_layer": "unlocated",
+        "runtime_independent": False,
+        "write_scope": "UNESTABLISHED",
+        "verification": "UNESTABLISHED",
+        "evidence_ids": ("candidate-maintenance-read-only-hypothesis",),
+        "blocker": "No independently bootable maintenance entry, stock write authority, complete write scope, or verification path has been established.",
     },
 }
 
@@ -609,6 +690,60 @@ def _validate_boundary_records(
     return records
 
 
+def _validate_candidates(records: object, stock_source: str) -> list[dict]:
+    if not isinstance(records, list) or [
+        item.get("id") if isinstance(item, dict) else None for item in records
+    ] != list(CANDIDATE_IDS):
+        raise RecoveryPathError("recovery candidate membership or order is invalid")
+    for item in records:
+        candidate = _require_fields(item, _CANDIDATE_FIELDS, "Recovery candidate")
+        candidate_id = candidate["id"]
+        expected = _EXPECTED_CANDIDATES[candidate_id]
+        if type(candidate["runtime_independent"]) is not bool:
+            raise RecoveryPathError(
+                f"{candidate_id} runtime independence must be boolean"
+            )
+        if candidate["stock_source"] != stock_source:
+            raise RecoveryPathError(f"{candidate_id} stock source is invalid")
+        evidence = candidate["evidence"]
+        evidence_ids = expected["evidence_ids"]
+        if not isinstance(evidence, list) or len(evidence) != len(evidence_ids):
+            raise RecoveryPathError(f"{candidate_id} evidence is incomplete")
+        normalized_evidence = []
+        for evidence_record, evidence_id in zip(evidence, evidence_ids):
+            record = _require_fields(
+                evidence_record, _EVIDENCE_FIELDS, "Candidate evidence"
+            )
+            registry = _CANDIDATE_EVIDENCE_REGISTRY[evidence_id]
+            expected_record = {
+                "evidence_id": evidence_id,
+                "source": registry["source"],
+                "claim": registry["claim"],
+            }
+            if (
+                registry["candidate_id"] != candidate_id
+                or record != expected_record
+            ):
+                raise RecoveryPathError(f"{candidate_id} evidence is invalid")
+            normalized_evidence.append(expected_record)
+        expected_record = {
+            "id": candidate_id,
+            "status": expected["status"],
+            "entry_layer": expected["entry_layer"],
+            "runtime_independent": expected["runtime_independent"],
+            "stock_source": stock_source,
+            "write_scope": expected["write_scope"],
+            "verification": expected["verification"],
+            "evidence": normalized_evidence,
+            "blocker": expected["blocker"],
+        }
+        if candidate != expected_record:
+            raise RecoveryPathError(
+                f"{candidate_id} classification is not fail-closed"
+            )
+    return records
+
+
 def validate_recovery_report(document: dict) -> dict:
     """Validate the static restore boundary while keeping recovery false."""
 
@@ -666,6 +801,7 @@ def validate_recovery_report(document: dict) -> dict:
     _validate_cited_reports()
     gates = _validate_boundary_records(report["gates"], GATE_IDS, "Recovery gate")
     details = _validate_boundary_records(report["details"], DETAIL_IDS, "Recovery detail")
+    _validate_candidates(report["candidates"], stock["source_key"])
     gate_status = {item["id"]: item["status"] for item in gates}
     detail_status = {item["id"]: item["status"] for item in details}
     if gate_status != {

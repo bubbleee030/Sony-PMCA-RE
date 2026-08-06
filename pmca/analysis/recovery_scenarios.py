@@ -19,6 +19,11 @@ SCENARIO_IDS = (
     "boot-chain-failure",
     "power-loss-during-stock-restore",
 )
+CANDIDATE_IDS = (
+    "official-updater-reinstall",
+    "usb-recovery-or-updater-mode",
+    "independent-maintenance-path",
+)
 STATUSES = {"RECOVERABLE", "PARTIAL", "UNRECOVERABLE", "UNESTABLISHED"}
 
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -50,10 +55,18 @@ _SCENARIO_FIELDS = {
     "write_scope_known",
     "verification_available",
     "power_loss_behavior_known",
+    "candidate_coverage",
     "evidence",
     "blocker",
 }
-_EVIDENCE_FIELDS = {"classification", "source", "direct", "claim"}
+_CANDIDATE_COVERAGE_FIELDS = {"id", "status"}
+_EVIDENCE_FIELDS = {
+    "evidence_id",
+    "classification",
+    "source",
+    "direct",
+    "claim",
+}
 _CAPABILITY_FIELDS = (
     "entry_available",
     "runtime_independent",
@@ -75,6 +88,7 @@ _STATIC_EVIDENCE_SOURCES = {
     "analysis/a6400-trust-boundary.json",
 }
 _DIRECT_EVIDENCE_SOURCE = "future-authorized-physical-validation"
+_DIRECT_EVIDENCE_ID = "future-authorized-physical-validation"
 _UNCERTAINTY_WORDS = {
     "not",
     "no",
@@ -117,6 +131,39 @@ _EXPECTED_CONCLUSION = (
     "runtime-independent entry, complete write scope, post-write verification, "
     "downgrade acceptance, boot-chain recovery, or power-loss safety."
 )
+
+_STATIC_EVIDENCE_REGISTRY = {
+    "missing-installing-receiver": {
+        "scenario_id": "modified-ui-runtime-failure",
+        "source": "analysis/a6400-updater-transition-boundary.json",
+        "claim": "The analyzed 2.00 receiver is a post-install artifact; the earlier receiver that installs 2.00 has not been identified.",
+        "supports": (),
+    },
+    "missing-authenticity-failure-boundary": {
+        "scenario_id": "interrupted-feature-update",
+        "source": "analysis/a6400-updater-crypto-boundary.json",
+        "claim": "The camera-side receiver, authenticity boundary, and failure mapping remain unresolved in the static evidence.",
+        "supports": (),
+    },
+    "missing-application-independent-selector": {
+        "scenario_id": "nonbooting-application-layer",
+        "source": "analysis/a6400-warm-boot-boundary.json",
+        "claim": "The packaged main system follows the normal boot path, while the pre-normal-runtime updater selector remains unidentified.",
+        "supports": (),
+    },
+    "missing-version-acceptance-policy": {
+        "scenario_id": "version-or-downgrade-rejection",
+        "source": "analysis/a6400-updater-gates.json",
+        "claim": "Host-side model and version statuses are mapped, but the enforcing camera logic and its acceptance policy remain unknown.",
+        "supports": (),
+    },
+    "missing-boot-chain-selector": {
+        "scenario_id": "boot-chain-failure",
+        "source": "analysis/a6400-warm-boot-boundary.json",
+        "claim": "The warm-resume path is not an updater selector, and the earlier component that selects the updater system has not been located.",
+        "supports": (),
+    },
+}
 
 
 class RecoveryScenarioError(ValueError):
@@ -205,26 +252,66 @@ def _expected_stock_identity(stock_bundle: dict) -> dict:
 
 def _validate_evidence(
     value: object, scenario_id: str, camera_executed: bool
-) -> list[dict]:
+) -> tuple[list[dict], set[str]]:
     if not isinstance(value, list) or len(value) > 8:
         raise RecoveryScenarioError(f"{scenario_id} evidence must be a bounded list")
+    supported_capabilities = set()
+    seen = set()
     for item in value:
         evidence = _require_fields(item, _EVIDENCE_FIELDS, f"{scenario_id} evidence")
+        evidence_id = evidence["evidence_id"]
+        if not isinstance(evidence_id, str) or evidence_id in seen:
+            raise RecoveryScenarioError(f"{scenario_id} evidence identity is invalid")
+        seen.add(evidence_id)
         if evidence["classification"] != "BOUNDED_STATIC":
             raise RecoveryScenarioError(f"{scenario_id} evidence classification is invalid")
         if type(evidence["direct"]) is not bool:
             raise RecoveryScenarioError(f"{scenario_id} evidence direct flag is invalid")
         if evidence["direct"]:
-            if evidence["source"] != _DIRECT_EVIDENCE_SOURCE or not camera_executed:
+            if (
+                evidence_id != _DIRECT_EVIDENCE_ID
+                or evidence["source"] != _DIRECT_EVIDENCE_SOURCE
+                or not camera_executed
+            ):
                 raise RecoveryScenarioError(
                     f"{scenario_id} direct evidence lacks authorized camera validation"
                 )
-        elif evidence["source"] not in _STATIC_EVIDENCE_SOURCES:
-            raise RecoveryScenarioError(f"{scenario_id} evidence source is invalid")
+            supported_capabilities.update(_CAPABILITY_FIELDS)
+        else:
+            registry = _STATIC_EVIDENCE_REGISTRY.get(evidence_id)
+            if (
+                registry is None
+                or registry["scenario_id"] != scenario_id
+                or evidence["source"] not in _STATIC_EVIDENCE_SOURCES
+                or evidence["source"] != registry["source"]
+                or evidence["claim"] != registry["claim"]
+            ):
+                raise RecoveryScenarioError(
+                    f"{scenario_id} bounded static evidence is invalid"
+                )
+            supported_capabilities.update(registry["supports"])
         claim = _require_text(evidence["claim"], f"{scenario_id} evidence claim")
         if not evidence["direct"] and not _contains_uncertainty(claim):
             raise RecoveryScenarioError(
                 f"{scenario_id} bounded static evidence must remain non-promotional"
+            )
+    return value, supported_capabilities
+
+
+def _validate_candidate_coverage(value: object, scenario_id: str) -> list[dict]:
+    if not isinstance(value, list) or [
+        item.get("id") if isinstance(item, dict) else None for item in value
+    ] != list(CANDIDATE_IDS):
+        raise RecoveryScenarioError(
+            f"{scenario_id} candidate coverage membership is invalid"
+        )
+    for item in value:
+        coverage = _require_fields(
+            item, _CANDIDATE_COVERAGE_FIELDS, f"{scenario_id} candidate coverage"
+        )
+        if coverage["status"] != "UNESTABLISHED":
+            raise RecoveryScenarioError(
+                f"{scenario_id} candidate coverage cannot be promoted"
             )
     return value
 
@@ -277,7 +364,8 @@ def validate_recovery_scenarios(document: dict) -> dict:
         for field in _CAPABILITY_FIELDS:
             if type(scenario[field]) is not bool:
                 raise RecoveryScenarioError(f"{scenario_id} {field} must be boolean")
-        evidence = _validate_evidence(
+        _validate_candidate_coverage(scenario["candidate_coverage"], scenario_id)
+        evidence, supported_capabilities = _validate_evidence(
             scenario["evidence"], scenario_id, report["camera_executed"]
         )
         blocker = _require_text(
@@ -285,12 +373,14 @@ def validate_recovery_scenarios(document: dict) -> dict:
             f"{scenario_id} blocker",
             allow_empty=scenario["status"] == "RECOVERABLE",
         )
-        if (
-            scenario["status"] != "UNESTABLISHED"
-            and not report["recovery_validated"]
-        ):
+        unsupported_true_capabilities = {
+            field
+            for field in _CAPABILITY_FIELDS
+            if scenario[field] and field not in supported_capabilities
+        }
+        if unsupported_true_capabilities:
             raise RecoveryScenarioError(
-                f"{scenario_id} static evidence cannot promote scenario status"
+                f"{scenario_id} capabilities lack typed evidence"
             )
 
         if scenario["status"] == "UNESTABLISHED":

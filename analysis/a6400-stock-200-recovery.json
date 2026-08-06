@@ -181,6 +181,69 @@
       "blocker": "Restart, resume, rollback, and safe terminal behavior after interrupted restoration remain unknown."
     }
   ],
+  "candidates": [
+    {
+      "id": "official-updater-reinstall",
+      "status": "UNESTABLISHED",
+      "entry_layer": "windows-host-updater-only",
+      "runtime_independent": false,
+      "stock_source": "a6400-tw-v2.00",
+      "write_scope": "UNESTABLISHED",
+      "verification": "UNESTABLISHED",
+      "evidence": [
+        {
+          "evidence_id": "candidate-official-host-engine-static",
+          "source": "analysis/a6400-updater-gates.json",
+          "claim": "The authenticated Windows host engine exposes bounded DAT, transport, state, model-status, and version-status paths, but camera-side reinstall acceptance and entry independence remain unresolved."
+        },
+        {
+          "evidence_id": "candidate-official-installer-missing",
+          "source": "analysis/a6400-updater-transition-boundary.json",
+          "claim": "The available target 2.00 receiver is post-install; the earlier receiver that installs 2.00 remains unavailable."
+        }
+      ],
+      "blocker": "The camera-side installing receiver, exact same-version acceptance, runtime-independent entry, write scope and order, post-write verification, and power-loss behavior remain unresolved."
+    },
+    {
+      "id": "usb-recovery-or-updater-mode",
+      "status": "UNESTABLISHED",
+      "entry_layer": "windows-host-mode-switch-only",
+      "runtime_independent": false,
+      "stock_source": "a6400-tw-v2.00",
+      "write_scope": "UNESTABLISHED",
+      "verification": "UNESTABLISHED",
+      "evidence": [
+        {
+          "evidence_id": "candidate-usb-mode-transition-static",
+          "source": "analysis/a6400-trust-boundary.json",
+          "claim": "The host path contains a bounded mode-switch and reconnect boundary, but no physical exchange or camera-side updater selector is established."
+        },
+        {
+          "evidence_id": "candidate-usb-selector-missing",
+          "source": "analysis/a6400-warm-boot-boundary.json",
+          "claim": "The pre-normal-runtime component that selects the updater system remains unidentified, so runtime-independent USB entry is unestablished."
+        }
+      ],
+      "blocker": "A camera-side selector, earliest receiving component, runtime independence, complete stock write behavior, and terminal verification remain unestablished."
+    },
+    {
+      "id": "independent-maintenance-path",
+      "status": "UNESTABLISHED",
+      "entry_layer": "unlocated",
+      "runtime_independent": false,
+      "stock_source": "a6400-tw-v2.00",
+      "write_scope": "UNESTABLISHED",
+      "verification": "UNESTABLISHED",
+      "evidence": [
+        {
+          "evidence_id": "candidate-maintenance-read-only-hypothesis",
+          "source": "analysis/a6400-warm-boot-boundary.json",
+          "claim": "A separate service acquisition hypothesis remains unvalidated and read-only; it does not establish an independently booted stock restore path."
+        }
+      ],
+      "blocker": "No independently bootable maintenance entry, stock write authority, complete write scope, or verification path has been established."
+    }
+  ],
   "readiness_basis": {
     "authenticated_stock_bundle": true,
     "runtime_independent_entry_established": false,
