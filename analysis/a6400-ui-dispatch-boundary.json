@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-target-filesystem",
+  "module": {
+    "name": "lib/viewUnified2.so",
+    "size": 11530552,
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
+  },
+  "roots": [
+    {
+      "name": "ViewSettingMenu",
+      "offset": "0x22355e"
+    },
+    {
+      "name": "ViewStlrec",
+      "offset": "0x1ab41c"
+    }
+  ],
+  "edges": [],
+  "paths": [
+    {
+      "id": "direct-status-read",
+      "root": "ViewSettingMenu",
+      "offsets": [
+        "0x22355e",
+        "0x222f68",
+        "0x43156c",
+        "0x1613f0"
+      ],
+      "edge_ids": [],
+      "semantic": "status-read-not-coordinate-dispatch",
+      "resolved": true
+    },
+    {
+      "id": "direct-touchpad-reconfiguration",
+      "root": "ViewSettingMenu",
+      "offsets": [
+        "0x22355e",
+        "0x21c644",
+        "0x1626cc",
+        "0x41b244",
+        "0x41ae08"
+      ],
+      "edge_ids": [],
+      "semantic": "configuration-not-menu-selection",
+      "resolved": true
+    }
+  ],
+  "uxc_references": [],
+  "negative_searches": [
+    {
+      "root_set": "ViewSettingMenu-candidate-functions",
+      "requested_roots": 21,
+      "resolved_roots": 21,
+      "target_name": "master_layout_factory",
+      "target_requested_offset": "0x181f18",
+      "target_function_offset": "0x181f18",
+      "search_method": "static-direct-call-graph",
+      "path_found": false
+    },
+    {
+      "root_set": "ViewSettingMenu-candidate-functions",
+      "requested_roots": 21,
+      "resolved_roots": 21,
+      "target_name": "vertical_info_layout_factory",
+      "target_requested_offset": "0x24222c",
+      "target_function_offset": "0x24222c",
+      "search_method": "static-direct-call-graph",
+      "path_found": false
+    },
+    {
+      "root_set": "ViewSettingMenu-candidate-functions",
+      "requested_roots": 21,
+      "resolved_roots": 21,
+      "target_name": "root_resource_call_owner",
+      "target_requested_offset": "0x2307d0",
+      "target_function_offset": "0x223b8c",
+      "search_method": "static-direct-call-graph",
+      "path_found": false
+    },
+    {
+      "root_set": "ViewSettingMenu-candidate-functions",
+      "requested_roots": 21,
+      "resolved_roots": 21,
+      "target_name": "sample_view_resource_setup_owner",
+      "target_requested_offset": "0x6666a4",
+      "target_function_offset": "0x6695d8",
+      "search_method": "static-direct-call-graph",
+      "path_found": false
+    },
+    {
+      "root_set": "ViewStlrec-candidate-functions",
+      "requested_roots": 25,
+      "resolved_roots": 10,
+      "target_name": "master_layout_factory",
+      "target_requested_offset": "0x181f18",
+      "target_function_offset": "0x181f18",
+      "search_method": "static-direct-call-graph",
+      "path_found": false
+    },
+    {
+      "root_set": "ViewStlrec-candidate-functions",
+      "requested_roots": 25,
+      "resolved_roots": 10,
+      "target_name": "vertical_info_layout_factory",
+      "target_requested_offset": "0x24222c",
+      "target_function_offset": "0x24222c",
+      "search_method": "static-direct-call-graph",
+      "path_found": false
+    }
+  ],
+  "claims": {
+    "coordinate_consumer_found": false,
+    "menu_selection_dispatch_found": false,
+    "orientation_layout_selector_found": false
+  }
+}
