@@ -16,9 +16,9 @@ Use TDD to require:
 
 - exact identities for `CautionConfig.so`, `viewUnified2.so`, `viewUnified4.so`, and
   `viewUnified7.so`, plus source-unchanged read-only mode;
-- a globally sorted bounded inventory over firmware `lib`, `bin`, `sabin`, and
-  `sbin`: 799 regular files, 324 ELF files, and 150 shared objects, with a canonical
-  inventory digest;
+- a globally sorted bounded inventory over the exact unpacked `nflasha15` tree:
+  799 regular files, 324 ELF files, and 150 shared objects, with a canonical
+  inventory digest and no symlink traversal;
 - exact global STT_OBJECT dynsym 11778 `cmnViewSettingNodesRootDefault` at ELF
   `0xb8a380`, size 1660, `.data`;
 - exactly 415 `R_ARM_ABS32` records whose sites, sorted by address, cover every
