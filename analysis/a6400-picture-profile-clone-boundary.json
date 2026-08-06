@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-picture-profile-clone-boundary",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "summary": {
+    "artifact_sha256": "d95b525159e1ad291eab0a6b05dfede9cfedb49398ceb811db512ae8102690da",
+    "clone_edge_count": 2,
+    "typed_interface_registration_count": 1
+  },
+  "claims": {
+    "selected_slot_found": false,
+    "persistence_found": false,
+    "processing_found": false,
+    "output_found": false,
+    "interface_reuse_found": false,
+    "state_reuse_found": false,
+    "first_class_creative_look": false
+  },
+  "readiness": "CLONE_CONSTRUCTOR_AND_TYPED_VTABLE_ONLY",
+  "conclusion": "The Picture Profile clone's two direct calls are bounded, and the second call is mapped by an exact ELF PLT relocation to the Picture Profile copy constructor. A typed vtable symbol is metadata only; no selected-slot state, persistence, processing, output, interface reuse, state reuse, or first-class Creative Look behavior is established."
+}
