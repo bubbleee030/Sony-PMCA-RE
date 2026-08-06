@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "subject": "ILCE-6400 exact Taiwan stock 2.00 restore source",
+  "source_key": "a6400-tw-v2.00",
+  "model": "ILCE-6400",
+  "model_id": "0x81030011",
+  "region": "TW",
+  "region_code": 0,
+  "version": "2.00",
+  "source_kind": "official-sony-updater",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "acquisition_provenance": {
+    "manufacturer": "Sony",
+    "official_url": "https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145",
+    "release_date": "2019-06-13",
+    "acquired_at": "2026-08-04T10:57:07Z",
+    "advertised_size": 314230712,
+    "measured_size": 314230712
+  },
+  "components": [
+    {
+      "id": "outer-updater",
+      "role": "official-host-updater",
+      "filename": "Update_ILCE6400V200.exe",
+      "relative_path": "a6400-tw-v2.00/Update_ILCE6400V200.exe",
+      "size": 314230712,
+      "sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6"
+    },
+    {
+      "id": "embedded-firmware-container",
+      "role": "stock-camera-firmware-container",
+      "filename": "FirmwareData.dat",
+      "container_id": "outer-updater",
+      "outer_offset": 715220,
+      "container_prefix_size": 120,
+      "container_size": 304833928,
+      "fdat_size": 304833808,
+      "sha256": "78a6881eddd16609758951c80d533ac82042858eac919bd94453941ba6b766f2"
+    }
+  ],
+  "references": {
+    "acquisition_manifest": "analysis/firmware-manifest.json",
+    "outer_static_report": "analysis/reports/a6400-tw-v2.00.json",
+    "target_component_manifest": "analysis/a6400-target-features.json"
+  }
+}
