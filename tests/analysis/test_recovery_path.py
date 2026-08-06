@@ -4,6 +4,9 @@ import importlib.util
 import json
 import unittest
 from pathlib import Path
+from unittest import mock
+
+import pmca.analysis.recovery_path as recovery_path
 
 from pmca.analysis.recovery_path import (
     CANDIDATE_IDS,
@@ -174,6 +177,81 @@ class RecoveryPathTests(unittest.TestCase):
             candidate[section]["reference"] = "analysis/other.json"
             with self.subTest(section=section), self.assertRaises(RecoveryPathError):
                 validate_recovery_report(candidate)
+
+    def test_different_model_control_is_pinned_and_cannot_promote_recovery(self):
+        before = {
+            "gates": copy.deepcopy(self.document["gates"]),
+            "details": copy.deepcopy(self.document["details"]),
+            "candidates": copy.deepcopy(self.document["candidates"]),
+            "readiness_basis": copy.deepcopy(self.document["readiness_basis"]),
+            "readiness": self.document["readiness"],
+        }
+
+        validated = validate_recovery_report(self.document)
+
+        self.assertEqual(
+            validated["architecture_controls"],
+            [
+                {
+                    "id": "a6400a-eu-v1.01-receiver-control",
+                    "reference": "analysis/a6400a-updater-control-bootstrap.json",
+                    "source_model_id": "0x81030017",
+                    "target_model_id": "0x81030011",
+                    "canonical_export_sha256": "0e80cb19f9d4f227f04503e6d3f6ace4f1b0c7fe6194e2a3c7ede89a8ed9ad38",
+                    "function_count": 37,
+                    "call_count": 71,
+                    "status": "NON_TRANSFERABLE_CONTROL",
+                    "target_acceptance_established": False,
+                    "write_scope_established": False,
+                    "post_write_verification_established": False,
+                    "recovery_supported": False,
+                    "claim": "Different-model updater architecture control only; it does not establish the original alpha6400 selector, receiver, acceptance, write order, terminal verification, or recovery.",
+                }
+            ],
+        )
+        self.assertEqual(
+            {
+                "gates": validated["gates"],
+                "details": validated["details"],
+                "candidates": validated["candidates"],
+                "readiness_basis": validated["readiness_basis"],
+                "readiness": validated["readiness"],
+            },
+            before,
+        )
+
+    def test_different_model_control_identity_and_nonpromotion_flags_are_strict(self):
+        mutations = (
+            ("status", "PARTIAL"),
+            ("source_model_id", "0x81030011"),
+            ("target_model_id", "0x81030017"),
+            ("canonical_export_sha256", "0" * 64),
+            ("function_count", 38),
+            ("call_count", 72),
+            ("target_acceptance_established", True),
+            ("write_scope_established", True),
+            ("post_write_verification_established", True),
+            ("recovery_supported", True),
+        )
+        for field, value in mutations:
+            candidate = copy.deepcopy(self.document)
+            candidate["architecture_controls"][0][field] = value
+            with self.subTest(field=field), self.assertRaises(RecoveryPathError):
+                validate_recovery_report(candidate)
+
+    def test_different_model_control_dependency_is_validated_dynamically(self):
+        original_load = recovery_path._load_json
+
+        def corrupted_load(relative_path, label):
+            dependency = original_load(relative_path, label)
+            if relative_path == "analysis/a6400a-updater-control-bootstrap.json":
+                dependency["sauu_control_export"]["target_transferable"] = True
+            return dependency
+
+        with mock.patch.object(
+            recovery_path, "_load_json", side_effect=corrupted_load
+        ), self.assertRaises(RecoveryPathError):
+            validate_recovery_report(self.document)
 
     def test_validated_report_is_an_isolated_copy(self):
         validated = validate_recovery_report(self.document)

@@ -296,6 +296,14 @@ earlier receiver that installs 2.00 is still missing. A settings or factory
 reset changes configuration; it is not firmware restoration and cannot satisfy
 this gate.
 
+The α6400A control is now bounded further by a canonical read-only `sauu`
+graph: 37 functions, 71 calls, three unresolved indirect calls, and maximum
+depth two. It confirms model/region/version guards and a signature workflow in
+the related model `0x81030017`, but no write orchestrator or completion
+verification was identified and transfer to α6400 model `0x81030011` remains
+false. The strict recovery report classifies this as `NON_TRANSFERABLE_CONTROL`
+and derives no recovery promotion from it.
+
 ## Next safe experiments
 
 1. Resolve selected `viewUnified2.so` indirect call sites and the cross-module

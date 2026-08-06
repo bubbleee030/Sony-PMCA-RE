@@ -60,11 +60,14 @@ _APPROVED_SOURCES = frozenset(
         "analysis/feature-compatibility.json",
         "analysis/creative-look-recipes.json",
         "analysis/a6400-creative-look-guide.md",
+        "analysis/a6400-creative-look-boundary.json",
+        "analysis/a6400-creative-look-stack.json",
         "analysis/firmware-manifest.json",
         "analysis/tool-provenance.json",
         "analysis/a6400-stock-200-bundle.json",
         "analysis/a6400-recovery-scenarios.json",
         "analysis/a6400-stock-200-recovery.json",
+        "analysis/a6400a-updater-control-bootstrap.json",
         "README.md",
     }
 )
@@ -135,22 +138,27 @@ def derive_recovery_capability(document: dict | None = None) -> dict:
     return {
         "id": "recovery",
         "status": "BLOCKED",
-        "summary": "The exact Taiwan/region-0 alpha 6400 2.00 stock source is authenticated, but all three external restore candidates and all six mandatory failure scenarios remain unestablished; recovery and camera testing are unvalidated.",
+        "summary": "The exact Taiwan/region-0 α6400 2.00 stock source is authenticated, but all three external restore candidates and all six mandatory failure scenarios remain unestablished; recovery and camera testing are unvalidated.",
         "evidence": [
             {
                 "kind": "OBSERVATION",
                 "source": "analysis/a6400-stock-200-bundle.json",
-                "claim": "The official Sony Taiwan updater and its embedded stock container are digest-pinned to ILCE-6400 model 0x81030011, region code 0, and version 2.00.",
+                "claim": "The official Sony Taiwan updater and its embedded stock container are digest-pinned to ILCE-6400 model `0x81030011`, region code `0`, and version `2.00`.",
             },
             {
                 "kind": "OBSERVATION",
                 "source": "analysis/a6400-recovery-scenarios.json",
-                "claim": "All six mandatory failure scenarios and every one of their three candidate coverage records remain UNESTABLISHED.",
+                "claim": "All six mandatory failure scenarios and every one of their three candidate coverage records remain `UNESTABLISHED`.",
             },
             {
                 "kind": "OBSERVATION",
                 "source": _RECOVERY_REPORT_REFERENCE,
-                "claim": "The strict report records BLOCKED_STATIC_EVIDENCE, recovery_validated false, camera_test_eligible false, and no runtime-independent entry or complete write and verification path.",
+                "claim": "The strict report records `BLOCKED_STATIC_EVIDENCE`, `recovery_validated=false`, `camera_test_eligible=false`, and no runtime-independent entry or complete write and verification path.",
+            },
+            {
+                "kind": "OBSERVATION",
+                "source": "analysis/a6400a-updater-control-bootstrap.json",
+                "claim": "The different-model alpha 6400A 1.01 control resolves a bounded 37-function/71-call receiver graph with model/region/version guards and signature verification; target transfer, write orchestration, completion verification, and recovery support remain false.",
             },
             {
                 "kind": "INFERENCE",
@@ -248,7 +256,7 @@ def render_markdown(document: dict) -> str:
     lines = [
         "# Sony α6400 Firmware Feasibility Decisions",
         "",
-        "Generation source: validated evidence document (schema version 1).",
+        "Generated decision section source: validated evidence document (schema version 1).",
     ]
     for capability in normalized["capabilities"]:
         lines.extend(

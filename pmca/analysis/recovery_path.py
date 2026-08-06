@@ -24,6 +24,10 @@ from .updater_transition_report import (
     UpdaterTransitionReportError,
     validate_updater_transition_report,
 )
+from .updater_control_bootstrap import (
+    UpdaterControlBootstrapError,
+    validate_updater_control_bootstrap,
+)
 from .warm_boot_boundary_report import (
     WarmBootBoundaryReportError,
     validate_warm_boot_boundary_report,
@@ -57,6 +61,9 @@ STATUSES = {"ESTABLISHED", "PARTIAL", "UNESTABLISHED"}
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 _STOCK_REFERENCE = "analysis/a6400-stock-200-bundle.json"
 _SCENARIO_REFERENCE = "analysis/a6400-recovery-scenarios.json"
+_ARCHITECTURE_CONTROL_REFERENCE = (
+    "analysis/a6400a-updater-control-bootstrap.json"
+)
 _PROGRAM = "signed-updater-engine-8f2e8b22.exe"
 _PROGRAM_SHA256 = "8f2e8b229ef9e49a874cbf920301aba078727cebc490c891a992de60ff8a3528"
 _PROGRAM_SIZE = 122864
@@ -155,6 +162,7 @@ _TOP_FIELDS = {
     "camera_test_eligible",
     "stock_bundle",
     "recovery_scenarios",
+    "architecture_controls",
     "static_gate_export",
     "gates",
     "details",
@@ -172,6 +180,21 @@ _STOCK_FIELDS = {
     "version",
 }
 _SCENARIO_REFERENCE_FIELDS = {"reference", "scenario_count", "recoverable_count"}
+_ARCHITECTURE_CONTROL_FIELDS = {
+    "id",
+    "reference",
+    "source_model_id",
+    "target_model_id",
+    "canonical_export_sha256",
+    "function_count",
+    "call_count",
+    "status",
+    "target_acceptance_established",
+    "write_scope_established",
+    "post_write_verification_established",
+    "recovery_supported",
+    "claim",
+}
 _BOUNDARY_FIELDS = {"id", "status", "evidence", "blocker"}
 _CANDIDATE_FIELDS = {
     "id",
@@ -609,6 +632,49 @@ def _validated_dependencies() -> tuple[dict, dict]:
     return stock, scenarios
 
 
+def _validated_architecture_control() -> dict:
+    try:
+        return validate_updater_control_bootstrap(
+            _load_json(
+                _ARCHITECTURE_CONTROL_REFERENCE,
+                "Different-model architecture control",
+            )
+        )
+    except UpdaterControlBootstrapError as error:
+        raise RecoveryPathError(
+            "different-model architecture control is invalid"
+        ) from error
+
+
+def _validate_architecture_controls(records: object, control: dict) -> list[dict]:
+    if not isinstance(records, list) or len(records) != 1:
+        raise RecoveryPathError("architecture control membership is invalid")
+    record = _require_fields(
+        records[0], _ARCHITECTURE_CONTROL_FIELDS, "Architecture control"
+    )
+    sauu = control["sauu_control_export"]
+    expected = {
+        "id": "a6400a-eu-v1.01-receiver-control",
+        "reference": _ARCHITECTURE_CONTROL_REFERENCE,
+        "source_model_id": control["source"]["model_id"],
+        "target_model_id": control["target"]["model_id"],
+        "canonical_export_sha256": sauu["canonical_export_sha256"],
+        "function_count": sauu["function_count"],
+        "call_count": sauu["call_count"],
+        "status": "NON_TRANSFERABLE_CONTROL",
+        "target_acceptance_established": False,
+        "write_scope_established": False,
+        "post_write_verification_established": False,
+        "recovery_supported": False,
+        "claim": "Different-model updater architecture control only; it does not establish the original alpha6400 selector, receiver, acceptance, write order, terminal verification, or recovery.",
+    }
+    if record != expected:
+        raise RecoveryPathError(
+            "different-model architecture control was altered or promoted"
+        )
+    return records
+
+
 def _validate_cited_reports() -> None:
     validators = (
         (
@@ -793,6 +859,9 @@ def validate_recovery_report(document: dict) -> dict:
     }
     if scenario_reference != expected_scenarios:
         raise RecoveryPathError("recovery scenario reference is invalid")
+
+    control = _validated_architecture_control()
+    _validate_architecture_controls(report["architecture_controls"], control)
 
     normalized_export = normalize_restore_gate_export(report["static_gate_export"])
     if report["static_gate_export"] != normalized_export:

@@ -1,6 +1,6 @@
 # Sony α6400 Firmware Feasibility Decisions
 
-Generation source: validated evidence document (schema version 1).
+Generated decision section source: validated evidence document (schema version 1).
 
 ## creative-look-discovery
 
@@ -98,6 +98,7 @@ Evidence:
 - **OBSERVATION** — `analysis/a6400-stock-200-bundle.json`: The official Sony Taiwan updater and its embedded stock container are digest-pinned to ILCE-6400 model `0x81030011`, region code `0`, and version `2.00`.
 - **OBSERVATION** — `analysis/a6400-recovery-scenarios.json`: All six mandatory failure scenarios and every one of their three candidate coverage records remain `UNESTABLISHED`.
 - **OBSERVATION** — `analysis/a6400-stock-200-recovery.json`: The strict report records `BLOCKED_STATIC_EVIDENCE`, `recovery_validated=false`, `camera_test_eligible=false`, and no runtime-independent entry or complete write and verification path.
+- **OBSERVATION** — `analysis/a6400a-updater-control-bootstrap.json`: The different-model alpha 6400A 1.01 control resolves a bounded 37-function/71-call receiver graph with model/region/version guards and signature verification; target transfer, write orchestration, completion verification, and recovery support remain false.
 - **INFERENCE** — `analysis/a6400-stock-200-recovery.json`: Host-side updater mapping cannot establish camera-side reinstall acceptance, boot recovery, complete stock restoration, or safe interrupted-restore behavior.
 
 Next permitted action: Continue static work on the missing pre-normal-runtime updater selector or authentic earlier installing receiver; do not draft camera steps until the strict report reaches a separately reviewed future-validation-design gate and fresh authorization exists.
@@ -198,6 +199,8 @@ These recipes do not claim Sony-exact colorimetry. ILCE-6700 exposes eight adjus
 The exact restoration source is now authenticated: source key `a6400-tw-v2.00`, model `ILCE-6400`, model ID `0x81030011`, region `TW`/code `0`, and version `2.00`, with both the official updater and embedded stock container digest-pinned. This proves source identity only. It does not prove that a running or failed camera accepts a same-version reinstall, that every affected component is restored, or that power loss has a safe resume or rollback outcome.
 
 The strict report remains `BLOCKED_STATIC_EVIDENCE`. The three candidates—`official-updater-reinstall`, `usb-recovery-or-updater-mode`, and `independent-maintenance-path`—are independently `UNESTABLISHED`, with no runtime-independent entry, complete write scope, or terminal verification. The six mandatory scenarios—modified UI runtime failure, interrupted feature update, nonbooting application layer, version/downgrade rejection, boot-chain failure, and power loss during stock restore—are likewise all `UNESTABLISHED` for every candidate.
+
+The α6400A 1.01 receiver graph is retained only as `NON_TRANSFERABLE_CONTROL`: source model `0x81030017` differs from target `0x81030011`, so its guard/signature architecture cannot prove the α6400's original selector, installing receiver, target acceptance, write order, terminal verification, or recovery. It changes none of those candidates, scenarios, or readiness gates.
 
 The official updater warning says interrupted updating can make the camera inoperable, and this α6400 is the user's only working main camera. The NEX-C3 driver rehearsal does not prove α6400 firmware recovery and cannot satisfy this gate. An in-camera settings or factory reset is not required and would not restore firmware; an independent external route back to the exact stock Taiwan/region-0 α6400 2.00 identity is mandatory.
 

@@ -35,6 +35,12 @@ These digests identify the recovery source. They do not prove that the camera wi
 
 The official host engine maps DAT parsing, transfer state, mode switching, and model/version return statuses. Those observations stop at the host boundary. The camera-side receiver that installs 2.00 predates the available post-install 2.00 components and has not been located.
 
+## Different-model architecture control
+
+The α6400A 1.01 updater receiver is now represented by a bounded read-only control graph: 37 reachable functions, 71 calls, three unresolved indirect calls, maximum depth two, and canonical export SHA-256 `0e80cb19f9d4f227f04503e6d3f6ace4f1b0c7fe6194e2a3c7ede89a8ed9ad38`. It confirms a related Sony updater architecture with model/region/version guards and a signature workflow.
+
+This is model `0x81030017`, not the target α6400 model `0x81030011`. It does not establish the target's original selector or installing receiver, target acceptance, complete write scope/order, post-write verification, or recovery behavior. The strict report therefore classifies it as `NON_TRANSFERABLE_CONTROL`; it changes no gate, candidate, scenario, or readiness result.
+
 ## Gate status
 
 - Stock bundle identity: established.

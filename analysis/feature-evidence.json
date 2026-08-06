@@ -4,7 +4,7 @@
     {
       "id": "creative-look-discovery",
       "status": "PARTIAL",
-      "summary": "The visible Creative Look control surface and an α6400 translation boundary are defined, but Sony's internal preset tables and processing code remain inaccessible.",
+      "summary": "The first-class ten-look/eight-axis contract and target Creative Style boundary are now pinned, but all five Creative Look layers, eight axes, and three output bindings remain unestablished.",
       "evidence": [
         {
           "kind": "OBSERVATION",
@@ -18,6 +18,16 @@
         },
         {
           "kind": "OBSERVATION",
+          "source": "analysis/a6400-creative-look-boundary.json",
+          "claim": "A digest-pinned bounded target trace resolves ten Creative Style functions, one selector-to-graph reference, and nine direct calls; it finds no first-class interface, state, base-table, axis, or output-sink path."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/a6400-creative-look-stack.json",
+          "claim": "Every first-class layer, workflow action, axis, and output remains `UNESTABLISHED`; Creative Style is explicitly `APPROXIMATION_ONLY` and `LAST_RESORT_ONLY`."
+        },
+        {
+          "kind": "OBSERVATION",
           "source": "analysis/feature-compatibility.json",
           "claim": "The authenticated bounded marker scan found no plaintext feature locator in the α6400 overlay or either donor FDAT and labels absence from encrypted data as no result."
         },
@@ -27,12 +37,12 @@
           "claim": "The visible behavior and target-side approximation boundary are known, but no authenticated firmware table, loader, or image-pipeline integration point has been located."
         }
       ],
-      "next_action": "Map the target's native settings-node, preset-storage, and image-pipeline interfaces for a first-class Creative Look experience; keep the Creative Style guide as the final fallback."
+      "next_action": "Trace independent target settings-node, preset-storage, base-table-loader, and live-view/still/movie roots beyond the bounded Creative Style graph; keep every unsupported layer and axis visible."
     },
     {
       "id": "creative-look-emulation",
       "status": "PARTIAL",
-      "summary": "A practical no-firmware approximation is delivered for all ten named looks, while exact colorimetry and five donor-only adjustment axes remain unsupported.",
+      "summary": "A reversible no-firmware Creative Style approximation exists for all ten names, but it is fallback-only and does not reproduce the first-class interface, persistence, eight-axis model, authenticated base tables, or output bindings.",
       "evidence": [
         {
           "kind": "OBSERVATION",
@@ -172,22 +182,27 @@
     {
       "id": "recovery",
       "status": "BLOCKED",
-      "summary": "The exact Taiwan/region-0 alpha 6400 2.00 stock source is authenticated, but all three external restore candidates and all six mandatory failure scenarios remain unestablished; recovery and camera testing are unvalidated.",
+      "summary": "The exact Taiwan/region-0 α6400 2.00 stock source is authenticated, but all three external restore candidates and all six mandatory failure scenarios remain unestablished; recovery and camera testing are unvalidated.",
       "evidence": [
         {
           "kind": "OBSERVATION",
           "source": "analysis/a6400-stock-200-bundle.json",
-          "claim": "The official Sony Taiwan updater and its embedded stock container are digest-pinned to ILCE-6400 model 0x81030011, region code 0, and version 2.00."
+          "claim": "The official Sony Taiwan updater and its embedded stock container are digest-pinned to ILCE-6400 model `0x81030011`, region code `0`, and version `2.00`."
         },
         {
           "kind": "OBSERVATION",
           "source": "analysis/a6400-recovery-scenarios.json",
-          "claim": "All six mandatory failure scenarios and every one of their three candidate coverage records remain UNESTABLISHED."
+          "claim": "All six mandatory failure scenarios and every one of their three candidate coverage records remain `UNESTABLISHED`."
         },
         {
           "kind": "OBSERVATION",
           "source": "analysis/a6400-stock-200-recovery.json",
-          "claim": "The strict report records BLOCKED_STATIC_EVIDENCE, recovery_validated false, camera_test_eligible false, and no runtime-independent entry or complete write and verification path."
+          "claim": "The strict report records `BLOCKED_STATIC_EVIDENCE`, `recovery_validated=false`, `camera_test_eligible=false`, and no runtime-independent entry or complete write and verification path."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/a6400a-updater-control-bootstrap.json",
+          "claim": "The different-model alpha 6400A 1.01 control resolves a bounded 37-function/71-call receiver graph with model/region/version guards and signature verification; target transfer, write orchestration, completion verification, and recovery support remain false."
         },
         {
           "kind": "INFERENCE",

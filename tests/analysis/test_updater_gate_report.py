@@ -94,6 +94,8 @@ class UpdaterGateReportTests(unittest.TestCase):
         self.assertIn("BLOCKED_STATIC_EVIDENCE", rendered)
         self.assertIn("official-updater-reinstall", rendered)
         self.assertIn("independent-maintenance-path", rendered)
+        self.assertIn("NON_TRANSFERABLE_CONTROL", rendered)
+        self.assertIn("0x81030017", rendered)
         self.assertIn("settings reset", rendered)
 
     def test_claim_promotion_or_unknown_fields_are_rejected(self):

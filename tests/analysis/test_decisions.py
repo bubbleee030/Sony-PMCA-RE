@@ -28,6 +28,9 @@ EXPECTED_CAPABILITIES = (
 APPROVED_REPORT = "analysis/reports/a6400-tw-v2.00.json"
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE_PATH = REPOSITORY_ROOT / "analysis" / "feature-evidence.json"
+FEASIBILITY_REPORT_PATH = (
+    REPOSITORY_ROOT / "analysis" / "a6400-feasibility-report.md"
+)
 RUNBOOK_PATH = (
     REPOSITORY_ROOT
     / "docs"
@@ -328,8 +331,13 @@ class DecisionValidationTests(unittest.TestCase):
                 "analysis/a6400-stock-200-bundle.json",
                 "analysis/a6400-recovery-scenarios.json",
                 "analysis/a6400-stock-200-recovery.json",
+                "analysis/a6400a-updater-control-bootstrap.json",
                 "analysis/a6400-stock-200-recovery.json",
             ],
+        )
+        self.assertIn(
+            "different-model",
+            recovery["evidence"][3]["claim"].casefold(),
         )
 
     def test_recovery_decision_cannot_be_manually_promoted_or_reworded(self):
@@ -432,7 +440,8 @@ class DecisionRenderingTests(unittest.TestCase):
         self.assertTrue(
             first.startswith(
                 "# Sony α6400 Firmware Feasibility Decisions\n\n"
-                "Generation source: validated evidence document (schema version 1)."
+                "Generated decision section source: validated evidence document "
+                "(schema version 1)."
             )
         )
         offsets = [first.index(f"## {item}") for item in EXPECTED_CAPABILITIES]
@@ -451,6 +460,15 @@ class DecisionRenderingTests(unittest.TestCase):
         self.assertIn("Summary: Synthetic summary 1.", first)
         self.assertIn("Next permitted action: Synthetic next action 1.", first)
         self.assertTrue(first.endswith("\n"))
+
+    def test_committed_report_generated_prefix_matches_validated_evidence(self):
+        document = json.loads(EVIDENCE_PATH.read_text(encoding="utf-8"))
+        report = FEASIBILITY_REPORT_PATH.read_text(encoding="utf-8")
+        marker = "\n\n# Integrated Offline Research Result"
+
+        self.assertIn(marker, report)
+        committed_prefix = report.split(marker, 1)[0] + "\n"
+        self.assertEqual(committed_prefix, render_markdown(document))
 
     def test_renderer_rejects_invalid_documents_instead_of_adding_a_conclusion(self):
         document = synthetic_document()

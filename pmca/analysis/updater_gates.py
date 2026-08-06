@@ -257,6 +257,7 @@ def render_updater_gate_report(
         )
 
     stock = recovery["stock_bundle"]
+    architecture_control = recovery["architecture_controls"][0]
     lines.extend(
         [
             "## Exact stock-recovery checkpoint",
@@ -264,6 +265,8 @@ def render_updater_gate_report(
             f"The official {stock['region']}/region-{stock['region_code']} α6400 {stock['version']} updater and its embedded stock container are digest-pinned in `{stock['reference']}`. This authenticates the exact source needed for restoration; it does not establish same-version reinstall acceptance, complete write coverage, boot recovery, or safe interruption behavior.",
             "",
             f"The strict recovery status is `{recovery['readiness']}`, with `recovery_validated={str(recovery['recovery_validated']).lower()}`, `camera_test_eligible={str(recovery['camera_test_eligible']).lower()}`, and `installable={str(recovery['installable']).lower()}`.",
+            "",
+            f"The α6400A receiver graph is retained as `{architecture_control['status']}`: source model `{architecture_control['source_model_id']}` differs from target `{architecture_control['target_model_id']}`, so the related guard/signature architecture does not establish the original α6400 selector or receiver, target acceptance, complete write order, terminal verification, or recovery. It changes no recovery readiness input.",
             "",
             "Candidate paths:",
             "",
