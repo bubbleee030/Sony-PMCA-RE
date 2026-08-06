@@ -19,7 +19,7 @@ Use TDD to require:
   `cmnViewSettingNodeRootCreativeStyle` with no PLT relocation;
 - both exact `.rel.dyn` records for that symbol:
   - index 3858, `R_ARM_GLOB_DAT`, site `0x72434` in `.got`; and
-  - index 3859, `R_ARM_ABS32`, site `0x805cc` in `.data`;
+  - index 3859, `R_ARM_ABS32`, site `0x8056c` in `.data`;
 - exact and covering dynamic/static symbol absence at the `.data` cell, so it is
   retained only as loader-initialized untyped data;
 - canonical linkage to the UI layout-header GOT-boundary artifact;
