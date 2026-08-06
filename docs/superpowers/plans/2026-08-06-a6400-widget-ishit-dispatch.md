@@ -37,10 +37,18 @@ Use TDD to require:
 - explicit `0x10000` analysis-load-bias mappings for every pinned root and known
   touch caller, mechanically linked to the prior artifacts, with graph traversal
   performed only in normalized ELF coordinates;
-- direct-only depth-32 zero paths from `ViewSettingMenuEventSwitch` and the three
-  pinned ViewStlrec roots to accepted owners; and
-- zero direct paths in either direction between accepted owners and the exact 16
-  known touch-API caller owners.
+- exact local PLT/JUMP_SLOT resolution for defined targets before graph traversal;
+- bounded positive chains from both `ViewSettingMenuEventSwitch` and
+  `ViewStlrecAfOrientationDispatch` through
+  `CmnWrpOrientationRegisterAF::getRecallRegisteredAfFrame()` (ELF owner
+  `0x35f66c`) to its accepted `0x35f676->0x35f67a` slot-37 dispatch;
+- the method's exact local helper call `0x35f670->0x35f424` and receiver provenance
+  as the helper-returned `r0`, without promoting it to a concrete widget type;
+- bounded positive reverse chains from the two known shooting-focus-coordinate
+  caller owners `0x1b16ec` and `0x1b63fc` to that same dispatch;
+- explicit empty results for the orientation-registration and layout-mode roots,
+  the other 14 touch owners, and all dispatch-to-touch forward searches after the
+  same PLT-aware depth-32 traversal.
 
 Reject fabricated receiver provenance, arbitrary pointer scans, concrete
 widget/vtable/object identity, coordinate/hit-result/gesture/menu-selection
@@ -56,16 +64,19 @@ not classify incomplete owners as negative coverage.
 Write only a safe ignored raw artifact beneath a fixed repository artifact root;
 reject literal, resolved, symlink, dangling-symlink, and pre-creation ancestor
 escape. Commit a compact safe report that establishes generic slot-37-shaped
-dispatch only; concrete widget identity and menu touch selection remain unresolved.
+dispatch plus the bounded setting-menu, orientation/AF, and focus-caller graph
+linkages only; concrete widget type/inheritance/vtable identity, dataflow, and menu
+touch selection remain unresolved.
 
 ## Task 3: Review and Verification
 
 Independently review the structural register provenance, ten accepted records, nine
-stack rejections, 361-literal digest, coverage accounting, both path searches,
-prior linkage, behavior claims, and containment. Re-run the exact exporter, verify
-source hashes before and after, run focused and full analysis/safe tests, compile
-changed modules, and run `git diff --check` before committing.
+stack rejections, 361-literal digest, coverage accounting, local PLT resolution,
+the positive root and focus-caller chains, helper-return provenance, remaining path searches, prior linkage,
+behavior claims, and containment. Re-run the exact exporter, verify source hashes
+before and after, run focused and full analysis/safe tests, compile changed modules,
+and run `git diff --check` before committing.
 
-If clean, continue from a typed owner/object reference for one accepted dispatcher.
+If clean, continue by tracing the `0x35f424` helper and its typed wrapper cluster.
 Recovery remains `BLOCKED_STATIC_EVIDENCE`; this result is not installable or
 camera-test eligible.

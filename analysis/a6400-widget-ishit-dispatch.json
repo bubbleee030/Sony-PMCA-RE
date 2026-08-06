@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-widget-ishit-dispatch",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/viewUnified2.so",
+    "size": 11530552,
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
+  },
+  "dispatch_summary": {
+    "canonical_export_sha256": "62faece4c717e17b6d434d2d2d8a1b13e6902e0a5406248af915d57fb02edbdc",
+    "accepted_count": 10,
+    "pc_literal_count": 361,
+    "stack_candidate_count": 9
+  },
+  "prior_widget_vtables": {
+    "analysis_contract": "widget_hit_test_vtables",
+    "artifact_sha256": "3d88983377538b2fc98ddc1170bdb5848cebf4a28d319c35365a105075ca2035"
+  },
+  "prior_touch_api_callers": {
+    "analysis_contract": "touch_api_callers",
+    "artifact_sha256": "51715c6db751360960ee27db372b8c58b5e2f12c3c9a8393795d0f578ebd9688"
+  },
+  "defined_plt_binding": {
+    "symbol": "CmnWrpOrientationRegisterAF::getRecallRegisteredAfFrame()",
+    "symbol_index": 1718,
+    "defined_owner": 3536492,
+    "defined_size": 18,
+    "relocation_index": 254,
+    "got_address": 9718436,
+    "plt_address": 1372668,
+    "direct_callsite_count": 15,
+    "direct_caller_owner_count": 13,
+    "direct_callsite_digest": "f513997145508f2955d32846568272e0aea973fa4f836a33dd59151bf1900e7b",
+    "receiver_provenance": "helper-return-r0",
+    "receiver_helper_owner": 3535908,
+    "receiver_helper_call": 3536496,
+    "slot_load": 3536502,
+    "indirect_call": 3536506
+  },
+  "coverage": {
+    "total_exidx_entry_count": 30463,
+    "complete_owner_count": 28869,
+    "decode_incomplete_owner_count": 1593,
+    "terminal_without_successor_owner_count": 1
+  },
+  "path_summary": {
+    "max_depth": 32,
+    "analysis_load_bias": 65536,
+    "roots": [
+      {"name": "ViewSettingMenuEventSwitch", "role": "setting-menu-event-switch", "source_kind": "analysis-address", "source_offset": 2241886, "analysis_address": 2241886, "elf_address": 2176350},
+      {"name": "ViewStlrecOrientationRegistration", "role": "orientation-registration", "source_kind": "elf-file-offset", "source_offset": 1750044, "analysis_address": 1815580, "elf_address": 1750044},
+      {"name": "ViewStlrecLayoutModeAttach", "role": "layout-mode-attach", "source_kind": "elf-file-offset", "source_offset": 1749714, "analysis_address": 1815250, "elf_address": 1749714},
+      {"name": "ViewStlrecAfOrientationDispatch", "role": "af-orientation-dispatch", "source_kind": "elf-file-offset", "source_offset": 1777270, "analysis_address": 1842806, "elf_address": 1777270}
+    ],
+    "touch_api_caller_owners": [
+      {"apis": ["focus-coordinate"], "analysis_address": 1840876, "elf_address": 1775340},
+      {"apis": ["focus-coordinate"], "analysis_address": 1856000, "elf_address": 1790464},
+      {"apis": ["focus-coordinate"], "analysis_address": 1860604, "elf_address": 1795068},
+      {"apis": ["force-release"], "analysis_address": 2050220, "elf_address": 1984684},
+      {"apis": ["disable-area"], "analysis_address": 2111668, "elf_address": 2046132},
+      {"apis": ["resource-settings"], "analysis_address": 2361192, "elf_address": 2295656},
+      {"apis": ["enable-evf-area"], "analysis_address": 2882372, "elf_address": 2816836},
+      {"apis": ["enable-evf-area"], "analysis_address": 2910072, "elf_address": 2844536},
+      {"apis": ["enable-evf-area"], "analysis_address": 2910660, "elf_address": 2845124},
+      {"apis": ["enable-evf-area"], "analysis_address": 2911184, "elf_address": 2845648},
+      {"apis": ["enable-area"], "analysis_address": 3564308, "elf_address": 3498772},
+      {"apis": ["enable-area"], "analysis_address": 3565000, "elf_address": 3499464},
+      {"apis": ["focus-coordinate"], "analysis_address": 6417608, "elf_address": 6352072},
+      {"apis": ["focus-coordinate"], "analysis_address": 6419468, "elf_address": 6353932},
+      {"apis": ["force-release", "disable-area", "enable-evf-area"], "analysis_address": 6429056, "elf_address": 6363520},
+      {"apis": ["force-release", "disable-area", "enable-evf-area"], "analysis_address": 6669168, "elf_address": 6603632}
+    ],
+    "root_paths": [
+      {
+        "root": "ViewSettingMenuEventSwitch",
+        "start_owner": 2176350,
+        "edges": [
+          {"owner": 2176350, "site": 2177184, "direct_target": 2166164, "resolved_target": 2166164},
+          {"owner": 2166164, "site": 2166332, "direct_target": 2140628, "resolved_target": 2140628},
+          {"owner": 2140628, "site": 2140914, "direct_target": 1372668, "resolved_target": 3536492}
+        ],
+        "dispatch": {"owner": 3536492, "receiver_vptr_load": 3536500, "slot_load": 3536502, "indirect_call": 3536506}
+      },
+      {
+        "root": "ViewStlrecAfOrientationDispatch",
+        "start_owner": 1777270,
+        "edges": [
+          {"owner": 1777270, "site": 1777346, "direct_target": 1372668, "resolved_target": 3536492}
+        ],
+        "dispatch": {"owner": 3536492, "receiver_vptr_load": 3536500, "slot_load": 3536502, "indirect_call": 3536506}
+      }
+    ],
+    "touch_paths_forward": [],
+    "touch_paths_reverse": [
+      {
+        "touch_api_caller_analysis_address": 1840876,
+        "touch_api_caller_elf_owner": 1775340,
+        "apis": ["focus-coordinate"],
+        "edges": [
+          {"owner": 1775340, "site": 1775638, "direct_target": 1475504, "resolved_target": 1475504},
+          {"owner": 1475504, "site": 1475524, "direct_target": 5242722, "resolved_target": 5242722},
+          {"owner": 5242722, "site": 5242750, "direct_target": 5242616, "resolved_target": 5242616},
+          {"owner": 5242616, "site": 5242688, "direct_target": 5242500, "resolved_target": 5242500},
+          {"owner": 5242500, "site": 5242562, "direct_target": 5241224, "resolved_target": 5241224},
+          {"owner": 5241224, "site": 5241492, "direct_target": 5206152, "resolved_target": 5206152},
+          {"owner": 5206152, "site": 5206162, "direct_target": 5205654, "resolved_target": 5205654},
+          {"owner": 5205654, "site": 5205726, "direct_target": 1372668, "resolved_target": 3536492}
+        ],
+        "dispatch": {"owner": 3536492, "receiver_vptr_load": 3536500, "slot_load": 3536502, "indirect_call": 3536506}
+      },
+      {
+        "touch_api_caller_analysis_address": 1860604,
+        "touch_api_caller_elf_owner": 1795068,
+        "apis": ["focus-coordinate"],
+        "edges": [
+          {"owner": 1795068, "site": 1795184, "direct_target": 1475504, "resolved_target": 1475504},
+          {"owner": 1475504, "site": 1475524, "direct_target": 5242722, "resolved_target": 5242722},
+          {"owner": 5242722, "site": 5242750, "direct_target": 5242616, "resolved_target": 5242616},
+          {"owner": 5242616, "site": 5242688, "direct_target": 5242500, "resolved_target": 5242500},
+          {"owner": 5242500, "site": 5242562, "direct_target": 5241224, "resolved_target": 5241224},
+          {"owner": 5241224, "site": 5241492, "direct_target": 5206152, "resolved_target": 5206152},
+          {"owner": 5206152, "site": 5206162, "direct_target": 5205654, "resolved_target": 5205654},
+          {"owner": 5205654, "site": 5205726, "direct_target": 1372668, "resolved_target": 3536492}
+        ],
+        "dispatch": {"owner": 3536492, "receiver_vptr_load": 3536500, "slot_load": 3536502, "indirect_call": 3536506}
+      }
+    ]
+  },
+  "claims": {
+    "generic_widget_slot37_dispatch_found": true,
+    "ui_root_to_widget_dispatch_found": true,
+    "known_touch_caller_to_widget_dispatch_found": true,
+    "concrete_widget_identity_found": false,
+    "menu_touch_hit_test_found": false,
+    "menu_touch_selection_found": false,
+    "touch_coordinate_transform_found": false,
+    "gesture_found": false
+  },
+  "readiness": "ORIENTATION_AF_LINKED_GENERIC_SLOT37",
+  "conclusion": "Ten local generic slot-37-shaped Widget::isHit dispatches are established. Exact local PLT resolution links the setting-menu root, the AF-orientation root, and two known shooting-focus coordinate caller owners to a named orientation/AF wrapper method whose helper-returned object receives the hit test; concrete widget type, inheritance, vtable identity, dataflow, gesture semantics, menu hit routing, and selection behavior remain unresolved."
+}
