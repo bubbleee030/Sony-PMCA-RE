@@ -131,6 +131,37 @@ Exact symbol and resource comparisons between original α6400 2.00 and α6400A
 Therefore α6400A 1.01 does not supply α6700-style Creative Look or the requested
 vertical/touch menu UI under an obvious dormant resource or symbol boundary.
 
+## First-class Creative Look boundary result
+
+The first-class investigation is now defined and traced independently of the
+Creative Style fallback. Its exact contract contains the ten bases `ST`, `PT`,
+`NT`, `VV`, `VV2`, `FL`, `IN`, `SH`, `BW`, and `SE`; eight separate axes; five
+stack layers; eight workflow actions; and live-view, still-JPEG, and movie
+outputs.
+
+Read-only Ghidra analysis used the digest-pinned original α6400 2.00
+`CautionConfig.so`. Correcting the ELF virtual-address mapping to Ghidra's
+`+0x10000` image base resolved the Creative Style selector at analysis address
+`0x7eb958` and the compiled `Default` graph at `0xb936cc`. The bounded export
+found ten named Creative Style functions, one selector-to-graph data reference,
+and nine direct calls, with no unresolved direct or indirect calls in this
+scope. This proves a real menu-graph selection path only. It does not identify
+a first-class Creative Look interface, state model, base-look table load, axis
+processing path, or output sink.
+
+Accordingly, all five Creative Look layers remain `UNESTABLISHED`; all eight
+axes remain independently `UNESTABLISHED`; and live view, still JPEG, and movie
+remain unsupported by positive pipeline evidence. The classifications are not
+`HARDWARE_BLOCKED`: current evidence does not prove impossibility, but it also
+does not support a target-native, target-reimplementation, or donor-compatible
+claim. The α6700 and α7 V sources remain authenticated but opaque, so they
+cannot supply donor functions, tables, offsets, or ABI evidence.
+
+The normalized evidence is recorded in
+`analysis/a6400-creative-look-boundary.json`, while the layer and workflow
+contract is in `analysis/a6400-creative-look-stack.json`. Creative Style below
+remains a last-resort approximation and cannot satisfy this acceptance gate.
+
 ## Native α6400 Creative Style selector
 
 The original α6400 2.00 function
@@ -236,10 +267,10 @@ signature reconstruction, and an independently verified recovery path.
 1. Resolve selected `viewUnified2.so` indirect call sites and the cross-module
    `viewUnified7.so` layout boundary with read-only metadata only; require a
    complete ordered path before changing any UI behavior status.
-2. Start the first-class Creative Look milestone by mapping the target's native
-   settings-node, preset-storage, and image-pipeline interfaces to the ten-look,
-   Custom Look, and adjustment-axis behavior contract. The existing Creative
-   Style recipes remain the last fallback, not the primary design.
+2. Continue the first-class Creative Look milestone beyond the bounded Creative
+   Style roots: locate independent target settings-node, preset-storage,
+   base-table loader, and live-view/still/movie pipeline roots before changing
+   any layer or axis from `UNESTABLISHED`.
 3. Use α6700 for Creative Look/menu behavior and α7 V for vertical-display
    behavior, without assuming donor code or hardware-dependent processing is
    portable to α6400.

@@ -1,5 +1,15 @@
 # α6400 Creative Look Translation Guide
 
+## Fallback-only status
+
+This guide is `LAST_RESORT_ONLY`. It is a reversible Creative Style
+approximation retained only if the native or target-reimplementation path for a
+specific Creative Look layer remains unavailable. It does not reproduce the
+Creative Look interface, preset persistence, eight-axis adjustment model,
+authenticated base-look tables, or verified live-view/still/movie processing
+bindings. Nothing in this guide establishes native Creative Look support or
+Sony-exact colorimetry.
+
 These settings are practical starting points, not exact Sony colorimetric matches. Six looks use existing α6400 Creative Styles; VV2, FL, IN, and SH use four Style Boxes.
 
 ## On-camera setup

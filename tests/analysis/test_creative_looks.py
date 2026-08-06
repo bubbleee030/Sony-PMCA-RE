@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 from pmca.analysis.creative_looks import (
     DIRECT_STYLE_MAP,
@@ -11,6 +12,8 @@ from pmca.analysis.creative_looks import (
     translate_to_a6400,
     validate_recipe_document,
 )
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _look(code, **changes):
@@ -171,6 +174,36 @@ class CreativeLookTranslationTests(unittest.TestCase):
             self.assertIn(condition, guide)
         self.assertIn("not exact Sony colorimetric matches", guide)
         self.assertIn("four Style Boxes", guide)
+
+    def test_committed_guide_is_prominently_fallback_only(self):
+        guide = (
+            REPOSITORY_ROOT / "analysis" / "a6400-creative-look-guide.md"
+        ).read_text(encoding="utf-8")
+        normalized = " ".join(guide.split())
+
+        self.assertLess(guide.index("## Fallback-only status"), guide.index("## On-camera setup"))
+        self.assertIn("LAST_RESORT_ONLY", guide)
+        self.assertIn("does not reproduce the Creative Look interface", normalized)
+        self.assertIn("eight-axis adjustment model", normalized)
+        self.assertIn("authenticated base-look tables", normalized)
+        self.assertIn("Nothing in this guide establishes native Creative Look support", normalized)
+        self.assertIn("Sony-exact colorimetry", normalized)
+
+    def test_deep_dive_reports_first_class_result_before_fallback(self):
+        report = (
+            REPOSITORY_ROOT
+            / "analysis"
+            / "a6400a-updater-and-creative-style-deep-dive.md"
+        ).read_text(encoding="utf-8")
+        normalized = " ".join(report.split())
+
+        self.assertLess(
+            report.index("## First-class Creative Look boundary result"),
+            report.index("## Native α6400 Creative Style selector"),
+        )
+        self.assertIn("all five Creative Look layers remain `UNESTABLISHED`", normalized)
+        self.assertIn("all eight axes remain independently `UNESTABLISHED`", normalized)
+        self.assertIn("live view, still JPEG, and movie", normalized)
 
 
 if __name__ == "__main__":

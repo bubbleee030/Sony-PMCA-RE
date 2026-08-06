@@ -6,21 +6,23 @@ Generation source: validated evidence document (schema version 1).
 
 Status: `PARTIAL`
 
-Summary: The visible Creative Look control surface and an α6400 translation boundary are defined, but Sony's internal preset tables and processing code remain inaccessible.
+Summary: The first-class ten-look/eight-axis contract and target Creative Style boundary are now pinned, but all five Creative Look layers, eight axes, and three output bindings remain unestablished.
 
 Evidence:
 - **OBSERVATION** — `https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html`: Sony documents ten Creative Look bases, six Custom Look slots, and eight adjustment axes on ILCE-6700.
 - **OBSERVATION** — `analysis/creative-look-recipes.json`: The committed translation catalog records six direct semantic mappings and four explicitly inferred Style Box approximations for ILCE-6400.
+- **OBSERVATION** — `analysis/a6400-creative-look-boundary.json`: A digest-pinned bounded target trace resolves ten Creative Style functions, one selector-to-graph reference, and nine direct calls; it finds no first-class interface, state, base-table, axis, or output-sink path.
+- **OBSERVATION** — `analysis/a6400-creative-look-stack.json`: Every first-class layer, workflow action, axis, and output remains `UNESTABLISHED`; Creative Style is explicitly `APPROXIMATION_ONLY` and `LAST_RESORT_ONLY`.
 - **OBSERVATION** — `analysis/feature-compatibility.json`: The authenticated bounded marker scan found no plaintext feature locator in the α6400 overlay or either donor FDAT and labels absence from encrypted data as no result.
 - **INFERENCE** — `analysis/feature-compatibility.json`: The visible behavior and target-side approximation boundary are known, but no authenticated firmware table, loader, or image-pipeline integration point has been located.
 
-Next permitted action: Map the target's native settings-node, preset-storage, and image-pipeline interfaces for a first-class Creative Look experience; keep the Creative Style guide as the final fallback.
+Next permitted action: Trace independent target settings-node, preset-storage, base-table-loader, and live-view/still/movie roots beyond the bounded Creative Style graph; keep every unsupported layer and axis visible.
 
 ## creative-look-emulation
 
 Status: `PARTIAL`
 
-Summary: A practical no-firmware approximation is delivered for all ten named looks, while exact colorimetry and five donor-only adjustment axes remain unsupported.
+Summary: A reversible no-firmware Creative Style approximation exists for all ten names, but it is fallback-only and does not reproduce the first-class interface, persistence, eight-axis model, authenticated base tables, or output bindings.
 
 Evidence:
 - **OBSERVATION** — `https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html`: ILCE-6400 Creative Style provides Standard, Portrait, Neutral, Vivid, B/W, Sepia, six Style Boxes, and contrast, saturation, and sharpness adjustments.
@@ -178,7 +180,16 @@ This is deliberately not a model-mismatch bypass. Unknown containers, unavailabl
 
 ## Creative Look result
 
-The practical guide is [`a6400-creative-look-guide.md`](a6400-creative-look-guide.md). Direct semantic mappings are ST→Standard, PT→Portrait, NT→Neutral, VV→Vivid, BW→B/W, and SE→Sepia. Bounded Style Box approximations are VV2→Clear `(0,+1,0)`, FL→Deep `(-1,0,0)`, IN→Neutral `(-2,-2,-1)`, and SH→Light `(-1,-1,-1)`, expressed as α6400 contrast/saturation/sharpness values.
+The first-class result is currently `UNESTABLISHED` at every required layer:
+interface, state, base looks, adjustment axes, and pipeline binding. The eight
+workflow actions and all eight axes remain independently unestablished, and no
+positive binding exists for live view, still JPEG, or movie. The bounded target
+trace proves only the existing Creative Style selector-to-menu-graph path; it
+does not prove Creative Look processing. Authenticated α6700 and α7 V donor
+payloads remain opaque and cannot supply tables, functions, offsets, or ABI
+evidence.
+
+The fallback-only practical guide is [`a6400-creative-look-guide.md`](a6400-creative-look-guide.md). Direct semantic mappings are ST→Standard, PT→Portrait, NT→Neutral, VV→Vivid, BW→B/W, and SE→Sepia. Bounded Style Box approximations are VV2→Clear `(0,+1,0)`, FL→Deep `(-1,0,0)`, IN→Neutral `(-2,-2,-1)`, and SH→Light `(-1,-1,-1)`, expressed as α6400 contrast/saturation/sharpness values.
 
 These recipes do not claim Sony-exact colorimetry. ILCE-6700 exposes eight adjustment axes while α6400 Creative Style exposes three; highlights, shadows, fade, sharpness range, and clarity cannot be represented directly. The guide preserves those gaps and supplies a fixed comparison protocol rather than hiding them.
 

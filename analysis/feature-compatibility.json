@@ -268,6 +268,11 @@
           "claim": "Exact Sony base tables and colorimetric equivalence cannot be confirmed without authenticated table extraction or measurement.",
           "level": "INSUFFICIENT_EVIDENCE",
           "source": "analysis:unavailable-color-tables"
+        },
+        {
+          "claim": "The digest-pinned target trace resolves a Creative Style selector-to-menu-graph reference but no native Creative Look base-table load or live-view, still-JPEG, or movie sink.",
+          "level": "INSUFFICIENT_EVIDENCE",
+          "source": "analysis/a6400-creative-look-boundary.json"
         }
       ],
       "id": "creative-look-base-tables",
@@ -284,7 +289,7 @@
         "dependent_services": "Contrast, highlights, shadows, fade, saturation, sharpness, sharpness range, and clarity affect live view and output processing.",
         "display_geometry": "Target Style Box UI can expose only contrast, saturation, and sharpness without a new UI.",
         "imports": "No target APIs for highlights, shadows, fade, sharpness range, or clarity have been located.",
-        "input_coordinates": "Existing wheel controls can enter the three available axes; six additional touch or wheel controls are unavailable.",
+        "input_coordinates": "Existing wheel controls can enter the three Creative Style axes; five additional Creative Look axes have no verified target UI path.",
         "memory": "Target storage is documented for three per-style adjustments, not eight-axis Creative Look records.",
         "relocations": "No adjustment-axis handler or donor table range has a confirmed relocation boundary.",
         "signature_layer": "Native extra-axis support requires firmware changes; recipes can only approximate through existing controls."
@@ -307,6 +312,11 @@
           "claim": "No exact target implementation exists for the additional donor adjustment axes, so native equivalence is unsupported.",
           "level": "INSUFFICIENT_EVIDENCE",
           "source": "analysis:target-axis-gap"
+        },
+        {
+          "claim": "Each of the eight Creative Look axes has an independent bounded negative search; none has a complete target UI, state, range, and processing boundary.",
+          "level": "INSUFFICIENT_EVIDENCE",
+          "source": "analysis/a6400-creative-look-boundary.json"
         }
       ],
       "id": "creative-look-adjustment-axes",
