@@ -16,7 +16,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from pmca.analysis.orientation_af_helper import (
     EXPECTED_RAW_EXPORT, GETTER_BINDING, HELPER, HELPER_CALL_INVENTORY,
-    JUMP_SLOT_RELOCATION_INDICES, MEMBER_INVENTORY, PRIOR_WIDGET_DIGEST,
+    JUMP_SLOT_RELOCATION_INDICES, MEMBER_INVENTORY, PRIOR_SLOT37_DIGEST,
     RELOCATION_SUMMARY, SETTER_BINDING, VIEW_UNIFIED2_SHA256, VIEW_UNIFIED2_SIZE,
     normalize_orientation_af_helper_export,
 )
@@ -27,8 +27,8 @@ from pmca.analysis.widget_ishit_dispatch import (
 
 
 SOURCE = ROOT / ".artifacts" / "decrypted" / "a6400-tw-v2.00" / "ma1co" / "firmware.tar_unpacked" / "0700_part_image" / "dev" / "nflasha15_unpacked" / "lib" / "viewUnified2.so"
-PRIOR_WIDGET = ROOT / ".artifacts" / "widget-ishit-dispatch-trace" / "a6400-v2.00" / "raw-widget-ishit-dispatch.json"
-PRIOR_WIDGET_REPORT = ROOT / "analysis" / "a6400-widget-ishit-dispatch.json"
+PRIOR_SLOT37 = ROOT / ".artifacts" / "widget-ishit-dispatch-trace" / "a6400-v2.00" / "raw-widget-ishit-dispatch.json"
+PRIOR_SLOT37_REPORT = ROOT / "analysis" / "a6400-widget-ishit-dispatch.json"
 ARTIFACT_BASE = ROOT / ".artifacts"
 OUTPUT_ROOT = ARTIFACT_BASE / "orientation-af-helper-trace" / "a6400-v2.00"
 OUTPUT_NAME = "raw-orientation-af-helper.json"
@@ -281,20 +281,20 @@ def _literal_json(path, label):
     except (OSError, UnicodeError, json.JSONDecodeError) as exc: raise RuntimeError(label + " differs") from exc
 
 
-def _prior_widget(raw_path, report_path):
-    raw = _literal_json(raw_path, "prior widget evidence"); normalize_widget_ishit_dispatch_export(raw)
-    report = validate_widget_ishit_dispatch_report(_literal_json(report_path, "prior widget report"))
+def _prior_slot37(raw_path, report_path):
+    raw = _literal_json(raw_path, "prior slot-37 evidence"); normalize_widget_ishit_dispatch_export(raw)
+    report = validate_widget_ishit_dispatch_report(_literal_json(report_path, "prior slot-37 report"))
     summary = summarize_widget_ishit_dispatch_export(raw)
-    if summary["canonical_export_sha256"] != PRIOR_WIDGET_DIGEST or report["dispatch_summary"] != summary:
-        raise RuntimeError("prior widget evidence differs")
-    return {"analysis_contract": "widget_ishit_dispatch", "canonical_export_sha256": PRIOR_WIDGET_DIGEST}
+    if summary["canonical_export_sha256"] != PRIOR_SLOT37_DIGEST or report["dispatch_summary"] != summary:
+        raise RuntimeError("prior slot-37 evidence differs")
+    return {"analysis_contract": "generic_slot37_dispatch", "canonical_export_sha256": PRIOR_SLOT37_DIGEST}
 
 
-def _metadata_from_file(source=SOURCE, prior_widget=PRIOR_WIDGET, prior_widget_report=PRIOR_WIDGET_REPORT):
+def _metadata_from_file(source=SOURCE, prior_slot37=PRIOR_SLOT37, prior_slot37_report=PRIOR_SLOT37_REPORT):
     source = Path(source); before = _sha(source)
     if source.name != "viewUnified2.so" or source.stat().st_size != VIEW_UNIFIED2_SIZE or before != VIEW_UNIFIED2_SHA256:
         raise RuntimeError("source identity differs")
-    prior = _prior_widget(prior_widget, prior_widget_report)
+    prior = _prior_slot37(prior_slot37, prior_slot37_report)
     *_deps_values, ELFFile = _deps(); blob = source.read_bytes()
     with io.BytesIO(blob) as stream:
         elf = ELFFile(stream); mappings = _mappings(elf); owners = _owners(elf); edges = _complete_edges(owners, blob, mappings)
@@ -306,16 +306,16 @@ def _metadata_from_file(source=SOURCE, prior_widget=PRIOR_WIDGET, prior_widget_r
         jump_slots, relocation_summary = _jump_slots_and_relocations(elf, blob, mappings, members)
         helper = _helper_metadata(elf, blob, mappings, owners, relplt, dynsym, stubs)
     document = copy.deepcopy(EXPECTED_RAW_EXPORT)
-    document.update({"prior_widget_dispatch": prior, "member_inventory": MEMBER_INVENTORY, "helper_call_inventory": helper_calls, "jump_slot_relocation_indices": jump_slots, "getter_binding": getter, "setter_binding": setter, "helper": helper, "relocation_summary": relocation_summary})
+    document.update({"prior_slot37_dispatch": prior, "member_inventory": MEMBER_INVENTORY, "helper_call_inventory": helper_calls, "jump_slot_relocation_indices": jump_slots, "getter_binding": getter, "setter_binding": setter, "helper": helper, "relocation_summary": relocation_summary})
     normalize_orientation_af_helper_export(document)
     if _sha(source) != before: raise RuntimeError("source changed during static export")
     return document
 
 
 class FileAdapter:
-    def __init__(self, source=SOURCE, prior_widget=PRIOR_WIDGET, prior_widget_report=PRIOR_WIDGET_REPORT):
-        self.source, self.prior_widget, self.prior_widget_report = source, prior_widget, prior_widget_report
-    def metadata(self): return _metadata_from_file(self.source, self.prior_widget, self.prior_widget_report)
+    def __init__(self, source=SOURCE, prior_slot37=PRIOR_SLOT37, prior_slot37_report=PRIOR_SLOT37_REPORT):
+        self.source, self.prior_slot37, self.prior_slot37_report = source, prior_slot37, prior_slot37_report
+    def metadata(self): return _metadata_from_file(self.source, self.prior_slot37, self.prior_slot37_report)
 
 
 def build_raw_export(adapter=None):

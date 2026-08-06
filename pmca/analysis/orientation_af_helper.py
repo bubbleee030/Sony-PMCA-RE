@@ -9,7 +9,7 @@ import re
 
 VIEW_UNIFIED2_SIZE = 11_530_552
 VIEW_UNIFIED2_SHA256 = "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
-PRIOR_WIDGET_DIGEST = "62faece4c717e17b6d434d2d2d8a1b13e6902e0a5406248af915d57fb02edbdc"
+PRIOR_SLOT37_DIGEST = "bf4e9ea3ea1f4841bdcda6ecdf337a9cb064be2b560ace7b533a6a5e7f83f12f"
 MEMBER_INVENTORY = {
     "method_count": 42,
     "aggregate_size": 780,
@@ -93,7 +93,7 @@ RELOCATION_SUMMARY = {
 }
 CLAIMS = {
     "stable_local_object_storage_found": True,
-    "helper_object_to_hit_dispatch_linked": True,
+    "helper_object_to_slot37_dispatch_linked": True,
     "concrete_widget_type_found": False,
     "constructor_identity_found": False,
     "vtable_or_rtti_identity_found": False,
@@ -106,7 +106,7 @@ EXPECTED_RAW_EXPORT = {
     "sha256": VIEW_UNIFIED2_SHA256,
     "file_size": VIEW_UNIFIED2_SIZE,
     "analysis_mode": {"read_only": True, "static_elf_metadata": True, "cfg_dataflow": True, "source_unchanged": True},
-    "prior_widget_dispatch": {"analysis_contract": "widget_ishit_dispatch", "canonical_export_sha256": PRIOR_WIDGET_DIGEST},
+    "prior_slot37_dispatch": {"analysis_contract": "generic_slot37_dispatch", "canonical_export_sha256": PRIOR_SLOT37_DIGEST},
     "member_inventory": MEMBER_INVENTORY,
     "helper_call_inventory": HELPER_CALL_INVENTORY,
     "jump_slot_relocation_indices": list(JUMP_SLOT_RELOCATION_INDICES),
@@ -170,14 +170,14 @@ def summarize_orientation_af_helper_export(document):
 
 CONCLUSION = (
     "Forty-two orientation/AF wrapper methods and 20 neighboring non-member sites call one bounded helper. "
-    "Its normal CFG paths return stable local object storage at 0xb2eff4 to the proven hit-test dispatch, but "
+    "Its normal CFG paths return stable local object storage at 0xb2eff4 to a proven slot-37-shaped dispatch, but "
     "the concrete object type, constructor identity, vtable/RTTI, menu-touch semantics, and selection result remain unresolved."
 )
 
 
 def validate_orientation_af_helper_report(document):
     _forbid(document)
-    report = _exact(document, {"schema_version", "analysis_scope", "camera_policy", "camera_executed", "installable", "camera_test_eligible", "source", "summary", "prior_widget_dispatch", "member_inventory", "helper_call_inventory", "jump_slot_relocation_indices", "getter_binding", "setter_binding", "helper", "relocation_summary", "claims", "readiness", "conclusion"}, "report")
+    report = _exact(document, {"schema_version", "analysis_scope", "camera_policy", "camera_executed", "installable", "camera_test_eligible", "source", "summary", "prior_slot37_dispatch", "member_inventory", "helper_call_inventory", "jump_slot_relocation_indices", "getter_binding", "setter_binding", "helper", "relocation_summary", "claims", "readiness", "conclusion"}, "report")
     if report["schema_version"] != 1 or report["analysis_scope"] != "offline-static-orientation-af-helper" or report["camera_policy"] != "physically-disconnected":
         raise OrientationAfHelperError("report scope differs")
     if any(report[key] is not False for key in ("camera_executed", "installable", "camera_test_eligible")):
@@ -186,7 +186,7 @@ def validate_orientation_af_helper_report(document):
         raise OrientationAfHelperError("report source differs")
     if report["summary"] != summarize_orientation_af_helper_export(EXPECTED_RAW_EXPORT) or not _SHA.fullmatch(report["summary"]["canonical_export_sha256"]):
         raise OrientationAfHelperError("report summary differs")
-    for key in ("prior_widget_dispatch", "member_inventory", "helper_call_inventory", "jump_slot_relocation_indices", "getter_binding", "setter_binding", "helper", "relocation_summary", "claims"):
+    for key in ("prior_slot37_dispatch", "member_inventory", "helper_call_inventory", "jump_slot_relocation_indices", "getter_binding", "setter_binding", "helper", "relocation_summary", "claims"):
         if report[key] != EXPECTED_RAW_EXPORT[key]:
             raise OrientationAfHelperError("report evidence differs")
     if report["readiness"] != "STABLE_LOCAL_OBJECT_TYPE_UNRESOLVED" or report["conclusion"] != CONCLUSION:

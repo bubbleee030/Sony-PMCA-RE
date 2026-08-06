@@ -24,6 +24,8 @@ class OrientationAfHelperContractTests(unittest.TestCase):
         )
 
         document = normalize_orientation_af_helper_export(copy.deepcopy(EXPECTED_RAW_EXPORT))
+        self.assertEqual(document["prior_slot37_dispatch"]["analysis_contract"], "generic_slot37_dispatch")
+        self.assertNotIn("prior_widget_dispatch", document)
         self.assertEqual(document["member_inventory"], MEMBER_INVENTORY)
         self.assertEqual(MEMBER_INVENTORY["method_count"], 42)
         self.assertEqual(MEMBER_INVENTORY["aggregate_size"], 780)
@@ -36,6 +38,8 @@ class OrientationAfHelperContractTests(unittest.TestCase):
         self.assertEqual(len(document["jump_slot_relocation_indices"]), 17)
         self.assertEqual(document["getter_binding"]["direct_site_count"], 15)
         self.assertEqual(document["setter_binding"]["direct_site_count"], 42)
+        self.assertTrue(document["claims"]["helper_object_to_slot37_dispatch_linked"])
+        self.assertNotIn("helper_object_to_hit_dispatch_linked", document["claims"])
         self.assertFalse(document["claims"]["concrete_widget_type_found"])
         self.assertFalse(document["claims"]["menu_touch_behavior_found"])
 

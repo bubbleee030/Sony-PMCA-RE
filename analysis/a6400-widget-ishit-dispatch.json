@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "analysis_scope": "offline-static-widget-ishit-dispatch",
+  "analysis_scope": "offline-static-slot37-dispatch",
   "camera_policy": "physically-disconnected",
   "camera_executed": false,
   "installable": false,
@@ -11,7 +11,7 @@
     "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
   },
   "dispatch_summary": {
-    "canonical_export_sha256": "62faece4c717e17b6d434d2d2d8a1b13e6902e0a5406248af915d57fb02edbdc",
+    "canonical_export_sha256": "bf4e9ea3ea1f4841bdcda6ecdf337a9cb064be2b560ace7b533a6a5e7f83f12f",
     "accepted_count": 10,
     "pc_literal_count": 361,
     "stack_candidate_count": 9
@@ -131,15 +131,15 @@
     ]
   },
   "claims": {
-    "generic_widget_slot37_dispatch_found": true,
-    "ui_root_to_widget_dispatch_found": true,
-    "known_touch_caller_to_widget_dispatch_found": true,
+    "generic_slot37_dispatch_found": true,
+    "ui_root_to_slot37_dispatch_found": true,
+    "known_touch_caller_to_slot37_dispatch_found": true,
     "concrete_widget_identity_found": false,
     "menu_touch_hit_test_found": false,
     "menu_touch_selection_found": false,
     "touch_coordinate_transform_found": false,
     "gesture_found": false
   },
-  "readiness": "ORIENTATION_AF_LINKED_GENERIC_SLOT37",
-  "conclusion": "Ten local generic slot-37-shaped Widget::isHit dispatches are established. Exact local PLT resolution links the setting-menu root, the AF-orientation root, and two known shooting-focus coordinate caller owners to a named orientation/AF wrapper method whose helper-returned object receives the hit test; concrete widget type, inheritance, vtable identity, dataflow, gesture semantics, menu hit routing, and selection behavior remain unresolved."
+  "readiness": "GENERIC_SLOT37_INTERFACE_UNRESOLVED",
+  "conclusion": "Ten local generic slot-37-shaped virtual dispatches are established. Exact local PLT resolution links the setting-menu root, the AF-orientation root, and two known shooting-focus coordinate caller owners to a named orientation/AF wrapper method whose helper-returned object receives that virtual call; the concrete interface method, widget type, vtable identity, dataflow, gesture semantics, menu hit routing, and selection behavior remain unresolved."
 }

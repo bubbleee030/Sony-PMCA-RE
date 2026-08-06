@@ -1,10 +1,12 @@
-# α6400 Widget `isHit` Dispatch Plan
+# α6400 Generic Slot-37 Dispatch Plan
 
 ## Objective
 
-Establish exact local virtual-call shapes through widget vtable slot 37 (`+0x94`)
-and determine whether any accepted dispatch owner is directly connected to pinned UI
-roots or known touch-API caller owners.
+Establish exact local virtual-call shapes through slot 37 (`+0x94`) and determine
+whether any accepted dispatch owner is directly connected to pinned UI roots or
+known touch-API caller owners. The prior Widget-compatible table layout motivates
+the slot number but does not establish the receiver object's table or interface
+method identity.
 
 This plan is static/offline only. It does not authorize Sony code execution,
 camera/USB access, device or partition writes, package construction, flashing, raw
@@ -15,7 +17,8 @@ instruction or byte output, or key-material output.
 Use TDD to require:
 
 - exact `viewUnified2.so` identity and source-unchanged read-only mode;
-- canonical linkage to the widget-hit-test-vtable and touch-API-caller artifacts;
+- canonical linkage to the prior Widget-compatible-table and touch-API-caller
+  artifacts;
 - complete `.ARM.exidx` accounting: 30,463 entries = 28,869 fully decoded + 1,593
   decode-incomplete + one terminal-without-successor;
 - a structural rule confined to one bounded owner: receiver-vptr load, function load
@@ -51,7 +54,7 @@ Use TDD to require:
   same PLT-aware depth-32 traversal.
 
 Reject fabricated receiver provenance, arbitrary pointer scans, concrete
-widget/vtable/object identity, coordinate/hit-result/gesture/menu-selection
+interface-method/widget/vtable/object identity, coordinate/hit-result/gesture/menu-selection
 promotion, unsafe fields, output escape, installation, or camera testing.
 
 ## Task 2: Deterministic Static Export and Report
@@ -65,7 +68,7 @@ Write only a safe ignored raw artifact beneath a fixed repository artifact root;
 reject literal, resolved, symlink, dangling-symlink, and pre-creation ancestor
 escape. Commit a compact safe report that establishes generic slot-37-shaped
 dispatch plus the bounded setting-menu, orientation/AF, and focus-caller graph
-linkages only; concrete widget type/inheritance/vtable identity, dataflow, and menu
+linkages only; concrete interface method, widget type/inheritance/vtable identity, dataflow, and menu
 touch selection remain unresolved.
 
 ## Task 3: Review and Verification

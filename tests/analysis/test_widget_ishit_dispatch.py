@@ -1,4 +1,4 @@
-"""Fail-closed tests for the bounded Widget::isHit dispatch trace."""
+"""Fail-closed tests for the bounded generic slot-37 dispatch trace."""
 from __future__ import annotations
 
 import copy
@@ -42,6 +42,12 @@ class WidgetIsHitDispatchTests(unittest.TestCase):
         self.assertEqual(document["path_summary"]["touch_api_caller_owners"], list(TOUCH_OWNER_RECORDS))
         self.assertTrue(all(item["analysis_address"] - item["elf_address"] == ANALYSIS_LOAD_BIAS for item in ROOT_RECORDS))
         self.assertTrue(all(item["analysis_address"] - item["elf_address"] == ANALYSIS_LOAD_BIAS for item in TOUCH_OWNER_RECORDS))
+        self.assertTrue(document["claims"]["generic_slot37_dispatch_found"])
+        self.assertTrue(document["claims"]["ui_root_to_slot37_dispatch_found"])
+        self.assertTrue(document["claims"]["known_touch_caller_to_slot37_dispatch_found"])
+        self.assertNotIn("generic_widget_slot37_dispatch_found", document["claims"])
+        self.assertNotIn("ui_root_to_widget_dispatch_found", document["claims"])
+        self.assertNotIn("known_touch_caller_to_widget_dispatch_found", document["claims"])
         self.assertFalse(document["claims"]["menu_touch_selection_found"])
 
     def test_contract_rejects_fabricated_widget_identity_paths_and_unsafe_fields(self):
@@ -71,6 +77,8 @@ class WidgetIsHitDispatchTests(unittest.TestCase):
         self.assertFalse(report["installable"])
         self.assertFalse(report["camera_test_eligible"])
         self.assertEqual(report["dispatch_summary"]["accepted_count"], 10)
+        self.assertNotIn("Widget::isHit", report["conclusion"])
+        self.assertNotIn("hit test", report["conclusion"])
         self.assertIn("unresolved", report["conclusion"])
 
 

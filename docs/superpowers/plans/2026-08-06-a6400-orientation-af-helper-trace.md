@@ -4,7 +4,7 @@
 
 Establish the exact `CmnWrpOrientationRegisterAF` wrapper cluster, the bounded
 control-flow/dataflow of helper `0x35f424`, and the stable local object storage
-returned to the already-proven slot-37 hit-test dispatch. Seek a concrete
+returned to the already-proven slot-37-shaped virtual dispatch. Seek a concrete
 constructor/vtable/type identity without promoting an unresolved match.
 
 This plan is static/offline only. It does not authorize Sony code execution,
@@ -16,7 +16,7 @@ raw instruction or byte output, or key-material output.
 Use TDD to require:
 
 - exact `viewUnified2.so` identity and canonical linkage to the committed
-  Widget-`isHit` dispatch artifact `62faece4c717e17b6d434d2d2d8a1b13e6902e0a5406248af915d57fb02edbdc`;
+  generic slot-37 dispatch artifact `bf4e9ea3ea1f4841bdcda6ecdf337a9cb064be2b560ace7b533a6a5e7f83f12f`;
 - exactly 42 defined global `CmnWrpOrientationRegisterAF` methods, aggregate
   `st_size` 780, and member-table digest
   `9949b0d1da4a57aa2645e00ef7d7b3c8e404761e4bedf488fbb078d897467c2c`;

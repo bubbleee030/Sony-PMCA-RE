@@ -1,4 +1,4 @@
-"""Fail-closed evidence contract for bounded α6400 Widget::isHit dispatches."""
+"""Fail-closed evidence contract for bounded α6400 generic slot-37 dispatches."""
 from __future__ import annotations
 
 import copy
@@ -46,7 +46,7 @@ _SHA = re.compile(r"[0-9a-f]{64}\Z")
 
 
 class WidgetIsHitDispatchError(ValueError):
-    """Raised when Widget::isHit evidence is unsafe or exceeds static proof."""
+    """Raised when slot-37 evidence is unsafe or exceeds static proof."""
 
 
 def _dispatch(owner, vptr, slot, call):
@@ -150,9 +150,9 @@ STACK_CANDIDATES = (
 )
 HIGHLIGHTED_STACK_SITES = (0x2C0BB4, 0x2C2C3E, 0x53258A, 0x5333AC, 0x54DE94)
 CLAIMS = {
-    "generic_widget_slot37_dispatch_found": True,
-    "ui_root_to_widget_dispatch_found": True,
-    "known_touch_caller_to_widget_dispatch_found": True,
+    "generic_slot37_dispatch_found": True,
+    "ui_root_to_slot37_dispatch_found": True,
+    "known_touch_caller_to_slot37_dispatch_found": True,
     "concrete_widget_identity_found": False,
     "menu_touch_hit_test_found": False,
     "menu_touch_selection_found": False,
@@ -196,7 +196,7 @@ def _canonical(value):
 def normalize_widget_ishit_dispatch_export(document):
     """Accept only source-derived generic slot-37-shaped calls, never behavior."""
     _forbid(document)
-    raw = _exact(document, set(EXPECTED_RAW_EXPORT), "Widget::isHit export")
+    raw = _exact(document, set(EXPECTED_RAW_EXPORT), "slot-37 export")
     for key, expected in EXPECTED_RAW_EXPORT.items():
         if raw[key] != expected:
             raise WidgetIsHitDispatchError(key + " is not the pinned bounded result")
@@ -211,13 +211,13 @@ def summarize_widget_ishit_dispatch_export(document):
 def validate_widget_ishit_dispatch_report(document):
     _forbid(document)
     report = _exact(document, {"schema_version", "analysis_scope", "camera_policy", "camera_executed", "installable", "camera_test_eligible", "source", "dispatch_summary", "prior_widget_vtables", "prior_touch_api_callers", "defined_plt_binding", "coverage", "path_summary", "claims", "readiness", "conclusion"}, "report")
-    if report["schema_version"] != 1 or report["analysis_scope"] != "offline-static-widget-ishit-dispatch" or report["camera_policy"] != "physically-disconnected":
+    if report["schema_version"] != 1 or report["analysis_scope"] != "offline-static-slot37-dispatch" or report["camera_policy"] != "physically-disconnected":
         raise WidgetIsHitDispatchError("report scope differs")
     if any(report[key] is not False for key in ("camera_executed", "installable", "camera_test_eligible")):
         raise WidgetIsHitDispatchError("report promotes camera activity")
     expected = summarize_widget_ishit_dispatch_export(EXPECTED_RAW_EXPORT)
     if report["source"] != {"module": "lib/viewUnified2.so", "size": VIEW_UNIFIED2_SIZE, "sha256": VIEW_UNIFIED2_SHA256} or report["dispatch_summary"] != expected:
         raise WidgetIsHitDispatchError("report source or summary differs")
-    if (report["prior_widget_vtables"] != EXPECTED_RAW_EXPORT["prior_widget_vtables"] or report["prior_touch_api_callers"] != EXPECTED_RAW_EXPORT["prior_touch_api_callers"] or report["defined_plt_binding"] != DEFINED_PLT_BINDING or report["coverage"] != EXPECTED_RAW_EXPORT["coverage"] or report["path_summary"] != EXPECTED_RAW_EXPORT["path_summary"] or report["claims"] != CLAIMS or report["readiness"] != "ORIENTATION_AF_LINKED_GENERIC_SLOT37" or report["conclusion"] != "Ten local generic slot-37-shaped Widget::isHit dispatches are established. Exact local PLT resolution links the setting-menu root, the AF-orientation root, and two known shooting-focus coordinate caller owners to a named orientation/AF wrapper method whose helper-returned object receives the hit test; concrete widget type, inheritance, vtable identity, dataflow, gesture semantics, menu hit routing, and selection behavior remain unresolved."):
+    if (report["prior_widget_vtables"] != EXPECTED_RAW_EXPORT["prior_widget_vtables"] or report["prior_touch_api_callers"] != EXPECTED_RAW_EXPORT["prior_touch_api_callers"] or report["defined_plt_binding"] != DEFINED_PLT_BINDING or report["coverage"] != EXPECTED_RAW_EXPORT["coverage"] or report["path_summary"] != EXPECTED_RAW_EXPORT["path_summary"] or report["claims"] != CLAIMS or report["readiness"] != "GENERIC_SLOT37_INTERFACE_UNRESOLVED" or report["conclusion"] != "Ten local generic slot-37-shaped virtual dispatches are established. Exact local PLT resolution links the setting-menu root, the AF-orientation root, and two known shooting-focus coordinate caller owners to a named orientation/AF wrapper method whose helper-returned object receives that virtual call; the concrete interface method, widget type, vtable identity, dataflow, gesture semantics, menu hit routing, and selection behavior remain unresolved."):
         raise WidgetIsHitDispatchError("report promotes unestablished behavior")
     return copy.deepcopy(report)

@@ -1,4 +1,4 @@
-"""Read-only bounded α6400 Widget::isHit slot-37 dispatch exporter."""
+"""Read-only bounded α6400 generic slot-37 dispatch exporter."""
 from __future__ import annotations
 
 import copy
@@ -340,7 +340,7 @@ class FileAdapter:
 
 def build_raw_export(adapter=None):
     try: return normalize_widget_ishit_dispatch_export((adapter or FileAdapter()).metadata())
-    except Exception as exc: raise RuntimeError("Widget::isHit metadata differs from exact bounded static result") from exc
+    except Exception as exc: raise RuntimeError("slot-37 metadata differs from exact bounded static result") from exc
 
 
 def _literal_directory_under(root, base):
@@ -383,4 +383,4 @@ def write_json_atomic(output, document, approved_root=OUTPUT_ROOT, artifact_base
 
 if __name__ == "__main__":
     prepare_output_root(); write_json_atomic(OUTPUT_ROOT / OUTPUT_NAME, build_raw_export())
-    print("WIDGET_ISHIT_DISPATCH_EXPORT|accepted=10|pc_literals=361|menu_selection=0")
+    print("GENERIC_SLOT37_DISPATCH_EXPORT|accepted=10|pc_literals=361|menu_selection=0")
