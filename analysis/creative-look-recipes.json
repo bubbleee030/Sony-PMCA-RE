@@ -1,0 +1,418 @@
+{
+  "community_experiments": [
+    {
+      "a6400": {
+        "code": "ST",
+        "confidence": "PARTIAL",
+        "contrast": -2,
+        "creative_style": "Standard",
+        "saturation": 3,
+        "sharpness": 3,
+        "unrepresented_axes": [
+          "highlights",
+          "shadows",
+          "sharpness_range",
+          "clarity"
+        ],
+        "wb_kelvin": null,
+        "wb_shift_ab": 1,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "ST",
+        "clarity": 1,
+        "code": "ST",
+        "contrast": -2,
+        "fade": 0,
+        "highlights": 2,
+        "saturation": 4,
+        "shadows": 1,
+        "sharpness": 4,
+        "sharpness_range": 3,
+        "source": "https://sonyfilmsimulations.com/en/recipe/winter-sunshine/",
+        "wb_kelvin": null,
+        "wb_shift_ab": 1,
+        "wb_shift_gm": 0
+      },
+      "note": "Community A6700 AWB experiment; α6400 saturation and sharpness clamp to +3 and four nonzero modern axes remain unavailable.",
+      "source_kind": "community-experiment",
+      "title": "Winter Sunshine"
+    },
+    {
+      "a6400": {
+        "code": "FL",
+        "confidence": "INFERRED",
+        "contrast": 3,
+        "creative_style": "Deep",
+        "saturation": -2,
+        "sharpness": 2,
+        "unrepresented_axes": [
+          "highlights",
+          "shadows",
+          "fade",
+          "sharpness_range",
+          "clarity"
+        ],
+        "wb_kelvin": null,
+        "wb_shift_ab": 1,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "FL",
+        "clarity": 2,
+        "code": "FL",
+        "contrast": 3,
+        "fade": 3,
+        "highlights": -2,
+        "saturation": -2,
+        "shadows": -2,
+        "sharpness": 2,
+        "sharpness_range": 2,
+        "source": "https://sonyfilmsimulations.com/en/recipe/rainy-day/",
+        "wb_kelvin": null,
+        "wb_shift_ab": 1,
+        "wb_shift_gm": 0
+      },
+      "note": "Community AWB experiment; Deep is an inferred FL base and all five nonzero modern-only axes remain unavailable.",
+      "source_kind": "community-experiment",
+      "title": "Rainy Day"
+    }
+  ],
+  "defaults": [
+    {
+      "a6400": {
+        "code": "ST",
+        "confidence": "PARTIAL",
+        "contrast": 0,
+        "creative_style": "Standard",
+        "saturation": 0,
+        "sharpness": 0,
+        "unrepresented_axes": [],
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "ST",
+        "clarity": 0,
+        "code": "ST",
+        "contrast": 0,
+        "fade": 0,
+        "highlights": 0,
+        "saturation": 0,
+        "shadows": 0,
+        "sharpness": 0,
+        "sharpness_range": 0,
+        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "note": "Direct semantic base mapping to Standard with neutral adjustments; not a measured colorimetric match.",
+      "source_kind": "official-definition-plus-analysis-translation"
+    },
+    {
+      "a6400": {
+        "code": "PT",
+        "confidence": "PARTIAL",
+        "contrast": 0,
+        "creative_style": "Portrait",
+        "saturation": 0,
+        "sharpness": 0,
+        "unrepresented_axes": [],
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "PT",
+        "clarity": 0,
+        "code": "PT",
+        "contrast": 0,
+        "fade": 0,
+        "highlights": 0,
+        "saturation": 0,
+        "shadows": 0,
+        "sharpness": 0,
+        "sharpness_range": 0,
+        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "note": "Direct semantic base mapping to Portrait with neutral adjustments; not a measured colorimetric match.",
+      "source_kind": "official-definition-plus-analysis-translation"
+    },
+    {
+      "a6400": {
+        "code": "NT",
+        "confidence": "PARTIAL",
+        "contrast": 0,
+        "creative_style": "Neutral",
+        "saturation": 0,
+        "sharpness": 0,
+        "unrepresented_axes": [],
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "NT",
+        "clarity": 0,
+        "code": "NT",
+        "contrast": 0,
+        "fade": 0,
+        "highlights": 0,
+        "saturation": 0,
+        "shadows": 0,
+        "sharpness": 0,
+        "sharpness_range": 0,
+        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "note": "Direct semantic base mapping to Neutral with neutral adjustments; not a measured colorimetric match.",
+      "source_kind": "official-definition-plus-analysis-translation"
+    },
+    {
+      "a6400": {
+        "code": "VV",
+        "confidence": "PARTIAL",
+        "contrast": 0,
+        "creative_style": "Vivid",
+        "saturation": 0,
+        "sharpness": 0,
+        "unrepresented_axes": [],
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "VV",
+        "clarity": 0,
+        "code": "VV",
+        "contrast": 0,
+        "fade": 0,
+        "highlights": 0,
+        "saturation": 0,
+        "shadows": 0,
+        "sharpness": 0,
+        "sharpness_range": 0,
+        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "note": "Direct semantic base mapping to Vivid with neutral adjustments; not a measured colorimetric match.",
+      "source_kind": "official-definition-plus-analysis-translation"
+    },
+    {
+      "a6400": {
+        "code": "VV2",
+        "confidence": "INFERRED",
+        "contrast": 0,
+        "creative_style": "Clear",
+        "saturation": 1,
+        "sharpness": 0,
+        "unrepresented_axes": [],
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "VV2",
+        "clarity": 0,
+        "code": "VV2",
+        "contrast": 0,
+        "fade": 0,
+        "highlights": 0,
+        "saturation": 1,
+        "shadows": 0,
+        "sharpness": 0,
+        "sharpness_range": 0,
+        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "note": "Inferred Style Box starting point: Clear, contrast 0, saturation +1, sharpness 0; validate with controlled JPEG pairs.",
+      "source_kind": "official-definition-plus-analysis-translation"
+    },
+    {
+      "a6400": {
+        "code": "FL",
+        "confidence": "INFERRED",
+        "contrast": -1,
+        "creative_style": "Deep",
+        "saturation": 0,
+        "sharpness": 0,
+        "unrepresented_axes": [],
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "FL",
+        "clarity": 0,
+        "code": "FL",
+        "contrast": -1,
+        "fade": 0,
+        "highlights": 0,
+        "saturation": 0,
+        "shadows": 0,
+        "sharpness": 0,
+        "sharpness_range": 0,
+        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "note": "Inferred Style Box starting point: Deep, contrast -1, saturation 0, sharpness 0; validate with controlled JPEG pairs.",
+      "source_kind": "official-definition-plus-analysis-translation"
+    },
+    {
+      "a6400": {
+        "code": "IN",
+        "confidence": "INFERRED",
+        "contrast": -2,
+        "creative_style": "Neutral",
+        "saturation": -2,
+        "sharpness": -1,
+        "unrepresented_axes": [],
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "IN",
+        "clarity": 0,
+        "code": "IN",
+        "contrast": -2,
+        "fade": 0,
+        "highlights": 0,
+        "saturation": -2,
+        "shadows": 0,
+        "sharpness": -1,
+        "sharpness_range": 0,
+        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "note": "Inferred Style Box starting point: Neutral, contrast -2, saturation -2, sharpness -1; validate with controlled JPEG pairs.",
+      "source_kind": "official-definition-plus-analysis-translation"
+    },
+    {
+      "a6400": {
+        "code": "SH",
+        "confidence": "INFERRED",
+        "contrast": -1,
+        "creative_style": "Light",
+        "saturation": -1,
+        "sharpness": -1,
+        "unrepresented_axes": [],
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "SH",
+        "clarity": 0,
+        "code": "SH",
+        "contrast": -1,
+        "fade": 0,
+        "highlights": 0,
+        "saturation": -1,
+        "shadows": 0,
+        "sharpness": -1,
+        "sharpness_range": 0,
+        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "note": "Inferred Style Box starting point: Light, contrast -1, saturation -1, sharpness -1; validate with controlled JPEG pairs.",
+      "source_kind": "official-definition-plus-analysis-translation"
+    },
+    {
+      "a6400": {
+        "code": "BW",
+        "confidence": "PARTIAL",
+        "contrast": 0,
+        "creative_style": "B/W",
+        "saturation": 0,
+        "sharpness": 0,
+        "unrepresented_axes": [],
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "BW",
+        "clarity": 0,
+        "code": "BW",
+        "contrast": 0,
+        "fade": 0,
+        "highlights": 0,
+        "saturation": 0,
+        "shadows": 0,
+        "sharpness": 0,
+        "sharpness_range": 0,
+        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "note": "Direct semantic base mapping to B/W with neutral adjustments; not a measured colorimetric match.",
+      "source_kind": "official-definition-plus-analysis-translation"
+    },
+    {
+      "a6400": {
+        "code": "SE",
+        "confidence": "PARTIAL",
+        "contrast": 0,
+        "creative_style": "Sepia",
+        "saturation": 0,
+        "sharpness": 0,
+        "unrepresented_axes": [],
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "modern": {
+        "base": "SE",
+        "clarity": 0,
+        "code": "SE",
+        "contrast": 0,
+        "fade": 0,
+        "highlights": 0,
+        "saturation": 0,
+        "shadows": 0,
+        "sharpness": 0,
+        "sharpness_range": 0,
+        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "wb_kelvin": null,
+        "wb_shift_ab": 0,
+        "wb_shift_gm": 0
+      },
+      "note": "Direct semantic base mapping to Sepia with neutral adjustments; not a measured colorimetric match.",
+      "source_kind": "official-definition-plus-analysis-translation"
+    }
+  ],
+  "disclaimer": "These α6400 settings are conservative practical starting points, not exact Sony colorimetric matches; community experiments are not Sony defaults.",
+  "official_sources": {
+    "creative_look": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+    "creative_style": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html"
+  },
+  "schema_version": 1,
+  "validation_protocol": [
+    "same lens",
+    "same scene",
+    "same exposure",
+    "same lighting",
+    "same white balance",
+    "same JPEG settings",
+    "no postprocessing"
+  ]
+}

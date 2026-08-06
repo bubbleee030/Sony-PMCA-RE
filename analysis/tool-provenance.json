@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "tools": [
+    {
+      "acquired_at": "2026-08-04T14:56:52Z",
+      "commit": "cdba742b73eed5981480c326aeb30033aabf0223",
+      "entrypoint": "fwtool.py",
+      "license_path": "LICENSE.txt",
+      "name": "ma1co-fwtool",
+      "repo_url": "https://github.com/ma1co/fwtool.py.git"
+    },
+    {
+      "acquired_at": "2026-08-04T14:56:52Z",
+      "commit": "c351060721547f6b65d6c969d863f486662f9424",
+      "entrypoint": "fwtool.py",
+      "license_path": "LICENSE.txt",
+      "name": "joeording3-fwtool",
+      "repo_url": "https://github.com/joeording3/fwtool.py.git"
+    },
+    {
+      "acquired_at": "2026-08-04T14:56:52Z",
+      "commit": "bc32b106833f64bf105164d49f2f181b0cf39a47",
+      "entrypoint": "fwtool.py",
+      "license_path": "LICENSE.txt",
+      "name": "ironpayne22-fwtool",
+      "repo_url": "https://github.com/ironpayne22/fwtool.py.git"
+    }
+  ]
+}

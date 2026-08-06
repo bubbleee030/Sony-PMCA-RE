@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "capabilities": [
+    {
+      "id": "creative-look-discovery",
+      "status": "PARTIAL",
+      "summary": "The visible Creative Look control surface and an α6400 translation boundary are defined, but Sony's internal preset tables and processing code remain inaccessible.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+          "claim": "Sony documents ten Creative Look bases, six Custom Look slots, and eight adjustment axes on ILCE-6700."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/creative-look-recipes.json",
+          "claim": "The committed translation catalog records six direct semantic mappings and four explicitly inferred Style Box approximations for ILCE-6400."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/feature-compatibility.json",
+          "claim": "The authenticated bounded marker scan found no plaintext feature locator in the α6400 overlay or either donor FDAT and labels absence from encrypted data as no result."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/feature-compatibility.json",
+          "claim": "The visible behavior and target-side approximation boundary are known, but no authenticated firmware table, loader, or image-pipeline integration point has been located."
+        }
+      ],
+      "next_action": "Use the practical Creative Style recipe guide for reversible testing; require authenticated decryption and table-location evidence before any native implementation claim."
+    },
+    {
+      "id": "creative-look-emulation",
+      "status": "PARTIAL",
+      "summary": "A practical no-firmware approximation is delivered for all ten named looks, while exact colorimetry and five donor-only adjustment axes remain unsupported.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html",
+          "claim": "ILCE-6400 Creative Style provides Standard, Portrait, Neutral, Vivid, B/W, Sepia, six Style Boxes, and contrast, saturation, and sharpness adjustments."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/creative-look-recipes.json",
+          "claim": "The catalog maps ST, PT, NT, VV, BW, and SE directly and supplies bounded inferred recipes for VV2, FL, IN, and SH without modifying firmware."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/a6400-creative-look-guide.md",
+          "claim": "The deterministic guide preserves white-balance instructions, clamps target values to the documented α6400 range, and calls out every donor axis that cannot be represented."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/creative-look-recipes.json",
+          "claim": "This is a practical approximation candidate, not a native Creative Look port or proof of a Sony-exact visual match."
+        }
+      ],
+      "next_action": "Evaluate the recipes on ordinary stills with a fixed scene, exposure, lens, white balance, and RAW+JPEG protocol; do not flash the camera."
+    },
+    {
+      "id": "touch-menu",
+      "status": "PARTIAL",
+      "summary": "The α6400 has a working touch-input path for shooting functions, but menu widgets, menu-wide event routing, and a safe extension point have not been located.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002280339.html",
+          "claim": "Sony documents that touching a subject on the α6400 monitor starts Touch Tracking, confirming target touch coordinates reach a shooting subsystem."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/211h_touchpanel_settings.html",
+          "claim": "Sony documents separate shooting-screen, footer-icon, playback-screen, and menu-screen touch controls on ILCE-6700."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/feature-compatibility.json",
+          "claim": "The dependency matrix finds no α6400 menu-wide dispatcher, widget implementation, icon resource boundary, data-binding ABI, or digest-pinned patch site."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/feature-compatibility.json",
+          "claim": "An α6400-specific subsystem extension is more plausible than donor reuse, but the requested full touch menu is not currently implementable from authenticated evidence."
+        }
+      ],
+      "next_action": "Locate authenticated α6400 UI and touch-dispatch interfaces after the decryption boundary is solved; retain the no-camera gate."
+    },
+    {
+      "id": "vertical-ui",
+      "status": "PARTIAL",
+      "summary": "The α6400 already exposes three-way orientation state and the α7 V defines the desired vertical behavior, but portrait layout, render, and input-transform components remain unlocated.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002278024.html",
+          "claim": "Sony documents horizontal, vertical shutter-up, and vertical shutter-down orientation detection for α6400 Switch V/H AF Area."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/251h_vertical_ui_display.html",
+          "claim": "Sony documents α7 V Vertical Display rotating shooting information, control-wheel directions, and touch operations to match monitor orientation."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/feature-compatibility.json",
+          "claim": "Only vertical-orientation-state is ready; vertical-layout-selection, vertical-render-transform, and vertical-input-transform retain explicit unresolved evidence dependencies."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/feature-compatibility.json",
+          "claim": "Orientation sensing can be reused conceptually, but a native donor transplant is unsupported and an α6400-specific reimplementation has no authenticated patch boundary."
+        }
+      ],
+      "next_action": "Require authenticated α6400 layout, renderer, and input-dispatch boundaries plus a verified signature and recovery model before implementation."
+    },
+    {
+      "id": "signature-enforcement",
+      "status": "PARTIAL",
+      "summary": "Host Authenticode coverage and donor DAT parser/checksum boundaries are measured, but camera-side signature enforcement, decryption, and any safe bypass remain unresolved.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/structures/a6400-tw-v2.00.json",
+          "claim": "The α6400 updater is a PE32 wrapper with a 313,778,104-byte overlay and a 10,024-byte certificate table; Authenticode exclusions are structurally identifiable."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/signature-experiments.json",
+          "claim": "Digest-pinned one-byte mutations distinguish host-signed overlay bytes from excluded certificate bytes, while the pinned tool still stops at wrapper parsing for both α6400 variants."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/signature-experiments.json",
+          "claim": "Donor DATV, UDID, and FDAT mutations stop at version, device-descriptor, or checksum validation and every experimental output is quarantined and marked installable false."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/signature-experiments.json",
+          "claim": "The experiments locate integrity-sensitive layers but do not bypass the updater wrapper, select a decrypter, prove model compatibility, or establish the camera's signature boundary."
+        }
+      ],
+      "next_action": "Stop at wrapper/decrypter/signature ambiguity; do not convert quarantined mutations into updater inputs or attempt camera execution."
+    },
+    {
+      "id": "hardware-dependencies",
+      "status": "PARTIAL",
+      "summary": "Target orientation, touch, and Creative Style capabilities are confirmed, but donor ABI, graphics, memory, image-processor, and controller compatibility are unknown.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/feature-compatibility.json",
+          "claim": "The matrix confirms α6400 orientation consumers, touch tracking, six Style Boxes, and three adjustable Creative Style axes."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/structures/a6700-tw-v2.00.json",
+          "claim": "The α6700 donor is a fully bounded Sony DAT container whose FDAT payload remains opaque at the unsupported decrypter boundary."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/structures/a7v-tw-v2.00.json",
+          "claim": "The actual vertical-UI donor is also a fully bounded Sony DAT container with an opaque FDAT payload and a different package size."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/feature-compatibility.json",
+          "claim": "Existing target peripherals make an α6400-specific design conceivable, but they do not prove compatible UI frameworks, firmware ABI, resource formats, memory budgets, or image-processing tables."
+        }
+      ],
+      "next_action": "Treat every unverified ABI, memory, resource, and controller boundary as unresolved until authenticated target internals are available."
+    },
+    {
+      "id": "recovery",
+      "status": "BLOCKED",
+      "summary": "Camera-side execution remains prohibited because no verified α6400 restore path exists for a failed modified image and this is the user's only working main camera.",
+      "evidence": [
+        {
+          "kind": "OBSERVATION",
+          "source": "https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145",
+          "claim": "Sony warns that power loss during the α6400 update may make the camera inoperable and documents only the official updater workflow."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/feature-compatibility.json",
+          "claim": "The real candidate gate rejected an empty guessed-patch set with eleven unresolved dependencies, including updater wrapper, decryption, signature layer, and camera recovery path."
+        },
+        {
+          "kind": "OBSERVATION",
+          "source": "analysis/signature-experiments.json",
+          "claim": "All mutation experiments are offline-only, camera_executed is false, installable is false, and outputs are quarantined."
+        },
+        {
+          "kind": "INFERENCE",
+          "source": "analysis/feature-compatibility.json",
+          "claim": "Without an independently demonstrated restore path and a nonessential test body, a camera-side experiment cannot satisfy the study's safety gate."
+        }
+      ],
+      "next_action": "End at offline artifacts; require a separately verified recovery method and a nonessential α6400 test body before any future camera-side proposal."
+    }
+  ]
+}
