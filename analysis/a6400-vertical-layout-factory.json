@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-target-vertical-layout-factory",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {"module": "lib/viewUnified7.so", "size": 541024, "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"},
+  "export_summary": {"canonical_export_sha256": "509bdf3b80321498378186043c273d84a1a45167c81994c8b8536e497128a3b1", "constructor_count": 5, "reverse_caller_count": 1},
+  "factory": {"root": "0x52840", "branch_value_classification": "local-branching-observed", "constructors": [{"id": "header-manual-info", "site": "0x52914", "target": "0x14148"}, {"id": "error", "site": "0x52924", "target": "0x14b04"}, {"id": "info", "site": "0x52934", "target": "0x14e9c"}, {"id": "footer", "site": "0x52944", "target": "0x14028"}, {"id": "manual", "site": "0x52954", "target": "0x14d64"}], "reverse_callers": [{"caller": "0x529cc", "site": "0x529d6", "target": "0x52840", "kind": "direct"}]},
+  "upstream_roots": {"camera_orientation_owners": ["0x2d2c6", "0x30750"], "status_orientation_owners": ["0x189dc", "0x1b070", "0x1c56c"], "layout_mode": {"site_count": 28, "owner_count": 15, "owner_overlap_with_factory": false}},
+  "claims": {"vertical_layout_factory_found": true, "orientation_layout_selector_found": false},
+  "behavior_support": {"orientation-layout-selection": false, "touch-coordinate-transform": false, "menu-touch-hit-test": false, "menu-touch-selection": false},
+  "readiness": "FACTORY_BOUNDED_PATH_UNESTABLISHED",
+  "conclusion": "The exact five-way vertical-classical factory is bounded. An ordered orientation or layout-mode path to it is not established by this bounded slice. Orientation and touch behavior claims remain false."
+}
