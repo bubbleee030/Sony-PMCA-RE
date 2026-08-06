@@ -28,10 +28,15 @@ Use TDD to require:
   - owner `0x56cf24`: `0x56cf8a->0x56cfa4`, `0x56cfca->0x56cfe8`;
   - owner `0x5b7424`: `0x5b748a->0x5b74a4`, `0x5b74ca->0x5b74e8`;
 - source-derived receiver-vptr load sites for every accepted record;
-- five exact stack-derived `+0x94` rejection sites `0x2c0bb4`, `0x2c2c3e`,
-  `0x53258a`, `0x5333ac`, and `0x54de94`;
+- nine exact stack-derived `+0x94` rejection sites `0x237926`, `0x2397a4`,
+  `0x2c0bb4`, `0x2c2c3e`, `0x4c3450`, `0x4c3cd4`, `0x53258a`, `0x5333ac`,
+  and `0x54de94`; the earlier five-site subset remains highlighted only as recon
+  history and is not the complete rejection population;
 - exactly 361 direct PC-relative `+0x94` false positives, with a canonical address
   digest but no instruction text or bytes;
+- explicit `0x10000` analysis-load-bias mappings for every pinned root and known
+  touch caller, mechanically linked to the prior artifacts, with graph traversal
+  performed only in normalized ELF coordinates;
 - direct-only depth-32 zero paths from `ViewSettingMenuEventSwitch` and the three
   pinned ViewStlrec roots to accepted owners; and
 - zero direct paths in either direction between accepted owners and the exact 16
@@ -55,7 +60,7 @@ dispatch only; concrete widget identity and menu touch selection remain unresolv
 
 ## Task 3: Review and Verification
 
-Independently review the structural register provenance, ten accepted records, five
+Independently review the structural register provenance, ten accepted records, nine
 stack rejections, 361-literal digest, coverage accounting, both path searches,
 prior linkage, behavior claims, and containment. Re-run the exact exporter, verify
 source hashes before and after, run focused and full analysis/safe tests, compile
