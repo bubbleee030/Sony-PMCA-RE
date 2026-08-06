@@ -21,12 +21,13 @@ that require:
 
 - exact `viewUnified7.so` identity and source-unchanged mode;
 - the five exact address points, slot cells, shared Thumb target/owner, RTTI header
-  relocations, and one typed incoming address-point reference per table;
+  relocations, and one typed incoming vtable-header reference per table; the address
+  point is derived as header `+8` and is not the incoming relocation addend;
 - a structural virtual-call rule that requires receiver-vptr load, slot `+0x88`
   load, and an indirect call using that loaded value within one bounded function;
 - exact zero accepted local candidates;
 - explicit bounded rejection metadata for the stack-based `+0x88` load and the
-  PC-literal precedents without instruction text or bytes;
+  direct PC-relative `+0x88` false positives without instruction text or bytes;
 - exact zero direct inbound owner edges and zero direct paths from the pinned
   orientation/layout-mode roots; and
 - rejection of fabricated dispatches, arbitrary pointer scans, unsafe fields,

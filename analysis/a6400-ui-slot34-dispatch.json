@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-ui-slot34-dispatch",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/viewUnified7.so",
+    "size": 541024,
+    "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+  },
+  "export_summary": {
+    "canonical_export_sha256": "7ffc38879262336103be44ea060ec8d958d98ec6ae6b7b67a43f893b2d633ab5",
+    "header_reference_count": 5,
+    "accepted_candidate_count": 0,
+    "stack_rejection_count": 1,
+    "direct_pc_literal_load_count": 52
+  },
+  "prior_vtable_interface": {
+    "analysis_contract": "ui_layout_vtable_interface",
+    "canonical_export_sha256": "5091e8d299df9b16b043b11578d3ed306c6d289dd778a1c72ccff0c76b0adca9"
+  },
+  "prior_owner_registration": {
+    "analysis_contract": "ui_factory_owner_registration",
+    "canonical_export_sha256": "a6a669db167c7335a65cd3015c59a20a08af4b8de46330a4ca1c3231fa2b8e0a"
+  },
+  "structural_scan": {
+    "rule": {
+      "receiver_vptr_load_offset": 0,
+      "slot_load_offset": 136,
+      "indirect_call": "blx-register",
+      "function_bounded": true
+    },
+    "accepted_candidate_count": 0,
+    "stack_rejection_count": 1,
+    "direct_pc_literal_load_count": 52
+  },
+  "claims": {
+    "slot_34_dispatch_found": false,
+    "orientation_layout_selector_found": false
+  },
+  "behavior_support": {
+    "touch_coordinate_transform": false,
+    "menu_touch_hit_test": false,
+    "menu_touch_selection": false
+  },
+  "readiness": "LOCAL_SLOT34_STRUCTURAL_DISPATCH_NOT_FOUND",
+  "conclusion": "No local structurally exact slot-34 virtual dispatch was found. External, cross-module, callback, and nonlocal indirect routes remain unresolved."
+}
