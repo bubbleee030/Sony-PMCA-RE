@@ -190,6 +190,32 @@ This exposes a firmware-native Creative Style graph already present in α6400
 2.00. It does not add α6700 Creative Look processing, extra adjustment axes, a
 new menu framework, or a valid package/signature.
 
+### Product-graph selector versus current selection
+
+The selector's input is now structurally resolved. Creative Style
+`_getSubNode()` at `0x7db958` and Picture Profile `_getSubNode()` at `0x7dbc04`
+each call the same imported `BackupManager::Bkup_Read(int, void*)` binding with
+ID `0x01070316` and a zero-initialized one-byte stack-local output. Sharing this
+read across two independent menu families establishes a product/menu-graph
+configuration selector, not the user's currently selected Creative Style or
+Picture Profile.
+
+This also clarifies two different value domains: `0x43` is the shipped
+read-only backup value selecting the α6400's `TypeEmnt` product graph, while
+`0x1e` and `0x37` in the offline patch experiment are TBB dispatch-entry values
+for the TypeEmnt and Default code paths. They are not persisted Creative Style
+values.
+
+The Creative Style vtable separately inherits 16 generic selected/state methods.
+A bounded trace resolves 22 virtual-interface dispatches covering selected-item
+lookup, state lookup, selection, unselection, and reinitialization. Four-byte
+in-memory fields at offsets `0x18`, `0x20`, and `0x24` participate in that generic
+state machinery. Ten callbacks on resolved child objects remain indirect and
+their final implementations are not statically established. No model value,
+model setter, renderer, menu-event, commit, or persistence binding has yet been
+located. The fail-closed record is
+`analysis/a6400-creative-style-selected-state-dispatch.json`.
+
 ## α6400 bounded UI-dispatch and UXC correlation
 
 Read-only Ghidra analysis of the pinned α6400 2.00 `viewUnified2.so` used four

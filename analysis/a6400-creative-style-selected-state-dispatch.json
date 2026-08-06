@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-creative-style-selected-state-dispatch",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/CautionConfig.so",
+    "size": 12070800,
+    "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7"
+  },
+  "summary": {
+    "canonical_export_sha256": "cf55344fca42130d3144257bbfe1acbe78eaad28da5d147fc888d996dc0c2eee",
+    "method_count": 16,
+    "dispatch_edge_count": 22,
+    "product_selector_count": 2
+  },
+  "creative_style_vtable": {
+    "symbol": "_ZTV31CmnViewSettingNodeCreativeStyle",
+    "symbol_index": 63566,
+    "start": 11307264,
+    "address_point": 11307272,
+    "size": 268,
+    "word_count": 67,
+    "typed_relocation_count": 66
+  },
+  "product_graph_selector": {
+    "backup_read_binding": {
+      "symbol": "_ZN13BackupManager9Bkup_ReadEiPv",
+      "symbol_index": 14,
+      "symbol_defined": false,
+      "relocation_index": 2304,
+      "relocation_type": 22,
+      "got": 11593172,
+      "plt": 8094112
+    },
+    "selectors": [
+      {
+        "role": "creative-style-product-graph",
+        "symbol": "_ZN31CmnViewSettingNodeCreativeStyle11_getSubNodeEv",
+        "symbol_index": 60476,
+        "owner": 8239448,
+        "size": 232,
+        "call_site": 8239472,
+        "target": 8094112,
+        "backup_id_literal_cell": 8239624,
+        "backup_id": 17236758,
+        "output": {"kind": "stack-local", "width": 1, "zero_initialized": true, "zero_init_site": 8239468, "readback_site": 8239480, "same_storage": true, "write_before_call": true, "read_after_call": true, "pre_call_straight_line": true}
+      },
+      {
+        "role": "picture-profile-product-graph",
+        "symbol": "_ZN32CmnViewSettingNodePictureProfile11_getSubNodeEv",
+        "symbol_index": 50626,
+        "owner": 8240132,
+        "size": 184,
+        "call_site": 8240156,
+        "target": 8094112,
+        "backup_id_literal_cell": 8240276,
+        "backup_id": 17236758,
+        "output": {"kind": "stack-local", "width": 1, "zero_initialized": true, "zero_init_site": 8240152, "readback_site": 8240164, "same_storage": true, "write_before_call": true, "read_after_call": true, "pre_call_straight_line": true}
+      }
+    ],
+    "classification": "shared-product-menu-graph-selector",
+    "is_current_user_selection": false
+  },
+  "selected_state_dispatch": {
+    "method_count": 16,
+    "edge_count": 22,
+    "edge_digest": "dd9ee3af57058be4ebc1039970e65617c035a23a35ac8998d1d30282cdfe3370",
+    "field_offsets": [24, 32, 36],
+    "field_access_digest": "4ff7d55db75cf996b9384129af1a4840600a9f98892f09d2ae0d859e5f83679c",
+    "local_leaf_table_words": [13, 21, 39, 62, 63],
+    "unresolved_callback_count": 10,
+    "method_decode_complete": true,
+    "reported_sites_cfg_reachable": true,
+    "receiver_identity_checked": true,
+    "unhandled_register_writes_invalidated": true,
+    "bounded_table_branch": {
+      "caller_table_word": 63,
+      "site": 8155908,
+      "entry_count": 7,
+      "data_start": 8155912,
+      "data_end": 8155919,
+      "resume": 8155920,
+      "targets": [8155924, 8155932, 8155936, 8155944]
+    }
+  },
+  "claims": {
+    "product_graph_selector_found": true,
+    "product_graph_selector_is_user_selection": false,
+    "generic_selected_state_dispatch_found": true,
+    "creative_style_vtable_binding_found": true,
+    "in_memory_selection_state_fields_found": true,
+    "selected_model_value_storage_found": false,
+    "resolved_object_callback_binding_found": false,
+    "model_value_path_found": false,
+    "model_setter_path_found": false,
+    "menu_event_binding_found": false,
+    "renderer_binding_found": false,
+    "touch_routing_found": false,
+    "commit_or_persistence_found": false,
+    "creative_look_equivalence_found": false,
+    "runtime_execution_proven": false
+  },
+  "readiness": "GENERIC_SELECTED_STATE_DISPATCH_ONLY",
+  "conclusion": "Creative Style inherits an exact generic selected-item interface: lookup, state, selection, unselection, and reinitialization resolve through 22 bounded virtual dispatches. The shared backup read in Creative Style and Picture Profile selects a product/menu graph, not the current user choice. The selected model value's storage, getter/setter, renderer, menu event, commit, and persistence paths remain unlocated."
+}
