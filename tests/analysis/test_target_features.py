@@ -11,6 +11,10 @@ from pmca.analysis.target_features import (
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 REPORT_PATH = REPOSITORY_ROOT / "analysis" / "a6400-target-features.json"
+UI_TRACE_PATH = REPOSITORY_ROOT / "analysis" / "a6400-ui-dispatch-boundary.json"
+MODERN_UI_CONTRACT_PATH = (
+    REPOSITORY_ROOT / "analysis" / "a6400-modern-ui-contract.json"
+)
 
 
 class TargetFeatureTests(unittest.TestCase):
@@ -21,6 +25,7 @@ class TargetFeatureTests(unittest.TestCase):
         validated = validate_target_feature_report(self.document)
 
         self.assertEqual(validated, self.document)
+        self.assertEqual(validated["schema_version"], 3)
         self.assertFalse(validated["camera_connected"])
         self.assertFalse(validated["camera_executed"])
         self.assertFalse(validated["bypass_established"])
@@ -28,6 +33,72 @@ class TargetFeatureTests(unittest.TestCase):
         self.assertEqual(validated["target"]["model_id"], "0x81030011")
         self.assertEqual(validated["target"]["version"], "2.00")
         self.assertEqual(validated["target"]["filesystem_count"], 1079)
+
+    def test_indirect_trace_and_contract_match_standalone_reports(self):
+        validated = validate_target_feature_report(self.document)
+        standalone_trace = json.loads(UI_TRACE_PATH.read_text(encoding="utf-8"))
+        standalone_contract = json.loads(
+            MODERN_UI_CONTRACT_PATH.read_text(encoding="utf-8")
+        )
+
+        self.assertEqual(validated["ui_indirect_trace"], standalone_trace)
+        self.assertEqual(validated["modern_ui_contract"], standalone_contract)
+
+    def test_nested_ui_evidence_is_fail_closed_and_digest_pinned(self):
+        candidates = []
+
+        candidate = copy.deepcopy(self.document)
+        candidate["ui_indirect_trace"]["claims"][
+            "orientation_layout_selector_found"
+        ] = True
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["ui_indirect_trace"]["modules"][0]["sha256"] = "00" * 32
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["modern_ui_contract"]["behaviors"][3]["status"] = "TARGET_NATIVE"
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        behavior = candidate["modern_ui_contract"]["behaviors"][3]
+        behavior["status"] = "TARGET_NATIVE"
+        behavior["evidence"] = [
+            {
+                "source": "analysis/a6400-ui-dispatch-boundary.json",
+                "module": "lib/viewUnified2.so",
+                "path_id": "direct-status-read",
+                "semantic": "orientation-layout-selection",
+                "level": "CONFIRMED",
+                "claim": "Pinned path identifier does not match this behavior.",
+            }
+        ]
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["ui_indirect_trace"]["behavior_support"][
+            "menu-touch-selection"
+        ] = True
+        candidates.append(candidate)
+
+        for candidate in candidates:
+            with self.subTest(candidate=candidate), self.assertRaises(
+                TargetFeatureError
+            ):
+                validate_target_feature_report(candidate)
+
+    def test_schema_three_requires_both_nested_ui_reports_exactly(self):
+        for field in ("ui_indirect_trace", "modern_ui_contract"):
+            candidate = copy.deepcopy(self.document)
+            del candidate[field]
+            with self.subTest(field=field), self.assertRaises(TargetFeatureError):
+                validate_target_feature_report(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["ui_indirect_trace"]["unexpected"] = False
+        with self.assertRaises(TargetFeatureError):
+            validate_target_feature_report(candidate)
 
     def test_shipped_backup_defaults_are_exact_and_region_consistent(self):
         backup = validate_target_feature_report(self.document)["backup_images"]
@@ -191,7 +262,7 @@ class TargetFeatureTests(unittest.TestCase):
         validated = validate_target_feature_report(self.document)
         trace = validated["ui_static_trace"]
 
-        self.assertEqual(validated["schema_version"], 2)
+        self.assertEqual(validated["schema_version"], 3)
         self.assertEqual(trace["analysis_scope"], "offline-static-target-filesystem")
         self.assertEqual(trace["module"], "lib/viewUnified2.so")
         self.assertEqual(

@@ -3,6 +3,12 @@
 import copy
 import re
 
+from pmca.analysis.modern_ui_contract import (
+    ModernUiContractError,
+    validate_modern_ui_contract,
+)
+from pmca.analysis.ui_dispatch import UiDispatchError, validate_ui_dispatch_report
+
 
 class TargetFeatureError(ValueError):
     """Raised when target evidence is malformed or promotes an unsupported claim."""
@@ -23,6 +29,8 @@ _TOP_FIELDS = {
     "vertical_ui",
     "touch_ui",
     "ui_static_trace",
+    "modern_ui_contract",
+    "ui_indirect_trace",
     "creative_rendering",
     "observations",
     "inferences",
@@ -187,6 +195,11 @@ _FORBIDDEN_KEYS = {
     "hex_dump",
     "private_key",
 }
+_ESTABLISHED_CONTRACT_STATUSES = {
+    "TARGET_NATIVE",
+    "TARGET_REIMPLEMENTABLE",
+    "DONOR_COMPATIBLE",
+}
 _MODULES = {
     "lib/CautionConfig.so": (
         12070800,
@@ -326,7 +339,7 @@ def validate_target_feature_report(document: object) -> dict:
     """Validate target-only metadata without claiming a portable or installable patch."""
     _require_fields(document, _TOP_FIELDS, "Target feature report")
     _reject_reconstructive_fields(document)
-    if document["schema_version"] != 2:
+    if document["schema_version"] != 3:
         raise TargetFeatureError("Target feature schema is unsupported")
     if document["subject"] != "ILCE-6400 Taiwan 2.00 target feature boundaries":
         raise TargetFeatureError("Target feature subject is invalid")
@@ -606,6 +619,42 @@ def validate_target_feature_report(document: object) -> dict:
         "menu_selection_dispatch_found": False,
     }:
         raise TargetFeatureError("UI static trace is invalid or overclaimed")
+
+    try:
+        modern_contract = validate_modern_ui_contract(document["modern_ui_contract"])
+        indirect_trace = validate_ui_dispatch_report(document["ui_indirect_trace"])
+    except (ModernUiContractError, UiDispatchError) as error:
+        raise TargetFeatureError("Nested modern UI evidence is invalid") from error
+
+    inventory = {
+        module["name"]: (module["size"], module["sha256"])
+        for module in document["module_inventory"]
+    }
+    for module in indirect_trace["modules"]:
+        if inventory.get(module["name"]) != (module["size"], module["sha256"]):
+            raise TargetFeatureError("Indirect UI module identity is inconsistent")
+
+    trace_paths = {path["id"]: path for path in indirect_trace["paths"]}
+    for behavior in modern_contract["behaviors"]:
+        behavior_id = behavior["id"]
+        supported = indirect_trace["behavior_support"][behavior_id]
+        established = behavior["status"] in _ESTABLISHED_CONTRACT_STATUSES
+        if supported != established:
+            raise TargetFeatureError("Modern UI contract support is inconsistent")
+        for evidence in behavior["evidence"]:
+            path = trace_paths.get(evidence["path_id"])
+            if path is None or path["semantic"] != behavior_id:
+                raise TargetFeatureError("Modern UI contract path is not in the trace")
+
+    if (
+        vertical["orientation_layout_selector_established"]
+        is not indirect_trace["claims"]["orientation_layout_selector_found"]
+    ):
+        raise TargetFeatureError("Orientation selector evidence is inconsistent")
+    if vertical["modern_vertical_menu_established"] is not False:
+        raise TargetFeatureError("Modern vertical menu was overclaimed")
+    if touch["full_setting_menu_touch_established"] is not False:
+        raise TargetFeatureError("Full setting-menu touch was overclaimed")
 
     creative = _require_fields(
         document["creative_rendering"], _CREATIVE_FIELDS, "Creative rendering"
