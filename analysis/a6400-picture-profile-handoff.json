@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-picture-profile-construction-to-state-handoff",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "summary": {
+    "artifact_sha256": "c1c792b2aa28bbae168209329df4c0ce46dc5834f0d024f8d21cebb364aa74ff",
+    "constructor_parameter_reference_count": 18,
+    "property_list_count": 9,
+    "property_list_reference_count": 27
+  },
+  "claims": {
+    "reusable_target_interface_primitives": false,
+    "reusable_target_state_primitives": false,
+    "persistence_found": false,
+    "base_look_processing": false,
+    "live_view_binding": false,
+    "still_jpeg_binding": false,
+    "movie_binding": false,
+    "first_class_creative_look": false
+  },
+  "readiness": "CONSTRUCTION_WIRING_ONLY",
+  "conclusion": "The exact PP1-PP9 constructor parameter wiring, property-list object references, root call edges, and metadata-only UXC scan are established. No typed UXC-to-handler, selected-slot/clone/property read/setter, configuration save-plus-matching-load, processing, or output path is established."
+}
