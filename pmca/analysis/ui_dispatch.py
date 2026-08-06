@@ -75,6 +75,8 @@ _TOP_FIELDS = {
     "analysis_scope",
     "modules",
     "roots",
+    "bounded_export_summary",
+    "uxc_owner_functions",
     "edges",
     "paths",
     "uxc_references",
@@ -107,6 +109,22 @@ _EDGE_FIELDS = {
 _PATH_FIELDS = {"id", "root", "offsets", "edge_ids", "semantic", "resolved"}
 _PATH_OFFSET_FIELDS = {"module", "offset"}
 _UXC_FIELDS = {"source", "kind", "value", "offset", "semantic"}
+_BOUNDED_EXPORT_SUMMARY_FIELDS = {
+    "root_count",
+    "edge_count",
+    "direct_edge_count",
+    "unresolved_indirect_edge_count",
+    "truncated",
+    "depth_cap",
+    "unresolved_indirect_terminal",
+    "artifact_sha256",
+}
+_UXC_OWNER_FIELDS = {
+    "module",
+    "function_offset",
+    "matched_class_id_count",
+    "semantic",
+}
 _NEGATIVE_FIELDS = {
     "root_set",
     "requested_roots",
@@ -133,6 +151,35 @@ _IDENTIFIER = re.compile(r"[a-z0-9][a-z0-9-]{0,63}\Z")
 _MAX_TEXT_CHARS = 2048
 _MAX_EDGES = 10_000
 _MAX_PATHS = 2_000
+_BOUNDED_EXPORT_SUMMARY = {
+    "root_count": 4,
+    "edge_count": 2_046,
+    "direct_edge_count": 1_697,
+    "unresolved_indirect_edge_count": 349,
+    "truncated": False,
+    "depth_cap": 32,
+    "unresolved_indirect_terminal": True,
+    "artifact_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22",
+}
+_UXC_OWNER_FUNCTIONS = [
+    {
+        "module": "lib/viewUnified2.so",
+        "function_offset": offset,
+        "matched_class_id_count": count,
+        "semantic": "reference-owner-only",
+    }
+    for offset, count in (
+        ("0x181f18", 5),
+        ("0x24222c", 1),
+        ("0x37aa18", 1),
+        ("0x37b578", 1),
+        ("0x37b5e0", 1),
+        ("0x37b614", 1),
+        ("0x37b648", 1),
+        ("0x3ba6dc", 5),
+        ("0x651684", 5),
+    )
+]
 _RAW_EXPORT_FIELDS = {
     "program",
     "sha256",
@@ -583,6 +630,36 @@ def validate_ui_dispatch_report(document: dict) -> dict:
             roots[name] = (root["module"], function_address)
         else:
             roots[name] = None
+
+    export_summary = _require_exact_fields(
+        report["bounded_export_summary"],
+        _BOUNDED_EXPORT_SUMMARY_FIELDS,
+        "Bounded export summary",
+    )
+    if export_summary != _BOUNDED_EXPORT_SUMMARY:
+        raise UiDispatchError("Bounded export summary is invalid")
+
+    owner_functions = report["uxc_owner_functions"]
+    if not isinstance(owner_functions, list):
+        raise UiDispatchError("UXC owner functions must be a list")
+    for owner in owner_functions:
+        validated_owner = _require_exact_fields(
+            owner, _UXC_OWNER_FIELDS, "UXC owner function"
+        )
+        module_name = _require_module(
+            validated_owner["module"], "UXC owner module", executable=True
+        )
+        _require_address(
+            validated_owner["function_offset"], "UXC owner function", module_name
+        )
+        if (
+            type(validated_owner["matched_class_id_count"]) is not int
+            or not 1 <= validated_owner["matched_class_id_count"] <= 5
+            or validated_owner["semantic"] != "reference-owner-only"
+        ):
+            raise UiDispatchError("UXC owner function metadata is invalid")
+    if owner_functions != _UXC_OWNER_FUNCTIONS:
+        raise UiDispatchError("UXC owner function mapping is invalid")
 
     if not isinstance(report["edges"], list) or len(report["edges"]) > _MAX_EDGES:
         raise UiDispatchError("UI dispatch edges are invalid or exceed the cap")

@@ -14,7 +14,7 @@ Evidence:
 - **OBSERVATION** — `analysis/feature-compatibility.json`: The authenticated bounded marker scan found no plaintext feature locator in the α6400 overlay or either donor FDAT and labels absence from encrypted data as no result.
 - **INFERENCE** — `analysis/feature-compatibility.json`: The visible behavior and target-side approximation boundary are known, but no authenticated firmware table, loader, or image-pipeline integration point has been located.
 
-Next permitted action: Use the practical Creative Style recipe guide for reversible testing; require authenticated decryption and table-location evidence before any native implementation claim.
+Next permitted action: Map the target's native settings-node, preset-storage, and image-pipeline interfaces for a first-class Creative Look experience; keep the Creative Style guide as the final fallback.
 
 ## creative-look-emulation
 
@@ -28,35 +28,35 @@ Evidence:
 - **OBSERVATION** — `analysis/a6400-creative-look-guide.md`: The deterministic guide preserves white-balance instructions, clamps target values to the documented α6400 range, and calls out every donor axis that cannot be represented.
 - **INFERENCE** — `analysis/creative-look-recipes.json`: This is a practical approximation candidate, not a native Creative Look port or proof of a Sony-exact visual match.
 
-Next permitted action: Evaluate the recipes on ordinary stills with a fixed scene, exposure, lens, white balance, and RAW+JPEG protocol; do not flash the camera.
+Next permitted action: Keep the recipes as a reversible fallback and prioritize static research of a first-class Creative Look control surface and persistence model; do not flash the camera.
 
 ## touch-menu
 
 Status: `PARTIAL`
 
-Summary: The α6400 has a working touch-input path for shooting functions, but menu widgets, menu-wide event routing, and a safe extension point have not been located.
+Summary: The α6400 has shooting touch plus pinned settings-menu status/configuration paths, but no menu coordinate consumer, hit test, selection dispatcher, or safe extension point is established.
 
 Evidence:
 - **OBSERVATION** — `https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002280339.html`: Sony documents that touching a subject on the α6400 monitor starts Touch Tracking, confirming target touch coordinates reach a shooting subsystem.
 - **OBSERVATION** — `https://helpguide.sony.net/ilc/2320/v1/en/contents/211h_touchpanel_settings.html`: Sony documents separate shooting-screen, footer-icon, playback-screen, and menu-screen touch controls on ILCE-6700.
-- **OBSERVATION** — `analysis/feature-compatibility.json`: The dependency matrix finds no α6400 menu-wide dispatcher, widget implementation, icon resource boundary, data-binding ABI, or digest-pinned patch site.
+- **OBSERVATION** — `analysis/feature-compatibility.json`: The bounded target trace reaches touch-status and touch-pad configuration helpers but finds no executable menu coordinate, hit-test, selection, widget-binding, or production resource-touch path.
 - **INFERENCE** — `analysis/feature-compatibility.json`: An α6400-specific subsystem extension is more plausible than donor reuse, but the requested full touch menu is not currently implementable from authenticated evidence.
 
-Next permitted action: Locate authenticated α6400 UI and touch-dispatch interfaces after the decryption boundary is solved; retain the no-camera gate.
+Next permitted action: Resolve selected terminal indirect calls and the cross-module layout/resource boundary using read-only metadata; retain the no-camera gate.
 
 ## vertical-ui
 
 Status: `PARTIAL`
 
-Summary: The α6400 already exposes three-way orientation state and the α7 V defines the desired vertical behavior, but portrait layout, render, and input-transform components remain unlocated.
+Summary: The α6400 exposes three-way orientation state and five pinned vertical-layout class IDs, but orientation-based selection, verified portrait geometry, rendering, and input transforms remain unestablished.
 
 Evidence:
 - **OBSERVATION** — `https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002278024.html`: Sony documents horizontal, vertical shutter-up, and vertical shutter-down orientation detection for α6400 Switch V/H AF Area.
 - **OBSERVATION** — `https://helpguide.sony.net/ilc/2540/v1/en/contents/251h_vertical_ui_display.html`: Sony documents α7 V Vertical Display rotating shooting information, control-wheel directions, and touch operations to match monitor orientation.
-- **OBSERVATION** — `analysis/feature-compatibility.json`: Only vertical-orientation-state is ready; vertical-layout-selection, vertical-render-transform, and vertical-input-transform retain explicit unresolved evidence dependencies.
-- **INFERENCE** — `analysis/feature-compatibility.json`: Orientation sensing can be reused conceptually, but a native donor transplant is unsupported and an α6400-specific reimplementation has no authenticated patch boundary.
+- **OBSERVATION** — `analysis/feature-compatibility.json`: Five target vertical-layout class IDs and UXC references are pinned, while bounded searches find no orientation-to-layout selector or control/touch transform path; only vertical-orientation-state is ready.
+- **INFERENCE** — `analysis/feature-compatibility.json`: Orientation sensing and target layout identities can be reused conceptually, but neither donor transplantation nor an α6400-specific implementation has a complete executable path or safe patch boundary.
 
-Next permitted action: Require authenticated α6400 layout, renderer, and input-dispatch boundaries plus a verified signature and recovery model before implementation.
+Next permitted action: Resolve the target orientation-to-layout and layout-to-render/input paths before implementation; later require verified signing and independent external recovery.
 
 ## signature-enforcement
 
@@ -90,23 +90,23 @@ Next permitted action: Treat every unverified ABI, memory, resource, and control
 
 Status: `BLOCKED`
 
-Summary: Camera-side execution remains prohibited because no verified α6400 restore path exists for a failed modified image and this is the user's only working main camera.
+Summary: Camera-side execution remains prohibited because no independently verified laptop-based route can yet restore the exact original Taiwan/region-0 α6400 2.00 firmware identity after a failed modified image.
 
 Evidence:
 - **OBSERVATION** — `https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145`: Sony warns that power loss during the α6400 update may make the camera inoperable and documents only the official updater workflow.
 - **OBSERVATION** — `analysis/feature-compatibility.json`: The real candidate gate rejected an empty guessed-patch set with eleven unresolved dependencies, including updater wrapper, decryption, signature layer, and camera recovery path.
 - **OBSERVATION** — `analysis/signature-experiments.json`: All mutation experiments are offline-only, camera_executed is false, installable is false, and outputs are quarantined.
-- **INFERENCE** — `analysis/feature-compatibility.json`: Without an independently demonstrated restore path and a nonessential test body, a camera-side experiment cannot satisfy the study's safety gate.
+- **INFERENCE** — `analysis/feature-compatibility.json`: Without an independently demonstrated external restore path to the pinned original regional 2.00 updater identity and a nonessential test body, a camera-side experiment cannot satisfy the study's safety gate.
 
-Next permitted action: End at offline artifacts; require a separately verified recovery method and a nonessential α6400 test body before any future camera-side proposal.
+Next permitted action: End at offline artifacts; require a separately verified laptop-based recovery to the pinned original Taiwan/region-0 α6400 2.00 identity and a nonessential test body before any future camera-side proposal.
 
 # Integrated Offline Research Result
 
 ## Outcome classification
 
 - Native donor port candidate: **no**. No authenticated donor executable, resource range, relocation boundary, or compatible firmware ABI was recovered.
-- α6400-specific reimplementation candidate: **conceptually partial, not build-ready**. Existing target orientation and touch paths are confirmed, but every required layout, rendering, event-routing, widget, and image-processing integration point remains unlocated.
-- Practical Creative Look approximation: **yes, offline and reversible**. Six direct Creative Style mappings and four clearly inferred Style Box recipes cover all ten named Creative Looks without firmware modification.
+- α6400-specific reimplementation candidate: **conceptually partial, not build-ready**. Target orientation, five vertical-layout class identities, UXC references, and two bounded settings-menu paths are confirmed, but selector, geometry, rendering, coordinate, hit-test, selection, widget, and image-processing integration paths remain incomplete.
+- Practical Creative Look approximation: **available only as the final fallback**. Six direct Creative Style mappings and four clearly inferred Style Box recipes cover all ten named Creative Looks without firmware modification; the primary goal remains a first-class Creative Look interface and usage model.
 - Camera execution: **blocked**. No candidate image was built, no output is installable, and neither camera was accessed.
 
 ## Donor correction
@@ -170,11 +170,11 @@ This is deliberately not a model-mismatch bypass. Unknown containers, unavailabl
 | Component | Strongest target evidence | Result | Exact unresolved boundary |
 |---|---|---|---|
 | Vertical orientation state | α6400 detects horizontal and both vertical orientations | Ready for conceptual reuse | None at the state-detection boundary |
-| Vertical layout selection | α7 V behavior is officially defined | Not ready | Target layout selector, geometry, ABI, and resources unlocated |
-| Vertical render transform | Desired monitor/finder behavior defined | Not ready | Renderer, compositor, font/icon resources, clipping, and relocations unlocated |
-| Vertical input transform | α7 V rotates wheel/touch directions | Not ready | α6400 hit-test transform, gesture ABI, and dispatcher unlocated |
-| Touch event routing | α6400 Touch Tracking proves shooting-screen coordinate routing | Not ready for menus | Menu-wide dispatcher and safe extension point unlocated |
-| Touch menu widgets | α6700 touch icons and menu behavior documented | Not ready | Widget framework, bindings, icon resources, and geometry unlocated |
+| Vertical layout selection | Five target class IDs occur in both pinned UXC resources and have executable owners | Not ready | A depth-32 mixed-call search traversed resolved direct edges but found no path from the three orientation/layout roots to a factory or class-ID owner; unresolved indirect terminals and cross-module selection remain open |
+| Vertical render transform | Target vertical-layout identities are pinned | Not ready | Exact geometry, renderer/compositor path, resources, clipping, and relocations unestablished |
+| Vertical input transform | Orientation-aware AF exists; bounded UI trace is pinned | Not ready | No control-direction or touch-coordinate transform, hit-test ABI, or dispatcher path established |
+| Touch event routing | Settings-menu paths reach touch status and touch-pad configuration | Not ready for menus | No coordinate consumer, hit test, selection dispatcher, or safe extension point established |
+| Touch menu widgets | Known resource-touch owners were searched from the menu root | Not ready | No reached production resource binding; widget framework, bindings, icons, and geometry remain unestablished |
 
 ## Creative Look result
 
@@ -184,13 +184,13 @@ These recipes do not claim Sony-exact colorimetry. ILCE-6700 exposes eight adjus
 
 ## Recovery gap and camera-execution gate
 
-No verified α6400 modified-firmware restore path was demonstrated. The official updater warning says interrupted updating can make the camera inoperable, and this α6400 is the user's only working main camera. The NEX-C3 driver rehearsal does not prove α6400 firmware recovery and cannot satisfy this gate.
+No verified α6400 modified-firmware restore path was demonstrated. The official updater warning says interrupted updating can make the camera inoperable, and this α6400 is the user's only working main camera. The NEX-C3 driver rehearsal does not prove α6400 firmware recovery and cannot satisfy this gate. An in-camera factory-reset feature is not required, but an independent laptop-based route back to the exact original Taiwan/region-0 α6400 2.00 updater identity pinned in this repository is mandatory.
 
 Camera execution remains prohibited until all of the following exist independently:
 
 - a digest-pinned, model-specific candidate with authenticated source ranges and no ambiguous parser result;
 - successful container decryption and reconstruction with every integrity/signature layer understood;
-- a verified non-destructive restore procedure that works after a deliberately failed test on a nonessential α6400 body;
+- a verified external restore procedure that returns a nonessential α6400 body to the exact original regional 2.00 firmware and pinned updater identity after a deliberately failed test;
 - independent review of the patch, recovery runbook, power plan, and rollback evidence.
 
-Until then, the strongest usable result is the reversible Creative Style approximation guide. Do not connect the α6400 for this research branch.
+Until then, continue only static first-class Creative Look and UI research. The reversible Creative Style guide remains the final fallback, and the α6400 must not be connected for this research branch.

@@ -27,7 +27,7 @@
           "claim": "The visible behavior and target-side approximation boundary are known, but no authenticated firmware table, loader, or image-pipeline integration point has been located."
         }
       ],
-      "next_action": "Use the practical Creative Style recipe guide for reversible testing; require authenticated decryption and table-location evidence before any native implementation claim."
+      "next_action": "Map the target's native settings-node, preset-storage, and image-pipeline interfaces for a first-class Creative Look experience; keep the Creative Style guide as the final fallback."
     },
     {
       "id": "creative-look-emulation",
@@ -55,12 +55,12 @@
           "claim": "This is a practical approximation candidate, not a native Creative Look port or proof of a Sony-exact visual match."
         }
       ],
-      "next_action": "Evaluate the recipes on ordinary stills with a fixed scene, exposure, lens, white balance, and RAW+JPEG protocol; do not flash the camera."
+      "next_action": "Keep the recipes as a reversible fallback and prioritize static research of a first-class Creative Look control surface and persistence model; do not flash the camera."
     },
     {
       "id": "touch-menu",
       "status": "PARTIAL",
-      "summary": "The α6400 has a working touch-input path for shooting functions, but menu widgets, menu-wide event routing, and a safe extension point have not been located.",
+      "summary": "The α6400 has shooting touch plus pinned settings-menu status/configuration paths, but no menu coordinate consumer, hit test, selection dispatcher, or safe extension point is established.",
       "evidence": [
         {
           "kind": "OBSERVATION",
@@ -75,7 +75,7 @@
         {
           "kind": "OBSERVATION",
           "source": "analysis/feature-compatibility.json",
-          "claim": "The dependency matrix finds no α6400 menu-wide dispatcher, widget implementation, icon resource boundary, data-binding ABI, or digest-pinned patch site."
+          "claim": "The bounded target trace reaches touch-status and touch-pad configuration helpers but finds no executable menu coordinate, hit-test, selection, widget-binding, or production resource-touch path."
         },
         {
           "kind": "INFERENCE",
@@ -83,12 +83,12 @@
           "claim": "An α6400-specific subsystem extension is more plausible than donor reuse, but the requested full touch menu is not currently implementable from authenticated evidence."
         }
       ],
-      "next_action": "Locate authenticated α6400 UI and touch-dispatch interfaces after the decryption boundary is solved; retain the no-camera gate."
+      "next_action": "Resolve selected terminal indirect calls and the cross-module layout/resource boundary using read-only metadata; retain the no-camera gate."
     },
     {
       "id": "vertical-ui",
       "status": "PARTIAL",
-      "summary": "The α6400 already exposes three-way orientation state and the α7 V defines the desired vertical behavior, but portrait layout, render, and input-transform components remain unlocated.",
+      "summary": "The α6400 exposes three-way orientation state and five pinned vertical-layout class IDs, but orientation-based selection, verified portrait geometry, rendering, and input transforms remain unestablished.",
       "evidence": [
         {
           "kind": "OBSERVATION",
@@ -103,15 +103,15 @@
         {
           "kind": "OBSERVATION",
           "source": "analysis/feature-compatibility.json",
-          "claim": "Only vertical-orientation-state is ready; vertical-layout-selection, vertical-render-transform, and vertical-input-transform retain explicit unresolved evidence dependencies."
+          "claim": "Five target vertical-layout class IDs and UXC references are pinned, while bounded searches find no orientation-to-layout selector or control/touch transform path; only vertical-orientation-state is ready."
         },
         {
           "kind": "INFERENCE",
           "source": "analysis/feature-compatibility.json",
-          "claim": "Orientation sensing can be reused conceptually, but a native donor transplant is unsupported and an α6400-specific reimplementation has no authenticated patch boundary."
+          "claim": "Orientation sensing and target layout identities can be reused conceptually, but neither donor transplantation nor an α6400-specific implementation has a complete executable path or safe patch boundary."
         }
       ],
-      "next_action": "Require authenticated α6400 layout, renderer, and input-dispatch boundaries plus a verified signature and recovery model before implementation."
+      "next_action": "Resolve the target orientation-to-layout and layout-to-render/input paths before implementation; later require verified signing and independent external recovery."
     },
     {
       "id": "signature-enforcement",
@@ -172,7 +172,7 @@
     {
       "id": "recovery",
       "status": "BLOCKED",
-      "summary": "Camera-side execution remains prohibited because no verified α6400 restore path exists for a failed modified image and this is the user's only working main camera.",
+      "summary": "Camera-side execution remains prohibited because no independently verified laptop-based route can yet restore the exact original Taiwan/region-0 α6400 2.00 firmware identity after a failed modified image.",
       "evidence": [
         {
           "kind": "OBSERVATION",
@@ -192,10 +192,10 @@
         {
           "kind": "INFERENCE",
           "source": "analysis/feature-compatibility.json",
-          "claim": "Without an independently demonstrated restore path and a nonessential test body, a camera-side experiment cannot satisfy the study's safety gate."
+          "claim": "Without an independently demonstrated external restore path to the pinned original regional 2.00 updater identity and a nonessential test body, a camera-side experiment cannot satisfy the study's safety gate."
         }
       ],
-      "next_action": "End at offline artifacts; require a separately verified recovery method and a nonessential α6400 test body before any future camera-side proposal."
+      "next_action": "End at offline artifacts; require a separately verified laptop-based recovery to the pinned original Taiwan/region-0 α6400 2.00 identity and a nonessential test body before any future camera-side proposal."
     }
   ]
 }

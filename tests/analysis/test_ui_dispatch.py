@@ -29,6 +29,35 @@ BEHAVIOR_IDS = (
     "menu-touch-selection",
     "ui-state-persistence",
 )
+BOUNDED_EXPORT_SUMMARY = {
+    "root_count": 4,
+    "edge_count": 2046,
+    "direct_edge_count": 1697,
+    "unresolved_indirect_edge_count": 349,
+    "truncated": False,
+    "depth_cap": 32,
+    "unresolved_indirect_terminal": True,
+    "artifact_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22",
+}
+UXC_OWNER_FUNCTIONS = [
+    {
+        "module": "lib/viewUnified2.so",
+        "function_offset": offset,
+        "matched_class_id_count": count,
+        "semantic": "reference-owner-only",
+    }
+    for offset, count in (
+        ("0x181f18", 5),
+        ("0x24222c", 1),
+        ("0x37aa18", 1),
+        ("0x37b578", 1),
+        ("0x37b5e0", 1),
+        ("0x37b614", 1),
+        ("0x37b648", 1),
+        ("0x3ba6dc", 5),
+        ("0x651684", 5),
+    )
+]
 
 
 def _load_exporter():
@@ -138,6 +167,8 @@ def _report(
                 "function_address": "0x1c1e76",
             },
         ],
+        "bounded_export_summary": copy.deepcopy(BOUNDED_EXPORT_SUMMARY),
+        "uxc_owner_functions": copy.deepcopy(UXC_OWNER_FUNCTIONS),
         "edges": [] if edges is None else edges,
         "paths": [] if paths is None else paths,
         "uxc_references": [] if uxc_references is None else uxc_references,
@@ -186,6 +217,8 @@ class UiDispatchTests(unittest.TestCase):
     def test_committed_report_contains_exact_reference_only_uxc_findings(self):
         validated = validate_ui_dispatch_report(self.document)
 
+        self.assertEqual(validated["bounded_export_summary"], BOUNDED_EXPORT_SUMMARY)
+        self.assertEqual(validated["uxc_owner_functions"], UXC_OWNER_FUNCTIONS)
         self.assertEqual(len(validated["uxc_references"]), 10)
         self.assertEqual(
             Counter(
@@ -218,6 +251,17 @@ class UiDispatchTests(unittest.TestCase):
                 for item in validated["negative_searches"][-11:]
             )
         )
+
+    def test_export_summary_and_uxc_owner_metadata_are_pinned(self):
+        bad_count = copy.deepcopy(self.document)
+        bad_count["bounded_export_summary"]["direct_edge_count"] += 1
+
+        bad_owner = copy.deepcopy(self.document)
+        bad_owner["uxc_owner_functions"][0]["matched_class_id_count"] = 4
+
+        for candidate in (bad_count, bad_owner):
+            with self.subTest(candidate=candidate), self.assertRaises(UiDispatchError):
+                validate_ui_dispatch_report(candidate)
 
     def test_unresolved_indirect_edge_does_not_establish_selection(self):
         report = _report(

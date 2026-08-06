@@ -159,11 +159,19 @@ This exposes a firmware-native Creative Style graph already present in α6400
 2.00. It does not add α6700 Creative Look processing, extra adjustment axes, a
 new menu framework, or a valid package/signature.
 
-## α6400 `ViewSettingMenu` static touch trace
+## α6400 bounded UI-dispatch and UXC correlation
 
-Read-only PyGhidra analysis of the pinned α6400 2.00 `viewUnified2.so` recovered
-the large `ViewSettingMenu` event switch at `0x22355e`. Two direct-call paths
-from that switch contain touch-named endpoints:
+Read-only Ghidra analysis of the pinned α6400 2.00 `viewUnified2.so` used four
+explicit roots: the `ViewSettingMenu` event switch at analysis address
+`0x22355e`, plus three `ViewStlrec` source file offsets (`0x1ab41c`,
+`0x1ab2d2`, and `0x1b1e76`) normalized to analysis addresses `0x1bb41c`,
+`0x1bb2d2`, and `0x1c1e76`. The bounded export recorded 2,046 call sites:
+1,697 resolved direct calls and 349 unresolved indirect calls. Unresolved
+indirect calls were terminal blockers, never traversed graph edges. The search
+depth cap was 32.
+
+The two previously recovered direct `ViewSettingMenu` paths remain useful
+semantic boundaries:
 
 - `0x22355e -> 0x222f68 -> 0x43156c -> 0x1613f0`: `0x222f68` reads
   `ViewBase::GetEventId`; event `0x22` initializes recording state and reaches
@@ -177,15 +185,36 @@ from that switch contain touch-named endpoints:
 A bounded static direct-call search resolved all 21 supplied
 `ViewSettingMenu` candidate roots and found no path to the master layout factory
 at `0x181f18`, the vertical-info layout factory at `0x24222c`, the function
-owning the resource-touch call at `0x2307d0`, or the function owning SampleView
-setup at `0x6666a4`. The matching `ViewStlrec` search resolved 10 of 25 supplied
-candidate addresses and found no direct path to either layout factory.
+owning the resource-touch call at requested offset `0x2307d0`, or the function
+owning SampleView setup at requested offset `0x6666a4`. The earlier
+`ViewStlrec` search resolved 10 of 25 supplied candidate addresses and found no
+direct path to either layout factory.
 
-These negative results apply only to the recovered direct-call graph. Virtual,
-indirect, and UXC/data-driven dispatch remain possible. No settings-menu touch
-coordinate consumer, hit-test path, selection dispatcher, orientation-to-layout
-selector, or production resource hook is established, so the full-menu-touch
-and modern-vertical-UI claims remain false.
+The UXC scanner then found the same five little-endian layout class IDs in both
+target resources: five references in `share/app/master_camera.uxc` and five in
+`share/app/viewStlrec.uxc`. Exact vertical layout names were not present. These
+ten findings are references only; they do not identify a selector predicate,
+factory invocation, geometry, or executable dispatch.
+
+Read-only executable cross-reference analysis mapped those IDs to the master
+factory, the vertical-info factory, five individual class-ID owners, and two
+functions that reference all five IDs. A depth-32 search from the three
+`ViewStlrec` roots traversed resolved direct calls and treated every unresolved
+indirect call as terminal. It found no path to any of those nine owners. The
+matching `ViewSettingMenu` search also found no path to either known
+touch/resource owner. In total, the committed report contains 17 bounded
+negative searches: six earlier direct-call searches and 11 mixed-graph
+searches with explicit terminal-indirect semantics.
+
+No resolved virtual/table path was found, so none was promoted into the report.
+All nine modern-interface behavior-contract items remain `UNESTABLISHED`:
+landscape layout, both portrait layouts, orientation-based layout selection,
+control-direction transform, touch-coordinate transform, menu hit testing,
+menu selection dispatch, and UI-state persistence. The evidence therefore does
+not establish full settings-menu touch or a modern vertical UI. Virtual targets
+behind the 349 unresolved call sites and cross-module `viewUnified7.so` layout
+selection remain open static-analysis questions, not positive capability
+claims.
 
 ## Donor roles and remaining portability gap
 
@@ -196,20 +225,26 @@ and modern-vertical-UI claims remain false.
 - α6400A: closest updater/trust-boundary control sample; not a modern UI donor.
 
 Feature existence on a donor and feature portability to α6400 are different
-claims. Portability still lacks authenticated evidence for the α6400 layout
-engine, portrait geometry, menu-wide touch dispatcher, widget resources,
-Creative Look tables and axes, image-pipeline ABI, memory budget, signature
-reconstruction, and recovery path.
+claims. The target now has pinned vertical-layout class and UXC references, but
+portability still lacks an orientation-to-layout selector, verified portrait
+geometry, a menu coordinate consumer/hit-test/selection chain, widget
+resources, Creative Look tables and axes, image-pipeline ABI, memory budget,
+signature reconstruction, and an independently verified recovery path.
 
 ## Next safe experiments
 
-1. Extend the α6400 `viewUnified2.so` trace through virtual calls and UXC/data
-   bindings to search for a settings-menu coordinate consumer or hit-test path.
-2. Build an α6400-only static call graph from orientation state to shooting UI
-   layout selection, without importing donor code.
-3. Compare α6400 and α6400A UI resources to separate harmless maintenance nodes
-   from model-gated dormant components.
-4. Continue α6700/α7 V donor analysis only after their authenticated decryption
-   boundary is solved; do not infer code or tables from opaque data.
-5. Keep every modified runtime file outside a Sony updater package until a valid
-   signature reconstruction and independent α6400 recovery route both exist.
+1. Resolve selected `viewUnified2.so` indirect call sites and the cross-module
+   `viewUnified7.so` layout boundary with read-only metadata only; require a
+   complete ordered path before changing any UI behavior status.
+2. Start the first-class Creative Look milestone by mapping the target's native
+   settings-node, preset-storage, and image-pipeline interfaces to the ten-look,
+   Custom Look, and adjustment-axis behavior contract. The existing Creative
+   Style recipes remain the last fallback, not the primary design.
+3. Use α6700 for Creative Look/menu behavior and α7 V for vertical-display
+   behavior, without assuming donor code or hardware-dependent processing is
+   portable to α6400.
+4. Keep every modified runtime file outside a Sony updater package. Before any
+   future camera test, independently demonstrate a laptop-based route that can
+   restore the exact original Taiwan/region-0 α6400 2.00 updater identity
+   pinned in this repository after failure; an in-camera factory-reset feature
+   is not required, but an external recovery path is.

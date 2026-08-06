@@ -457,6 +457,72 @@
         "function_address": "0x1c1e76"
       }
     ],
+    "bounded_export_summary": {
+      "root_count": 4,
+      "edge_count": 2046,
+      "direct_edge_count": 1697,
+      "unresolved_indirect_edge_count": 349,
+      "truncated": false,
+      "depth_cap": 32,
+      "unresolved_indirect_terminal": true,
+      "artifact_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22"
+    },
+    "uxc_owner_functions": [
+      {
+        "module": "lib/viewUnified2.so",
+        "function_offset": "0x181f18",
+        "matched_class_id_count": 5,
+        "semantic": "reference-owner-only"
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "function_offset": "0x24222c",
+        "matched_class_id_count": 1,
+        "semantic": "reference-owner-only"
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "function_offset": "0x37aa18",
+        "matched_class_id_count": 1,
+        "semantic": "reference-owner-only"
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "function_offset": "0x37b578",
+        "matched_class_id_count": 1,
+        "semantic": "reference-owner-only"
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "function_offset": "0x37b5e0",
+        "matched_class_id_count": 1,
+        "semantic": "reference-owner-only"
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "function_offset": "0x37b614",
+        "matched_class_id_count": 1,
+        "semantic": "reference-owner-only"
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "function_offset": "0x37b648",
+        "matched_class_id_count": 1,
+        "semantic": "reference-owner-only"
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "function_offset": "0x3ba6dc",
+        "matched_class_id_count": 5,
+        "semantic": "reference-owner-only"
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "function_offset": "0x651684",
+        "matched_class_id_count": 5,
+        "semantic": "reference-owner-only"
+      }
+    ],
     "edges": [],
     "paths": [
       {
