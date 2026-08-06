@@ -118,7 +118,78 @@
       "resolved": true
     }
   ],
-  "uxc_references": [],
+  "uxc_references": [
+    {
+      "source": "share/app/master_camera.uxc",
+      "kind": "class-id",
+      "value": "0x61dc811c",
+      "offset": 53454,
+      "semantic": "reference-only"
+    },
+    {
+      "source": "share/app/master_camera.uxc",
+      "kind": "class-id",
+      "value": "0xbdbc36bd",
+      "offset": 53646,
+      "semantic": "reference-only"
+    },
+    {
+      "source": "share/app/master_camera.uxc",
+      "kind": "class-id",
+      "value": "0x186c17f6",
+      "offset": 56566,
+      "semantic": "reference-only"
+    },
+    {
+      "source": "share/app/master_camera.uxc",
+      "kind": "class-id",
+      "value": "0x7be1c309",
+      "offset": 56910,
+      "semantic": "reference-only"
+    },
+    {
+      "source": "share/app/master_camera.uxc",
+      "kind": "class-id",
+      "value": "0x8e7fdf88",
+      "offset": 61502,
+      "semantic": "reference-only"
+    },
+    {
+      "source": "share/app/viewStlrec.uxc",
+      "kind": "class-id",
+      "value": "0x8e7fdf88",
+      "offset": 30380,
+      "semantic": "reference-only"
+    },
+    {
+      "source": "share/app/viewStlrec.uxc",
+      "kind": "class-id",
+      "value": "0xbdbc36bd",
+      "offset": 30440,
+      "semantic": "reference-only"
+    },
+    {
+      "source": "share/app/viewStlrec.uxc",
+      "kind": "class-id",
+      "value": "0x61dc811c",
+      "offset": 30500,
+      "semantic": "reference-only"
+    },
+    {
+      "source": "share/app/viewStlrec.uxc",
+      "kind": "class-id",
+      "value": "0x186c17f6",
+      "offset": 30560,
+      "semantic": "reference-only"
+    },
+    {
+      "source": "share/app/viewStlrec.uxc",
+      "kind": "class-id",
+      "value": "0x7be1c309",
+      "offset": 30680,
+      "semantic": "reference-only"
+    }
+  ],
   "negative_searches": [
     {
       "root_set": "ViewSettingMenu-candidate-functions",
@@ -208,6 +279,204 @@
         "direct"
       ],
       "depth_cap": null,
+      "path_found": false
+    },
+    {
+      "root_set": "ViewStlrec-modern-ui-roots",
+      "requested_roots": 3,
+      "resolved_roots": 3,
+      "target_name": "master_layout_factory",
+      "target_module": "lib/viewUnified2.so",
+      "target_requested_offset": "0x181f18",
+      "target_function_offset": "0x181f18",
+      "search_method": "static-mixed-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ],
+      "depth_cap": 32,
+      "path_found": false
+    },
+    {
+      "root_set": "ViewStlrec-modern-ui-roots",
+      "requested_roots": 3,
+      "resolved_roots": 3,
+      "target_name": "vertical_info_layout_factory",
+      "target_module": "lib/viewUnified2.so",
+      "target_requested_offset": "0x24222c",
+      "target_function_offset": "0x24222c",
+      "search_method": "static-mixed-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ],
+      "depth_cap": 32,
+      "path_found": false
+    },
+    {
+      "root_set": "ViewSettingMenuEventSwitch",
+      "requested_roots": 1,
+      "resolved_roots": 1,
+      "target_name": "root_resource_call_owner",
+      "target_module": "lib/viewUnified2.so",
+      "target_requested_offset": "0x2307d0",
+      "target_function_offset": "0x223b8c",
+      "search_method": "static-mixed-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ],
+      "depth_cap": 32,
+      "path_found": false
+    },
+    {
+      "root_set": "ViewSettingMenuEventSwitch",
+      "requested_roots": 1,
+      "resolved_roots": 1,
+      "target_name": "sample_view_resource_setup_owner",
+      "target_module": "lib/viewUnified2.so",
+      "target_requested_offset": "0x6666a4",
+      "target_function_offset": "0x6695d8",
+      "search_method": "static-mixed-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ],
+      "depth_cap": 32,
+      "path_found": false
+    },
+    {
+      "root_set": "ViewStlrec-modern-ui-roots",
+      "requested_roots": 3,
+      "resolved_roots": 3,
+      "target_name": "layout_class_id_owner_37b614",
+      "target_module": "lib/viewUnified2.so",
+      "target_requested_offset": "0x37b614",
+      "target_function_offset": "0x37b614",
+      "search_method": "static-mixed-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ],
+      "depth_cap": 32,
+      "path_found": false
+    },
+    {
+      "root_set": "ViewStlrec-modern-ui-roots",
+      "requested_roots": 3,
+      "resolved_roots": 3,
+      "target_name": "layout_class_id_owner_37aa18",
+      "target_module": "lib/viewUnified2.so",
+      "target_requested_offset": "0x37aa18",
+      "target_function_offset": "0x37aa18",
+      "search_method": "static-mixed-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ],
+      "depth_cap": 32,
+      "path_found": false
+    },
+    {
+      "root_set": "ViewStlrec-modern-ui-roots",
+      "requested_roots": 3,
+      "resolved_roots": 3,
+      "target_name": "layout_class_id_owner_37b5e0",
+      "target_module": "lib/viewUnified2.so",
+      "target_requested_offset": "0x37b5e0",
+      "target_function_offset": "0x37b5e0",
+      "search_method": "static-mixed-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ],
+      "depth_cap": 32,
+      "path_found": false
+    },
+    {
+      "root_set": "ViewStlrec-modern-ui-roots",
+      "requested_roots": 3,
+      "resolved_roots": 3,
+      "target_name": "layout_class_id_owner_37b648",
+      "target_module": "lib/viewUnified2.so",
+      "target_requested_offset": "0x37b648",
+      "target_function_offset": "0x37b648",
+      "search_method": "static-mixed-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ],
+      "depth_cap": 32,
+      "path_found": false
+    },
+    {
+      "root_set": "ViewStlrec-modern-ui-roots",
+      "requested_roots": 3,
+      "resolved_roots": 3,
+      "target_name": "layout_class_id_owner_37b578",
+      "target_module": "lib/viewUnified2.so",
+      "target_requested_offset": "0x37b578",
+      "target_function_offset": "0x37b578",
+      "search_method": "static-mixed-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ],
+      "depth_cap": 32,
+      "path_found": false
+    },
+    {
+      "root_set": "ViewStlrec-modern-ui-roots",
+      "requested_roots": 3,
+      "resolved_roots": 3,
+      "target_name": "layout_class_id_owner_all_five_3ba6dc",
+      "target_module": "lib/viewUnified2.so",
+      "target_requested_offset": "0x3ba6dc",
+      "target_function_offset": "0x3ba6dc",
+      "search_method": "static-mixed-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ],
+      "depth_cap": 32,
+      "path_found": false
+    },
+    {
+      "root_set": "ViewStlrec-modern-ui-roots",
+      "requested_roots": 3,
+      "resolved_roots": 3,
+      "target_name": "layout_class_id_owner_all_five_651684",
+      "target_module": "lib/viewUnified2.so",
+      "target_requested_offset": "0x651684",
+      "target_function_offset": "0x651684",
+      "search_method": "static-mixed-call-graph",
+      "edge_kinds": [
+        "direct"
+      ],
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ],
+      "depth_cap": 32,
       "path_found": false
     }
   ],

@@ -468,7 +468,12 @@ def _validate_uxc_reference(item: object) -> dict:
 
 
 def _validate_negative_search(item: object) -> dict:
-    search = _require_exact_fields(item, _NEGATIVE_FIELDS, "Negative search")
+    if not isinstance(item, dict):
+        raise UiDispatchError("Negative search fields are not exact")
+    expected_fields = set(_NEGATIVE_FIELDS)
+    if item.get("search_method") == "static-mixed-call-graph":
+        expected_fields.add("terminal_edge_kinds")
+    search = _require_exact_fields(item, expected_fields, "Negative search")
     _require_text(search["root_set"], "Negative search root set")
     _require_text(search["target_name"], "Negative search target")
     if type(search["requested_roots"]) is not int or search["requested_roots"] <= 0:
@@ -495,14 +500,31 @@ def _validate_negative_search(item: object) -> dict:
         not isinstance(search["edge_kinds"], list)
         or not search["edge_kinds"]
         or len(set(search["edge_kinds"])) != len(search["edge_kinds"])
-        or any(kind not in EDGE_KINDS for kind in search["edge_kinds"])
+        or any(kind not in _EXECUTABLE_EDGE_KINDS for kind in search["edge_kinds"])
     ):
         raise UiDispatchError("Negative search edge kinds are invalid")
+    terminal_edge_kinds = search.get("terminal_edge_kinds", [])
+    if (
+        not isinstance(terminal_edge_kinds, list)
+        or len(set(terminal_edge_kinds)) != len(terminal_edge_kinds)
+        or any(kind != "unresolved-indirect" for kind in terminal_edge_kinds)
+    ):
+        raise UiDispatchError("Negative search terminal edge kinds are invalid")
     depth_cap = search["depth_cap"]
     if depth_cap is not None and (type(depth_cap) is not int or depth_cap <= 0):
         raise UiDispatchError("Negative search depth cap is invalid")
     if search["search_method"] == "static-mixed-call-graph" and depth_cap is None:
         raise UiDispatchError("Mixed-call negative search requires a depth cap")
+    if (
+        search["search_method"] == "static-mixed-call-graph"
+        and terminal_edge_kinds != ["unresolved-indirect"]
+    ):
+        raise UiDispatchError("Mixed-call negative search requires unresolved terminals")
+    if (
+        search["search_method"] == "static-direct-call-graph"
+        and terminal_edge_kinds
+    ):
+        raise UiDispatchError("Direct-call negative search cannot have terminal kinds")
     if search["path_found"] is not False:
         raise UiDispatchError("Negative search cannot report a path")
     return search
@@ -597,6 +619,7 @@ def validate_ui_dispatch_report(document: dict) -> dict:
             item["target_function_offset"],
             item["search_method"],
             tuple(item["edge_kinds"]),
+            tuple(item.get("terminal_edge_kinds", [])),
             item["depth_cap"],
         )
         for item in searches

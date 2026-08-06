@@ -1,4 +1,5 @@
 import copy
+from collections import Counter
 import importlib.util
 import json
 import tempfile
@@ -168,7 +169,7 @@ class UiDispatchTests(unittest.TestCase):
                 "configuration-not-menu-selection",
             ],
         )
-        self.assertEqual(len(validated["negative_searches"]), 6)
+        self.assertEqual(len(validated["negative_searches"]), 17)
         self.assertEqual(
             validated["claims"],
             {
@@ -180,6 +181,42 @@ class UiDispatchTests(unittest.TestCase):
         self.assertEqual(
             validated["behavior_support"],
             {behavior_id: False for behavior_id in BEHAVIOR_IDS},
+        )
+
+    def test_committed_report_contains_exact_reference_only_uxc_findings(self):
+        validated = validate_ui_dispatch_report(self.document)
+
+        self.assertEqual(len(validated["uxc_references"]), 10)
+        self.assertEqual(
+            Counter(
+                (item["source"], item["kind"], item["semantic"])
+                for item in validated["uxc_references"]
+            ),
+            Counter(
+                {
+                    (
+                        "share/app/master_camera.uxc",
+                        "class-id",
+                        "reference-only",
+                    ): 5,
+                    (
+                        "share/app/viewStlrec.uxc",
+                        "class-id",
+                        "reference-only",
+                    ): 5,
+                }
+            ),
+        )
+        self.assertEqual(len(validated["negative_searches"]), 17)
+        self.assertTrue(
+            all(
+                item["search_method"] == "static-mixed-call-graph"
+                and item["edge_kinds"] == ["direct"]
+                and item["terminal_edge_kinds"] == ["unresolved-indirect"]
+                and item["depth_cap"] == 32
+                and item["path_found"] is False
+                for item in validated["negative_searches"][-11:]
+            )
         )
 
     def test_unresolved_indirect_edge_does_not_establish_selection(self):
@@ -369,6 +406,29 @@ class UiDispatchTests(unittest.TestCase):
         )
 
         for candidate in (zero_scope, duplicate):
+            with self.subTest(candidate=candidate), self.assertRaises(UiDispatchError):
+                validate_ui_dispatch_report(candidate)
+
+    def test_negative_search_separates_traversed_and_terminal_edges(self):
+        mixed_traverses_terminal = copy.deepcopy(self.document)
+        mixed_traverses_terminal["negative_searches"][-1]["edge_kinds"] = [
+            "direct",
+            "unresolved-indirect",
+        ]
+
+        mixed_omits_terminal = copy.deepcopy(self.document)
+        mixed_omits_terminal["negative_searches"][-1]["terminal_edge_kinds"] = []
+
+        direct_declares_terminal = copy.deepcopy(self.document)
+        direct_declares_terminal["negative_searches"][0]["terminal_edge_kinds"] = [
+            "unresolved-indirect"
+        ]
+
+        for candidate in (
+            mixed_traverses_terminal,
+            mixed_omits_terminal,
+            direct_declares_terminal,
+        ):
             with self.subTest(candidate=candidate), self.assertRaises(UiDispatchError):
                 validate_ui_dispatch_report(candidate)
 
