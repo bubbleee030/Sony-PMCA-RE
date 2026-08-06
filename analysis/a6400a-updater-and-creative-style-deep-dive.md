@@ -262,6 +262,40 @@ geometry, a menu coordinate consumer/hit-test/selection chain, widget
 resources, Creative Look tables and axes, image-pipeline ABI, memory budget,
 signature reconstruction, and an independently verified recovery path.
 
+## Exact stock-recovery boundary
+
+The exact stock source is now authenticated independently of feature work:
+
+- Source key: `a6400-tw-v2.00`
+- Identity: `ILCE-6400`, model `0x81030011`, `TW`, region code `0`, version
+  `2.00`
+- Official updater SHA-256:
+  `ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6`
+- Embedded stock container SHA-256:
+  `78a6881eddd16609758951c80d533ac82042858eac919bd94453941ba6b766f2`
+
+This authenticates the exact stock updater/container source a prospective
+restoration path would need to use; it does not establish complete restored
+coverage or a way to perform that restoration. The strict result is
+`BLOCKED_STATIC_EVIDENCE`, with `recovery_validated=false`,
+`camera_test_eligible=false`, and `installable=false`.
+
+All three candidates remain independently `UNESTABLISHED`:
+`official-updater-reinstall`, `usb-recovery-or-updater-mode`, and
+`independent-maintenance-path`. No runtime-independent camera entry, complete
+write scope/order, or terminal verification has been proven. All six mandatory
+failure scenarios also remain `UNESTABLISHED` for every candidate: modified UI
+runtime failure, interrupted feature update, nonbooting application layer,
+version/downgrade rejection, boot-chain failure, and power loss during stock
+restore.
+
+The recovered target-system updater components are post-install 2.00 artifacts.
+The separately recovered α6400A updater partition is a control sample, not the
+exact α6400 2.00 installing path. The pre-normal-runtime selector or authentic
+earlier receiver that installs 2.00 is still missing. A settings or factory
+reset changes configuration; it is not firmware restoration and cannot satisfy
+this gate.
+
 ## Next safe experiments
 
 1. Resolve selected `viewUnified2.so` indirect call sites and the cross-module
@@ -274,8 +308,8 @@ signature reconstruction, and an independently verified recovery path.
 3. Use α6700 for Creative Look/menu behavior and α7 V for vertical-display
    behavior, without assuming donor code or hardware-dependent processing is
    portable to α6400.
-4. Keep every modified runtime file outside a Sony updater package. Before any
-   future camera test, independently demonstrate a laptop-based route that can
-   restore the exact original Taiwan/region-0 α6400 2.00 updater identity
-   pinned in this repository after failure; an in-camera factory-reset feature
-   is not required, but an external recovery path is.
+4. Keep every modified runtime file outside a Sony updater package. Continue
+   static recovery research at the missing pre-normal-runtime selector or
+   authentic earlier installing receiver. Do not draft camera steps until the
+   strict report reaches a separately reviewed future-validation-design gate;
+   a settings reset cannot substitute for the required external stock restore.

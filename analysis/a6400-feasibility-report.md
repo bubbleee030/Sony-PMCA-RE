@@ -92,15 +92,15 @@ Next permitted action: Treat every unverified ABI, memory, resource, and control
 
 Status: `BLOCKED`
 
-Summary: Camera-side execution remains prohibited because no independently verified laptop-based route can yet restore the exact original Taiwan/region-0 α6400 2.00 firmware identity after a failed modified image.
+Summary: The exact Taiwan/region-0 α6400 2.00 stock source is authenticated, but all three external restore candidates and all six mandatory failure scenarios remain unestablished; recovery and camera testing are unvalidated.
 
 Evidence:
-- **OBSERVATION** — `https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145`: Sony warns that power loss during the α6400 update may make the camera inoperable and documents only the official updater workflow.
-- **OBSERVATION** — `analysis/feature-compatibility.json`: The real candidate gate rejected an empty guessed-patch set with eleven unresolved dependencies, including updater wrapper, decryption, signature layer, and camera recovery path.
-- **OBSERVATION** — `analysis/signature-experiments.json`: All mutation experiments are offline-only, camera_executed is false, installable is false, and outputs are quarantined.
-- **INFERENCE** — `analysis/feature-compatibility.json`: Without an independently demonstrated external restore path to the pinned original regional 2.00 updater identity and a nonessential test body, a camera-side experiment cannot satisfy the study's safety gate.
+- **OBSERVATION** — `analysis/a6400-stock-200-bundle.json`: The official Sony Taiwan updater and its embedded stock container are digest-pinned to ILCE-6400 model `0x81030011`, region code `0`, and version `2.00`.
+- **OBSERVATION** — `analysis/a6400-recovery-scenarios.json`: All six mandatory failure scenarios and every one of their three candidate coverage records remain `UNESTABLISHED`.
+- **OBSERVATION** — `analysis/a6400-stock-200-recovery.json`: The strict report records `BLOCKED_STATIC_EVIDENCE`, `recovery_validated=false`, `camera_test_eligible=false`, and no runtime-independent entry or complete write and verification path.
+- **INFERENCE** — `analysis/a6400-stock-200-recovery.json`: Host-side updater mapping cannot establish camera-side reinstall acceptance, boot recovery, complete stock restoration, or safe interrupted-restore behavior.
 
-Next permitted action: End at offline artifacts; require a separately verified laptop-based recovery to the pinned original Taiwan/region-0 α6400 2.00 identity and a nonessential test body before any future camera-side proposal.
+Next permitted action: Continue static work on the missing pre-normal-runtime updater selector or authentic earlier installing receiver; do not draft camera steps until the strict report reaches a separately reviewed future-validation-design gate and fresh authorization exists.
 
 # Integrated Offline Research Result
 
@@ -195,13 +195,19 @@ These recipes do not claim Sony-exact colorimetry. ILCE-6700 exposes eight adjus
 
 ## Recovery gap and camera-execution gate
 
-No verified α6400 modified-firmware restore path was demonstrated. The official updater warning says interrupted updating can make the camera inoperable, and this α6400 is the user's only working main camera. The NEX-C3 driver rehearsal does not prove α6400 firmware recovery and cannot satisfy this gate. An in-camera factory-reset feature is not required, but an independent laptop-based route back to the exact original Taiwan/region-0 α6400 2.00 updater identity pinned in this repository is mandatory.
+The exact restoration source is now authenticated: source key `a6400-tw-v2.00`, model `ILCE-6400`, model ID `0x81030011`, region `TW`/code `0`, and version `2.00`, with both the official updater and embedded stock container digest-pinned. This proves source identity only. It does not prove that a running or failed camera accepts a same-version reinstall, that every affected component is restored, or that power loss has a safe resume or rollback outcome.
+
+The strict report remains `BLOCKED_STATIC_EVIDENCE`. The three candidates—`official-updater-reinstall`, `usb-recovery-or-updater-mode`, and `independent-maintenance-path`—are independently `UNESTABLISHED`, with no runtime-independent entry, complete write scope, or terminal verification. The six mandatory scenarios—modified UI runtime failure, interrupted feature update, nonbooting application layer, version/downgrade rejection, boot-chain failure, and power loss during stock restore—are likewise all `UNESTABLISHED` for every candidate.
+
+The official updater warning says interrupted updating can make the camera inoperable, and this α6400 is the user's only working main camera. The NEX-C3 driver rehearsal does not prove α6400 firmware recovery and cannot satisfy this gate. An in-camera settings or factory reset is not required and would not restore firmware; an independent external route back to the exact stock Taiwan/region-0 α6400 2.00 identity is mandatory.
 
 Camera execution remains prohibited until all of the following exist independently:
 
 - a digest-pinned, model-specific candidate with authenticated source ranges and no ambiguous parser result;
 - successful container decryption and reconstruction with every integrity/signature layer understood;
-- a verified external restore procedure that returns a nonessential α6400 body to the exact original regional 2.00 firmware and pinned updater identity after a deliberately failed test;
+- a separately reviewed, non-operational future validation design for proving that an external route can return a nonessential α6400 body to the exact original regional 2.00 firmware and pinned updater identity;
 - independent review of the patch, recovery runbook, power plan, and rollback evidence.
 
-Until then, continue only static first-class Creative Look and UI research. The reversible Creative Style guide remains the final fallback, and the α6400 must not be connected for this research branch.
+Any later physical validation would still require fresh user authorization, direct supervision, and the separately reviewed design. No feature modification may precede successful validation of stock recovery itself.
+
+Until then, `recovery_validated=false`, `camera_test_eligible=false`, and `installable=false`. Continue only static first-class Creative Look and UI research. The reversible Creative Style guide remains the final fallback, and the α6400 must not be connected for this research branch.
