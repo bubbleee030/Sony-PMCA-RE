@@ -6,23 +6,26 @@
   "claims": {
     "candidate_cross_module_request_edge_found": true,
     "creative_look_equivalence_found": false,
-    "end_to_end_operation_38_event_queue_join_found": false,
+    "end_to_end_operation_38_event_queue_join_found": true,
     "event_queue_indirect_boundary_found": true,
+    "literal_operation_38_event_field_proven": false,
     "movie_sink_found": false,
     "named_model_handler_found": false,
-    "operation_38_candidate_branch_proven": false,
+    "operation_38_candidate_branch_proven": true,
+    "operation_38_origin_reaches_mapped_event_parameter": true,
+    "original_model_identity_preserved": false,
     "renderer_or_live_view_sink_found": false,
     "runtime_execution_proven": false,
     "shared_event_construction_boundary_found": true,
-    "shared_request_to_event_queue_join_found": false,
+    "shared_request_to_event_queue_join_found": true,
     "still_jpeg_sink_found": false,
     "typed_custom_creative_style_request_found": true,
     "view_wrapper_transport_found": true
   },
-  "conclusion": "The typed CustomCreativeStyle setter emits an exact @M00B operation-38 request with five parameters. Its local wrapper reaches a bounded branchy dispatcher that contains one named cross-module request edge, but no static path proves that the @M00B/38 input takes that edge. Independently, the shared libObj request API constructs an Event; a separate EventManager queue boundary has three indirect calls, but the shared request-to-queue join and consumer dispatch remain unresolved. No end-to-end operation-38 queue join, named model handler, renderer/live-view, still-JPEG, movie, Creative Look equivalence, runtime behavior, or installability is proven.",
-  "evidence_digest": "69bb45adc01eb07103027194a4e7dc98716e43b3d022be6680645219b0343903",
+  "conclusion": "The typed CustomCreativeStyle setter emits an exact @M00B operation-38 request with five parameters. Its local wrapper preserves code 38 and the ParamList through a bounded dispatcher; unsigned gate arithmetic proves that code 38 takes the named cross-module request edge on the model-mapping helper's normal-return path. The shared libObj request API constructs an Event and provably forwards it to EventManager::push with boolean true. The operation code passes through an opaque mapper before Event parameter key 8, so neither literal 38 nor original @M00B identity is proven in the queued Event. The queue's three indirect calls leave consumer dispatch unresolved. No named model handler, renderer/live-view, still-JPEG, movie, Creative Look equivalence, runtime behavior, or installability is proven.",
+  "evidence_digest": "7cf1b91b30cd26b7a8afd57ce80a2dddc0ce80939a62dc4c8ca93793256a0df2",
   "installable": false,
-  "readiness": "REQUEST_WRAPPER_AND_CANDIDATE_EVENT_TRANSPORT_ONLY",
+  "readiness": "OPERATION_38_EVENT_QUEUE_TRANSPORT_NO_HANDLER",
   "schema_version": 1,
   "sources": {
     "object": {
@@ -37,12 +40,14 @@
     }
   },
   "summary": {
-    "candidate_cross_module_edge_count": 1,
-    "canonical_export_sha256": "89335b77ab9c4115f4a19d3f9baf754949429a4e75737217b4f848dcd1a24093",
+    "canonical_export_sha256": "5ffebe3dc5424022af7123635cffdb1cd075582d5673ee5ecd262bfaed756ea3",
     "indirect_queue_call_count": 3,
+    "mapped_operation_event_parameter_count": 1,
+    "operation_38_shared_request_edge_count": 1,
     "resolved_model_handler_count": 0,
     "resolved_pipeline_sink_count": 0,
     "shared_event_builder_count": 1,
+    "shared_request_queue_join_count": 1,
     "typed_request_count": 1
   }
 }

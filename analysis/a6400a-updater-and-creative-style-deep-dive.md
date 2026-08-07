@@ -364,17 +364,28 @@ but no table or resource-ID mapping binds those strings to the thirteen accepted
 selector indices. The indices therefore cannot yet be named or treated as the
 currently selected menu item.
 
-The request transport is also bounded past the typed setter, but not end to
-end. Its local wrapper gets `CmnMRUtil` and tail-branches through a small helper
-into a bounded dispatcher. That dispatcher contains exactly one named
-`viewManagerIf::requestModelExecute` edge, but no static branch proof shows that
-the `@M00B` operation-38 input takes it. Independently, the shared `libObj.so`
-request API gets an ID and calls `createRequestModelExecuteEvent`; that builder
-constructs an `Event`, attaches the `ParamList`, and adds two scalar parameters.
-A separate `EventManager::push` owner contains three indirect calls, but the
-shared request-to-queue join and consumer dispatch remain unresolved. This does
-not establish an operation-38 handler or a renderer, live-view, still-JPEG, or
-movie sink. The fail-closed record is
+The request transport is now bounded end to end through the queue, but not to a
+handler. Its local wrapper gets `CmnMRUtil` and preserves request code 38 and
+the same `ParamList` through a small helper into a bounded dispatcher. The
+dispatcher computes the unsigned value `38-40`; because that wraps above 1, its
+unsigned-higher branch necessarily reaches the sole named
+`viewManagerIf::requestModelExecute` edge on the model-mapping helper's
+normal-return path. The original `@M00B` string is replaced by that helper's
+result, so model identity is not claimed across the edge.
+
+The shared `libObj.so` request API captures code 38 in `r9` across its ID
+generator call. Its `.ARM.attributes` section omits both
+`Tag_ABI_PCS_R9_use` and `Tag_nodefaults`, making the effective ABI value zero
+and `r9` the callee-saved `v6`; the exporter also rejects any local write in
+the exact capture-to-use span. The API then passes code 38 into another mapper.
+The mapper's opaque return, or a sentinel on alternate routes, becomes Event
+parameter key 8; literal 38 is not proven in the Event. The builder constructs
+the `Event`, attaches the `ParamList`, and adds its scalar parameters. Its
+continuation preserves the Event, adds key 6, and reaches
+`EventManager::push(Event*,true)` through an exact interworking PLT relocation.
+The push owner then stops at three unresolved indirect calls. This proves an
+operation-38-origin Event queue path, not a named operation-38 handler or a
+renderer, live-view, still-JPEG, or movie sink. The fail-closed record is
 `analysis/a6400-creative-style-model-request-transport.json`.
 
 A separate controller field at object offset `0x15c` takes observed values
@@ -544,10 +555,10 @@ and derives no recovery promotion from it.
 ## Next safe experiments
 
 1. Resolve the numeric dynamic-record IDs and join each setter write to its
-   branch-dependent getter read. Resolve the dispatcher branch taken by the
-   exact `@M00B` operation-38 input, then join the shared request event to its
-   queue and named consumer before following any renderer/live-view/JPEG/movie
-   path. Do not label an argument or output without an exact dataflow edge.
+   branch-dependent getter read. Continue the proven operation-38-origin queue
+   path through the three indirect `EventManager::push` calls to a named model
+   consumer before following any renderer/live-view/JPEG/movie path. Do not
+   label an argument or output without an exact dataflow edge.
 2. Compare that verified five-value ABI with the first-class Creative Look
    contract, then locate independent storage and processing boundaries for the
    three missing axes before changing any layer or axis from `UNESTABLISHED`.

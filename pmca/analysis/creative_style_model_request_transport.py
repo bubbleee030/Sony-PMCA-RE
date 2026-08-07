@@ -39,7 +39,7 @@ VIEW_WRAPPER_TRANSPORT = {
     "helper_owner": {"start": 0x33A450, "end": 0x33A46A, "complete": True},
     "helper_call": {"site": 0x33A462, "target": 0x339CBC},
     "dispatcher_owner": {"start": 0x339CBC, "end": 0x33A450, "complete": True},
-    "operation_38_dispatch_branch_resolved": False,
+    "operation_38_dispatch_branch_resolved": True,
 }
 
 CANDIDATE_CROSS_MODULE_BOUNDARY = {
@@ -47,8 +47,47 @@ CANDIDATE_CROSS_MODULE_BOUNDARY = {
     "symbol": "_ZN13viewManagerIf19requestModelExecuteEPKcmP9ParamList",
     "inside_dispatcher_owner": True,
     "only_named_request_edge_in_dispatcher": True,
-    "operation_38_branch_proven": False,
-    "classification": "candidate-shared-request-transport-edge-not-operation-38-handler",
+    "operation_38_branch_proven": True,
+    "classification": "proven-operation-38-shared-request-edge-not-model-handler",
+}
+
+OPERATION_38_DISPATCH_PATH = {
+    "wrapper_argument_capture_sites": {
+        "model": 0x2F11EE,
+        "request_code": 0x2F11EA,
+        "param_list": 0x2F11EC,
+    },
+    "wrapper_argument_forward_sites": [0x2F11F4, 0x2F11F6, 0x2F11F8],
+    "helper_model_capture_site": 0x33A454,
+    "helper_code_capture_site": 0x33A456,
+    "helper_param_list_stack_store_site": 0x33A45A,
+    "helper_model_forward_site": 0x33A45E,
+    "helper_code_forward_site": 0x33A460,
+    "dispatcher_stack_param_offset": 0x130,
+    "dispatcher_model_capture_site": 0x339CCC,
+    "dispatcher_code_capture_site": 0x339CCE,
+    "dispatcher_param_list_capture_site": 0x339CD0,
+    "model_mapping_call_site": 0x339CF8,
+    "model_mapping_target": 0x3391D8,
+    "model_mapping_owner": {"start": 0x3391D8, "end": 0x339234, "complete": True},
+    "model_mapping_result_capture_site": 0x339D00,
+    "gate_subtract_site": 0x339CFC,
+    "gate_subtract_value": 40,
+    "gate_compare_site": 0x339D02,
+    "gate_compare_value": 1,
+    "gate_branch": {"site": 0x339D04, "target": 0x339E9A, "condition": "unsigned-higher"},
+    "input_request_code": 38,
+    "normalized_gate_value": 0xFFFFFFFE,
+    "shared_call_argument_sites": {
+        "model_mapping_result": 0x339E9A,
+        "request_code": 0x339E9C,
+        "param_list": 0x339E9E,
+    },
+    "shared_call_site": 0x339EA0,
+    "normal_return_from_model_mapping_required": True,
+    "original_model_identity_preserved": False,
+    "literal_operation_38_event_field_proven": False,
+    "classification": "operation-38-normal-return-path-to-shared-request-api",
 }
 
 SHARED_LIBOBJ_TRANSPORT = {
@@ -67,8 +106,79 @@ SHARED_LIBOBJ_TRANSPORT = {
     "scalar_parameter_add_symbol": "_ZN5Event12addParameterEmP9ParamBase",
     "event_continuation_branch_site": 0x3F2ADE,
     "event_continuation": 0x3F2A6C,
-    "shared_request_to_event_queue_join_found": False,
+    "shared_request_to_event_queue_join_found": True,
     "classification": "shared-request-event-construction-boundary",
+}
+
+OPERATION_38_EVENT_MAPPING = {
+    "request_code_capture_site": 0x3F2AB8,
+    "request_code_r9_preservation_segment": [0x3F2ABA, 0x3F2AC4],
+    "r9_abi": {
+        "attribute_section": ".ARM.attributes",
+        "r9_tag": "TAG_ABI_PCS_R9_USE",
+        "r9_tag_present": False,
+        "tag_nodefaults_present": False,
+        "effective_value": 0,
+        "classification": "v6-callee-saved-register",
+    },
+    "mapper_code_argument_site": 0x3F2AC4,
+    "mapper_model_argument_site": 0x3F2AC8,
+    "mapper_call": {"site": 0x3F2ACA, "target": 0x402EC4},
+    "mapper_owner": {"start": 0x402EC4, "end": 0x402FC0, "complete": True},
+    "mapper_code_capture_site": 0x402ECC,
+    "mapper_callback_code_argument_site": 0x402F4A,
+    "mapper_alternate_code_argument_site": 0x402F82,
+    "mapper_callback_object_load_site": 0x402F26,
+    "mapper_callback_vptr_load_site": 0x402F32,
+    "mapper_callback_target_load_site": 0x402F3E,
+    "mapper_callback_receiver_site": 0x402F44,
+    "mapper_callback_buffer_site": 0x402F46,
+    "mapper_callback_buffer_offset": 116,
+    "mapper_callback_call_site": 0x402F4C,
+    "mapper_callback_is_indirect": True,
+    "mapper_callback_result_capture_site": 0x402F4E,
+    "mapper_return_site": 0x402F90,
+    "mapper_sentinel_sites": [0x402F5A, 0x402F8C],
+    "mapped_operation_builder_argument_site": 0x3F2AD2,
+    "event_builder_call_site": 0x3F2AD6,
+    "builder_operation_capture_site": 0x8430B6,
+    "builder_operation_value_site": 0x8430F2,
+    "builder_event_receiver_site": 0x8430FA,
+    "builder_parameter_key_site": 0x8430FC,
+    "builder_parameter_value_site": 0x8430FE,
+    "event_parameter_key": 8,
+    "event_parameter_add_site": 0x843100,
+    "operation_38_origin_reaches_mapped_event_parameter": True,
+    "literal_operation_38_event_field_proven": False,
+    "classification": "operation-38-origin-to-opaque-event-key-8-mapping",
+}
+
+SHARED_REQUEST_TO_EVENT_QUEUE_JOIN = {
+    "continuation_owner": {"start": 0x3F2A6C, "end": 0x3F2AA8, "complete": True},
+    "event_result_capture_site": 0x3F2A70,
+    "parameter_receiver_site": 0x3F2A86,
+    "parameter_key_site": 0x3F2A88,
+    "parameter_key": 6,
+    "parameter_value_site": 0x3F2A8A,
+    "parameter_add_call_site": 0x3F2A8C,
+    "parameter_add_symbol": "_ZN5Event12addParameterEmP9ParamBase",
+    "event_argument_site": 0x3F2A92,
+    "queue_manager_literal_load_site": 0x3F2A90,
+    "queue_manager_got_load_site": 0x3F2A94,
+    "queue_manager_instance_load_site": 0x3F2A96,
+    "continuation_tail_branch": {"site": 0x3F2A9C, "target": 0x8447F0},
+    "queue_helper_owner": {"start": 0x8447F0, "end": 0x844800, "complete": True},
+    "queue_boolean_true_site": 0x8447F2,
+    "queue_receiver_load_site": 0x8447F6,
+    "queue_receiver_offset": 0x10,
+    "queue_helper_tail_branch": {"site": 0x8447FC, "target": 0x100D5C},
+    "thumb_to_arm_gate": 0x100D5C,
+    "arm_plt_veneer": 0x100D60,
+    "got_cell": 0x136B818,
+    "relocation": {"section": ".rel.plt", "index": 1339, "type": 22, "symbol_index": 2860},
+    "push_symbol": "_ZN12EventManager4pushEP5Eventb",
+    "queue_boolean": True,
+    "classification": "shared-request-event-to-event-manager-push",
 }
 
 EVENT_QUEUE_BOUNDARY = {
@@ -87,9 +197,12 @@ CLAIMS = {
     "candidate_cross_module_request_edge_found": True,
     "shared_event_construction_boundary_found": True,
     "event_queue_indirect_boundary_found": True,
-    "operation_38_candidate_branch_proven": False,
-    "end_to_end_operation_38_event_queue_join_found": False,
-    "shared_request_to_event_queue_join_found": False,
+    "operation_38_candidate_branch_proven": True,
+    "end_to_end_operation_38_event_queue_join_found": True,
+    "shared_request_to_event_queue_join_found": True,
+    "operation_38_origin_reaches_mapped_event_parameter": True,
+    "original_model_identity_preserved": False,
+    "literal_operation_38_event_field_proven": False,
     "named_model_handler_found": False,
     "renderer_or_live_view_sink_found": False,
     "still_jpeg_sink_found": False,
@@ -115,27 +228,34 @@ EXPECTED_EXPORT = {
     "typed_request": TYPED_REQUEST,
     "view_wrapper_transport": VIEW_WRAPPER_TRANSPORT,
     "candidate_cross_module_boundary": CANDIDATE_CROSS_MODULE_BOUNDARY,
+    "operation_38_dispatch_path": OPERATION_38_DISPATCH_PATH,
     "shared_libobj_transport": SHARED_LIBOBJ_TRANSPORT,
+    "operation_38_event_mapping": OPERATION_38_EVENT_MAPPING,
+    "shared_request_to_event_queue_join": SHARED_REQUEST_TO_EVENT_QUEUE_JOIN,
     "event_queue_boundary": EVENT_QUEUE_BOUNDARY,
     "claims": CLAIMS,
     "evidence_digest": canonical_digest({
         "typed_request": TYPED_REQUEST,
         "view_wrapper_transport": VIEW_WRAPPER_TRANSPORT,
         "candidate_cross_module_boundary": CANDIDATE_CROSS_MODULE_BOUNDARY,
+        "operation_38_dispatch_path": OPERATION_38_DISPATCH_PATH,
         "shared_libobj_transport": SHARED_LIBOBJ_TRANSPORT,
+        "operation_38_event_mapping": OPERATION_38_EVENT_MAPPING,
+        "shared_request_to_event_queue_join": SHARED_REQUEST_TO_EVENT_QUEUE_JOIN,
         "event_queue_boundary": EVENT_QUEUE_BOUNDARY,
     }),
     "truncated": False,
 }
 
-READINESS = "REQUEST_WRAPPER_AND_CANDIDATE_EVENT_TRANSPORT_ONLY"
+READINESS = "OPERATION_38_EVENT_QUEUE_TRANSPORT_NO_HANDLER"
 CONCLUSION = (
     "The typed CustomCreativeStyle setter emits an exact @M00B operation-38 request with five parameters. "
-    "Its local wrapper reaches a bounded branchy dispatcher that contains one named cross-module request "
-    "edge, but no static path proves that the @M00B/38 input takes that edge. Independently, the shared "
-    "libObj request API constructs an Event; a separate EventManager queue boundary has three indirect "
-    "calls, but the shared request-to-queue join and consumer dispatch remain unresolved. No end-to-end "
-    "operation-38 queue join, named model handler, "
+    "Its local wrapper preserves code 38 and the ParamList through a bounded dispatcher; unsigned gate "
+    "arithmetic proves that code 38 takes the named cross-module request edge on the model-mapping helper's "
+    "normal-return path. The shared libObj request API constructs an Event and provably forwards it to "
+    "EventManager::push with boolean true. The operation code passes through an opaque mapper before Event "
+    "parameter key 8, so neither literal 38 nor original @M00B identity is proven in the queued Event. The "
+    "queue's three indirect calls leave consumer dispatch unresolved. No named model handler, "
     "renderer/live-view, still-JPEG, movie, Creative Look equivalence, runtime behavior, or installability "
     "is proven."
 )
@@ -169,13 +289,16 @@ def normalize_creative_style_model_request_transport_export(document):
         "typed_request": document["typed_request"],
         "view_wrapper_transport": document["view_wrapper_transport"],
         "candidate_cross_module_boundary": document["candidate_cross_module_boundary"],
+        "operation_38_dispatch_path": document["operation_38_dispatch_path"],
         "shared_libobj_transport": document["shared_libobj_transport"],
+        "operation_38_event_mapping": document["operation_38_event_mapping"],
+        "shared_request_to_event_queue_join": document["shared_request_to_event_queue_join"],
         "event_queue_boundary": document["event_queue_boundary"],
     }):
         raise CreativeStyleModelRequestTransportError("request-transport digest differs")
     forbidden_positive = (
-        "operation_38_candidate_branch_proven", "end_to_end_operation_38_event_queue_join_found",
-        "shared_request_to_event_queue_join_found",
+        "original_model_identity_preserved",
+        "literal_operation_38_event_field_proven",
         "named_model_handler_found", "renderer_or_live_view_sink_found", "still_jpeg_sink_found",
         "movie_sink_found", "creative_look_equivalence_found", "runtime_execution_proven",
     )
@@ -189,8 +312,10 @@ def summarize_creative_style_model_request_transport_export(document):
     return {
         "canonical_export_sha256": canonical_digest(export),
         "typed_request_count": 1,
-        "candidate_cross_module_edge_count": 1,
+        "operation_38_shared_request_edge_count": 1,
         "shared_event_builder_count": 1,
+        "mapped_operation_event_parameter_count": 1,
+        "shared_request_queue_join_count": 1,
         "indirect_queue_call_count": export["event_queue_boundary"]["indirect_call_count"],
         "resolved_model_handler_count": 0,
         "resolved_pipeline_sink_count": 0,
