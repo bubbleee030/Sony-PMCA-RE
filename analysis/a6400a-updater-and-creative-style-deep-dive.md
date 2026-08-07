@@ -332,6 +332,39 @@ external loader route. No touch-coordinate, hit-test, menu-selection, or
 Creative Look eight-axis edge appears in this binding. The fail-closed record is
 `analysis/a6400-creative-style-view-model-binding.json`.
 
+### Target-native Creative Style interaction surface
+
+The concrete view also owns a target-native interaction scaffold rather than
+only a model boundary. Slot 54 installs layout key `0x1fa14683` through a local
+layout-converter callback, then allocates and stores `CmnViewMenuData`,
+`CmnMenuTableUtil`, and `CmnZakoMenuUtil` helpers. Dispatcher case 0 supplies
+the menu-data and a local table expression to `initMenuData`, runs a fixed
+index loop for values 0 through 18, and contains twelve bounded
+`setGreyout(int,bool)` call sites. These are static construction/call-site
+facts; the nineteen indices are not promoted to named items or a table
+cardinality.
+
+Case 16 passes the pre-existing pointer at object offset `0x14c` to
+`CmnMenuTableUtil::_updateCursorForBeltWidget` with flags `(true,false)`, then
+continues through menu-ID and branch-selected widget lookup boundaries. The
+This slice proves no construction, store, or typed cast for that pointer, so it
+remains a `PAS_MenuDataSelectBelt*` interface
+boundary rather than a concrete belt implementation. Case 13 separately uses
+the word at `+0x190` to open `view/FNMENU` for value 3, open
+`view/QUICK_NAVI` for value 2, or close `@V01D` otherwise. That navigation
+selector is not selected Creative Style state. The preceding binding report
+separately classifies the resettable controller-mode word at `+0x15c`.
+
+The nearest concrete touchability lead does not yet solve touch. A typed
+`ViewMovieRecPatch` path gets and checks a `PAS_BarCtrlDial`, then passes the
+exact value false to `setTouchable(bool)` before entering Movie/Iris data
+management. A typed `PAS_BarCtrlDialConverter` elsewhere forwards an incoming
+value to the same setter, but the value semantics and all coordinate, hit-test,
+gesture, selection, and Creative Style edges remain unresolved. This proves a
+native UI scaffold and touchability-flag boundary, not a reusable touch
+implementation. The fail-closed record is
+`analysis/a6400-creative-style-interaction-surface.json`.
+
 ## α6400 bounded UI-dispatch and UXC correlation
 
 Read-only Ghidra analysis of the pinned α6400 2.00 `viewUnified2.so` used four
