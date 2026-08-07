@@ -213,7 +213,7 @@ in-memory fields at offsets `0x18`, `0x20`, and `0x24` participate in that gener
 state machinery. Ten callbacks on resolved child objects remain indirect and
 their final implementations are not statically established. No model value,
 model setter, renderer, menu-event, commit, or persistence binding has yet been
-located. The fail-closed record is
+located inside that bounded settings-node slice. The fail-closed record is
 `analysis/a6400-creative-style-selected-state-dispatch.json`.
 
 ### Generic model/cursor boundary
@@ -238,7 +238,7 @@ content mutation, but not a terminal renderer/draw path.
 
 This proves a generic menu-to-model boundary exists on α6400, which is useful
 for reproducing a newer interaction pattern without importing a hardware-only
-processor feature. It does not yet bind this helper instance to the Creative
+processor feature. At this stage it did not bind this helper instance to the Creative
 Style root, identify the selected style's storage, prove a final setter or
 commit, publish a menu event, reach a renderer, route touch, or reach
 `BackupManager`/durable persistence. The fail-closed record is
@@ -279,10 +279,58 @@ The shared slot-64 pattern is therefore generic view behavior across Focus Area
 and Custom Zebra, not a Creative Style owner. It proves a same-class static link
 between VU7's initializer and dispatcher, but not runtime ordering or a concrete
 same-instance execution. No typed primary-vtable relocation names Creative
-Style; broader root-edge absence is not assessed by this slice. The result still
+Style; broader root-edge absence is not assessed by this slice. That generic-owner slice alone still
 stops before selected-value storage, final commit, renderer, touch, or
 persistence. The refined fail-closed record is
 `analysis/a6400-dispatch-table-container-provenance.json`.
+
+### Target-native Creative Style view/model binding
+
+The ownership gap is now closed through a different, exact target-native path.
+`viewUnified2.so` contains the SI RTTI type `ViewCreativeStyle`, a 94-slot
+primary vtable, a secondary address point at object offset `0x28`, and the
+defined `ViewCreativeStyleToInstance` entry. Its factory allocates `0x194`
+bytes; the bounded constructor calls `ViewBaseForMR`, installs both vptrs, and
+sets the model-request flag to false. Slot 54 attaches `@M00B` event 9 and `@M096` event 8,
+then requests current-still-recording model operation 75. Slot 64 is an exact
+20-case controller dispatcher.
+
+Dispatcher case 16 directly calls both controller helpers, which use
+process-data ID 42. `CmnViewProcessDataMgr` preserves that ID into its lookup and maps
+index 42 to selector 45; the bounded 378-way factory dispatcher maps selector
+45 to the singleton accessor that constructs the RTTI-typed
+`CmnViewProcessDataElementCustomCreativeStyle`. This joins the concrete view to
+the concrete Creative Style process element without relying on class-name
+co-containment. The manager's read path reaches exact element vtable slot 10,
+whose base signature is `getValue(int&,int&,int&,int&,int&,int,int)`. Its write
+path reaches vtable slot 21, whose base signature is
+`setValue(int,int,int,int,int)` and whose Creative Style override is bounded at
+`0x4893ac..0x489644`.
+
+That five-integer setter contains five bounded call sites to
+`CmnViewModelIfWrapper::backupWrite`, five `ParamList::add` call sites, and a
+bounded `@M00B` model-operation-38 request call site. This is the first verified target-native
+Creative Style UI-to-typed-value-setter-to-backup/model-request boundary. It
+does not yet assign semantics to the five integers, identify which one is the
+selected style, or reach a renderer, live-view/JPEG/movie sink, or image-
+processing implementation.
+
+A separate controller field at object offset `0x15c` takes observed values
+0 through 4 and is backed by item `0x01070763`. Slot 57 resets the field to zero
+and persists that reset. The object field uses word stores while its backup
+helper serializes one byte, so it is classified as controller mode rather than
+the selected Creative Style value. `WrapperCreativeStyle` RTTI/vtable is
+present, but no exact instantiation or view edge was found; the verified setter
+uses the generic `WrapperSettingUtil` service instead.
+
+The `viewCreativeStyle.so` and `ViewCreativeStyleToInstance` strings remain
+unjoined to a static registration table. The bounded direct scan is incomplete,
+and no `.rel.dyn`/`.rel.plt` relocation or `.init_array` target establishes the
+route; no decoded direct call was found in the incomplete global scan. No exact
+static edge therefore establishes the
+external loader route. No touch-coordinate, hit-test, menu-selection, or
+Creative Look eight-axis edge appears in this binding. The fail-closed record is
+`analysis/a6400-creative-style-view-model-binding.json`.
 
 ## α6400 bounded UI-dispatch and UXC correlation
 
@@ -400,17 +448,19 @@ and derives no recovery promotion from it.
 
 ## Next safe experiments
 
-1. Resolve selected `viewUnified2.so` indirect call sites and the cross-module
-   `viewUnified7.so` layout boundary with read-only metadata only; require a
-   complete ordered path before changing any UI behavior status.
-2. Continue the first-class Creative Look milestone beyond the bounded Creative
-   Style roots: locate independent target settings-node, preset-storage,
-   base-table loader, and live-view/still/movie pipeline roots before changing
-   any layer or axis from `UNESTABLISHED`.
-3. Use α6700 for Creative Look/menu behavior and α7 V for vertical-display
+1. Resolve the five arguments of the target-native Creative Style setter and
+   follow `@M00B` operation 38 to its renderer/live-view/JPEG/movie consumers;
+   do not label an argument or output without an exact dataflow edge.
+2. Compare that verified five-value ABI with the first-class Creative Look
+   contract, then locate independent storage and processing boundaries for the
+   three missing axes before changing any layer or axis from `UNESTABLISHED`.
+3. Continue the settings-menu touch trace from real widget/event owners to a
+   coordinate transform, hit test, and selection dispatcher. Existing wheel,
+   repeat-key, cursor, and widget behavior is not evidence of touch navigation.
+4. Use α6700 for Creative Look/menu behavior and α7 V for vertical-display
    behavior, without assuming donor code or hardware-dependent processing is
    portable to α6400.
-4. Keep every modified runtime file outside a Sony updater package. Continue
+5. Keep every modified runtime file outside a Sony updater package. Continue
    static recovery research at the missing pre-normal-runtime selector or
    authentic earlier installing receiver. Do not draft camera steps until the
    strict report reaches a separately reviewed future-validation-design gate;
