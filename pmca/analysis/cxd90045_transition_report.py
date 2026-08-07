@@ -7,6 +7,8 @@ camera transport, cryptographic primitive, executable loader, or writer.
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 import re
 
 
@@ -29,6 +31,8 @@ _TOP_FIELDS = {
     "shared_static_artifacts",
     "updater_partition",
     "visible_runtime",
+    "packaged_selector_scan",
+    "packaged_selector_evidence",
     "observations",
     "inferences",
     "unresolved",
@@ -99,6 +103,131 @@ _RUNTIME_FIELDS = {
     "cbc_stage_present",
     "raw_fdat_written_before_crypter",
 }
+_PACKAGED_SELECTOR_SCAN_FIELDS = {
+    "updater_flag_state_proven",
+    "lsi_notification_proven",
+    "packaged_flag_consumer_proven",
+    "nflasha1_selector_join_proven",
+    "updater_partition_selector_present",
+    "bootin_direct_updater_selector",
+    "external_or_opaque_selector_unresolved",
+}
+PACKAGED_SELECTOR_SCAN = {
+    "updater_flag_state_proven": True,
+    "lsi_notification_proven": True,
+    "packaged_flag_consumer_proven": True,
+    "nflasha1_selector_join_proven": False,
+    "updater_partition_selector_present": False,
+    "bootin_direct_updater_selector": False,
+    "external_or_opaque_selector_unresolved": True,
+}
+PACKAGED_SELECTOR_EVIDENCE = {
+    "sources": {
+        "libobj": {
+            "path": "lib/libObj.so",
+            "bytes": 20860436,
+            "sha256": "60ffd2b0f31f4bc139a7c13a4f62c25cdeb6a531ad5ef35df48471e6e36e88b1",
+        },
+        "up_sh": {
+            "path": "bin/up.sh",
+            "bytes": 5008,
+            "sha256": "03a70fd0d0ef269c0de9530398d1e4d7cd8fcb089286cff682ee32d097ad16bd",
+        },
+        "crypter": {
+            "path": "bin/crypter.elf",
+            "bytes": 39084,
+            "sha256": "ec971fc3ae7452ff3c5a46959fdb6fa6d9a27087cb226b23cc2cce0289c84653",
+        },
+        "bootin": {
+            "path": "bin/bootin.elf",
+            "bytes": 13116,
+            "sha256": "44788cd57d3befcb5552006d73e7b5a3d92847a5710c084c696564673e09aad7",
+        },
+        "nested_body": {
+            "path": "bin/udtrbody.bin",
+            "bytes": 143360,
+            "sha256": "09ee888c8a5242a292eec30dff3eff3e017761a573dab0a9f89d80f2a1c96f81",
+        },
+        "nested_script": {
+            "path": "bin/udtrbody.bin_unpacked/bin/us_crc32sum_appli.sh",
+            "bytes": 1888,
+            "sha256": "991c31024ec077d6c43599df4f04d8c0b7e82f93e04b2a275368ea2c313bae41",
+        },
+    },
+    "libobj_literal_consumers": [
+        {
+            "owner": {"start": 0x83E5B8, "end": 0x83E6B4},
+            "classification": "mode-flag-literal-reference-owner",
+            "xrefs": [
+                {"path": "/setting/updater/mode", "load": 0x83E5DE, "add": 0x83E5E0},
+                {"path": "/setting/updater/mode6", "load": 0x83E604, "add": 0x83E606},
+                {"path": "/setting/updater/mode1", "load": 0x83E614, "add": 0x83E616},
+                {"path": "/setting/updater/mode3", "load": 0x83E61A, "add": 0x83E61C},
+            ],
+        },
+        {
+            "owner": {"start": 0x83E79C, "end": 0x83EBA8},
+            "classification": "mode-flag-literal-reference-owner",
+            "xrefs": [
+                {"path": "/setting/updater/mode", "load": 0x83E892, "add": 0x83E894},
+                {"path": "/setting/updater/mode", "load": 0x83E8BA, "add": 0x83E8BC},
+                {"path": "/setting/updater/mode3", "load": 0x83E8D0, "add": 0x83E8D2},
+                {"path": "/setting/updater/mode", "load": 0x83E8F8, "add": 0x83E8FA},
+                {"path": "/setting/updater/mode1", "load": 0x83E90E, "add": 0x83E910},
+                {"path": "/setting/updater/mode", "load": 0x83E934, "add": 0x83E936},
+                {"path": "/setting/updater/mode6", "load": 0x83E94A, "add": 0x83E94C},
+                {"path": "/setting/updater/mode", "load": 0x83E9C4, "add": 0x83E9C6},
+                {"path": "/setting/updater/mode3", "load": 0x83E9DA, "add": 0x83E9DC},
+            ],
+        },
+        {
+            "owner": {"start": 0x83F854, "end": 0x83FA4C},
+            "classification": "dat4-literal-reference-owner",
+            "xrefs": [
+                {"path": "/setting/updater/dat4", "load": 0x83F86E, "add": 0x83F872},
+            ],
+        },
+        {
+            "owner": {"start": 0x83FA4C, "end": 0x83FACC},
+            "classification": "dat4-literal-reference-owner",
+            "xrefs": [
+                {"path": "/setting/updater/dat4", "load": 0x83FA50, "add": 0x83FA58},
+            ],
+        },
+    ],
+    "up_sh": {
+        "mode_flags": ["mode", "mode1", "mode3", "mode6"],
+        "lsi_modes": [2, 3, 4, 6],
+        "nflasha1_role": "dat2-dat3-metadata-storage",
+        "dat4_role": "setting-partition-state",
+    },
+    "nested_updater_component": {
+        "mode_flags_written": ["mode", "mode6"],
+        "nflasha1_files_written": ["dat2", "dat3"],
+        "setting_files_written": ["dat4"],
+    },
+    "crypter": {
+        "flag_classes": [
+            "ModeFlagFile", "Mode3FlagFile", "Mode5FlagFile", "Mode6FlagFile"
+        ],
+        "nested_body_paths_present": True,
+    },
+    "bootin": {
+        "documented_application_modes": ["normal", "adj", "usbj"],
+        "named_reference_search": {
+            "scope": "printable-strings",
+            "needles": ["updater", "nflasha1"],
+            "hits": 0,
+        },
+    },
+    "selector_assessment": {
+        "nflasha1_selector_join_proven": False,
+        "bounded_named_reference_search_only": True,
+        "numeric_or_indirect_selector_analysis_complete": False,
+        "external_or_opaque_selector_unresolved": True,
+    },
+    "first_unresolved_edge": "pre-normal-or-opaque-mode-to-updater-partition-selector",
+}
 _CLAIM_FIELDS = {"classification", "source", "claim"}
 _FORBIDDEN_KEYS = {
     "raw_payload",
@@ -167,11 +296,61 @@ def _validate_claims(document: dict) -> None:
             _bounded_text(claim["claim"], "Transition claim")
 
 
+def _validate_packaged_selector_scan(value: object) -> dict:
+    """Accept only the bounded false-lead result from packaged components.
+
+    The scan covers four identified libObj path-literal owners, parsed up.sh
+    and nested updater components, the crypter flag-file path, and bootin.elf
+    normal/adj/usbj mode handling.  False ``*_proven`` values mean the join is
+    not established, not that every numeric or indirect implementation has
+    been excluded.  The unavailable/opaque selector boundary stays explicit.
+    """
+    scan = _require_fields(value, _PACKAGED_SELECTOR_SCAN_FIELDS, "Packaged selector scan")
+    if scan != PACKAGED_SELECTOR_SCAN:
+        raise Cxd90045TransitionReportError("Packaged selector scan was altered or promoted")
+    return scan
+
+
+def _validate_packaged_selector_evidence(value: object) -> dict:
+    if value != PACKAGED_SELECTOR_EVIDENCE:
+        raise Cxd90045TransitionReportError(
+            "Packaged selector source evidence was altered or promoted"
+        )
+    return value
+
+
+def canonical_cxd90045_transition_digest(document: object) -> str:
+    """Return the canonical digest of a validated transition report."""
+    validated = validate_cxd90045_transition_report(document)
+    encoded = json.dumps(
+        validated, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("ascii")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def build_cxd90045_transition_report(
+    document: object, *, packaged_selector_evidence: object | None = None
+) -> dict:
+    """Upgrade a validated legacy report with the bounded selector result."""
+    if not isinstance(document, dict):
+        raise Cxd90045TransitionReportError("Transition source is invalid")
+    report = copy.deepcopy(document)
+    report["schema_version"] = 5
+    report["packaged_selector_scan"] = copy.deepcopy(PACKAGED_SELECTOR_SCAN)
+    evidence = (
+        PACKAGED_SELECTOR_EVIDENCE
+        if packaged_selector_evidence is None else packaged_selector_evidence
+    )
+    _validate_packaged_selector_evidence(evidence)
+    report["packaged_selector_evidence"] = copy.deepcopy(evidence)
+    return validate_cxd90045_transition_report(report)
+
+
 def validate_cxd90045_transition_report(document: object) -> dict:
     """Validate static evidence while rejecting a bypass or flash claim."""
     _require_fields(document, _TOP_FIELDS, "Transition report")
     _reject_reconstructive_fields(document)
-    if document["schema_version"] != 4:
+    if document["schema_version"] != 5:
         raise Cxd90045TransitionReportError("Transition schema is unsupported")
     if document["subject"] != (
         "ILCE-6400 CXD90045 transition, boot-mode, and persistent-updater boundary"
@@ -322,6 +501,9 @@ def validate_cxd90045_transition_report(document: object) -> dict:
     _digest(runtime["lsi_utility_sha256"], "LSI utility digest")
     _digest(runtime["a6400_crypter_sha256"], "Alpha 6400 crypter digest")
     _digest(runtime["a7m3_crypter_sha256"], "Alpha 7 III crypter digest")
+
+    _validate_packaged_selector_scan(document["packaged_selector_scan"])
+    _validate_packaged_selector_evidence(document["packaged_selector_evidence"])
 
     _validate_claims(document)
     _bounded_text(document["conclusion"], "Transition conclusion")

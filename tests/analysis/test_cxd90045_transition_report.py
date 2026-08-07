@@ -3,6 +3,7 @@ import copy
 import json
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -34,7 +35,7 @@ class Cxd90045TransitionReportTests(unittest.TestCase):
         document = self._document()
 
         self.assertEqual(validate(document), document)
-        self.assertEqual(document["schema_version"], 4)
+        self.assertEqual(document["schema_version"], 5)
         self.assertTrue(document["host_transfer"]["raw_fdat_sent"])
         self.assertFalse(document["host_transfer"]["transform_before_usb"])
         self.assertEqual(
@@ -79,6 +80,45 @@ class Cxd90045TransitionReportTests(unittest.TestCase):
         self.assertFalse(document["installable"])
         self.assertFalse(document["model_mismatch_safe"])
 
+    def test_packaged_selector_scan_stops_before_a_partition_selector_join(self):
+        """Fails if an opaque packaged selector is mistaken for a boot selector."""
+        validate, _ = self._validator()
+        document = self._document()
+
+        self.assertEqual(validate(document), document)
+        self.assertEqual(document["schema_version"], 5)
+        self.assertEqual(
+            document["packaged_selector_scan"],
+            {
+                "updater_flag_state_proven": True,
+                "lsi_notification_proven": True,
+                "packaged_flag_consumer_proven": True,
+                "nflasha1_selector_join_proven": False,
+                "updater_partition_selector_present": False,
+                "bootin_direct_updater_selector": False,
+                "external_or_opaque_selector_unresolved": True,
+            },
+        )
+        evidence = document["packaged_selector_evidence"]
+        self.assertEqual(len(evidence["libobj_literal_consumers"]), 4)
+        self.assertEqual(
+            [record["owner"]["start"] for record in evidence["libobj_literal_consumers"]],
+            [0x83E5B8, 0x83E79C, 0x83F854, 0x83FA4C],
+        )
+        self.assertEqual(
+            evidence["bootin"]["documented_application_modes"],
+            ["normal", "adj", "usbj"],
+        )
+        self.assertEqual(evidence["bootin"]["named_reference_search"]["hits"], 0)
+        self.assertFalse(
+            evidence["selector_assessment"]["nflasha1_selector_join_proven"]
+        )
+        self.assertFalse(
+            evidence["selector_assessment"][
+                "numeric_or_indirect_selector_analysis_complete"
+            ]
+        )
+
     def test_report_rejects_promoted_or_reconstructive_claims(self):
         validate, error_type = self._validator()
         document = self._document()
@@ -117,9 +157,37 @@ class Cxd90045TransitionReportTests(unittest.TestCase):
         candidate["unexpected"] = "field"
         candidates.append(candidate)
 
+        for field, value in document["packaged_selector_scan"].items():
+            candidate = copy.deepcopy(document)
+            candidate["packaged_selector_scan"][field] = not value
+            candidates.append(candidate)
+
+        candidate = copy.deepcopy(document)
+        candidate["packaged_selector_evidence"]["libobj_literal_consumers"][0][
+            "owner"
+        ]["start"] += 2
+        candidates.append(candidate)
+
         for candidate in candidates:
             with self.subTest(candidate=candidate), self.assertRaises(error_type):
                 validate(candidate)
+
+    def test_real_packaged_selector_sources_match_when_available(self):
+        from pmca.analysis.cxd90045_transition_report import (
+            PACKAGED_SELECTOR_EVIDENCE,
+        )
+        from tools.static import export_a6400_packaged_selector_scan as exporter
+
+        if not exporter.sources_available() or not exporter.dependencies_available():
+            self.skipTest("pinned selector sources or parsers are unavailable")
+        self.assertEqual(exporter.build_raw_export(), PACKAGED_SELECTOR_EVIDENCE)
+
+        with mock.patch.object(exporter, "_sha256", return_value="0" * 64):
+            with self.assertRaises(RuntimeError):
+                exporter.build_raw_export()
+        with mock.patch.object(exporter, "_cstring", return_value="wrong"):
+            with self.assertRaises(RuntimeError):
+                exporter.build_raw_export()
 
     def test_validator_has_no_device_crypto_or_execution_backend(self):
         source_path = (

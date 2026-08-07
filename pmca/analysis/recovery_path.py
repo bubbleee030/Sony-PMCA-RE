@@ -24,6 +24,11 @@ from .updater_transition_report import (
     UpdaterTransitionReportError,
     validate_updater_transition_report,
 )
+from .cxd90045_transition_report import (
+    Cxd90045TransitionReportError,
+    canonical_cxd90045_transition_digest,
+    validate_cxd90045_transition_report,
+)
 from .updater_control_bootstrap import (
     UpdaterControlBootstrapError,
     validate_updater_control_bootstrap,
@@ -64,6 +69,7 @@ _SCENARIO_REFERENCE = "analysis/a6400-recovery-scenarios.json"
 _ARCHITECTURE_CONTROL_REFERENCE = (
     "analysis/a6400a-updater-control-bootstrap.json"
 )
+_TRANSITION_BOUNDARY_REFERENCE = "analysis/a6400-cxd90045-transition-boundary.json"
 _PROGRAM = "signed-updater-engine-8f2e8b22.exe"
 _PROGRAM_SHA256 = "8f2e8b229ef9e49a874cbf920301aba078727cebc490c891a992de60ff8a3528"
 _PROGRAM_SIZE = 122864
@@ -163,6 +169,7 @@ _TOP_FIELDS = {
     "stock_bundle",
     "recovery_scenarios",
     "architecture_controls",
+    "transition_boundary",
     "static_gate_export",
     "gates",
     "details",
@@ -170,6 +177,12 @@ _TOP_FIELDS = {
     "readiness_basis",
     "readiness",
     "conclusion",
+}
+_TRANSITION_BOUNDARY_FIELDS = {
+    "reference",
+    "schema_version",
+    "canonical_report_sha256",
+    "packaged_selector_scan",
 }
 _STOCK_FIELDS = {
     "reference",
@@ -646,6 +659,46 @@ def _validated_architecture_control() -> dict:
         ) from error
 
 
+def _validated_transition_boundary(transition_document: object | None = None) -> dict:
+    try:
+        transition = validate_cxd90045_transition_report(
+            _load_json(_TRANSITION_BOUNDARY_REFERENCE, "CXD90045 transition boundary")
+            if transition_document is None else transition_document
+        )
+    except Cxd90045TransitionReportError as error:
+        raise RecoveryPathError("CXD90045 transition boundary is invalid") from error
+    return {
+        "reference": _TRANSITION_BOUNDARY_REFERENCE,
+        "schema_version": transition["schema_version"],
+        "canonical_report_sha256": canonical_cxd90045_transition_digest(transition),
+        "packaged_selector_scan": copy.deepcopy(transition["packaged_selector_scan"]),
+    }
+
+
+def _validate_transition_boundary(
+    record: object, transition_document: object | None = None
+) -> dict:
+    expected = _validated_transition_boundary(transition_document)
+    actual = _require_fields(record, _TRANSITION_BOUNDARY_FIELDS, "Transition boundary")
+    if actual != expected:
+        raise RecoveryPathError("transition selector boundary was altered or promoted")
+    return actual
+
+
+def build_recovery_report(
+    document: object, *, transition_document: object | None = None
+) -> dict:
+    """Build the canonical recovery report with its transition dependency."""
+    if not isinstance(document, dict):
+        raise RecoveryPathError("Recovery source is invalid")
+    report = copy.deepcopy(document)
+    report["schema_version"] = 2
+    report["transition_boundary"] = _validated_transition_boundary(transition_document)
+    return validate_recovery_report(
+        report, transition_document=transition_document
+    )
+
+
 def _validate_architecture_controls(records: object, control: dict) -> list[dict]:
     if not isinstance(records, list) or len(records) != 1:
         raise RecoveryPathError("architecture control membership is invalid")
@@ -810,12 +863,14 @@ def _validate_candidates(records: object, stock_source: str) -> list[dict]:
     return records
 
 
-def validate_recovery_report(document: dict) -> dict:
+def validate_recovery_report(
+    document: dict, *, transition_document: object | None = None
+) -> dict:
     """Validate the static restore boundary while keeping recovery false."""
 
     _reject_forbidden_material(document)
     report = _require_fields(document, _TOP_FIELDS, "Recovery path report")
-    if type(report["schema_version"]) is not int or report["schema_version"] != 1:
+    if type(report["schema_version"]) is not int or report["schema_version"] != 2:
         raise RecoveryPathError("recovery path schema version is invalid")
     if report["subject"] != "ILCE-6400 exact stock 2.00 external recovery boundary":
         raise RecoveryPathError("recovery path subject is invalid")
@@ -862,6 +917,9 @@ def validate_recovery_report(document: dict) -> dict:
 
     control = _validated_architecture_control()
     _validate_architecture_controls(report["architecture_controls"], control)
+    _validate_transition_boundary(
+        report["transition_boundary"], transition_document
+    )
 
     normalized_export = normalize_restore_gate_export(report["static_gate_export"])
     if report["static_gate_export"] != normalized_export:

@@ -9,12 +9,69 @@ from unittest import mock
 from pathlib import Path
 
 
+class _MemoryProxy:
+    def __init__(self, memory, *, displacement=None):
+        self.base = memory.base
+        self.index = memory.index
+        self.disp = memory.disp if displacement is None else displacement
+
+
+class _OperandProxy:
+    def __init__(self, operand, *, register=None, memory=None):
+        self.type = operand.type
+        self.reg = operand.reg if register is None else register
+        self.imm = operand.imm
+        self.mem = operand.mem if memory is None else memory
+
+
+class _InstructionProxy:
+    def __init__(self, item, operands=None, *, instruction_id=None, mnemonic=None, groups=None):
+        self._item = item
+        self.address = item.address
+        self.size = item.size
+        self.id = item.id if instruction_id is None else instruction_id
+        self.mnemonic = item.mnemonic if mnemonic is None else mnemonic
+        self.operands = item.operands if operands is None else operands
+        self._groups = groups
+
+    def group(self, group_id):
+        if self._groups is None:
+            return self._item.group(group_id)
+        return group_id in self._groups
+
+    def __getattr__(self, name):
+        return getattr(self._item, name)
+
+
 ROOT = Path(__file__).resolve().parents[2]
 REPORT = ROOT / "analysis" / "a6400-creative-style-interaction-surface.json"
 EXPORTER = ROOT / "tools" / "static" / "export_a6400_creative_style_interaction_surface.py"
 
 
 class CreativeStyleInteractionSurfaceContractTests(unittest.TestCase):
+    def test_widget_lookup_only_reaches_generic_btncombo_cast(self):
+        """Changing the post-lookup target/type filter must invalidate the boundary."""
+        from pmca.analysis.creative_style_interaction_surface import EXPECTED_EXPORT
+
+        edge = EXPECTED_EXPORT["post_lookup_widget_cast"]
+        self.assertEqual(edge["call"], {"site": 0x5CE128, "target": 0x599C54})
+        self.assertEqual(edge["thunk_owner"], {"start": 0x599C54, "end": 0x599C60})
+        self.assertEqual(edge["tail"], {"site": 0x599C5C, "target": 0x1501AC})
+        self.assertEqual(edge["interworking_veneer"], 0x1501B0)
+        self.assertEqual(edge["got"], 0x944F48)
+        self.assertEqual(edge["rel_plt_index"], 551)
+        self.assertEqual(edge["symbol"], "_ZN12PAS_BtnCombo4castEPN2ux6wgtsys6WidgetE")
+        self.assertEqual(edge["cast_owner"], {"start": 0x599510, "end": 0x59953C})
+        self.assertEqual(edge["virtual_type_slot"], 0x190)
+        self.assertTrue(edge["generic_widget_type_filter_proven"])
+        self.assertTrue(edge["returns_original_widget_or_null"])
+
+        from pmca.analysis.creative_style_interaction_surface import CLAIMS
+
+        self.assertFalse(CLAIMS["creative_style_touch_route_found"])
+        self.assertFalse(CLAIMS["selection_dispatch_found"])
+        self.assertFalse(CLAIMS["field_0x14c_concrete_type_resolved"])
+
     def test_native_layout_and_helper_scaffold_is_exact(self):
         from pmca.analysis.creative_style_interaction_surface import EXPECTED_EXPORT
 
@@ -162,6 +219,193 @@ class CreativeStyleInteractionSurfaceExporterTests(unittest.TestCase):
         if not self.exporter.sources_available() or not self.exporter.dependencies_available():
             self.skipTest("pinned source or parser dependencies are unavailable")
         self.assertEqual(self.exporter.build_raw_export(), self.exporter.EXPECTED_EXPORT)
+
+    def test_widget_cast_and_constructor_static_mutations_fail_closed(self):
+        """Wrong call, PLT, type filter, or constructor edge cannot prove a belt type."""
+        if not self.exporter.sources_available() or not self.exporter.dependencies_available():
+            self.skipTest("pinned source or parser dependencies are unavailable")
+        exporter = self.exporter
+        deps = exporter._dependencies()
+        blob = exporter.SOURCE_PATH.read_bytes()
+        with exporter.SOURCE_PATH.open("rb") as stream:
+            elf = exporter._dependencies()["ELFFile"](stream)
+            mappings = exporter._mappings(elf)
+            plt_symbols = exporter._plt_symbols(elf, blob, mappings)
+            exidx = exporter._exidx_ranges(elf, blob)
+
+            original_target = exporter._direct_target
+            original_instruction = exporter._instruction
+            for site in (0x5CE128, 0x599C5C):
+                def wrong_target(item, local_deps, *, site=site):
+                    return 0 if item.address == site else original_target(item, local_deps)
+
+                with self.subTest(call_site=site), mock.patch.object(
+                    exporter, "_direct_target", side_effect=wrong_target
+                ), self.assertRaises(RuntimeError):
+                    exporter._validate_post_lookup_widget_cast(
+                        blob, mappings, deps, elf, plt_symbols, exidx
+                    )
+
+            def tail_is_not_a_jump(local_blob, local_mappings, local_deps, site):
+                item = original_instruction(local_blob, local_mappings, local_deps, site)
+                if site == 0x599C5C:
+                    return _InstructionProxy(item, groups=[])
+                return item
+
+            with mock.patch.object(
+                exporter, "_instruction", side_effect=tail_is_not_a_jump
+            ), self.assertRaises(RuntimeError):
+                exporter._validate_post_lookup_widget_cast(
+                    blob, mappings, deps, elf, plt_symbols, exidx
+                )
+
+            def wrong_gate(local_blob, local_mappings, local_deps, site):
+                item = original_instruction(local_blob, local_mappings, local_deps, site)
+                return _InstructionProxy(item, instruction_id=0) if site == 0x1501AC else item
+
+            with mock.patch.object(exporter, "_instruction", side_effect=wrong_gate), self.assertRaises(RuntimeError):
+                exporter._validate_post_lookup_widget_cast(blob, mappings, deps, elf, plt_symbols, exidx)
+
+            def wrong_slot(local_blob, local_mappings, local_deps, site):
+                item = original_instruction(local_blob, local_mappings, local_deps, site)
+                if site != 0x59951E:
+                    return item
+                operands = list(item.operands)
+                operands[1] = _OperandProxy(
+                    operands[1], memory=_MemoryProxy(operands[1].mem, displacement=0x194)
+                )
+                return _InstructionProxy(item, operands)
+
+            with mock.patch.object(exporter, "_instruction", side_effect=wrong_slot), self.assertRaises(RuntimeError):
+                exporter._validate_post_lookup_widget_cast(blob, mappings, deps, elf, plt_symbols, exidx)
+
+            def wrong_compare(local_blob, local_mappings, local_deps, site):
+                item = original_instruction(local_blob, local_mappings, local_deps, site)
+                if site != 0x599528:
+                    return item
+                operands = list(item.operands)
+                operands[1] = _OperandProxy(operands[1], register=deps["r1"])
+                return _InstructionProxy(item, operands)
+
+            with mock.patch.object(exporter, "_instruction", side_effect=wrong_compare), self.assertRaises(RuntimeError):
+                exporter._validate_post_lookup_widget_cast(blob, mappings, deps, elf, plt_symbols, exidx)
+
+            for site in (0x59951C, 0x599522):
+                def wrong_instruction(local_blob, local_mappings, local_deps, address, *, site=site):
+                    item = original_instruction(local_blob, local_mappings, local_deps, address)
+                    return _InstructionProxy(item, instruction_id=0) if address == site else item
+
+                with self.subTest(structural_site=site), mock.patch.object(
+                    exporter, "_instruction", side_effect=wrong_instruction
+                ), self.assertRaises(RuntimeError):
+                    exporter._validate_post_lookup_widget_cast(
+                        blob, mappings, deps, elf, plt_symbols, exidx
+                    )
+
+            original_decode = exporter._decode
+            for changed_site in (0x59952A, 0x59952E):
+                def changed_conditional(
+                    local_blob, local_mappings, local_deps, start, end,
+                    *, complete=True, changed_site=changed_site,
+                ):
+                    items = original_decode(
+                        local_blob, local_mappings, local_deps, start, end,
+                        complete=complete,
+                    )
+                    if (start, end) != (0x59952A, 0x599530):
+                        return items
+                    return [
+                        _InstructionProxy(item, mnemonic="mov")
+                        if item.address == changed_site else item
+                        for item in items
+                    ]
+
+                with self.subTest(conditional_site=changed_site), mock.patch.object(
+                    exporter, "_decode", side_effect=changed_conditional
+                ), self.assertRaises(RuntimeError):
+                    exporter._validate_post_lookup_widget_cast(
+                        blob, mappings, deps, elf, plt_symbols, exidx
+                    )
+
+            with mock.patch.object(
+                exporter, "_decoded_plt_addresses_exact", return_value={0x944F48: 0x1501C0}
+            ), self.assertRaises(RuntimeError):
+                exporter._validate_post_lookup_widget_cast(blob, mappings, deps, elf, plt_symbols, exidx)
+
+            relplt = list(elf.get_section_by_name(".rel.plt").iter_relocations())
+
+            class WrongRelocation:
+                def __init__(self, real):
+                    self.real = real
+
+                def __getitem__(self, key):
+                    return 0 if key == "r_offset" else self.real[key]
+
+            class RelocationSection:
+                def iter_relocations(self):
+                    return [
+                        WrongRelocation(item) if index == 551 else item
+                        for index, item in enumerate(relplt)
+                    ]
+
+            class ElfWithWrongRelocation:
+                def get_section_by_name(self, name):
+                    return RelocationSection() if name == ".rel.plt" else elf.get_section_by_name(name)
+
+            with self.assertRaises(RuntimeError):
+                exporter._validate_post_lookup_widget_cast(
+                    blob, mappings, deps, ElfWithWrongRelocation(), plt_symbols, exidx
+                )
+
+            class WrongSymbol:
+                def __init__(self, real, *, name=None, value=None):
+                    self.real = real
+                    self.name = real.name if name is None else name
+                    self.value = value
+
+                def __getitem__(self, key):
+                    if key == "st_value" and self.value is not None:
+                        return self.value
+                    return self.real[key]
+
+            class DynsymWithWrongCastSymbol:
+                def get_symbol(self, index):
+                    real = elf.get_section_by_name(".dynsym").get_symbol(index)
+                    return WrongSymbol(real, name="wrong_symbol") if index == relplt[551]["r_info_sym"] else real
+
+            class ElfWithWrongDynsym:
+                def get_section_by_name(self, name):
+                    return DynsymWithWrongCastSymbol() if name == ".dynsym" else elf.get_section_by_name(name)
+
+            with self.assertRaises(RuntimeError):
+                exporter._validate_post_lookup_widget_cast(
+                    blob, mappings, deps, ElfWithWrongDynsym(), plt_symbols, exidx
+                )
+
+            class DynsymWithWrongCastValue:
+                def get_symbol(self, index):
+                    real = elf.get_section_by_name(".dynsym").get_symbol(index)
+                    return WrongSymbol(real, value=0x599541) if index == relplt[551]["r_info_sym"] else real
+
+            class ElfWithWrongDynsymValue:
+                def get_section_by_name(self, name):
+                    return DynsymWithWrongCastValue() if name == ".dynsym" else elf.get_section_by_name(name)
+
+            with self.assertRaises(RuntimeError):
+                exporter._validate_post_lookup_widget_cast(
+                    blob, mappings, deps, ElfWithWrongDynsymValue(), plt_symbols, exidx
+                )
+
+            with self.assertRaises(RuntimeError):
+                exporter._validate_post_lookup_widget_cast(
+                    blob, mappings, deps, elf,
+                    {**plt_symbols, 0x1501B0: "wrong_symbol"}, exidx,
+                )
+
+            with mock.patch.object(exporter, "_call_symbol", return_value="wrong_constructor"), self.assertRaises(RuntimeError):
+                exporter._validate_field_0x14c_constructor_boundary(
+                    blob, mappings, deps, plt_symbols, exidx
+                )
 
 
 if __name__ == "__main__":

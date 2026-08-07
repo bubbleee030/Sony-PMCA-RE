@@ -140,7 +140,50 @@ BELT_CURSOR = {
     "post_lookup_local_target": 0x599C54,
     "concrete_belt_type_proven": False,
     "belt_creation_or_store_proven": False,
-    "cast_symbol": None,
+}
+
+# This is deliberately a widget-interface boundary.  It does not type the belt
+# member at ViewCreativeStyle+0x14c and does not establish a touch route.
+POST_LOOKUP_WIDGET_CAST = {
+    "call": {"site": 0x5CE128, "target": 0x599C54},
+    "thunk_owner": {"start": 0x599C54, "end": 0x599C60},
+    "tail": {"site": 0x599C5C, "target": 0x1501AC},
+    "interworking_gate": 0x1501AC,
+    "interworking_veneer": 0x1501B0,
+    "got": 0x944F48,
+    "rel_plt_index": 551,
+    "symbol": "_ZN12PAS_BtnCombo4castEPN2ux6wgtsys6WidgetE",
+    "cast_owner": {"start": 0x599510, "end": 0x59953C},
+    "virtual_type_slot": 0x190,
+    "null_input_branch_site": 0x59951A,
+    "vptr_load_site": 0x59951C,
+    "virtual_type_slot_load_site": 0x59951E,
+    "virtual_type_call_site": 0x599522,
+    "type_compare_site": 0x599528,
+    "result_select_site": 0x59952A,
+    "original_widget_capture_site": 0x599512,
+    "original_widget_return_site": 0x59952C,
+    "null_result_site": 0x59952E,
+    "null_input_return_site": 0x599532,
+    "generic_widget_type_filter_proven": True,
+    "returns_original_widget_or_null": True,
+}
+
+FIELD_0X14C_CONSTRUCTOR_BOUNDARY = {
+    "derived_constructor_owner": {"start": 0x5CD664, "end": 0x5CD6A0},
+    "derived_base_constructor_call": {
+        "site": 0x5CD66C,
+        "symbol": "_ZN13ViewBaseForMRC2EP11ViewManager",
+    },
+    "default_base_constructor_owner": {"start": 0x2FC788, "end": 0x2FC7B4},
+    "default_product_constructor_owner": {"start": 0x2F29F4, "end": 0x2F2A88},
+    "direct_view_creative_style_0x14c_store_found": False,
+    "external_viewbase_constructor_boundary": {
+        "site": 0x2F29FC,
+        "symbol": "_ZN8ViewBaseC2EP11ViewManager",
+        "resolved": False,
+    },
+    "field_0x14c_concrete_type_resolved": False,
 }
 
 NAVIGATION = {
@@ -219,12 +262,15 @@ CLAIMS = {
     "native_belt_cursor_boundary_found": True,
     "native_navigation_boundary_found": True,
     "concrete_touchability_flag_boundary_found": True,
+    "generic_widget_type_filter_proven": True,
     "concrete_creative_style_belt_type_found": False,
     "creative_style_touch_route_found": False,
     "coordinate_input_found": False,
     "hit_test_found": False,
     "gesture_found": False,
     "selection_dispatch_found": False,
+    "menu_selection_dispatch_found": False,
+    "field_0x14c_concrete_type_resolved": False,
     "reusable_touch_adjustment_implementation_found": False,
     "creative_look_layout_equivalence_found": False,
     "runtime_execution_proven": False,
@@ -248,6 +294,8 @@ EXPECTED_EXPORT = {
     "creative_style_layout": CREATIVE_STYLE_LAYOUT,
     "menu_table": MENU_TABLE,
     "belt_cursor": BELT_CURSOR,
+    "post_lookup_widget_cast": POST_LOOKUP_WIDGET_CAST,
+    "field_0x14c_constructor_boundary": FIELD_0X14C_CONSTRUCTOR_BOUNDARY,
     "navigation": NAVIGATION,
     "touchability_candidate": TOUCHABILITY_CANDIDATE,
     "claims": CLAIMS,
@@ -256,6 +304,8 @@ EXPECTED_EXPORT = {
         "view_dispatcher": VIEW_DISPATCHER,
         "menu_table": MENU_TABLE,
         "belt_cursor": BELT_CURSOR,
+        "post_lookup_widget_cast": POST_LOOKUP_WIDGET_CAST,
+        "field_0x14c_constructor_boundary": FIELD_0X14C_CONSTRUCTOR_BOUNDARY,
         "navigation": NAVIGATION,
         "touchability_candidate": TOUCHABILITY_CANDIDATE,
     }),
@@ -266,8 +316,12 @@ READINESS = "NATIVE_CREATIVE_STYLE_LAYOUT_AND_BELT_TOUCH_UNPROVEN"
 CONCLUSION = (
     "ViewCreativeStyle owns a target-native layout key, three menu helpers, a bounded 19-index "
     "initialization loop, twelve greyout call sites, a pre-existing belt-cursor update boundary, "
-    "and exact navigation routes. The belt object's concrete type, creation, and touch route remain "
-    "unproven. A separate Movie Rec path acquires a checked PAS_BarCtrlDial but explicitly calls "
+    "and exact navigation routes. The post-lookup call reaches the generic PAS_BtnCombo::cast "
+    "Widget type filter, which returns the original widget or null; it does not type the belt member "
+    "at +0x14c. The bounded derived/default-base constructors contain no direct +0x14c store and "
+    "stop at the unresolved external ViewBase constructor. The belt object's concrete type, creation, "
+    "and touch route remain unproven. A separate Movie Rec path acquires a checked PAS_BarCtrlDial "
+    "but explicitly calls "
     "setTouchable(false); its converter only forwards an unresolved value. This proves reusable UI "
     "scaffolding and a touchability flag boundary, not Creative Style touch, hit testing, selection, "
     "Creative Look layout equivalence, runtime behavior, or installability."
@@ -303,6 +357,8 @@ def normalize_creative_style_interaction_surface_export(document):
         "view_dispatcher": document["view_dispatcher"],
         "menu_table": document["menu_table"],
         "belt_cursor": document["belt_cursor"],
+        "post_lookup_widget_cast": document["post_lookup_widget_cast"],
+        "field_0x14c_constructor_boundary": document["field_0x14c_constructor_boundary"],
         "navigation": document["navigation"],
         "touchability_candidate": document["touchability_candidate"],
     }):
@@ -311,6 +367,7 @@ def normalize_creative_style_interaction_surface_export(document):
         "concrete_creative_style_belt_type_found", "creative_style_touch_route_found",
         "coordinate_input_found", "hit_test_found", "gesture_found",
         "selection_dispatch_found", "reusable_touch_adjustment_implementation_found",
+        "menu_selection_dispatch_found", "field_0x14c_concrete_type_resolved",
         "creative_look_layout_equivalence_found", "runtime_execution_proven",
     )
     if any(document["claims"][key] for key in forbidden_positive):
@@ -330,6 +387,25 @@ def summarize_creative_style_interaction_surface_export(document):
     }
 
 
+def build_creative_style_interaction_surface_report(export_document):
+    """Build the only checked interaction report from exact static evidence."""
+    export = normalize_creative_style_interaction_surface_export(export_document)
+    return {
+        "schema_version": 1,
+        "analysis_scope": "offline-static-creative-style-interaction-surface",
+        "camera_policy": "physically-disconnected",
+        "camera_executed": False,
+        "installable": False,
+        "camera_test_eligible": False,
+        "source": copy.deepcopy(export["source"]),
+        "summary": summarize_creative_style_interaction_surface_export(export),
+        "evidence_digest": export["evidence_digest"],
+        "claims": copy.deepcopy(export["claims"]),
+        "readiness": READINESS,
+        "conclusion": CONCLUSION,
+    }
+
+
 def validate_creative_style_interaction_surface_report(document):
     _forbid(document)
     fields = {
@@ -339,16 +415,9 @@ def validate_creative_style_interaction_surface_report(document):
     }
     if not isinstance(document, dict) or set(document) != fields:
         raise CreativeStyleInteractionSurfaceError("interaction-surface report fields differ")
-    if document["schema_version"] != 1 or document["analysis_scope"] != "offline-static-creative-style-interaction-surface":
-        raise CreativeStyleInteractionSurfaceError("interaction-surface report scope differs")
-    if document["camera_policy"] != "physically-disconnected" or any(document[key] is not False for key in ("camera_executed", "installable", "camera_test_eligible")):
-        raise CreativeStyleInteractionSurfaceError("interaction-surface report promotes camera activity")
-    if document["source"] != SOURCE or document["summary"] != summarize_creative_style_interaction_surface_export(EXPECTED_EXPORT):
-        raise CreativeStyleInteractionSurfaceError("interaction-surface report source or summary differs")
+    expected = build_creative_style_interaction_surface_report(EXPECTED_EXPORT)
+    if document != expected:
+        raise CreativeStyleInteractionSurfaceError("interaction-surface report differs")
     if _SHA.fullmatch(document["summary"].get("canonical_export_sha256", "")) is None:
         raise CreativeStyleInteractionSurfaceError("interaction-surface report digest shape differs")
-    if document["evidence_digest"] != EXPECTED_EXPORT["evidence_digest"] or document["claims"] != CLAIMS:
-        raise CreativeStyleInteractionSurfaceError("interaction-surface report evidence differs")
-    if document["readiness"] != READINESS or document["conclusion"] != CONCLUSION:
-        raise CreativeStyleInteractionSurfaceError("interaction-surface report conclusion differs")
     return copy.deepcopy(document)

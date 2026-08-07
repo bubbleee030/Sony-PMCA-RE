@@ -11,30 +11,33 @@
     "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
   },
   "summary": {
-    "canonical_export_sha256": "c7a79c34e018547f6b9ff1f62394fabc74e098aea97e8e3798e29a8836c0bfb0",
+    "canonical_export_sha256": "9cbec2c210af8d59404429cd0384c4014dc0f637f88a52dbfc2b59378ee577c1",
     "layout_helper_count": 3,
     "menu_index_count": 19,
     "greyout_call_count": 12,
     "navigation_route_count": 3,
     "touchable_true_call_count": 0
   },
-  "evidence_digest": "277ecbf00e4b8265433b84ec0a403b0aa4e9460d8555839bae9b02519d19c172",
+  "evidence_digest": "e902e3787924a74a9aa77aa7087caf7f9f3167d2b638b38efe15936650a47021",
   "claims": {
     "native_creative_style_layout_found": true,
     "native_menu_table_scaffold_found": true,
     "native_belt_cursor_boundary_found": true,
     "native_navigation_boundary_found": true,
     "concrete_touchability_flag_boundary_found": true,
+    "generic_widget_type_filter_proven": true,
     "concrete_creative_style_belt_type_found": false,
     "creative_style_touch_route_found": false,
     "coordinate_input_found": false,
     "hit_test_found": false,
     "gesture_found": false,
     "selection_dispatch_found": false,
+    "menu_selection_dispatch_found": false,
+    "field_0x14c_concrete_type_resolved": false,
     "reusable_touch_adjustment_implementation_found": false,
     "creative_look_layout_equivalence_found": false,
     "runtime_execution_proven": false
   },
   "readiness": "NATIVE_CREATIVE_STYLE_LAYOUT_AND_BELT_TOUCH_UNPROVEN",
-  "conclusion": "ViewCreativeStyle owns a target-native layout key, three menu helpers, a bounded 19-index initialization loop, twelve greyout call sites, a pre-existing belt-cursor update boundary, and exact navigation routes. The belt object's concrete type, creation, and touch route remain unproven. A separate Movie Rec path acquires a checked PAS_BarCtrlDial but explicitly calls setTouchable(false); its converter only forwards an unresolved value. This proves reusable UI scaffolding and a touchability flag boundary, not Creative Style touch, hit testing, selection, Creative Look layout equivalence, runtime behavior, or installability."
+  "conclusion": "ViewCreativeStyle owns a target-native layout key, three menu helpers, a bounded 19-index initialization loop, twelve greyout call sites, a pre-existing belt-cursor update boundary, and exact navigation routes. The post-lookup call reaches the generic PAS_BtnCombo::cast Widget type filter, which returns the original widget or null; it does not type the belt member at +0x14c. The bounded derived/default-base constructors contain no direct +0x14c store and stop at the unresolved external ViewBase constructor. The belt object's concrete type, creation, and touch route remain unproven. A separate Movie Rec path acquires a checked PAS_BarCtrlDial but explicitly calls setTouchable(false); its converter only forwards an unresolved value. This proves reusable UI scaffolding and a touchability flag boundary, not Creative Style touch, hit testing, selection, Creative Look layout equivalence, runtime behavior, or installability."
 }

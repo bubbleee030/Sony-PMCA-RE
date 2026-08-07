@@ -87,6 +87,47 @@ class RecoveryPathTests(unittest.TestCase):
             with self.subTest(field=field), self.assertRaises(RecoveryPathError):
                 validate_recovery_report(candidate)
 
+    def test_transition_selector_boundary_is_pinned_without_promoting_recovery(self):
+        """Fails if the recovery report drops or promotes the selector boundary."""
+        validated = validate_recovery_report(self.document)
+
+        self.assertIn("transition_boundary", validated)
+
+        self.assertEqual(
+            validated["transition_boundary"],
+            {
+                "reference": "analysis/a6400-cxd90045-transition-boundary.json",
+                "schema_version": 5,
+                "canonical_report_sha256": "2c12b56315225e82ee26874b10617bc213b3235ed817e002174bc700a040e265",
+                "packaged_selector_scan": {
+                    "updater_flag_state_proven": True,
+                    "lsi_notification_proven": True,
+                    "packaged_flag_consumer_proven": True,
+                    "nflasha1_selector_join_proven": False,
+                    "updater_partition_selector_present": False,
+                    "bootin_direct_updater_selector": False,
+                    "external_or_opaque_selector_unresolved": True,
+                },
+            },
+        )
+        self.assertFalse(validated["recovery_validated"])
+        self.assertFalse(validated["camera_test_eligible"])
+        self.assertFalse(validated["installable"])
+        self.assertEqual(validated["readiness"], "BLOCKED_STATIC_EVIDENCE")
+
+        candidate = copy.deepcopy(self.document)
+        self.assertIn("transition_boundary", candidate)
+        candidate["transition_boundary"]["packaged_selector_scan"][
+            "nflasha1_selector_join_proven"
+        ] = True
+        with self.assertRaises(RecoveryPathError):
+            validate_recovery_report(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["transition_boundary"]["canonical_report_sha256"] = "0" * 64
+        with self.assertRaises(RecoveryPathError):
+            validate_recovery_report(candidate)
+
     def test_recovery_readiness_basis_is_derived_and_blocked(self):
         validated = validate_recovery_report(self.document)
 
@@ -339,6 +380,17 @@ class RecoveryPathTests(unittest.TestCase):
                 RecoveryPathError
             ):
                 validate_recovery_report(candidate)
+
+    def test_report_regenerator_validates_all_results_before_any_write(self):
+        """A dependent recovery failure must leave all three reports untouched."""
+        from tools.static import regenerate_a6400_interaction_recovery_reports as generator
+
+        with mock.patch.object(
+            generator, "build_recovery_report", side_effect=RecoveryPathError("bad")
+        ), mock.patch.object(generator, "_write_atomic") as writer:
+            with self.assertRaises(RecoveryPathError):
+                generator.main()
+            writer.assert_not_called()
 
 
 class RestoreGateExportTests(unittest.TestCase):
@@ -595,6 +647,8 @@ class RecoveryPathSafetyTests(unittest.TestCase):
         paths = (
             REPOSITORY_ROOT / "pmca" / "analysis" / "recovery_path.py",
             REPOSITORY_ROOT / "tools" / "ghidra" / "export_a6400_restore_gates.py",
+            REPOSITORY_ROOT / "tools" / "static" / "export_a6400_packaged_selector_scan.py",
+            REPOSITORY_ROOT / "tools" / "static" / "regenerate_a6400_interaction_recovery_reports.py",
         )
         for path in paths:
             with self.subTest(path=path):

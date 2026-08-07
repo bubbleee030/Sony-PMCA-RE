@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "subject": "ILCE-6400 exact stock 2.00 external recovery boundary",
   "camera_policy": "physically-disconnected",
   "camera_connected": false,
@@ -270,5 +270,19 @@
     "scenario_overclaim_count": 0
   },
   "readiness": "BLOCKED_STATIC_EVIDENCE",
-  "conclusion": "The exact stock source and several host-side updater boundaries are mapped, but no runtime-independent entry, camera-side signed range, complete write scope or order, post-write verification, reinstall acceptance, or power-loss behavior is established. Recovery remains unvalidated and camera testing is ineligible."
+  "conclusion": "The exact stock source and several host-side updater boundaries are mapped, but no runtime-independent entry, camera-side signed range, complete write scope or order, post-write verification, reinstall acceptance, or power-loss behavior is established. Recovery remains unvalidated and camera testing is ineligible.",
+  "transition_boundary": {
+    "reference": "analysis/a6400-cxd90045-transition-boundary.json",
+    "schema_version": 5,
+    "canonical_report_sha256": "2c12b56315225e82ee26874b10617bc213b3235ed817e002174bc700a040e265",
+    "packaged_selector_scan": {
+      "updater_flag_state_proven": true,
+      "lsi_notification_proven": true,
+      "packaged_flag_consumer_proven": true,
+      "nflasha1_selector_join_proven": false,
+      "updater_partition_selector_present": false,
+      "bootin_direct_updater_selector": false,
+      "external_or_opaque_selector_unresolved": true
+    }
+  }
 }

@@ -16,7 +16,12 @@ if str(ROOT) not in sys.path:
 from pmca.analysis.creative_style_interaction_surface import (
     EXPECTED_EXPORT,
     SOURCE,
+    build_creative_style_interaction_surface_report,
     normalize_creative_style_interaction_surface_export,
+    validate_creative_style_interaction_surface_report,
+)
+from tools.static.export_a6400_creative_style_model_cursor_boundary import (
+    _decoded_plt_addresses_exact,
 )
 from tools.static.export_a6400_creative_style_view_model_binding import (
     SOURCE_PATH,
@@ -43,6 +48,7 @@ from tools.static.export_a6400_generic_model_owner_provenance import _at, _exidx
 ARTIFACT_BASE = ROOT / ".artifacts"
 OUTPUT_ROOT = ARTIFACT_BASE / "creative-style-interaction-surface" / "a6400-v2.00"
 OUTPUT_NAME = "creative-style-interaction-surface-export.json"
+REPORT_PATH = ROOT / "analysis" / "a6400-creative-style-interaction-surface.json"
 
 
 def _require_mov_immediate(item, deps, register, value, label):
@@ -323,6 +329,179 @@ def _validate_belt_cursor(blob, mappings, deps, plt_symbols, exidx):
     return copy.deepcopy(expected)
 
 
+def _validate_post_lookup_widget_cast(blob, mappings, deps, elf, plt_symbols, exidx):
+    """Bound the post-lookup thunk as a generic PAS_BtnCombo cast only."""
+    expected = EXPECTED_EXPORT["post_lookup_widget_cast"]
+    call = _instruction(blob, mappings, deps, expected["call"]["site"])
+    tail = _instruction(blob, mappings, deps, expected["tail"]["site"])
+    gate = _instruction(blob, mappings, deps, expected["interworking_gate"])
+    if (
+        not call.group(deps["call_group"])
+        or _direct_target(call, deps) != expected["call"]["target"]
+        or _owner(exidx, expected["call"]["target"])
+        != (expected["thunk_owner"]["start"], expected["thunk_owner"]["end"])
+        or not tail.group(deps["jump_group"])
+        or tail.group(deps["call_group"])
+        or _direct_target(tail, deps) != expected["tail"]["target"]
+        or expected["interworking_veneer"] != expected["interworking_gate"] + 4
+        or gate.id != deps["bx"]
+        or len(gate.operands) != 1
+        or gate.operands[0].type != deps["reg"]
+        or gate.operands[0].reg != deps["pc"]
+    ):
+        raise RuntimeError("Creative Style post-lookup cast thunk differs")
+
+    got_to_veneer = _decoded_plt_addresses_exact(elf, blob, mappings)
+    relplt = list(elf.get_section_by_name(".rel.plt").iter_relocations())
+    dynsym = elf.get_section_by_name(".dynsym")
+    relocation = relplt[expected["rel_plt_index"]]
+    symbol_entry = dynsym.get_symbol(relocation["r_info_sym"])
+    symbol = symbol_entry.name
+    owner = expected["cast_owner"]
+    if (
+        got_to_veneer.get(expected["got"]) != expected["interworking_veneer"]
+        or relocation["r_offset"] != expected["got"]
+        or relocation["r_info_type"] != 22
+        or symbol != expected["symbol"]
+        or symbol_entry["st_shndx"] == "SHN_UNDEF"
+        or (symbol_entry["st_value"] & ~1) != owner["start"]
+        or symbol_entry["st_size"] != owner["end"] - owner["start"]
+        or plt_symbols.get(expected["interworking_veneer"]) != expected["symbol"]
+    ):
+        raise RuntimeError("Creative Style post-lookup cast PLT binding differs")
+
+    if _owner(exidx, owner["start"]) != (owner["start"], owner["end"]):
+        raise RuntimeError("PAS_BtnCombo cast owner differs")
+    capture = _instruction(blob, mappings, deps, expected["original_widget_capture_site"])
+    null_input = _instruction(blob, mappings, deps, expected["null_input_branch_site"])
+    vptr = _instruction(blob, mappings, deps, expected["vptr_load_site"])
+    slot = _instruction(blob, mappings, deps, expected["virtual_type_slot_load_site"])
+    virtual_call = _instruction(blob, mappings, deps, expected["virtual_type_call_site"])
+    comparison = _instruction(blob, mappings, deps, expected["type_compare_site"])
+    conditional_items = {
+        item.address: item for item in _decode(
+            blob, mappings, deps,
+            expected["result_select_site"], expected["null_result_site"] + 2,
+        )
+    }
+    try:
+        selection = conditional_items[expected["result_select_site"]]
+        original_result = conditional_items[expected["original_widget_return_site"]]
+        null_result = conditional_items[expected["null_result_site"]]
+    except KeyError as error:
+        raise RuntimeError("PAS_BtnCombo conditional result sequence differs") from error
+    null_input_return = _instruction(blob, mappings, deps, expected["null_input_return_site"])
+    if (
+        capture.id != deps["mov"]
+        or [operand.type for operand in capture.operands] != [deps["reg"], deps["reg"]]
+        or capture.operands[0].reg != deps["r5"]
+        or capture.operands[1].reg != deps["r0"]
+        or null_input.mnemonic != "cbz"
+        or len(null_input.operands) != 2
+        or null_input.operands[0].type != deps["reg"]
+        or null_input.operands[0].reg != deps["r0"]
+        or _direct_target(null_input, deps) != expected["null_input_return_site"]
+        or vptr.id != deps["ldr"]
+        or len(vptr.operands) != 2
+        or vptr.operands[0].type != deps["reg"]
+        or vptr.operands[0].reg != deps["r3"]
+        or vptr.operands[1].type != deps["mem"]
+        or vptr.operands[1].mem.base != deps["r0"]
+        or vptr.operands[1].mem.index != 0
+        or vptr.operands[1].mem.disp != 0
+        or slot.id != deps["ldr"]
+        or len(slot.operands) != 2
+        or slot.operands[0].type != deps["reg"]
+        or slot.operands[0].reg != deps["r3"]
+        or slot.operands[1].type != deps["mem"]
+        or slot.operands[1].mem.base != deps["r3"]
+        or slot.operands[1].mem.index != 0
+        or slot.operands[1].mem.disp != expected["virtual_type_slot"]
+        or virtual_call.id != deps["blx"]
+        or not virtual_call.group(deps["call_group"])
+        or len(virtual_call.operands) != 1
+        or virtual_call.operands[0].type != deps["reg"]
+        or virtual_call.operands[0].reg != deps["r3"]
+        or comparison.id != deps["cmp"]
+        or [operand.type for operand in comparison.operands] != [deps["reg"], deps["reg"]]
+        or comparison.operands[0].reg != deps["r3"]
+        or comparison.operands[1].reg != deps["r0"]
+        or selection.mnemonic != "ite"
+        or selection.cc != original_result.cc
+        or original_result.mnemonic != "moveq"
+        or original_result.id != deps["mov"]
+        or [operand.type for operand in original_result.operands] != [deps["reg"], deps["reg"]]
+        or original_result.operands[0].reg != deps["r0"]
+        or original_result.operands[1].reg != deps["r5"]
+        or null_result.mnemonic != "movne"
+        or null_result.cc == original_result.cc
+        or null_result.id != deps["mov"]
+        or [operand.type for operand in null_result.operands] != [deps["reg"], deps["imm"]]
+        or null_result.operands[0].reg != deps["r0"]
+        or null_result.operands[1].imm != 0
+        or null_input_return.id != deps["pop"]
+        or not null_input_return.operands
+        or null_input_return.operands[-1].type != deps["reg"]
+        or null_input_return.operands[-1].reg != deps["pc"]
+    ):
+        raise RuntimeError("PAS_BtnCombo cast type filter or result differs")
+    _require_register_unchanged(
+        _decode(
+            blob, mappings, deps,
+            expected["original_widget_capture_site"] + capture.size,
+            expected["original_widget_return_site"],
+            complete=False,
+        ),
+        deps["r5"], label="PAS_BtnCombo original widget preservation",
+    )
+    _require_register_unchanged(
+        _decode(
+            blob, mappings, deps,
+            expected["null_input_branch_site"] + null_input.size,
+            expected["virtual_type_call_site"],
+            complete=False,
+        ),
+        deps["r0"], label="PAS_BtnCombo virtual receiver preservation",
+    )
+    return copy.deepcopy(expected)
+
+
+def _validate_field_0x14c_constructor_boundary(blob, mappings, deps, plt_symbols, exidx):
+    """Ensure a bounded constructor scan does not promote the belt member type."""
+    expected = EXPECTED_EXPORT["field_0x14c_constructor_boundary"]
+    owner = expected["derived_constructor_owner"]
+    owners = (
+        ("ViewCreativeStyle derived constructor", owner),
+        ("ViewBaseForMR default constructor", expected["default_base_constructor_owner"]),
+        ("ViewBaseProduct default constructor", expected["default_product_constructor_owner"]),
+    )
+    for label, candidate in owners:
+        if _owner(exidx, candidate["start"]) != (candidate["start"], candidate["end"]):
+            raise RuntimeError(label + " owner differs")
+    base = expected["derived_base_constructor_call"]
+    if _call_symbol(blob, mappings, deps, plt_symbols, base["site"]) != base["symbol"]:
+        raise RuntimeError("ViewCreativeStyle base constructor boundary differs")
+    for label, candidate in owners:
+        for item in _decode(blob, mappings, deps, candidate["start"], candidate["end"]):
+            if (
+                item.id == deps["str"]
+                and len(item.operands) == 2
+                and item.operands[1].type == deps["mem"]
+                and item.operands[1].mem.disp == 0x14C
+            ):
+                raise RuntimeError(label + " unexpectedly stores +0x14c")
+    # The inherited ViewBase constructor below this external boundary is not
+    # joined to this concrete view in the bounded static slice.
+    external = expected["external_viewbase_constructor_boundary"]
+    if (
+        _call_symbol(blob, mappings, deps, plt_symbols, external["site"])
+        != external["symbol"]
+        or external["resolved"] is not False
+    ):
+        raise RuntimeError("ViewBase external constructor boundary differs")
+    return copy.deepcopy(expected)
+
+
 def _resolve_pc_string(blob, mappings, deps, record):
     load = _instruction(blob, mappings, deps, record["load_site"])
     add = _instruction(blob, mappings, deps, record["add_site"])
@@ -476,6 +655,12 @@ class ElfAdapter:
             layout = _validate_layout(blob, mappings, deps, rels, by_site, dynsym, plt_symbols, exidx)
             menu = _validate_menu_table(blob, mappings, deps, plt_symbols, exidx)
             belt = _validate_belt_cursor(blob, mappings, deps, plt_symbols, exidx)
+            widget_cast = _validate_post_lookup_widget_cast(
+                blob, mappings, deps, elf, plt_symbols, exidx
+            )
+            constructor_boundary = _validate_field_0x14c_constructor_boundary(
+                blob, mappings, deps, plt_symbols, exidx
+            )
             navigation = _validate_navigation(blob, mappings, deps, plt_symbols, exidx)
             touchability = _validate_touchability(blob, mappings, deps, rels, by_site, dynsym, plt_symbols, exidx)
         if _sha256(SOURCE_PATH) != before:
@@ -486,6 +671,8 @@ class ElfAdapter:
             "creative_style_layout": layout,
             "menu_table": menu,
             "belt_cursor": belt,
+            "post_lookup_widget_cast": widget_cast,
+            "field_0x14c_constructor_boundary": constructor_boundary,
             "navigation": navigation,
             "touchability_candidate": touchability,
         })
@@ -516,9 +703,33 @@ def write_export(document, output_root=OUTPUT_ROOT):
     return target
 
 
+def write_checked_report(document, path=REPORT_PATH):
+    """Atomically replace only the validator-built interaction report."""
+    report = build_creative_style_interaction_surface_report(document)
+    validate_creative_style_interaction_surface_report(report)
+    path = Path(path)
+    if path != REPORT_PATH or path.is_symlink() or (path.exists() and not path.is_file()):
+        raise RuntimeError("checked interaction report path differs")
+    descriptor, temporary = tempfile.mkstemp(
+        prefix=".creative-style-interaction-report-", suffix=".tmp", dir=str(path.parent)
+    )
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
+            json.dump(report, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
 def main():
-    output = write_export(build_raw_export())
-    print("CREATIVE_STYLE_INTERACTION_SURFACE_EXPORT|layout=1|belt=1|touch_route=0|installable=0")
+    document = build_raw_export()
+    output = write_export(document)
+    write_checked_report(document)
+    print("CREATIVE_STYLE_INTERACTION_SURFACE_EXPORT|layout=1|belt=1|widget_filter=1|touch_route=0|installable=0")
     print(output)
 
 

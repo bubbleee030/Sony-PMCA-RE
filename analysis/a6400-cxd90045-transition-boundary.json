@@ -1,5 +1,5 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "subject": "ILCE-6400 CXD90045 transition, boot-mode, and persistent-updater boundary",
   "supersedes": "analysis/a6400-updater-transition-boundary.json",
   "camera_policy": "physically-disconnected",
@@ -186,5 +186,221 @@
       "claim": "No safe method to authorize a model-mismatched package, reproduce Sony authenticity metadata, or build an installable alpha 6400 image has been established."
     }
   ],
-  "conclusion": "The raw host transfer and visible Linux receiver/crypter path are now reconciled by a persistent updater-system boundary: /dev/nflasha1 is explicitly labeled as the updater partition, selected before normal userspace, and omitted from all three decoded CXD90045 payloads examined. This is a materially narrower target for future static work, but its contents and the earlier loader remain missing, so the CBC implementation, signature verifier, trust anchor, bypass, and any installable alpha 6400 package are still unproven."
+  "conclusion": "The raw host transfer and visible Linux receiver/crypter path are now reconciled by a persistent updater-system boundary: /dev/nflasha1 is explicitly labeled as the updater partition, selected before normal userspace, and omitted from all three decoded CXD90045 payloads examined. This is a materially narrower target for future static work, but its contents and the earlier loader remain missing, so the CBC implementation, signature verifier, trust anchor, bypass, and any installable alpha 6400 package are still unproven.",
+  "packaged_selector_scan": {
+    "updater_flag_state_proven": true,
+    "lsi_notification_proven": true,
+    "packaged_flag_consumer_proven": true,
+    "nflasha1_selector_join_proven": false,
+    "updater_partition_selector_present": false,
+    "bootin_direct_updater_selector": false,
+    "external_or_opaque_selector_unresolved": true
+  },
+  "packaged_selector_evidence": {
+    "sources": {
+      "libobj": {
+        "path": "lib/libObj.so",
+        "bytes": 20860436,
+        "sha256": "60ffd2b0f31f4bc139a7c13a4f62c25cdeb6a531ad5ef35df48471e6e36e88b1"
+      },
+      "up_sh": {
+        "path": "bin/up.sh",
+        "bytes": 5008,
+        "sha256": "03a70fd0d0ef269c0de9530398d1e4d7cd8fcb089286cff682ee32d097ad16bd"
+      },
+      "crypter": {
+        "path": "bin/crypter.elf",
+        "bytes": 39084,
+        "sha256": "ec971fc3ae7452ff3c5a46959fdb6fa6d9a27087cb226b23cc2cce0289c84653"
+      },
+      "bootin": {
+        "path": "bin/bootin.elf",
+        "bytes": 13116,
+        "sha256": "44788cd57d3befcb5552006d73e7b5a3d92847a5710c084c696564673e09aad7"
+      },
+      "nested_body": {
+        "path": "bin/udtrbody.bin",
+        "bytes": 143360,
+        "sha256": "09ee888c8a5242a292eec30dff3eff3e017761a573dab0a9f89d80f2a1c96f81"
+      },
+      "nested_script": {
+        "path": "bin/udtrbody.bin_unpacked/bin/us_crc32sum_appli.sh",
+        "bytes": 1888,
+        "sha256": "991c31024ec077d6c43599df4f04d8c0b7e82f93e04b2a275368ea2c313bae41"
+      }
+    },
+    "libobj_literal_consumers": [
+      {
+        "owner": {
+          "start": 8644024,
+          "end": 8644276
+        },
+        "classification": "mode-flag-literal-reference-owner",
+        "xrefs": [
+          {
+            "path": "/setting/updater/mode",
+            "load": 8644062,
+            "add": 8644064
+          },
+          {
+            "path": "/setting/updater/mode6",
+            "load": 8644100,
+            "add": 8644102
+          },
+          {
+            "path": "/setting/updater/mode1",
+            "load": 8644116,
+            "add": 8644118
+          },
+          {
+            "path": "/setting/updater/mode3",
+            "load": 8644122,
+            "add": 8644124
+          }
+        ]
+      },
+      {
+        "owner": {
+          "start": 8644508,
+          "end": 8645544
+        },
+        "classification": "mode-flag-literal-reference-owner",
+        "xrefs": [
+          {
+            "path": "/setting/updater/mode",
+            "load": 8644754,
+            "add": 8644756
+          },
+          {
+            "path": "/setting/updater/mode",
+            "load": 8644794,
+            "add": 8644796
+          },
+          {
+            "path": "/setting/updater/mode3",
+            "load": 8644816,
+            "add": 8644818
+          },
+          {
+            "path": "/setting/updater/mode",
+            "load": 8644856,
+            "add": 8644858
+          },
+          {
+            "path": "/setting/updater/mode1",
+            "load": 8644878,
+            "add": 8644880
+          },
+          {
+            "path": "/setting/updater/mode",
+            "load": 8644916,
+            "add": 8644918
+          },
+          {
+            "path": "/setting/updater/mode6",
+            "load": 8644938,
+            "add": 8644940
+          },
+          {
+            "path": "/setting/updater/mode",
+            "load": 8645060,
+            "add": 8645062
+          },
+          {
+            "path": "/setting/updater/mode3",
+            "load": 8645082,
+            "add": 8645084
+          }
+        ]
+      },
+      {
+        "owner": {
+          "start": 8648788,
+          "end": 8649292
+        },
+        "classification": "dat4-literal-reference-owner",
+        "xrefs": [
+          {
+            "path": "/setting/updater/dat4",
+            "load": 8648814,
+            "add": 8648818
+          }
+        ]
+      },
+      {
+        "owner": {
+          "start": 8649292,
+          "end": 8649420
+        },
+        "classification": "dat4-literal-reference-owner",
+        "xrefs": [
+          {
+            "path": "/setting/updater/dat4",
+            "load": 8649296,
+            "add": 8649304
+          }
+        ]
+      }
+    ],
+    "up_sh": {
+      "mode_flags": [
+        "mode",
+        "mode1",
+        "mode3",
+        "mode6"
+      ],
+      "lsi_modes": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "nflasha1_role": "dat2-dat3-metadata-storage",
+      "dat4_role": "setting-partition-state"
+    },
+    "nested_updater_component": {
+      "mode_flags_written": [
+        "mode",
+        "mode6"
+      ],
+      "nflasha1_files_written": [
+        "dat2",
+        "dat3"
+      ],
+      "setting_files_written": [
+        "dat4"
+      ]
+    },
+    "crypter": {
+      "flag_classes": [
+        "ModeFlagFile",
+        "Mode3FlagFile",
+        "Mode5FlagFile",
+        "Mode6FlagFile"
+      ],
+      "nested_body_paths_present": true
+    },
+    "bootin": {
+      "documented_application_modes": [
+        "normal",
+        "adj",
+        "usbj"
+      ],
+      "named_reference_search": {
+        "scope": "printable-strings",
+        "needles": [
+          "updater",
+          "nflasha1"
+        ],
+        "hits": 0
+      }
+    },
+    "selector_assessment": {
+      "nflasha1_selector_join_proven": false,
+      "bounded_named_reference_search_only": true,
+      "numeric_or_indirect_selector_analysis_complete": false,
+      "external_or_opaque_selector_unresolved": true
+    },
+    "first_unresolved_edge": "pre-normal-or-opaque-mode-to-updater-partition-selector"
+  }
 }
