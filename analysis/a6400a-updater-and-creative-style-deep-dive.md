@@ -258,6 +258,27 @@ Creative Style root cell back to a sequence. This is module co-containment, not
 a Creative Style-specific model or commit path. The fail-closed record is
 `analysis/a6400-creative-style-generic-model-consumers.json`.
 
+Bounded owner provenance is now exact for the three discovered sequences. Both
+`viewUnified4.so` targets are `TBH` case tails whose selected paths preserve entry `r0` into
+utility members at `+0x180` and `+0x188`; the second target begins after a prior
+return inside a shared unwind interval and is not promoted into the preceding
+entry. `viewUnified7.so` likewise has one canonical direct predecessor: switch
+case `0x30` preserves entry `r0` into the target's `+0x14c` utility sequence.
+All three anonymous dispatchers are address-taken from `.data.rel.ro` tables;
+that layout alone is not promoted to a concrete vtable or receiver type.
+
+The VU7 module also contains a separate initializer that allocates a
+`CmnSettingNodeUtil`, stores it at `+0x14c`, stores the setting node at `+0x148`,
+and initializes both. The shared offset is structural corroboration only: no
+constructor/factory edge, concrete RTTI/derived type, Creative Style PC-literal,
+or typed root edge connects that initializer to the model sequence. The direct
+scan also covers canonical decoded prefixes rather than every unwind interval
+to completion, so its single VU7 predecessor is positive bounded evidence, not
+an exhaustive uniqueness claim. The stronger static predecessor evidence still
+stops before selected-value storage, commit, renderer, touch, or persistence.
+The fail-closed record is
+`analysis/a6400-generic-model-owner-provenance.json`.
+
 ## α6400 bounded UI-dispatch and UXC correlation
 
 Read-only Ghidra analysis of the pinned α6400 2.00 `viewUnified2.so` used four

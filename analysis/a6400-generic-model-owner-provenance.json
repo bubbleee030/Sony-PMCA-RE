@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-generic-model-owner-provenance",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "sources": [
+    {
+      "module": "lib/viewUnified4.so",
+      "size": 2614628,
+      "sha256": "0fe8f852b0f028ac7d1d55c613726b3949879cf7fdd44074e525ae302a6f2e62"
+    },
+    {
+      "module": "lib/viewUnified7.so",
+      "size": 541024,
+      "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+    }
+  ],
+  "summary": {
+    "canonical_export_sha256": "d0509f29a7bf9e2c37a3ea4de1bda676343e9a2e7ea8c4152df41d9de34d68d6",
+    "vu4_target_count": 2,
+    "vu7_target_count": 1,
+    "initializer_candidate_count": 1,
+    "creative_style_binding_count": 0
+  },
+  "evidence_digest": "4ad4f814273eb5979aa692ad6fe40f9c50af2c088f5eef7feed1ee664806f5b2",
+  "creative_style_boundary": {
+    "view_unified4_publication_count": 6,
+    "view_unified7_publication_count": 2,
+    "target_or_dispatcher_pc_literal_reference_count": 0,
+    "typed_owner_binding_found": false,
+    "constructor_assignment_found": false,
+    "path_sensitive_receiver_binding_found": false
+  },
+  "claims": {
+    "generic_dispatcher_provenance_found": true,
+    "generic_utility_member_lifecycle_found": true,
+    "concrete_derived_type_found": false,
+    "initializer_to_target_origin_found": false,
+    "creative_style_owner_binding_found": false,
+    "selected_model_value_storage_found": false,
+    "final_model_setter_or_commit_found": false,
+    "renderer_binding_found": false,
+    "touch_routing_found": false,
+    "commit_or_persistence_found": false,
+    "creative_look_equivalence_found": false,
+    "runtime_execution_proven": false
+  },
+  "readiness": "GENERIC_OWNER_PROVENANCE_WITH_UNTYPED_BLOCKERS",
+  "conclusion": "The VU4 model sequences are table-dispatch tails using utility members at offsets 0x180 and 0x188; VU7 has one direct table-dispatch predecessor that preserves entry r0 into a utility member at offset 0x14c, plus a separate initializer with the same field layout. Missing concrete RTTI/derived types, an initializer-to-target identity, and typed Creative Style references keep all three paths generic rather than Creative Style-owned."
+}
