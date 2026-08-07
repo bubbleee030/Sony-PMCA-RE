@@ -216,6 +216,34 @@ model setter, renderer, menu-event, commit, or persistence binding has yet been
 located. The fail-closed record is
 `analysis/a6400-creative-style-selected-state-dispatch.json`.
 
+### Generic model/cursor boundary
+
+The next target-side layer is now pinned in the exact α6400 2.00
+`viewUnified2.so`. Seven `CmnSettingNodeUtil` methods cover cursor movement,
+value lookup, item-change cursor synchronization, belt-widget update, and the
+named `setValueToModel()` helper. Across those methods, 22 exact four-byte
+utility-field accesses and 17 bounded virtual-interface calls establish real
+generic in-memory cursor/selection control rather than a resource-only menu.
+
+`setValueToModel()` calls the defined `getProcIdForItem()` and
+`getProcValIdForItem()` helpers, then reaches local targets at `0x2fe74c` and
+`0x2fe806`. Those same targets occur in the ten-way local call surface of
+`moveCursor()`. Both unnamed routines contain proven widget display-state calls
+through `LayoutableWidgetBase::setDispState(bool)`, but also retain unresolved
+virtual effects. They therefore cannot be classified as widget-only or as
+model-commit terminals. The nearby `updateBeltWidget()` call resolves
+through the PLT to a defined `PAS_MenuSelectBeltZako::updateWidget()` routine,
+which also reaches `GEN_Icon::setImage()` and therefore proves widget-state and
+content mutation, but not a terminal renderer/draw path.
+
+This proves a generic menu-to-model boundary exists on α6400, which is useful
+for reproducing a newer interaction pattern without importing a hardware-only
+processor feature. It does not yet bind this helper instance to the Creative
+Style root, identify the selected style's storage, prove a final setter or
+commit, publish a menu event, reach a renderer, route touch, or reach
+`BackupManager`/durable persistence. The fail-closed record is
+`analysis/a6400-creative-style-model-cursor-boundary.json`.
+
 ## α6400 bounded UI-dispatch and UXC correlation
 
 Read-only Ghidra analysis of the pinned α6400 2.00 `viewUnified2.so` used four
