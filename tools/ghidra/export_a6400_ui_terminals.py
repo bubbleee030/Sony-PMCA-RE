@@ -31,7 +31,7 @@ EXPOSURE_GETTER_SYMBOL = (
 TRACKS = (
     {
         "id": "orientation-handler-local-branch-landing",
-        "root": 0x1BB41C,
+        "traversal_entry": 0x1BB41C,
         "predecessor_edges": (
             {
                 "caller": 0x1BB41C,
@@ -41,7 +41,7 @@ TRACKS = (
             },
         ),
         "site": {
-            "owner": 0x1B9B44,
+            "owner": {"start": 0x1B97E4, "end": 0x1B9C1C},
             "offset": 0x1B9B6A,
             "classification": "local-branch-landing",
             "flow_target": None,
@@ -50,10 +50,10 @@ TRACKS = (
     },
     {
         "id": "layout-attach-exposure-mode-getter",
-        "root": 0x1BB2D2,
+        "traversal_entry": 0x1BB2D2,
         "predecessor_edges": (),
         "site": {
-            "owner": 0x1BB2D2,
+            "owner": {"start": 0x1BB2C6, "end": 0x1BB3F8},
             "offset": 0x1BB30E,
             "classification": "exposure-mode-getter-plt-call",
             "flow_target": 0x14E688,
@@ -88,8 +88,20 @@ def build_raw_export(adapter):
     tracks = []
     for spec in TRACKS:
         site = spec["site"]
+        if not adapter.verify_owner_range(
+            site["owner"]["start"], site["owner"]["end"]
+        ):
+            raise RuntimeError("Pinned UI site owner range is not exact")
+        if not adapter.verify_traversal_entry(spec["traversal_entry"]):
+            raise RuntimeError("Pinned UI traversal entry is not exact")
+        for edge in spec["predecessor_edges"]:
+            if not adapter.verify_predecessor_edge(
+                edge["caller"], edge["site"], edge["target"], edge["kind"]
+            ):
+                raise RuntimeError("Pinned UI predecessor edge is not exact")
         if adapter.verify_site(
-            site["owner"],
+            site["owner"]["start"],
+            site["owner"]["end"],
             site["offset"],
             site["classification"],
             site["flow_target"],
@@ -99,9 +111,12 @@ def build_raw_export(adapter):
         tracks.append(
             {
                 "id": spec["id"],
-                "root": spec["root"],
+                "traversal_entry": spec["traversal_entry"],
                 "predecessor_edges": [dict(item) for item in spec["predecessor_edges"]],
-                "site": dict(site),
+                "site": {
+                    **site,
+                    "owner": dict(site["owner"]),
+                },
             }
         )
 
@@ -200,7 +215,65 @@ class GhidraProgramAdapter:
     def _even(value):
         return value - 1 if value & 1 else value
 
-    def verify_site(self, owner, offset, classification, flow_target, symbol):
+    @staticmethod
+    def _prel31(value, place):
+        value &= 0x7FFFFFFF
+        if value & 0x40000000:
+            value -= 0x80000000
+        return place + value
+
+    def _exidx_ranges(self):
+        memory = self._program.getMemory()
+        block = memory.getBlock(".ARM.exidx")
+        if block is None:
+            raise RuntimeError("Pinned UI exception index is missing")
+        start = self._even(int(block.getStart().getOffset()))
+        size = int(block.getSize())
+        if size <= 0 or size % 8:
+            raise RuntimeError("Pinned UI exception index size is invalid")
+        starts = []
+        for relative in range(0, size, 8):
+            place = start + relative
+            word = int(memory.getInt(self._address(place))) & 0xFFFFFFFF
+            starts.append(self._prel31(word, place) & ~1)
+        if starts != sorted(starts) or len(starts) != len(set(starts)):
+            raise RuntimeError("Pinned UI exception-index owners are invalid")
+        return set(zip(starts, starts[1:]))
+
+    def verify_owner_range(self, start, end):
+        self._monitor.checkCanceled()
+        return (start, end) in self._exidx_ranges()
+
+    def verify_traversal_entry(self, entry):
+        self._monitor.checkCanceled()
+        function = self._manager.getFunctionContaining(self._address(entry))
+        return (
+            function is not None
+            and not function.isExternal()
+            and self._even(int(function.getEntryPoint().getOffset())) == entry
+        )
+
+    def verify_predecessor_edge(self, caller, site, target, kind):
+        self._monitor.checkCanceled()
+        if kind != "direct":
+            return False
+        instruction = self._listing.getInstructionAt(self._address(site))
+        function = self._manager.getFunctionContaining(self._address(site))
+        if instruction is None or function is None or function.isExternal():
+            return False
+        if self._even(int(function.getEntryPoint().getOffset())) != caller:
+            return False
+        flow_type = instruction.getFlowType()
+        if not (flow_type.isCall() or flow_type.isJump()):
+            return False
+        flows = tuple(
+            self._even(int(address.getOffset())) for address in instruction.getFlows()
+        )
+        return flows == (target,)
+
+    def verify_site(
+        self, owner_start, owner_end, offset, classification, flow_target, symbol
+    ):
         self._monitor.checkCanceled()
         if classification not in {
             "local-branch-landing",
@@ -212,8 +285,9 @@ class GhidraProgramAdapter:
         function = self._manager.getFunctionContaining(address)
         if instruction is None or function is None or function.isExternal():
             raise RuntimeError("Pinned UI site is not an instruction in a function")
-        if self._even(int(function.getEntryPoint().getOffset())) != owner:
-            raise RuntimeError("Pinned UI site owner does not match Ghidra")
+        function_entry = self._even(int(function.getEntryPoint().getOffset()))
+        if not owner_start <= offset < owner_end or not owner_start <= function_entry < owner_end:
+            raise RuntimeError("Pinned UI site is outside its owner range")
         if classification == "local-branch-landing":
             if flow_target is not None or symbol is not None:
                 return False
@@ -225,7 +299,9 @@ class GhidraProgramAdapter:
                 if (
                     source is not None
                     and source_function is not None
-                    and self._even(int(source_function.getEntryPoint().getOffset())) == owner
+                    and owner_start
+                    <= self._even(int(source_function.getEntryPoint().getOffset()))
+                    < owner_end
                     and source.getFlowType().isJump()
                 ):
                     return True

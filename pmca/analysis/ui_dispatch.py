@@ -98,7 +98,7 @@ _ROOT_FIELDS = {
     "source_kind",
     "source_offset",
     "analysis_address",
-    "function_address",
+    "traversal_entry_address",
 }
 _EDGE_FIELDS = {
     "id",
@@ -415,8 +415,8 @@ def normalize_ui_dispatch_export(raw: dict) -> dict:
                 "analysis_address": _normalize_raw_address(
                     root["analysis_address"], "Traversal analysis address"
                 ),
-                "function_address": _normalize_raw_address(
-                    root["function_address"], "Traversal function address"
+                "traversal_entry_address": _normalize_raw_address(
+                    root["function_address"], "Ghidra traversal entry address"
                 ),
             }
         )
@@ -655,6 +655,13 @@ def build_ui_dispatch_report(source_document: dict) -> dict:
 
     report = copy.deepcopy(source_document)
     report.pop("uxc_owner_functions", None)
+    for root in report.get("roots", []):
+        if (
+            isinstance(root, dict)
+            and "function_address" in root
+            and "traversal_entry_address" not in root
+        ):
+            root["traversal_entry_address"] = root.pop("function_address")
     report["invalid_offset_classifications"] = copy.deepcopy(
         _INVALID_OFFSET_CLASSIFICATIONS
     )
@@ -705,12 +712,12 @@ def validate_ui_dispatch_report(document: dict) -> dict:
             or root["analysis_address"] != f"0x{analysis_address:x}"
         ):
             raise UiDispatchError("UI dispatch root identity is invalid")
-        function_address = root["function_address"]
-        if function_address is not None:
+        traversal_entry = root["traversal_entry_address"]
+        if traversal_entry is not None:
             _require_address(
-                function_address, "UI dispatch root function", root["module"]
+                traversal_entry, "UI dispatch traversal entry", root["module"]
             )
-            roots[name] = (root["module"], function_address)
+            roots[name] = (root["module"], traversal_entry)
         else:
             roots[name] = None
 

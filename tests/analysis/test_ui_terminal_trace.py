@@ -4,6 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from pmca.analysis.ui_terminal_trace import (
     UiTerminalTraceError,
@@ -40,7 +41,7 @@ def synthetic_raw():
         "tracks": [
             {
                 "id": "orientation-handler-local-branch-landing",
-                "root": 0x1BB41C,
+                "traversal_entry": 0x1BB41C,
                 "predecessor_edges": [
                     {
                         "caller": 0x1BB41C,
@@ -50,7 +51,7 @@ def synthetic_raw():
                     }
                 ],
                 "site": {
-                    "owner": 0x1B9B44,
+                    "owner": {"start": 0x1B97E4, "end": 0x1B9C1C},
                     "offset": 0x1B9B6A,
                     "classification": "local-branch-landing",
                     "flow_target": None,
@@ -59,10 +60,10 @@ def synthetic_raw():
             },
             {
                 "id": "layout-attach-exposure-mode-getter",
-                "root": 0x1BB2D2,
+                "traversal_entry": 0x1BB2D2,
                 "predecessor_edges": [],
                 "site": {
-                    "owner": 0x1BB2D2,
+                    "owner": {"start": 0x1BB2C6, "end": 0x1BB3F8},
                     "offset": 0x1BB30E,
                     "classification": "exposure-mode-getter-plt-call",
                     "flow_target": 0x14E688,
@@ -111,6 +112,10 @@ class UiTerminalNormalizationTests(unittest.TestCase):
         candidates.append(candidate)
 
         candidate = synthetic_raw()
+        candidate["tracks"][0]["site"]["owner"]["start"] = 0x1B9B44
+        candidates.append(candidate)
+
+        candidate = synthetic_raw()
         candidate["tracks"].reverse()
         candidates.append(candidate)
 
@@ -145,6 +150,10 @@ class UiTerminalReportTests(unittest.TestCase):
         )
         self.assertFalse(report["claims"]["view_unified2_to_view_unified7_factory_edge_found"])
         self.assertTrue(all(value is False for value in report["behavior_support"].values()))
+        self.assertEqual(
+            report,
+            json.loads(REPORT_PATH.read_text(encoding="utf-8")),
+        )
 
     def test_committed_report_is_fail_closed_and_dynamically_validated(self):
         document = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
@@ -153,7 +162,7 @@ class UiTerminalReportTests(unittest.TestCase):
         self.assertEqual(validated["readiness"], "CLASSIFIED_NO_FACTORY_HANDOFF")
         self.assertEqual(
             validated["export_summary"]["canonical_export_sha256"],
-            "eee7ccf337eb16545a67cb9b57a03ed476ee867076939e602208a65d5092cfc2",
+            "a41f4fdf6490ab9df14c60e1b1c319affd67c0390253163b04293aa6f9dcec9f",
         )
         self.assertEqual(
             {
@@ -167,6 +176,16 @@ class UiTerminalReportTests(unittest.TestCase):
         )
         self.assertEqual(validated["tracks"][1]["site"]["flow_target"], "0x14e688")
         self.assertEqual(validated["tracks"][1]["site"]["symbol"], EXPOSURE_GETTER_SYMBOL)
+        self.assertEqual(
+            validated["tracks"][0]["site"]["owner"],
+            {"start": "0x1b97e4", "end": "0x1b9c1c"},
+        )
+        self.assertEqual(
+            validated["tracks"][1]["site"]["owner"],
+            {"start": "0x1bb2c6", "end": "0x1bb3f8"},
+        )
+        self.assertEqual(validated["tracks"][1]["traversal_entry"], "0x1bb2d2")
+        self.assertNotIn("root", validated["tracks"][1])
         self.assertFalse(validated["claims"]["view_unified2_to_view_unified7_factory_edge_found"])
         self.assertFalse(validated["claims"]["orientation_layout_selector_found"])
         self.assertTrue(all(value is False for value in validated["behavior_support"].values()))
@@ -202,6 +221,23 @@ class UiTerminalReportTests(unittest.TestCase):
             ):
                 validate_ui_terminal_report(candidate)
 
+    def test_report_joins_traversal_entries_to_ui_dispatch_dependency(self):
+        document = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
+        dependency = json.loads(
+            (ROOT / "analysis" / "a6400-ui-dispatch-boundary.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        dependency["roots"][1]["traversal_entry_address"] = "0x1bb420"
+
+        with patch(
+            "pmca.analysis.ui_terminal_trace._load_ui_boundary",
+            return_value=dependency,
+        ), self.assertRaisesRegex(
+            UiTerminalTraceError, "differs from the dispatch dependency"
+        ):
+            validate_ui_terminal_report(document)
+
 
 class UiTerminalExporterTests(unittest.TestCase):
     @staticmethod
@@ -230,9 +266,40 @@ class UiTerminalExporterTests(unittest.TestCase):
             def program_is_changed(self):
                 return False
 
-            def verify_site(self, owner, offset, classification, flow_target, symbol):
+            def verify_owner_range(self, start, end):
+                self.owner_ranges = getattr(self, "owner_ranges", []) + [(start, end)]
+                return True
+
+            def verify_traversal_entry(self, entry):
+                self.traversal_entries = getattr(self, "traversal_entries", []) + [
+                    entry
+                ]
+                return True
+
+            def verify_predecessor_edge(self, caller, site, target, kind):
+                self.predecessors = getattr(self, "predecessors", []) + [
+                    (caller, site, target, kind)
+                ]
+                return True
+
+            def verify_site(
+                self,
+                owner_start,
+                owner_end,
+                offset,
+                classification,
+                flow_target,
+                symbol,
+            ):
                 self.requested = getattr(self, "requested", []) + [
-                    (owner, offset, classification, flow_target, symbol)
+                    (
+                        owner_start,
+                        owner_end,
+                        offset,
+                        classification,
+                        flow_target,
+                        symbol,
+                    )
                 ]
                 return True
 
@@ -240,11 +307,28 @@ class UiTerminalExporterTests(unittest.TestCase):
         raw = exporter.build_raw_export(adapter)
 
         self.assertEqual(
+            adapter.owner_ranges,
+            [(0x1B97E4, 0x1B9C1C), (0x1BB2C6, 0x1BB3F8)],
+        )
+        self.assertEqual(adapter.traversal_entries, [0x1BB41C, 0x1BB2D2])
+        self.assertEqual(
+            adapter.predecessors,
+            [(0x1BB41C, 0x1BB74C, 0x1B9B44, "direct")],
+        )
+        self.assertEqual(
             adapter.requested,
             [
-                (0x1B9B44, 0x1B9B6A, "local-branch-landing", None, None),
                 (
-                    0x1BB2D2,
+                    0x1B97E4,
+                    0x1B9C1C,
+                    0x1B9B6A,
+                    "local-branch-landing",
+                    None,
+                    None,
+                ),
+                (
+                    0x1BB2C6,
+                    0x1BB3F8,
                     0x1BB30E,
                     "exposure-mode-getter-plt-call",
                     0x14E688,
@@ -277,7 +361,24 @@ class UiTerminalExporterTests(unittest.TestCase):
             def program_is_changed(self):
                 return False
 
-            def verify_site(self, owner, offset, classification, flow_target, symbol):
+            def verify_owner_range(self, start, end):
+                return True
+
+            def verify_traversal_entry(self, entry):
+                return True
+
+            def verify_predecessor_edge(self, caller, site, target, kind):
+                return True
+
+            def verify_site(
+                self,
+                owner_start,
+                owner_end,
+                offset,
+                classification,
+                flow_target,
+                symbol,
+            ):
                 return True
 
         for adapter in (Adapter(read_only=False), Adapter(noanalysis=False)):
@@ -288,6 +389,52 @@ class UiTerminalExporterTests(unittest.TestCase):
         dirty.program_is_changed = lambda: True
         with self.assertRaises(RuntimeError):
             exporter.build_raw_export(dirty)
+
+    def test_exporter_rejects_unverified_owner_traversal_and_predecessor(self):
+        exporter = self._load_exporter()
+
+        class Adapter:
+            def __init__(self, rejected):
+                self.rejected = rejected
+
+            def program_name(self):
+                return exporter.EXPECTED_PROGRAM
+
+            def program_sha256(self):
+                return exporter.EXPECTED_SHA256
+
+            def program_headless_read_only(self):
+                return True
+
+            def program_noanalysis(self):
+                return True
+
+            def program_is_changed(self):
+                return False
+
+            def verify_owner_range(self, start, end):
+                return self.rejected != "owner"
+
+            def verify_traversal_entry(self, entry):
+                return self.rejected != "traversal"
+
+            def verify_predecessor_edge(self, caller, site, target, kind):
+                return self.rejected != "predecessor"
+
+            def verify_site(
+                self,
+                owner_start,
+                owner_end,
+                offset,
+                classification,
+                flow_target,
+                symbol,
+            ):
+                return True
+
+        for rejected in ("owner", "traversal", "predecessor"):
+            with self.subTest(rejected=rejected), self.assertRaises(RuntimeError):
+                exporter.build_raw_export(Adapter(rejected))
 
     def test_exporter_output_is_confined_to_approved_root(self):
         exporter = self._load_exporter()
@@ -408,7 +555,8 @@ class UiTerminalExporterTests(unittest.TestCase):
                 Program(instruction, symbol), Monitor()
             )
             return adapter.verify_site(
-                0x1BB2D2,
+                0x1BB2C6,
+                0x1BB3F8,
                 0x1BB30E,
                 "exposure-mode-getter-plt-call",
                 0x14E688,
@@ -421,6 +569,69 @@ class UiTerminalExporterTests(unittest.TestCase):
         self.assertFalse(
             verify(Instruction(0x14E688, call=False), EXPOSURE_GETTER_SYMBOL)
         )
+
+    def test_ghidra_adapter_derives_exact_exidx_owner_ranges(self):
+        exporter = self._load_exporter()
+        exidx_start = 0x900000
+        owner_starts = [0x1B97E4, 0x1B9C1C, 0x1BB2C6, 0x1BB3F8, 0x1BB400]
+
+        class Address:
+            def __init__(self, value):
+                self.value = value
+
+            def getOffset(self):
+                return self.value
+
+        class AddressSpace:
+            def getAddress(self, value):
+                return Address(int(value, 16))
+
+        class AddressFactory:
+            def getDefaultAddressSpace(self):
+                return AddressSpace()
+
+        class Block:
+            def getStart(self):
+                return Address(exidx_start)
+
+            def getSize(self):
+                return len(owner_starts) * 8
+
+        class Memory:
+            def getBlock(self, name):
+                return Block() if name == ".ARM.exidx" else None
+
+            def getInt(self, address):
+                index = (address.value - exidx_start) // 8
+                return (owner_starts[index] - address.value) & 0x7FFFFFFF
+
+        class Program:
+            def getListing(self):
+                return None
+
+            def getFunctionManager(self):
+                return None
+
+            def getReferenceManager(self):
+                return None
+
+            def getSymbolTable(self):
+                return None
+
+            def getAddressFactory(self):
+                return AddressFactory()
+
+            def getMemory(self):
+                return Memory()
+
+        class Monitor:
+            def checkCanceled(self):
+                return None
+
+        adapter = exporter.GhidraProgramAdapter(Program(), Monitor())
+        self.assertTrue(adapter.verify_owner_range(0x1B97E4, 0x1B9C1C))
+        self.assertTrue(adapter.verify_owner_range(0x1BB2C6, 0x1BB3F8))
+        self.assertFalse(adapter.verify_owner_range(0x1B97E4, 0x1B9C20))
 
 
 if __name__ == "__main__":

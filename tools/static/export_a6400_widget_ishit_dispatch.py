@@ -234,10 +234,16 @@ def path_records_from_prior(ui_document, touch_document):
         raise RuntimeError("prior UI dispatch bounds differ")
     roots = []
     for item in ui_document["roots"]:
-        if not isinstance(item, dict) or set(item) != {"name", "role", "source_kind", "source_offset", "analysis_address", "function_address"}:
+        if not isinstance(item, dict) or set(item) not in (
+            {"name", "role", "source_kind", "source_offset", "analysis_address", "function_address"},
+            {"name", "role", "source_kind", "source_offset", "analysis_address", "traversal_entry_address"},
+        ):
             raise RuntimeError("prior UI root fields differ")
         analysis = item["analysis_address"]
-        if not isinstance(analysis, int) or item["function_address"] != analysis:
+        traversal_entry = item.get(
+            "traversal_entry_address", item.get("function_address")
+        )
+        if not isinstance(analysis, int) or traversal_entry != analysis:
             raise RuntimeError("prior UI root analysis address differs")
         elf = analysis - ANALYSIS_LOAD_BIAS
         if elf < 0 or item["source_kind"] not in {"analysis-address", "elf-file-offset"}:
@@ -267,12 +273,43 @@ def _validate_prior_ui_report(ui_document, report_document):
     if not isinstance(report_roots, list): raise RuntimeError("prior UI dispatch report roots are invalid")
     normalized_roots = []
     for item in report_roots:
-        if not isinstance(item, dict) or set(item) != {"name", "role", "module", "source_kind", "source_offset", "analysis_address", "function_address"} or item["module"] != "lib/viewUnified2.so":
+        if not isinstance(item, dict) or set(item) not in (
+            {"name", "role", "module", "source_kind", "source_offset", "analysis_address", "function_address"},
+            {"name", "role", "module", "source_kind", "source_offset", "analysis_address", "traversal_entry_address"},
+        ) or item["module"] != "lib/viewUnified2.so":
             raise RuntimeError("prior UI dispatch report root fields differ")
         try:
-            normalized_roots.append({key: int(item[key], 16) if key in {"source_offset", "analysis_address", "function_address"} else item[key] for key in ("name", "role", "source_kind", "source_offset", "analysis_address", "function_address")})
+            normalized_roots.append(
+                {
+                    "name": item["name"],
+                    "role": item["role"],
+                    "source_kind": item["source_kind"],
+                    "source_offset": int(item["source_offset"], 16),
+                    "analysis_address": int(item["analysis_address"], 16),
+                    "traversal_entry_address": int(
+                        item.get(
+                            "traversal_entry_address", item.get("function_address")
+                        ),
+                        16,
+                    ),
+                }
+            )
         except (TypeError, ValueError) as exc: raise RuntimeError("prior UI dispatch report root addresses differ") from exc
-    if normalized_roots != ui_document["roots"]:
+    raw_roots = []
+    for item in ui_document["roots"]:
+        raw_roots.append(
+            {
+                "name": item["name"],
+                "role": item["role"],
+                "source_kind": item["source_kind"],
+                "source_offset": item["source_offset"],
+                "analysis_address": item["analysis_address"],
+                "traversal_entry_address": item.get(
+                    "traversal_entry_address", item.get("function_address")
+                ),
+            }
+        )
+    if normalized_roots != raw_roots:
         raise RuntimeError("prior UI dispatch report roots differ")
 
 

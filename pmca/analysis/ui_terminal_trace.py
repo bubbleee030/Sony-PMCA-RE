@@ -23,7 +23,7 @@ SOURCE_GRAPH_SHA256 = (
     "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22"
 )
 CANONICAL_EXPORT_SHA256 = (
-    "eee7ccf337eb16545a67cb9b57a03ed476ee867076939e602208a65d5092cfc2"
+    "a41f4fdf6490ab9df14c60e1b1c319affd67c0390253163b04293aa6f9dcec9f"
 )
 CLASSIFICATION_METHODS = (
     "instruction-flow",
@@ -39,7 +39,8 @@ _UI_BOUNDARY_REFERENCE = "analysis/a6400-ui-dispatch-boundary.json"
 _TRACK_SPECS = (
     {
         "id": "orientation-handler-local-branch-landing",
-        "root": 0x1BB41C,
+        "dependency_root": "ViewStlrecOrientationRegistration",
+        "traversal_entry": 0x1BB41C,
         "predecessor_edges": (
             {
                 "caller": 0x1BB41C,
@@ -49,7 +50,7 @@ _TRACK_SPECS = (
             },
         ),
         "site": {
-            "owner": 0x1B9B44,
+            "owner": {"start": 0x1B97E4, "end": 0x1B9C1C},
             "offset": 0x1B9B6A,
             "classification": "local-branch-landing",
             "flow_target": None,
@@ -58,10 +59,11 @@ _TRACK_SPECS = (
     },
     {
         "id": "layout-attach-exposure-mode-getter",
-        "root": 0x1BB2D2,
+        "dependency_root": "ViewStlrecLayoutModeAttach",
+        "traversal_entry": 0x1BB2D2,
         "predecessor_edges": (),
         "site": {
-            "owner": 0x1BB2D2,
+            "owner": {"start": 0x1BB2C6, "end": 0x1BB3F8},
             "offset": 0x1BB30E,
             "classification": "exposure-mode-getter-plt-call",
             "flow_target": 0x14E688,
@@ -83,7 +85,7 @@ _RAW_FIELDS = {
 }
 _RAW_TRACK_FIELDS = {
     "id",
-    "root",
+    "traversal_entry",
     "predecessor_edges",
     "site",
 }
@@ -130,7 +132,7 @@ _SUMMARY_FIELDS = {
     "local_branch_landing_count",
     "exposure_mode_getter_plt_call_count",
 }
-_REPORT_TRACK_FIELDS = {"id", "root", "site"}
+_REPORT_TRACK_FIELDS = {"id", "traversal_entry", "site"}
 _REPORT_SITE_FIELDS = {
     "owner",
     "offset",
@@ -199,9 +201,12 @@ def normalize_ui_terminal_export(document: object) -> dict:
     normalized_tracks = []
     for item, spec in zip(raw["tracks"], _TRACK_SPECS):
         track = _exact(item, _RAW_TRACK_FIELDS, "terminal track")
-        if track["id"] != spec["id"] or track["root"] != spec["root"]:
+        if (
+            track["id"] != spec["id"]
+            or track["traversal_entry"] != spec["traversal_entry"]
+        ):
             raise UiTerminalTraceError("terminal track identity or order is invalid")
-        _address(track["root"], "terminal track root")
+        _address(track["traversal_entry"], "terminal traversal entry")
         predecessors = track["predecessor_edges"]
         if not isinstance(predecessors, list) or len(predecessors) != len(
             spec["predecessor_edges"]
@@ -218,7 +223,11 @@ def normalize_ui_terminal_export(document: object) -> dict:
         site = _exact(track["site"], _SITE_FIELDS, "UI site")
         if site != spec["site"]:
             raise UiTerminalTraceError("UI site classification is not pinned")
-        _address(site["owner"], "UI site owner")
+        owner = _exact(site["owner"], {"start", "end"}, "UI site owner")
+        _address(owner["start"], "UI site owner start")
+        _address(owner["end"], "UI site owner end")
+        if not owner["start"] <= site["offset"] < owner["end"]:
+            raise UiTerminalTraceError("UI site is outside its pinned owner")
         _address(site["offset"], "UI site offset")
         if site["flow_target"] is not None:
             _address(site["flow_target"], "UI site flow target")
@@ -229,9 +238,9 @@ def normalize_ui_terminal_export(document: object) -> dict:
         normalized_tracks.append(
             {
                 "id": spec["id"],
-                "root": spec["root"],
+                "traversal_entry": spec["traversal_entry"],
                 "predecessor_edges": normalized_predecessors,
-                "site": dict(spec["site"]),
+                "site": copy.deepcopy(spec["site"]),
             }
         )
 
@@ -313,9 +322,12 @@ def build_ui_terminal_report(document: object) -> dict:
         "tracks": [
             {
                 "id": track["id"],
-                "root": _hex(track["root"]),
+                "traversal_entry": _hex(track["traversal_entry"]),
                 "site": {
-                    "owner": _hex(track["site"]["owner"]),
+                    "owner": {
+                        edge: _hex(track["site"]["owner"][edge])
+                        for edge in ("start", "end")
+                    },
                     "offset": _hex(track["site"]["offset"]),
                     "classification": track["site"]["classification"],
                     "flow_target": (
@@ -363,6 +375,10 @@ def validate_ui_terminal_report(document: object) -> dict:
             raise UiTerminalTraceError(f"{field} must remain false")
 
     dependency = _load_ui_boundary()
+    dependency_entries = {
+        item["name"]: item["traversal_entry_address"]
+        for item in dependency["roots"]
+    }
     source = _exact(report["source"], _SOURCE_FIELDS, "terminal source")
     expected_source = {
         "module": "lib/viewUnified2.so",
@@ -393,7 +409,10 @@ def validate_ui_terminal_report(document: object) -> dict:
     for item, spec in zip(tracks, _TRACK_SPECS):
         track = _exact(item, _REPORT_TRACK_FIELDS, "UI site report track")
         expected_site = {
-            "owner": _hex(spec["site"]["owner"]),
+            "owner": {
+                edge: _hex(spec["site"]["owner"][edge])
+                for edge in ("start", "end")
+            },
             "offset": _hex(spec["site"]["offset"]),
             "classification": spec["site"]["classification"],
             "flow_target": (
@@ -405,11 +424,15 @@ def validate_ui_terminal_report(document: object) -> dict:
         }
         if (
             track["id"] != spec["id"]
-            or track["root"] != _hex(spec["root"])
+            or track["traversal_entry"] != _hex(spec["traversal_entry"])
             or _exact(track["site"], _REPORT_SITE_FIELDS, "report UI site")
             != expected_site
         ):
             raise UiTerminalTraceError("UI site report identity is invalid")
+        if dependency_entries.get(spec["dependency_root"]) != track["traversal_entry"]:
+            raise UiTerminalTraceError(
+                "UI terminal traversal entry differs from the dispatch dependency"
+            )
         observed_classifications.append(spec["site"]["classification"])
     if [
         observed_classifications.count("local-branch-landing"),

@@ -167,7 +167,7 @@ def _report(
                 "source_kind": "analysis-address",
                 "source_offset": "0x22355e",
                 "analysis_address": "0x22355e",
-                "function_address": "0x22355e",
+                "traversal_entry_address": "0x22355e",
             },
             {
                 "name": "ViewStlrecOrientationRegistration",
@@ -176,7 +176,7 @@ def _report(
                 "source_kind": "elf-file-offset",
                 "source_offset": "0x1ab41c",
                 "analysis_address": "0x1bb41c",
-                "function_address": "0x1bb41c",
+                "traversal_entry_address": "0x1bb41c",
             },
             {
                 "name": "ViewStlrecLayoutModeAttach",
@@ -185,7 +185,7 @@ def _report(
                 "source_kind": "elf-file-offset",
                 "source_offset": "0x1ab2d2",
                 "analysis_address": "0x1bb2d2",
-                "function_address": "0x1bb2d2",
+                "traversal_entry_address": "0x1bb2d2",
             },
             {
                 "name": "ViewStlrecAfOrientationDispatch",
@@ -194,7 +194,7 @@ def _report(
                 "source_kind": "elf-file-offset",
                 "source_offset": "0x1b1e76",
                 "analysis_address": "0x1c1e76",
-                "function_address": "0x1c1e76",
+                "traversal_entry_address": "0x1c1e76",
             },
         ],
         "bounded_export_summary": copy.deepcopy(BOUNDED_EXPORT_SUMMARY),
@@ -223,6 +223,12 @@ class UiDispatchTests(unittest.TestCase):
         validated = validate_ui_dispatch_report(self.document)
 
         self.assertEqual(validated, self.document)
+        for root in validated["roots"]:
+            self.assertIn("traversal_entry_address", root)
+            self.assertNotIn("function_address", root)
+        self.assertEqual(
+            validated["roots"][2]["traversal_entry_address"], "0x1bb2d2"
+        )
         self.assertEqual(validated["modules"][0]["sha256"], VIEW_UNIFIED2_SHA256)
         self.assertEqual(
             [item["semantic"] for item in validated["paths"]],
@@ -702,7 +708,7 @@ class UiDispatchTests(unittest.TestCase):
             },
             behavior_support=support,
         )
-        report["roots"][1]["function_address"] = "0x1bb000"
+        report["roots"][1]["traversal_entry_address"] = "0x1bb000"
 
         validated = validate_ui_dispatch_report(report)
 
@@ -732,7 +738,7 @@ class UiDispatchTests(unittest.TestCase):
                 }
             ],
         )
-        report["roots"][1]["function_address"] = None
+        report["roots"][1]["traversal_entry_address"] = None
 
         with self.assertRaisesRegex(
             UiDispatchError, "root has no discovered function"
@@ -864,7 +870,7 @@ class UiDispatchExportTests(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            normalized["traversal_roots"][1]["function_address"], "0x1bb41c"
+            normalized["traversal_roots"][1]["traversal_entry_address"], "0x1bb41c"
         )
         self.assertEqual(
             normalized["edges"],

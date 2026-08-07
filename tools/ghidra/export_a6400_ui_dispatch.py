@@ -155,8 +155,8 @@ def build_raw_export(adapter, expected_program, expected_sha256):
     queue = deque()
     queued = set()
     for name, role, source_kind, source_offset, analysis_address in ROOTS:
-        function_address = adapter.discover_function(analysis_address)
-        if not _is_bounded_code_offset(function_address):
+        traversal_entry = adapter.discover_function(analysis_address)
+        if not _is_bounded_code_offset(traversal_entry):
             raise RuntimeError("A required UI traversal root did not resolve")
         roots.append(
             {
@@ -165,12 +165,12 @@ def build_raw_export(adapter, expected_program, expected_sha256):
                 "source_kind": source_kind,
                 "source_offset": source_offset,
                 "analysis_address": analysis_address,
-                "function_address": function_address,
+                "function_address": traversal_entry,
             }
         )
-        if function_address not in queued:
-            queue.append((function_address, 0))
-            queued.add(function_address)
+        if traversal_entry not in queued:
+            queue.append((traversal_entry, 0))
+            queued.add(traversal_entry)
 
     visited = set()
     edges = []

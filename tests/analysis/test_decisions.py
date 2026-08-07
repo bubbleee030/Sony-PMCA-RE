@@ -476,6 +476,16 @@ class DecisionRenderingTests(unittest.TestCase):
         self.assertIn("static table equality does not prove a runtime transaction", normalized)
         self.assertIn("BLOCKED_STATIC_EVIDENCE", normalized)
 
+        implementation_plan = (
+            REPOSITORY_ROOT
+            / "docs"
+            / "superpowers"
+            / "plans"
+            / "2026-08-07-a6400-evidence-corrections-runtime-binding.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn(r"discover -s tests\safe", implementation_plan)
+        self.assertNotIn(r"tests\safety", implementation_plan)
+
     def test_renderer_rejects_invalid_documents_instead_of_adding_a_conclusion(self):
         document = synthetic_document()
         document["capabilities"][0]["status"] = "UNKNOWN"

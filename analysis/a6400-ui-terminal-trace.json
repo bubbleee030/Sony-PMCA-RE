@@ -13,7 +13,7 @@
     "source_graph_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22"
   },
   "export_summary": {
-    "canonical_export_sha256": "eee7ccf337eb16545a67cb9b57a03ed476ee867076939e602208a65d5092cfc2",
+    "canonical_export_sha256": "a41f4fdf6490ab9df14c60e1b1c319affd67c0390253163b04293aa6f9dcec9f",
     "classification_methods": [
       "instruction-flow",
       "reference-target",
@@ -25,9 +25,12 @@
   "tracks": [
     {
       "id": "orientation-handler-local-branch-landing",
-      "root": "0x1bb41c",
+      "traversal_entry": "0x1bb41c",
       "site": {
-        "owner": "0x1b9b44",
+        "owner": {
+          "start": "0x1b97e4",
+          "end": "0x1b9c1c"
+        },
         "offset": "0x1b9b6a",
         "classification": "local-branch-landing",
         "flow_target": null,
@@ -36,9 +39,12 @@
     },
     {
       "id": "layout-attach-exposure-mode-getter",
-      "root": "0x1bb2d2",
+      "traversal_entry": "0x1bb2d2",
       "site": {
-        "owner": "0x1bb2d2",
+        "owner": {
+          "start": "0x1bb2c6",
+          "end": "0x1bb3f8"
+        },
         "offset": "0x1bb30e",
         "classification": "exposure-mode-getter-plt-call",
         "flow_target": "0x14e688",

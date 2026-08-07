@@ -497,7 +497,7 @@ reusable touch dispatch is proven. The fail-closed record is
 ## α6400 bounded UI-dispatch and UXC correlation
 
 Read-only Ghidra analysis of the pinned α6400 2.00 `viewUnified2.so` used four
-explicit roots: the `ViewSettingMenu` event switch at analysis address
+explicit traversal entries: the `ViewSettingMenu` event switch at analysis address
 `0x22355e`, plus three `ViewStlrec` source file offsets (`0x1ab41c`,
 `0x1ab2d2`, and `0x1b1e76`) normalized to analysis addresses `0x1bb41c`,
 `0x1bb2d2`, and `0x1c1e76`. The bounded export recorded 2,046 call sites:

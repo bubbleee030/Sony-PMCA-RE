@@ -1426,39 +1426,39 @@
     "roots": [
       {
         "analysis_address": "0x22355e",
-        "function_address": "0x22355e",
         "module": "lib/viewUnified2.so",
         "name": "ViewSettingMenuEventSwitch",
         "role": "setting-menu-event-switch",
         "source_kind": "analysis-address",
-        "source_offset": "0x22355e"
+        "source_offset": "0x22355e",
+        "traversal_entry_address": "0x22355e"
       },
       {
         "analysis_address": "0x1bb41c",
-        "function_address": "0x1bb41c",
         "module": "lib/viewUnified2.so",
         "name": "ViewStlrecOrientationRegistration",
         "role": "orientation-registration",
         "source_kind": "elf-file-offset",
-        "source_offset": "0x1ab41c"
+        "source_offset": "0x1ab41c",
+        "traversal_entry_address": "0x1bb41c"
       },
       {
         "analysis_address": "0x1bb2d2",
-        "function_address": "0x1bb2d2",
         "module": "lib/viewUnified2.so",
         "name": "ViewStlrecLayoutModeAttach",
         "role": "layout-mode-attach",
         "source_kind": "elf-file-offset",
-        "source_offset": "0x1ab2d2"
+        "source_offset": "0x1ab2d2",
+        "traversal_entry_address": "0x1bb2d2"
       },
       {
         "analysis_address": "0x1c1e76",
-        "function_address": "0x1c1e76",
         "module": "lib/viewUnified2.so",
         "name": "ViewStlrecAfOrientationDispatch",
         "role": "af-orientation-dispatch",
         "source_kind": "elf-file-offset",
-        "source_offset": "0x1b1e76"
+        "source_offset": "0x1b1e76",
+        "traversal_entry_address": "0x1c1e76"
       }
     ],
     "schema_version": 1,

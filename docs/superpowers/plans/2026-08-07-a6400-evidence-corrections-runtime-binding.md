@@ -653,7 +653,7 @@ Run:
 
 ```powershell
 & '.\.venv\Scripts\python.exe' -m unittest discover -s tests\analysis -p 'test_*.py'
-& '.\.venv\Scripts\python.exe' -m unittest discover -s tests\safety -p 'test_*.py'
+& '.\.venv\Scripts\python.exe' -m unittest discover -s tests\safe -p 'test_*.py'
 ```
 
 Expected: both suites pass with zero failures and zero errors.
