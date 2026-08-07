@@ -350,8 +350,8 @@ argument-5, selector-code]`. Argument 3 is captured directly, argument 4 comes
 from the caller stack for normal selectors but is forced to zero for selector
 11/13 construction, and argument 5 comes from the next caller-stack word.
 These are positional dataflow roles only. Human field names, named preset
-labels, the menu-selected-state join, the meanings of the three other dynamic
-backup writes, and all renderer/live-view/JPEG/movie effects remain unresolved.
+labels, the menu-selected-state join, the numeric semantics of all dynamic
+backup ID sources, and all renderer/live-view/JPEG/movie effects remain unresolved.
 The fail-closed record is
 `analysis/a6400-creative-style-selector-code.json`.
 
@@ -364,28 +364,51 @@ but no table or resource-ID mapping binds those strings to the thirteen accepted
 selector indices. The indices therefore cannot yet be named or treated as the
 currently selected menu item.
 
-The request transport is now bounded end to end through the queue, but not to a
-handler. Its local wrapper gets `CmnMRUtil` and preserves request code 38 and
-the same `ParamList` through a small helper into a bounded dispatcher. The
-dispatcher computes the unsigned value `38-40`; because that wraps above 1, its
-unsigned-higher branch necessarily reaches the sole named
+The request transport is now bounded through the exact queue producer, but not
+to a consumer or handler. Its local wrapper gets `CmnMRUtil` and preserves
+request code 38 and the same `ParamList` through a small helper into a bounded
+dispatcher. The dispatcher computes unsigned `38-40`; because that wraps above
+1, its unsigned-higher branch necessarily reaches the sole named
 `viewManagerIf::requestModelExecute` edge on the model-mapping helper's
-normal-return path. The original `@M00B` string is replaced by that helper's
-result, so model identity is not claimed across the edge.
+normal-return path. The helper's 23-entry table maps exact entry zero `@M00B`
+to `model/CAMERA`. This resolves the semantic model alias but does not preserve
+the literal input string.
 
-The shared `libObj.so` request API captures code 38 in `r9` across its ID
-generator call. Its `.ARM.attributes` section omits both
-`Tag_ABI_PCS_R9_use` and `Tag_nodefaults`, making the effective ABI value zero
-and `r9` the callee-saved `v6`; the exporter also rejects any local write in
-the exact capture-to-use span. The API then passes code 38 into another mapper.
-The mapper's opaque return, or a sentinel on alternate routes, becomes Event
-parameter key 8; literal 38 is not proven in the Event. The builder constructs
-the `Event`, attaches the `ParamList`, and adds its scalar parameters. Its
-continuation preserves the Event, adds key 6, and reaches
-`EventManager::push(Event*,true)` through an exact interworking PLT relocation.
-The push owner then stops at three unresolved indirect calls. This proves an
-operation-38-origin Event queue path, not a named operation-38 handler or a
-renderer, live-view, still-JPEG, or movie sink. The fail-closed record is
+The shared `libObj.so` request API passes `model/CAMERA` to
+`IdGenerator::Get`; that runtime table lookup's numeric result reaches Event
+parameter key 7, but the number itself remains unresolved and may take the
+documented missing-entry sentinel route. The API independently captures code
+38 in `r9` across the ID-generator call. Its `.ARM.attributes` section omits
+both `Tag_ABI_PCS_R9_use` and `Tag_nodefaults`, making the effective ABI value
+zero and `r9` the callee-saved `v6`; the exporter rejects any local write in
+the exact capture-to-use span. A second mapper receives code 38, but only that
+mapper's opaque return, or a sentinel on alternate routes, becomes Event key 8.
+Literal 38 is therefore not proven in the Event.
+
+The builder fixes Event ID `0x11004003`, destination `2`, and queue tag `0`,
+attaches the `ParamList`, and adds the scalar parameters. Its continuation adds
+key 6 and reaches `EventManager::push(Event*,true)` through an exact
+interworking PLT relocation. The push owner reads tag 0, bypasses all three
+indirect callback sites, and takes the direct queue-zero helper. The unresolved
+boundary is now receiver identity: the producer loads a UtilityManager from
+`AppConfig+0x10`, a wrapper from `UtilityManager+0x0c`, and its EventManager
+from `wrapper+0x10`; the consumer loop loads its EventManager from
+`outer+0x10`, where `outer` is the same thread-local object passed to that
+loop's constructor. No static assignment proves `UtilityManager+0x0c` is that
+`outer`, so the queued operation-38-origin Event is not proven to reach this
+consumer.
+
+A separately bounded ModelManager candidate branch matches Event ID
+`0x11004003` and destination bit 2, reads keys 6, 7, and 8, performs the key-7
+record lookup, and conditionally loads an executor from record offset `+0x1c`
+before a virtual call at slot `+0x18`. It is not joined to the operation-38
+producer. A co-located `@M00B` / `modelCamera.so` /
+`ModelCameraToInstance` component, `ModelCamera` RTTI, and factory are concrete
+component candidates, but no static registration edge binds the key-7 record
+to that factory or executor. The resolved ModelCamera slot `+0x18` is inherited
+generic `ModelBase` scheduling of a new Event ID `0x11004001`, destination 4,
+tag 0—not a Creative Style-specific operation handler. No named handler or
+renderer/live-view/still-JPEG/movie sink is proven. The fail-closed record is
 `analysis/a6400-creative-style-model-request-transport.json`.
 
 A separate controller field at object offset `0x15c` takes observed values
@@ -434,8 +457,10 @@ exact value false to `setTouchable(bool)` before entering Movie/Iris data
 management. A typed `PAS_BarCtrlDialConverter` elsewhere forwards an incoming
 value to the same setter, but the value semantics and all coordinate, hit-test,
 gesture, selection, and Creative Style edges remain unresolved. This proves a
-native UI scaffold and touchability-flag boundary, not a reusable touch
-implementation. The fail-closed record is
+native UI scaffold and touchability-flag boundary, not a reusable touch route;
+the explicit false value on the Movie path is not positive routing evidence.
+No Creative Style coordinate transform, hit test, gesture, menu-selection, or
+reusable touch dispatch is proven. The fail-closed record is
 `analysis/a6400-creative-style-interaction-surface.json`.
 
 ## α6400 bounded UI-dispatch and UXC correlation
@@ -554,23 +579,30 @@ and derives no recovery promotion from it.
 
 ## Next safe experiments
 
-1. Resolve the numeric dynamic-record IDs and join each setter write to its
-   branch-dependent getter read. Continue the proven operation-38-origin queue
-   path through the three indirect `EventManager::push` calls to a named model
-   consumer before following any renderer/live-view/JPEG/movie path. Do not
-   label an argument or output without an exact dataflow edge.
-2. Compare that verified five-value ABI with the first-class Creative Look
+1. Resolve or falsify the missing EventManager identity join: trace the object
+   stored at `UtilityManager+0x0c` to the thread-local `outer`, or locate the
+   actual consumer of the producer's queue-zero EventManager. Do not promote
+   the bounded ModelManager branch until the exact Event instance can reach it.
+2. Resolve the runtime `IdGenerator` table entry for `model/CAMERA` and the
+   ModelManager record-registration path. Join the resulting key-7 numeric ID
+   to a record, its `+0x1c` executor, and a concrete factory before treating
+   `ModelCamera` as the operation-38 handler. Trace the generic destination-4
+   scheduling path separately rather than treating it as Creative Style logic.
+3. Resolve the numeric semantics of the dynamic backup ID sources and join
+   each setter write to its branch-dependent getter output. Do not label an
+   argument or output without an exact dataflow edge.
+4. Compare that verified five-value ABI with the first-class Creative Look
    contract, then locate independent storage and processing boundaries for the
    three missing axes before changing any layer or axis from `UNESTABLISHED`.
-3. Join the thirteen accepted selector indices to exact resource IDs and
+5. Join the thirteen accepted selector indices to exact resource IDs and
    selected-state storage. Continue the settings-menu touch trace from real
    widget/event owners to a coordinate transform, hit test, and selection
    dispatcher. Existing wheel, repeat-key, cursor, widget, and touchability-flag
    behavior is not evidence of touch navigation.
-4. Use α6700 for Creative Look/menu behavior and α7 V for vertical-display
+6. Use α6700 for Creative Look/menu behavior and α7 V for vertical-display
    behavior, without assuming donor code or hardware-dependent processing is
    portable to α6400.
-5. Keep every modified runtime file outside a Sony updater package. Continue
+7. Keep every modified runtime file outside a Sony updater package. Continue
    static recovery research at the missing pre-normal-runtime selector or
    authentic earlier installing receiver. Do not draft camera steps until the
    strict report reaches a separately reviewed future-validation-design gate;

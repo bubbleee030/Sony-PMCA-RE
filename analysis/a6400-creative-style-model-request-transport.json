@@ -5,15 +5,28 @@
   "camera_test_eligible": false,
   "claims": {
     "candidate_cross_module_request_edge_found": true,
+    "concrete_model_executor_handler_found": false,
+    "concrete_model_record_found": false,
+    "consumer_receiver_expression_proven": true,
     "creative_look_equivalence_found": false,
+    "creative_style_request_model_alias_resolved": true,
     "end_to_end_operation_38_event_queue_join_found": true,
     "event_queue_indirect_boundary_found": true,
     "literal_operation_38_event_field_proven": false,
+    "model_manager_request_event_branch_found": true,
     "movie_sink_found": false,
     "named_model_handler_found": false,
     "operation_38_candidate_branch_proven": true,
+    "operation_38_event_header_proven": true,
+    "operation_38_indirect_queue_callbacks_bypassed": true,
+    "operation_38_key_7_numeric_model_id_resolved": false,
+    "operation_38_model_id_reaches_event_key_7": true,
     "operation_38_origin_reaches_mapped_event_parameter": true,
+    "operation_38_queue_to_consumer_identity_proven": false,
+    "operation_38_reaches_model_manager_dispatch": false,
+    "operation_38_tag_zero_queue_path_proven": true,
     "original_model_identity_preserved": false,
+    "producer_receiver_expression_proven": true,
     "renderer_or_live_view_sink_found": false,
     "runtime_execution_proven": false,
     "shared_event_construction_boundary_found": true,
@@ -22,10 +35,10 @@
     "typed_custom_creative_style_request_found": true,
     "view_wrapper_transport_found": true
   },
-  "conclusion": "The typed CustomCreativeStyle setter emits an exact @M00B operation-38 request with five parameters. Its local wrapper preserves code 38 and the ParamList through a bounded dispatcher; unsigned gate arithmetic proves that code 38 takes the named cross-module request edge on the model-mapping helper's normal-return path. The shared libObj request API constructs an Event and provably forwards it to EventManager::push with boolean true. The operation code passes through an opaque mapper before Event parameter key 8, so neither literal 38 nor original @M00B identity is proven in the queued Event. The queue's three indirect calls leave consumer dispatch unresolved. No named model handler, renderer/live-view, still-JPEG, movie, Creative Look equivalence, runtime behavior, or installability is proven.",
-  "evidence_digest": "7cf1b91b30cd26b7a8afd57ce80a2dddc0ce80939a62dc4c8ca93793256a0df2",
+  "conclusion": "The typed CustomCreativeStyle setter emits an exact @M00B operation-38 request with five parameters. Its local wrapper preserves code 38 and the ParamList through a bounded dispatcher; unsigned gate arithmetic proves that code 38 takes the named cross-module request edge on the model-mapping helper's normal-return path. The view mapper resolves @M00B to model/CAMERA; IdGenerator's runtime-dependent numeric result reaches Event key 7, while the operation code passes through a separate opaque mapper before key 8. The builder fixes Event ID 0x11004003, destination 2, and queue tag 0, then forwards the Event to EventManager::push with boolean true. Tag 0 bypasses all three indirect push callbacks and takes the direct queue-zero path. The producer receiver is derived through a UtilityManager wrapper, whereas the consumer loop uses the thread-local outer object's EventManager; no static equality join between them is proven. A matching ModelManager request-Event branch, key-7 lookup, and generic executor virtual boundary are bounded candidates only. Literal 38 in key 8, the numeric key-7 ID, operation-38 delivery to that consumer, a concrete model record or handler, renderer/live-view, still-JPEG, movie, Creative Look equivalence, runtime behavior, and installability remain unproven.",
+  "evidence_digest": "3303e96ac7f7f6bd237c4bf043056874aafde56b4ceb3ef3b2b4d38989619f0d",
   "installable": false,
-  "readiness": "OPERATION_38_EVENT_QUEUE_TRANSPORT_NO_HANDLER",
+  "readiness": "OPERATION_38_TAG_ZERO_QUEUE_NO_CONSUMER_IDENTITY",
   "schema_version": 1,
   "sources": {
     "object": {
@@ -40,14 +53,19 @@
     }
   },
   "summary": {
-    "canonical_export_sha256": "5ffebe3dc5424022af7123635cffdb1cd075582d5673ee5ecd262bfaed756ea3",
+    "canonical_export_sha256": "6b7554e8cc570ac89f4871707826836e0d51cc962eacd36ae79a07f1dcb25c06",
+    "fixed_event_header_count": 1,
     "indirect_queue_call_count": 3,
     "mapped_operation_event_parameter_count": 1,
+    "model_manager_request_event_candidate_count": 1,
     "operation_38_shared_request_edge_count": 1,
+    "queue_to_consumer_identity_join_count": 0,
+    "resolved_model_alias_count": 1,
     "resolved_model_handler_count": 0,
     "resolved_pipeline_sink_count": 0,
     "shared_event_builder_count": 1,
     "shared_request_queue_join_count": 1,
+    "tag_zero_queue_path_count": 1,
     "typed_request_count": 1
   }
 }
