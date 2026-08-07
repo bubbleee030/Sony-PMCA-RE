@@ -1,0 +1,40 @@
+{
+  "analysis_scope": "offline-static-creative-style-selector-code",
+  "camera_executed": false,
+  "camera_policy": "physically-disconnected",
+  "camera_test_eligible": false,
+  "claims": {
+    "argument_2_fixed_record_encode_decode_found": true,
+    "caution_config_selected_state_join_found": false,
+    "creative_look_equivalence_found": false,
+    "five_argument_semantics_resolved": false,
+    "getter_argument_2_record_boundary_found": true,
+    "human_style_labels_mapped": false,
+    "menu_selected_state_join_found": false,
+    "renderer_or_output_sink_found": false,
+    "request_parameter_keys_found": true,
+    "runtime_execution_proven": false,
+    "selector_code_dynamic_record_boundary_found": true,
+    "selector_code_fixed_record_found": false,
+    "typed_element_selector_code_mapping_found": true
+  },
+  "conclusion": "The typed CustomCreativeStyle setter has a bounded selector-to-persisted-code table: inputs 0..13 reject 12 and map the other thirteen values to exact codes. That code reaches an adjacent dynamic backup-record boundary on the argument-2-nonzero path; its record-ID semantics remain unresolved. Fixed backup item 0x01070762 instead carries a low-byte argument-2 encoding into the getter's second direct output reference: nonpositive input writes 0xff, positive n writes the low byte of n-1, signed -1 leaves the preinitialized output zero, and other signed bytes are incremented. No admissible input range is proven, so a universal round trip is not claimed; ten other reads remain branch-dependent. Five ParamList keys are exact, but named preset labels, menu-selected-state identity, full five-field semantics, renderer/output effects, Creative Look equivalence, runtime behavior, and installability remain unproven.",
+  "evidence_digest": "d7d1c8ec4f248cdca1a030bfef1691ad727e6a5b5fb59b718e111a02d61fee32",
+  "installable": false,
+  "readiness": "TYPED_ELEMENT_SELECTOR_MAP_AND_ARGUMENT2_RECORD",
+  "schema_version": 1,
+  "source": {
+    "module": "lib/viewUnified2.so",
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+    "size": 11530552
+  },
+  "summary": {
+    "accepted_selector_count": 13,
+    "branch_dependent_getter_read_count": 10,
+    "canonical_export_sha256": "2a6d6173933e473ff652c356c77fb2f8870e9e34045efc7652e7173cc6ecae1c",
+    "fixed_argument_2_record_count": 1,
+    "rejected_selector_count": 1,
+    "request_param_count": 5,
+    "selector_entry_count": 14
+  }
+}

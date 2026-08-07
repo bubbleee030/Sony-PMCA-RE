@@ -304,6 +304,25 @@ git commit -m "analysis: trace Creative Look stack boundaries"
 
 ### Task 4: Map interface, persistence, and all eight axes independently
 
+#### Current target-native checkpoint
+
+The pinned α6400 Creative Style view is now joined to its RTTI-typed five-value
+setter/getter. The first setter argument has a verified 14-entry selector
+table: index 12 is rejected and thirteen accepted indices map to exact internal
+codes. The selector code reaches a dynamic backup-record write only when
+argument 2 is nonzero. Fixed item `0x01070762` instead carries a low-byte
+argument-2 encoding into the getter's second direct output reference. The exact
+encode/decode boundary is established, but the admissible input range and a
+universal round trip are not. Request keys and
+positional holder provenance for selector code and arguments 3 through 5 are
+also bounded.
+
+This checkpoint does not complete Task 4. It does not map human preset labels,
+prove which manager/view output is selected state, resolve the dynamic record
+IDs or three remaining writes, identify processing sinks, establish touch
+selection, or provide any of Creative Look's eight-axis contract. Its
+fail-closed report is `analysis/a6400-creative-style-selector-code.json`.
+
 **Files:**
 - Modify: `analysis/a6400-creative-look-stack.json`
 - Modify: `analysis/a6400-creative-look-boundary.json`

@@ -309,11 +309,40 @@ path reaches vtable slot 21, whose base signature is
 
 That five-integer setter contains five bounded call sites to
 `CmnViewModelIfWrapper::backupWrite`, five `ParamList::add` call sites, and a
-bounded `@M00B` model-operation-38 request call site. This is the first verified target-native
-Creative Style UI-to-typed-value-setter-to-backup/model-request boundary. It
-does not yet assign semantics to the five integers, identify which one is the
-selected style, or reach a renderer, live-view/JPEG/movie sink, or image-
-processing implementation.
+bounded `@M00B` model-operation-38 request call site. This is the first verified
+target-native Creative Style UI-to-typed-value-setter-to-backup/model-request
+boundary.
+
+The setter's first integer is now structurally bounded as a selector. Inputs 0
+through 13 enter a 14-entry halfword branch table; index 12 reaches the error
+path, while the other thirteen indices map exactly to persisted codes
+`{0:1, 1:2, 2:3, 3:7, 4:8, 5:9, 6:4, 7:5, 8:10, 9:11, 10:12,
+11:6, 13:14}`. Each accepted case allocates the same 0x14-byte `ParamBase`
+holder and passes the mapped code to its constructor. The holder accessor then
+supplies a one-byte local selector-code value.
+
+That selector byte does not use the first fixed backup item. It is passed to a
+table-selected dynamic backup record only when setter argument 2 is nonzero;
+the record-ID table's field semantics remain unresolved. Fixed item
+`0x01070762` instead receives the adjacent one-byte encoding of setter argument
+2: nonpositive input leaves `0xff`, and positive `n` stores the low byte of
+`n-1`. The getter captures its second direct output reference, preinitializes
+that output to zero, reads the same item as a signed byte, skips the update for
+signed `-1`, and otherwise stores the signed value plus one. This is an exact
+typed setter/getter encode/decode boundary, but no admissible input range is
+proven and a universal round trip is not claimed. It also does not prove that
+the manager or view exposes that reference as selected style.
+
+The five request additions use exact keys `[383, 386, 389, 392, 383]` and
+holder roles `[selector-code, argument-3, argument-4-or-branch-default,
+argument-5, selector-code]`. Argument 3 is captured directly, argument 4 comes
+from the caller stack for normal selectors but is forced to zero for selector
+11/13 construction, and argument 5 comes from the next caller-stack word.
+These are positional dataflow roles only. Human field names, named preset
+labels, the menu-selected-state join, the meanings of the three other dynamic
+backup writes, and all renderer/live-view/JPEG/movie effects remain unresolved.
+The fail-closed record is
+`analysis/a6400-creative-style-selector-code.json`.
 
 A separate controller field at object offset `0x15c` takes observed values
 0 through 4 and is backed by item `0x01070763`. Slot 57 resets the field to zero
@@ -347,7 +376,7 @@ cardinality.
 Case 16 passes the pre-existing pointer at object offset `0x14c` to
 `CmnMenuTableUtil::_updateCursorForBeltWidget` with flags `(true,false)`, then
 continues through menu-ID and branch-selected widget lookup boundaries. The
-This slice proves no construction, store, or typed cast for that pointer, so it
+slice proves no construction, store, or typed cast for that pointer, so it
 remains a `PAS_MenuDataSelectBelt*` interface
 boundary rather than a concrete belt implementation. Case 13 separately uses
 the word at `+0x190` to open `view/FNMENU` for value 3, open
@@ -481,9 +510,11 @@ and derives no recovery promotion from it.
 
 ## Next safe experiments
 
-1. Resolve the five arguments of the target-native Creative Style setter and
-   follow `@M00B` operation 38 to its renderer/live-view/JPEG/movie consumers;
-   do not label an argument or output without an exact dataflow edge.
+1. Resolve the table-selected selector-record IDs, the human meanings of setter
+   arguments 2 through 5, and the three remaining dynamic backup writes. Join
+   the thirteen accepted selector indices to exact menu labels/state, then
+   follow `@M00B` operation 38 to renderer/live-view/JPEG/movie consumers; do
+   not label an argument or output without an exact dataflow edge.
 2. Compare that verified five-value ABI with the first-class Creative Look
    contract, then locate independent storage and processing boundaries for the
    three missing axes before changing any layer or axis from `UNESTABLISHED`.
