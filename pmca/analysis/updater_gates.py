@@ -268,6 +268,8 @@ def render_updater_gate_report(
             "",
             f"The α6400A receiver graph is retained as `{architecture_control['status']}`: source model `{architecture_control['source_model_id']}` differs from target `{architecture_control['target_model_id']}`, so the related guard/signature architecture does not establish the original α6400 selector or receiver, target acceptance, complete write order, terminal verification, or recovery. It changes no recovery readiness input.",
             "",
+            "The packaged updater flag state, LSI notification, and bounded flag-consumer evidence are proven. They do not establish a next-boot partition selector: the `/dev/nflasha1 selector join` remains unproven, numeric or indirect selector analysis remains incomplete, and an external or opaque selector remains possible.",
+            "",
             "Candidate paths:",
             "",
         ]

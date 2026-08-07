@@ -1,4 +1,4 @@
-# α6400A Updater and α6400 Creative Style Deep Dive
+# α6400A Updater and α6400 Creative Look / Creative Style Substrate Deep Dive
 
 ## Scope and safety state
 
@@ -132,6 +132,14 @@ Therefore α6400A 1.01 does not supply α6700-style Creative Look or the request
 vertical/touch menu UI under an obvious dormant resource or symbol boundary.
 
 ## First-class Creative Look boundary result
+
+Creative Look remains the product goal: an α7 V-like interaction pattern with
+a first-class Creative Look interface and experience, excluding features that
+require newer image-processing hardware. Creative Style is the target-native
+substrate for understanding typed values, persistence, menu scaffolding, and
+model transport. It is not the product definition. Creative Style-based visual
+emulation remains the final fallback only if native Creative Look behavior
+cannot be established.
 
 The first-class investigation is now defined and traced independently of the
 Creative Style fallback. Its exact contract contains the ten bases `ST`, `PT`,
@@ -323,7 +331,7 @@ supplies a one-byte local selector-code value.
 
 That selector byte does not use the first fixed backup item. It is passed to a
 table-selected dynamic backup record only when setter argument 2 is nonzero;
-the record-ID table's field semantics remain unresolved. Fixed item
+the record-ID table's human field meaning remains unresolved. Fixed item
 `0x01070762` instead receives the adjacent one-byte encoding of setter argument
 2: nonpositive input leaves `0xff`, and positive `n` stores the low byte of
 `n-1`. The getter captures its second direct output reference, preinitializes
@@ -333,8 +341,11 @@ typed setter/getter encode/decode boundary, but no admissible input range is
 proven and a universal round trip is not claimed. It also does not prove that
 the manager or view exposes that reference as selected style.
 
-The four dynamic setter writes now have exact frame-relative geometry without
-assigning numeric record IDs or human meanings. The selector code uses the
+The four dynamic setter writes now have exact frame-relative geometry. Four
+fixed read-only record-ID tables copied into both setter and getter frames
+establish their fixed numeric domains and static setter/getter family equality,
+but not their human field meanings or a runtime write-followed-by-read
+transaction. The selector code uses the
 record word at `r7 + 0xf8 + 4*argument-2` and the byte at `r7 + 0x11e`.
 Arguments 3 and 4 use record words at `r7 + 0xdc + 4*argument-2` and
 `r7 + 0x8c + 4*argument-2`, with values at `r7 + 0x4` and `r7 + 0x140`.
@@ -350,8 +361,9 @@ argument-5, selector-code]`. Argument 3 is captured directly, argument 4 comes
 from the caller stack for normal selectors but is forced to zero for selector
 11/13 construction, and argument 5 comes from the next caller-stack word.
 These are positional dataflow roles only. Human field names, named preset
-labels, the menu-selected-state join, the numeric semantics of all dynamic
-backup ID sources, and all renderer/live-view/JPEG/movie effects remain unresolved.
+labels, the menu-selected-state join, equality of the independently supplied
+runtime indices, a write-followed-by-read transaction, and all
+renderer/live-view/JPEG/movie effects remain unresolved.
 The fail-closed record is
 `analysis/a6400-creative-style-selector-code.json`.
 
@@ -411,6 +423,19 @@ tag 0—not a Creative Style-specific operation handler. No named handler or
 renderer/live-view/still-JPEG/movie sink is proven. The fail-closed record is
 `analysis/a6400-creative-style-model-request-transport.json`.
 
+The follow-on runtime-binding slice proves generic machinery without promoting
+the candidate identity. `model/CAMERA` reaches `IdGenerator::Get`, but the
+splitter delimiter, table key/row semantics, and numeric ID remain unresolved.
+The ModelManager record layout, `dlopen`/`dlsym` loader chain, ParamList clone
+into the secondary Event, generic scheduler slot, and destination-bit-4
+receiver/default-predicate structure are bounded. A co-located manifest,
+factory export, RTTI, or matching table entry is compatible evidence only:
+static table equality does not prove a runtime transaction. No operation-38
+edge reaches the candidate branch, no runtime descriptor binds the record to
+`ModelCamera`, and no five-field consumer or live-view/still-JPEG/movie sink is
+proven. The fail-closed record is
+`analysis/a6400-creative-style-runtime-binding.json`.
+
 A separate controller field at object offset `0x15c` takes observed values
 0 through 4 and is backed by item `0x01070763`. Slot 57 resets the field to zero
 and persists that reset. The object field uses word stores while its backup
@@ -451,6 +476,12 @@ the word at `+0x190` to open `view/FNMENU` for value 3, open
 selector is not selected Creative Style state. The preceding binding report
 separately classifies the resettable controller-mode word at `+0x15c`.
 
+After the widget lookup, the exact thunk/interworking edge reaches the defined
+default implementation of `PAS_BtnCombo::cast(Widget*)`. That generic virtual
+type filter returns the original widget or null. It does not type the belt
+member at `+0x14c`; bounded derived/default-base constructors contain no direct
+store to that field and stop at an unresolved external `ViewBase` constructor.
+
 The nearest concrete touchability lead does not yet solve touch. A typed
 `ViewMovieRecPatch` path gets and checks a `PAS_BarCtrlDial`, then passes the
 exact value false to `setTouchable(bool)` before entering Movie/Iris data
@@ -486,39 +517,37 @@ semantic boundaries:
   and may force-release the touch panel. This is display/input configuration,
   not menu selection.
 
-A bounded static direct-call search resolved all 21 supplied
-`ViewSettingMenu` candidate roots and found no path to the master layout factory
-at `0x181f18`, the vertical-info layout factory at `0x24222c`, the function
-owning the resource-touch call at requested offset `0x2307d0`, or the function
-owning SampleView setup at requested offset `0x6666a4`. The earlier
-`ViewStlrec` search resolved 10 of 25 supplied candidate addresses and found no
-direct path to either layout factory.
+The earlier address classifications are corrected. `0x181f18` is an internal
+selector branch that returns an ID on its equality path, not a layout factory.
+`0x24222c`, `0x3ba6dc`, and `0x651684` are second halfwords of Thumb-2
+instructions and are not executable entries. Five other `viewUnified2` sites
+are constructor/vptr-material paths, not class-ID loads. The two nominated
+handoff terminals are also resolved negatively: `0x1b9b6a` is a local branch
+landing and `0x1bb30e` is an exposure-mode getter PLT call.
 
-The UXC scanner then found the same five little-endian layout class IDs in both
+The UXC scanner still finds the same five little-endian class IDs in both
 target resources: five references in `share/app/master_camera.uxc` and five in
-`share/app/viewStlrec.uxc`. Exact vertical layout names were not present. These
-ten findings are references only; they do not identify a selector predicate,
-factory invocation, geometry, or executable dispatch.
+`share/app/viewStlrec.uxc`. These ten findings are reference-only; they do not
+identify executable owners, selector predicates, geometry, or invocation.
 
-Read-only executable cross-reference analysis mapped those IDs to the master
-factory, the vertical-info factory, five individual class-ID owners, and two
-functions that reference all five IDs. A depth-32 search from the three
-`ViewStlrec` roots traversed resolved direct calls and treated every unresolved
-indirect call as terminal. It found no path to any of those nine owners. The
-matching `ViewSettingMenu` search also found no path to either known
-touch/resource owner. In total, the committed report contains 17 bounded
-negative searches: six earlier direct-call searches and 11 mixed-graph
-searches with explicit terminal-indirect semantics.
+The real vertical-classical factory is in `viewUnified7.so` at
+`0x52840..0x529b8`. Its exact group/class decision tree has twelve constructor
+arms, including five vertical-classical layout constructors. Wrapper
+`0x529cc..0x529e8` forwards to that factory and has five address-taken
+registrations in read-only data. Address-taken registration does not prove runtime
+invocation: there is no resolved `viewUnified2`-to-factory edge, no
+orientation-to-factory join, and no geometry, control-direction, touch, hit
+test, or menu-selection dataflow through the factory/wrapper slice.
 
-No resolved virtual/table path was found, so none was promoted into the report.
-All nine modern-interface behavior-contract items remain `UNESTABLISHED`:
-landscape layout, both portrait layouts, orientation-based layout selection,
+The corrected dispatch report retains four bounded negative searches for the
+two real `ViewSettingMenu` resource/sample-owner questions and their mixed
+graphs. No invalid offset is treated as a function target. All nine
+modern-interface behavior-contract items remain `UNESTABLISHED`: landscape
+layout, both portrait layouts, orientation-based layout selection,
 control-direction transform, touch-coordinate transform, menu hit testing,
-menu selection dispatch, and UI-state persistence. The evidence therefore does
-not establish full settings-menu touch or a modern vertical UI. Virtual targets
-behind the 349 unresolved call sites and cross-module `viewUnified7.so` layout
-selection remain open static-analysis questions, not positive capability
-claims.
+menu selection dispatch, and UI-state persistence. Unresolved indirect
+registration/invocation remains an open static-analysis boundary, not a
+positive capability claim.
 
 ## Donor roles and remaining portability gap
 
@@ -569,6 +598,17 @@ earlier receiver that installs 2.00 is still missing. A settings or factory
 reset changes configuration; it is not firmware restoration and cannot satisfy
 this gate.
 
+The packaged-selector scan narrows this missing edge without closing it.
+`up.sh` creates updater mode flags and sends the corresponding numeric LSI
+notification; the nested updater script, four exact `libObj.so` path-literal
+owners, and crypter flag classes prove packaged flag-state producers and
+references. `bootin.elf` documents `normal`, `adj`, and `usbj` modes and has
+zero printable-string hits for the named updater-partition terms. That is only
+a bounded named-reference result: numeric or indirect selector analysis remains
+incomplete, and an unavailable or opaque component remains possible. The
+missing `/dev/nflasha1` selector join therefore blocks an exact external stock
+restore procedure and does not change `BLOCKED_STATIC_EVIDENCE`.
+
 The α6400A control is now bounded further by a canonical read-only `sauu`
 graph: 37 functions, 71 calls, three unresolved indirect calls, and maximum
 depth two. It confirms model/region/version guards and a signature workflow in
@@ -588,9 +628,10 @@ and derives no recovery promotion from it.
    to a record, its `+0x1c` executor, and a concrete factory before treating
    `ModelCamera` as the operation-38 handler. Trace the generic destination-4
    scheduling path separately rather than treating it as Creative Style logic.
-3. Resolve the numeric semantics of the dynamic backup ID sources and join
-   each setter write to its branch-dependent getter output. Do not label an
-   argument or output without an exact dataflow edge.
+3. Resolve the human meanings of the four fixed dynamic record-ID families and
+   join the independently supplied runtime indices so each setter write reaches
+   its branch-dependent getter output. Do not label an argument or output
+   without an exact dataflow edge.
 4. Compare that verified five-value ABI with the first-class Creative Look
    contract, then locate independent storage and processing boundaries for the
    three missing axes before changing any layer or axis from `UNESTABLISHED`.

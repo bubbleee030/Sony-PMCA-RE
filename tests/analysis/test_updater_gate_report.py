@@ -97,6 +97,10 @@ class UpdaterGateReportTests(unittest.TestCase):
         self.assertIn("NON_TRANSFERABLE_CONTROL", rendered)
         self.assertIn("0x81030017", rendered)
         self.assertIn("settings reset", rendered)
+        self.assertIn("packaged updater flag state", rendered)
+        self.assertIn("LSI notification", rendered)
+        self.assertIn("/dev/nflasha1 selector join", rendered)
+        self.assertIn("numeric or indirect selector analysis remains incomplete", rendered)
 
     def test_claim_promotion_or_unknown_fields_are_rejected(self):
         document = committed_gate_map()

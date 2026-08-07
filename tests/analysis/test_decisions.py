@@ -469,6 +469,12 @@ class DecisionRenderingTests(unittest.TestCase):
         self.assertIn(marker, report)
         committed_prefix = report.split(marker, 1)[0] + "\n"
         self.assertEqual(committed_prefix, render_markdown(document))
+        normalized = " ".join(report.split())
+        self.assertIn("Creative Look remains the product goal", normalized)
+        self.assertIn("Creative Style is the target-native substrate", normalized)
+        self.assertIn("registration does not prove runtime invocation", normalized)
+        self.assertIn("static table equality does not prove a runtime transaction", normalized)
+        self.assertIn("BLOCKED_STATIC_EVIDENCE", normalized)
 
     def test_renderer_rejects_invalid_documents_instead_of_adding_a_conclusion(self):
         document = synthetic_document()

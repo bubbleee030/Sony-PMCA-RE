@@ -112,6 +112,11 @@ Next permitted action: Continue static work on the missing pre-normal-runtime up
 - Practical Creative Look approximation: **available only as the final fallback**. Six direct Creative Style mappings and four clearly inferred Style Box recipes cover all ten named Creative Looks without firmware modification; the primary goal remains a first-class Creative Look interface and usage model.
 - Camera execution: **blocked**. No candidate image was built, no output is installable, and neither camera was accessed.
 
+Creative Look remains the product goal. Creative Style is the target-native
+substrate for typed values, persistence, menu scaffolding, and generic model
+transport; its visual recipes remain fallback-only and do not define the
+requested Creative Look interface or usage pattern.
+
 ## Donor correction
 
 ILCE-6700 firmware remains the behavioral donor for Creative Look and newer touch controls. It is not evidence for the requested full vertical shooting display. The actual official vertical-display donor used here is ILCE-7M5 (α7 V), whose Help Guide states that shooting information, control-wheel directions, and touch operations rotate with monitor orientation. This correction prevents flipped touch-icon placement from being mistaken for a portrait UI.
@@ -173,10 +178,10 @@ This is deliberately not a model-mismatch bypass. Unknown containers, unavailabl
 | Component | Strongest target evidence | Result | Exact unresolved boundary |
 |---|---|---|---|
 | Vertical orientation state | α6400 detects horizontal and both vertical orientations | Ready for conceptual reuse | None at the state-detection boundary |
-| Vertical layout selection | Five target class IDs occur in both pinned UXC resources and have executable owners | Not ready | A depth-32 mixed-call search traversed resolved direct edges but found no path from the three orientation/layout roots to a factory or class-ID owner; unresolved indirect terminals and cross-module selection remain open |
+| Vertical layout selection | Five class IDs occur as reference-only entries in each pinned UXC; a real 12-arm `viewUnified7` factory and five address-taken wrapper registrations are bounded separately | Not ready | Address-taken registration does not prove runtime invocation; no `viewUnified2` handoff or orientation-to-factory join is established |
 | Vertical render transform | Target vertical-layout identities are pinned | Not ready | Exact geometry, renderer/compositor path, resources, clipping, and relocations unestablished |
 | Vertical input transform | Orientation-aware AF exists; bounded UI trace is pinned | Not ready | No control-direction or touch-coordinate transform, hit-test ABI, or dispatcher path established |
-| Touch event routing | Settings-menu paths reach touch status and touch-pad configuration | Not ready for menus | No coordinate consumer, hit test, selection dispatcher, or safe extension point established |
+| Touch event routing | Settings-menu paths reach touch status/touch-pad configuration, and the Creative Style lookup reaches a generic `PAS_BtnCombo::cast` type filter | Not ready for menus | The cast does not type the belt field or establish coordinates, hit testing, gestures, selection dispatch, or a safe extension point |
 | Touch menu widgets | Known resource-touch owners were searched from the menu root | Not ready | No reached production resource binding; widget framework, bindings, icons, and geometry remain unestablished |
 
 ## Creative Look result
@@ -190,6 +195,16 @@ does not prove Creative Look processing. Authenticated α6700 and α7 V donor
 payloads remain opaque and cannot supply tables, functions, offsets, or ABI
 evidence.
 
+The target-native substrate is materially clearer without becoming a Creative
+Look implementation. A five-value Creative Style setter/getter, persistence
+geometry, `@M00B` operation-38 transport, generic ModelManager record layout,
+dynamic loader, ParamList clone, scheduler, and destination-bit-4 receiver
+structure are bounded. The numeric `model/CAMERA` ID, runtime descriptor,
+record/executor identity, five-field consumption, and live-view/still-JPEG/movie
+bindings remain unresolved. A manifest, factory export, RTTI, or matching
+entry is candidate evidence only: static table equality does not prove a
+runtime transaction.
+
 The fallback-only practical guide is [`a6400-creative-look-guide.md`](a6400-creative-look-guide.md). Direct semantic mappings are ST→Standard, PT→Portrait, NT→Neutral, VV→Vivid, BW→B/W, and SE→Sepia. Bounded Style Box approximations are VV2→Clear `(0,+1,0)`, FL→Deep `(-1,0,0)`, IN→Neutral `(-2,-2,-1)`, and SH→Light `(-1,-1,-1)`, expressed as α6400 contrast/saturation/sharpness values.
 
 These recipes do not claim Sony-exact colorimetry. ILCE-6700 exposes eight adjustment axes while α6400 Creative Style exposes three; highlights, shadows, fade, sharpness range, and clarity cannot be represented directly. The guide preserves those gaps and supplies a fixed comparison protocol rather than hiding them.
@@ -199,6 +214,13 @@ These recipes do not claim Sony-exact colorimetry. ILCE-6700 exposes eight adjus
 The exact restoration source is now authenticated: source key `a6400-tw-v2.00`, model `ILCE-6400`, model ID `0x81030011`, region `TW`/code `0`, and version `2.00`, with both the official updater and embedded stock container digest-pinned. This proves source identity only. It does not prove that a running or failed camera accepts a same-version reinstall, that every affected component is restored, or that power loss has a safe resume or rollback outcome.
 
 The strict report remains `BLOCKED_STATIC_EVIDENCE`. The three candidates—`official-updater-reinstall`, `usb-recovery-or-updater-mode`, and `independent-maintenance-path`—are independently `UNESTABLISHED`, with no runtime-independent entry, complete write scope, or terminal verification. The six mandatory scenarios—modified UI runtime failure, interrupted feature update, nonbooting application layer, version/downgrade rejection, boot-chain failure, and power loss during stock restore—are likewise all `UNESTABLISHED` for every candidate.
+
+The packaged false-lead scan proves updater mode-flag state, LSI notification,
+four bounded `libObj.so` path-literal owners, nested updater-script state, and
+crypter flag classes. `bootin.elf` contributes only a printable-string search
+for documented `normal`, `adj`, and `usbj` modes. Numeric or indirect selector
+analysis remains incomplete, so the missing `/dev/nflasha1` selector join still
+blocks an exact external restore procedure.
 
 The α6400A 1.01 receiver graph is retained only as `NON_TRANSFERABLE_CONTROL`: source model `0x81030017` differs from target `0x81030011`, so its guard/signature architecture cannot prove the α6400's original selector, installing receiver, target acceptance, write order, terminal verification, or recovery. It changes none of those candidates, scenarios, or readiness gates.
 

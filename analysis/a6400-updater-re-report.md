@@ -109,6 +109,8 @@ The strict recovery status is `BLOCKED_STATIC_EVIDENCE`, with `recovery_validate
 
 The α6400A receiver graph is retained as `NON_TRANSFERABLE_CONTROL`: source model `0x81030017` differs from target `0x81030011`, so the related guard/signature architecture does not establish the original α6400 selector or receiver, target acceptance, complete write order, terminal verification, or recovery. It changes no recovery readiness input.
 
+The packaged updater flag state, LSI notification, and bounded flag-consumer evidence are proven. They do not establish a next-boot partition selector: the `/dev/nflasha1 selector join` remains unproven, numeric or indirect selector analysis remains incomplete, and an external or opaque selector remains possible.
+
 Candidate paths:
 
 - `official-updater-reinstall` — `UNESTABLISHED`

@@ -204,6 +204,21 @@ class CreativeLookTranslationTests(unittest.TestCase):
         self.assertIn("all five Creative Look layers remain `UNESTABLISHED`", normalized)
         self.assertIn("all eight axes remain independently `UNESTABLISHED`", normalized)
         self.assertIn("live view, still JPEG, and movie", normalized)
+        self.assertIn("Creative Look remains the product goal", normalized)
+        self.assertIn("Creative Style is the target-native substrate", normalized)
+        self.assertIn("registration does not prove runtime invocation", normalized)
+        self.assertIn("static table equality does not prove a runtime transaction", normalized)
+        self.assertIn("fixed numeric domains and static setter/getter family equality", normalized)
+        self.assertIn("independently supplied runtime indices", normalized)
+        self.assertIn("BLOCKED_STATIC_EVIDENCE", normalized)
+        for stale in (
+            "master layout factory at `0x181f18`",
+            "vertical-info layout factory at `0x24222c`",
+            "five individual class-ID owners",
+            "without assigning numeric record IDs",
+            "numeric semantics of all dynamic backup ID sources",
+        ):
+            self.assertNotIn(stale, normalized)
 
 
 if __name__ == "__main__":
