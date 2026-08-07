@@ -14,10 +14,12 @@ class UISlot34DispatchError(ValueError):
 
 VIEW_UNIFIED7_SIZE = 541_024
 VIEW_UNIFIED7_SHA256 = "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+VIEW_UNIFIED2_SIZE = 11_530_552
+VIEW_UNIFIED2_SHA256 = "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
 OWNER = 0x529CC
 SLOT_OFFSET = 0x88
 VTABLE_DIGEST = "5091e8d299df9b16b043b11578d3ed306c6d289dd778a1c72ccff0c76b0adca9"
-OWNER_DIGEST = "a6a669db167c7335a65cd3015c59a20a08af4b8de46330a4ca1c3231fa2b8e0a"
+OWNER_DIGEST = "5406b615542a0af4ab6ad07060126b98e00e673456d9958dbd9733a2f3508bab"
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
 _FORBIDDEN = {"bytes", "raw", "raw_bytes", "disassembly", "instructions", "key_material", "private_key", "device", "device_path", "write", "flash", "package"}
 
@@ -78,6 +80,15 @@ EXPECTED_STACK_REJECTIONS = (_rejected("stack-slot-load", 0x50058, 0x501EA),)
 EXPECTED_LITERAL_REJECTIONS = tuple(_rejected("pc-literal-slot-precedent", function, site, site) for function, site in ((0x16014, 0x16AA2), (0x16014, 0x178E4), (0x16014, 0x17E54), (0x16014, 0x17F4C), (0x16014, 0x18044), (0x16014, 0x1813C), (0x197BC, 0x19B50), (0x19CB8, 0x19ED4), (0x1B418, 0x1B526), (0x1E484, 0x1E4C4), (0x1E484, 0x1E4CA), (0x1E484, 0x1E4CE), (0x1E484, 0x1E5F4), (0x1E484, 0x1E5F8), (0x1EB94, 0x1FC32), (0x1EB94, 0x20D70), (0x23324, 0x236E8), (0x26578, 0x2699C), (0x26C58, 0x26CB4), (0x2897C, 0x289F4), (0x28B54, 0x28C64), (0x2B210, 0x2B238), (0x2B210, 0x2B23E), (0x2ECB8, 0x2EF1C), (0x2EFC0, 0x2F106), (0x2F194, 0x2F2DA), (0x2F368, 0x2F4B0), (0x2F540, 0x2F678), (0x30750, 0x30902), (0x31A48, 0x31DD8), (0x31A48, 0x31F28), (0x3220C, 0x32210), (0x3220C, 0x32216), (0x34D70, 0x34F92), (0x35780, 0x35798), (0x37390, 0x373E8), (0x3A4C2, 0x3A604), (0x3E868, 0x3ED20), (0x4B830, 0x4B950), (0x51432, 0x514BC), (0x54D54, 0x54DB0), (0x54D54, 0x54DB6), (0x54D54, 0x54DBA), (0x54D54, 0x54ED8), (0x54D54, 0x54EDE), (0x54D54, 0x54EE2), (0x55924, 0x55D2E), (0x55924, 0x55E48), (0x5B0E0, 0x5B330), (0x5B3C8, 0x5BBFE), (0x5C0D4, 0x5C442)))
 EXPECTED_LITERAL_REJECTIONS = EXPECTED_LITERAL_REJECTIONS + (_rejected("pc-literal-slot-precedent", 0x3EEC4, 0x3F53E, 0x3F53E),)
 EXPECTED_LITERAL_REJECTIONS = tuple(sorted(EXPECTED_LITERAL_REJECTIONS, key=lambda item: (item["function"], item["site"])))
+EXPECTED_RUNTIME_CONSUMPTION_BOUNDARY = {
+    "vu2_source": {"module": "lib/viewUnified2.so", "size": VIEW_UNIFIED2_SIZE, "sha256": VIEW_UNIFIED2_SHA256},
+    "unique_nul_terminated_name_occurrences": [{"name": "viewUnified7.so", "address": 0x7AEBE2, "occurrence_count": 1}, {"name": "17LkmLayoutModeMngr", "address": 0x7AEC2F, "occurrence_count": 1}],
+    "same_registry_or_container_proven": False,
+    # This is deliberately a two-input check, not a claim about every module.
+    "dynamic_linkage": {"vu2_needed_vu7": False, "vu7_needed_vu2": False},
+    "typed_layout_dynsym_linkage": {"checked_modules": ["lib/viewUnified2.so", "lib/viewUnified7.so"], "layoutst_dial_modules": [], "layout_converter_base_modules": []},
+    "first_unresolved_boundary": "runtime-loading-object-selection-and-dispatch-consumption",
+}
 EXPECTED_RAW_EXPORT = {
     "schema_version": 1,
     "program": "viewUnified7.so",
@@ -92,7 +103,8 @@ EXPECTED_RAW_EXPORT = {
     "structural_scan": {"rule": {"receiver_vptr_load_offset": 0, "slot_load_offset": SLOT_OFFSET, "indirect_call": "blx-register", "function_bounded": True}, "accepted_candidates": [], "rejected_stack_candidates": list(EXPECTED_STACK_REJECTIONS), "direct_pc_literal_loads": list(EXPECTED_LITERAL_REJECTIONS)},
     "direct_owner_inbound_edges": [],
     "root_path_summary": {"max_depth": 32, "roots": list(_ROOTS), "paths_to_owner": [], "paths_to_slot34_dispatch": []},
-    "claims": {"slot_34_dispatch_found": False, "orientation_layout_selector_found": False},
+    "runtime_consumption_boundary": EXPECTED_RUNTIME_CONSUMPTION_BOUNDARY,
+    "claims": {"slot_34_dispatch_found": False, "runtime_consumption_found": False, "orientation_layout_selector_found": False},
     "behavior_support": {"touch_coordinate_transform": False, "menu_touch_hit_test": False, "menu_touch_selection": False},
     "truncated": False,
 }
@@ -119,7 +131,7 @@ def normalize_ui_slot34_dispatch_export(document):
         raise UISlot34DispatchError("source identity is not exact")
     if raw["analysis_mode"] != EXPECTED_RAW_EXPORT["analysis_mode"] or raw["truncated"] is not False:
         raise UISlot34DispatchError("analysis mode is not complete and read-only")
-    for key, expected in (("prior_vtable_interface", EXPECTED_RAW_EXPORT["prior_vtable_interface"]), ("prior_owner_registration", EXPECTED_RAW_EXPORT["prior_owner_registration"]), ("owner", EXPECTED_RAW_EXPORT["owner"]), ("table_evidence", EXPECTED_RAW_EXPORT["table_evidence"]), ("header_references", EXPECTED_RAW_EXPORT["header_references"]), ("direct_owner_inbound_edges", []), ("root_path_summary", EXPECTED_RAW_EXPORT["root_path_summary"]), ("claims", EXPECTED_RAW_EXPORT["claims"]), ("behavior_support", EXPECTED_RAW_EXPORT["behavior_support"])):
+    for key, expected in (("prior_vtable_interface", EXPECTED_RAW_EXPORT["prior_vtable_interface"]), ("prior_owner_registration", EXPECTED_RAW_EXPORT["prior_owner_registration"]), ("owner", EXPECTED_RAW_EXPORT["owner"]), ("table_evidence", EXPECTED_RAW_EXPORT["table_evidence"]), ("header_references", EXPECTED_RAW_EXPORT["header_references"]), ("direct_owner_inbound_edges", []), ("root_path_summary", EXPECTED_RAW_EXPORT["root_path_summary"]), ("runtime_consumption_boundary", EXPECTED_RUNTIME_CONSUMPTION_BOUNDARY), ("claims", EXPECTED_RAW_EXPORT["claims"]), ("behavior_support", EXPECTED_RAW_EXPORT["behavior_support"])):
         if raw[key] != expected:
             raise UISlot34DispatchError(f"{key} is not the pinned bounded result")
     scan = _exact(raw["structural_scan"], {"rule", "accepted_candidates", "rejected_stack_candidates", "direct_pc_literal_loads"}, "structural scan")
@@ -140,7 +152,7 @@ def summarize_ui_slot34_dispatch_export(document):
 
 def validate_ui_slot34_dispatch_report(document):
     _forbid(document)
-    report = _exact(document, {"schema_version", "analysis_scope", "camera_policy", "camera_executed", "installable", "camera_test_eligible", "source", "export_summary", "prior_vtable_interface", "prior_owner_registration", "structural_scan", "claims", "behavior_support", "readiness", "conclusion"}, "slot-34 report")
+    report = _exact(document, {"schema_version", "analysis_scope", "camera_policy", "camera_executed", "installable", "camera_test_eligible", "source", "export_summary", "prior_vtable_interface", "prior_owner_registration", "structural_scan", "runtime_consumption_boundary", "claims", "behavior_support", "readiness", "conclusion"}, "slot-34 report")
     if report["schema_version"] != 1 or report["analysis_scope"] != "offline-static-ui-slot34-dispatch" or report["camera_policy"] != "physically-disconnected":
         raise UISlot34DispatchError("report scope is invalid")
     if any(report[field] is not False for field in ("camera_executed", "installable", "camera_test_eligible")):
@@ -152,6 +164,6 @@ def validate_ui_slot34_dispatch_report(document):
     if summary != expected or not _DIGEST.fullmatch(summary["canonical_export_sha256"]):
         raise UISlot34DispatchError("report digest is unpinned")
     expected_scan = {"rule": EXPECTED_RAW_EXPORT["structural_scan"]["rule"], "accepted_candidate_count": 0, "stack_rejection_count": len(EXPECTED_STACK_REJECTIONS), "direct_pc_literal_load_count": len(EXPECTED_LITERAL_REJECTIONS)}
-    if report["prior_vtable_interface"] != EXPECTED_RAW_EXPORT["prior_vtable_interface"] or report["prior_owner_registration"] != EXPECTED_RAW_EXPORT["prior_owner_registration"] or report["structural_scan"] != expected_scan or report["claims"] != EXPECTED_RAW_EXPORT["claims"] or report["behavior_support"] != EXPECTED_RAW_EXPORT["behavior_support"] or report["readiness"] != "LOCAL_SLOT34_STRUCTURAL_DISPATCH_NOT_FOUND" or report["conclusion"] != "No local structurally exact slot-34 virtual dispatch was found. External, cross-module, callback, and nonlocal indirect routes remain unresolved.":
+    if report["prior_vtable_interface"] != EXPECTED_RAW_EXPORT["prior_vtable_interface"] or report["prior_owner_registration"] != EXPECTED_RAW_EXPORT["prior_owner_registration"] or report["structural_scan"] != expected_scan or report["runtime_consumption_boundary"] != EXPECTED_RUNTIME_CONSUMPTION_BOUNDARY or report["claims"] != EXPECTED_RAW_EXPORT["claims"] or report["behavior_support"] != EXPECTED_RAW_EXPORT["behavior_support"] or report["readiness"] != "LOCAL_SLOT34_DISPATCH_AND_RUNTIME_CONSUMPTION_UNRESOLVED" or report["conclusion"] != "Five typed slot-34 registrations and their wrapper are statically bounded, but no local slot-34 invoker is proven. Separate VU2 name occurrences do not prove a common registry or container. The first unresolved boundary is runtime loading, object selection, and dispatch consumption that could load or select viewUnified7.so, create a typed receiver, and invoke slot 34; this does not establish orientation, Creative Look, touch, coordinates, runtime execution, installability, or recovery behavior.":
         raise UISlot34DispatchError("report promotes unestablished behavior")
     return copy.deepcopy(report)

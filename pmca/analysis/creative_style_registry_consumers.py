@@ -29,7 +29,7 @@ CREATIVE_STYLE = {
 }
 PRIOR_ARTIFACTS = {
     "creative_style_definition_registration_sha256": "783507c05654f172a03966c259635677430c78801c9a067f122e21752dda0d16",
-    "creative_style_root_consumers_sha256": "30982e2edb295595e6ec3d3c5bed05d6a6352055491014672f89b3a4c33b023c",
+    "creative_style_root_consumers_sha256": "35e0eda6f4ffa817c14fa5c0c1cacf8d279bda7c8b58e83a4f8514a22e85f80d",
 }
 CLAIMS = {
     "typed_default_registry_found": True,

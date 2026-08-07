@@ -11,10 +11,24 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 REPORT = ROOT / "analysis" / "a6400-creative-style-menu-list-construction.json"
+REGISTRY_REPORT = ROOT / "analysis" / "a6400-creative-style-registry-consumers.json"
 EXPORTER = ROOT / "tools" / "static" / "export_a6400_creative_style_menu_list_construction.py"
 
 
 class CreativeStyleMenuListConstructionContractTests(unittest.TestCase):
+    def test_prior_registry_digest_matches_the_current_validated_report(self):
+        from pmca.analysis.creative_style_menu_list_construction import (
+            PRIOR_REGISTRY_DIGEST,
+        )
+        from pmca.analysis.creative_style_registry_consumers import (
+            validate_creative_style_registry_consumers_report,
+        )
+
+        upstream = validate_creative_style_registry_consumers_report(
+            json.loads(REGISTRY_REPORT.read_text(encoding="utf-8"))
+        )
+        self.assertEqual(PRIOR_REGISTRY_DIGEST, upstream["summary"]["artifact_sha256"])
+
     def test_contract_pins_constructor_bounded_lists(self):
         from pmca.analysis.creative_style_menu_list_construction import (
             EXPECTED_RAW_EXPORT,

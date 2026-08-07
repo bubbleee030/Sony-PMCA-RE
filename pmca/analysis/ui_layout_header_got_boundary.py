@@ -15,7 +15,7 @@ class UILayoutHeaderGotBoundaryError(ValueError):
 VIEW_UNIFIED7_SIZE = 541_024
 VIEW_UNIFIED7_SHA256 = "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
 VTABLE_DIGEST = "5091e8d299df9b16b043b11578d3ed306c6d289dd778a1c72ccff0c76b0adca9"
-SLOT34_DISPATCH_DIGEST = "7ffc38879262336103be44ea060ec8d958d98ec6ae6b7b67a43f893b2d633ab5"
+SLOT34_DISPATCH_DIGEST = "34bedfe4e6f2cb881d759842ce6d11bdad1eb52fcd3bd1a7e76f6b1ff5c844f9"
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
 _FORBIDDEN = {
     "bytes", "raw", "raw_bytes", "disassembly", "instructions", "key_material",

@@ -11,7 +11,7 @@
     "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
   },
   "export_summary": {
-    "canonical_export_sha256": "30982e2edb295595e6ec3d3c5bed05d6a6352055491014672f89b3a4c33b023c",
+    "canonical_export_sha256": "35e0eda6f4ffa817c14fa5c0c1cacf8d279bda7c8b58e83a4f8514a22e85f80d",
     "root_relocation_count": 2,
     "executable_range_count": 1358,
     "accepted_candidate_count": 0,
@@ -19,7 +19,7 @@
   },
   "prior_ui_layout_header_got_boundary": {
     "analysis_contract": "ui_layout_header_got_boundary",
-    "canonical_export_sha256": "340bdc376c9cefb543871b1e194434db755c910c5dc87728869f726cbdbb13ef"
+    "canonical_export_sha256": "339ee0b43ca7f8e23dff6118733bf028e0d0446e5294130a4fe82f77815e51de"
   },
   "root_relocations": [
     {"index": 3858, "site": "0x72434", "relocation_type": "R_ARM_GLOB_DAT", "section": ".got"},

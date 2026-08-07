@@ -18,7 +18,7 @@
     "live_view_binding_proven": false,
     "manifest_to_operation38_model_alias_join_proven": false,
     "model_camera_alias_reaches_id_generator_get_proven": true,
-    "model_camera_name_split_proven": false,
+    "model_camera_name_split_proven": true,
     "model_camera_numeric_id_resolved": false,
     "model_table_registration_proven": false,
     "modelbase_scheduler_slot_proven": true,
@@ -33,7 +33,7 @@
     "runtime_execution_proven": false,
     "still_jpeg_binding_proven": false
   },
-  "conclusion": "The model/CAMERA alias reaches IdGenerator::Get, and the generic ID lookup, ModelManager record lifecycle, dynamic loader, generic ModelBase scheduler slot, and conditional destination-4 receiver route plus its structural default predicate are statically bounded. On the statically identified AppConfig.so default route only, the AppConfig constructor obtains ModelConfig and its descriptor-table slot registers the @M00B ModelCamera manifest. The splitter delimiter and exact table/row semantics are not resolved, and no operation-38 join to the candidate path is proven. The numeric model ID, runtime route selection, operation-38 key-7 equality, ModelCamera record/executor identity, operation-38 field consumption, rendering pipelines, runtime behavior, and installability remain unproven.",
+  "conclusion": "The model/CAMERA alias reaches IdGenerator::Get, and the generic ID lookup, ModelManager record lifecycle, dynamic loader, generic ModelBase scheduler slot, and conditional destination-4 receiver route plus its structural default predicate are statically bounded. On the statically identified AppConfig.so default route only, the AppConfig constructor obtains ModelConfig and its descriptor-table slot registers the @M00B ModelCamera manifest. The slash split is resolved as table key model and row key CAMERA, while the validated direct registration is the unrelated view namespace, whose ID 11 is AUTO_SELECTION. No static model table/row registration or operation-38 join to the candidate path is proven. The numeric model ID, runtime route selection, operation-38 key-7 equality, ModelCamera record/executor identity, operation-38 field consumption, rendering pipelines, runtime behavior, and installability remain unproven.",
   "default_route_descriptor_provider": {
     "app_config_constructor": {
       "model_config_store": {
@@ -755,7 +755,7 @@
       "site": 8655164
     }
   },
-  "evidence_digest": "92dcdc06f9d6642de223bcba11528833dc2e227267d7e807a90d22b83c4fbebe",
+  "evidence_digest": "1f77b33de71eba4730a6780fc0df5c604403da6b972105fed182fe0c6c78ad48",
   "generic_executor": {
     "candidate_branch_range": {
       "end": 8694244,
@@ -840,7 +840,8 @@
     }
   },
   "id_generator": {
-    "camera_row_key_resolved": false,
+    "camera_row_key": "CAMERA",
+    "camera_row_key_resolved": true,
     "camera_row_numeric_value_resolved": false,
     "find_id_call": {
       "owner": {
@@ -867,8 +868,10 @@
       "site": 4206096,
       "target": 4205548
     },
-    "model_table_key_resolved": false,
+    "model_table_key": "model",
+    "model_table_key_resolved": true,
     "model_table_static_registration_found": false,
+    "operation38_key7_equals_descriptor_id_11_proven": false,
     "set_table": {
       "entry_store_offset": 0,
       "entry_store_site": 4205690,
@@ -881,16 +884,83 @@
       "site": 4206062,
       "target": 4203556
     },
-    "splitter_delimiter_semantics_resolved": false,
+    "splitter_delimiter": {
+      "add_site": 4203572,
+      "address": 15616273,
+      "consumer_argument_site": 4203580,
+      "consumer_call": {
+        "site": 4203588,
+        "symbol": "_ZNKSs13find_first_ofEPKcjj"
+      },
+      "load_site": 4203562,
+      "value": "/"
+    },
+    "splitter_delimiter_semantics_resolved": true,
     "splitter_owner": {
       "end": 4203680,
       "start": 4203556
     },
     "validated_static_set_table_call": {
+      "key_argument_site": 3669262,
+      "key_constructor": {
+        "call_site": 3669252,
+        "destination_site": 3669246,
+        "symbol": "_ZNSsC1EPKcRKSaIcE"
+      },
       "module": "lib/viewUnified2.so",
+      "owner": {
+        "end": 3669308,
+        "start": 3669168
+      },
       "site": 3669264,
       "symbol": "_ZN11IdGenerator8SetTableESsP7IdTable",
-      "table_key_resolved": false
+      "table_argument_site": 3669260,
+      "table_key": "view",
+      "table_key_resolved": true
+    },
+    "validated_static_view_table": {
+      "constructor_owner": {
+        "end": 4147996,
+        "start": 4147940
+      },
+      "exact_camera_row_found": false,
+      "id_11": {
+        "name": "AUTO_SELECTION",
+        "name_add_site": 3246332,
+        "name_address": 8044107,
+        "name_load_site": 3246320,
+        "store_site": 3246350
+      },
+      "initializer_chain": {
+        "constructor_initializer_call_site": 4147970,
+        "getter_constructor_call_site": 4148026,
+        "initializer_thunk_branch_site": 4199888,
+        "initializer_thunk_entry": 4199880,
+        "initializer_thunk_owner": {
+          "end": 4199904,
+          "start": 4199844
+        }
+      },
+      "initializer_owner": {
+        "end": 3256616,
+        "start": 3245856
+      },
+      "lazy_getter_owner": {
+        "end": 4148108,
+        "start": 4147996
+      },
+      "row_count": 191,
+      "row_id_range": [
+        0,
+        190
+      ],
+      "table_instance": 11728452,
+      "table_key_literal": {
+        "add_site": 3669250,
+        "address": 7979546,
+        "load_site": 3669244,
+        "value": "view"
+      }
     }
   },
   "installable": false,
@@ -1052,8 +1122,8 @@
     }
   },
   "summary": {
-    "canonical_export_sha256": "7a8c91657191942fe6eaab1026334c7487af045148695dff5db334230c303a13",
-    "proven_static_claim_count": 8,
+    "canonical_export_sha256": "80ec7ea1160acc4362d2b5e869f885733003016727a878fd0091f88c02b2d459",
+    "proven_static_claim_count": 9,
     "resolved_model_identity_count": 0,
     "resolved_pipeline_sink_count": 0,
     "resolved_runtime_descriptor_count": 1

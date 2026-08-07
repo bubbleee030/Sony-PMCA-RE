@@ -1,6 +1,7 @@
 """Read-only static exporter for α6400 generic Creative Style runtime binding."""
 from __future__ import annotations
 
+from collections import deque
 import copy
 import hashlib
 import io
@@ -265,6 +266,132 @@ def _require_thumb_pic_pointer(blob, mappings, deps, load_site, add_site, regist
         raise RuntimeError(label + " PIC pointer differs")
 
 
+def _reachable_thumb_instructions(blob, mappings, deps, owner):
+    """Decode only control-flow-reachable instructions inside one EXIDX owner."""
+    start, end = owner["start"], owner["end"]
+    pending = deque([start])
+    result = {}
+    while pending:
+        address = pending.popleft()
+        if address in result or not start <= address < end:
+            continue
+        item = _instruction(blob, mappings, deps, address)
+        result[address] = item
+        fallthrough = address + item.size
+        returns = (
+            item.id == deps["pop"]
+            and any(
+                operand.type == deps["reg"] and operand.reg == deps["pc"]
+                for operand in item.operands
+            )
+        ) or (
+            item.id == deps["bx"]
+            and any(
+                operand.type == deps["reg"] and operand.reg == deps["lr"]
+                for operand in item.operands
+            )
+        )
+        if returns:
+            continue
+        if item.group(deps["call_group"]):
+            pending.append(fallthrough)
+            continue
+        target = _direct_target(item, deps)
+        if item.group(deps["jump_group"]) and target is not None:
+            pending.append(target)
+            if item.cc != deps["al"] or item.id in (deps["cbz"], deps["cbnz"]):
+                pending.append(fallthrough)
+            continue
+        pending.append(fallthrough)
+    return result
+
+
+def _static_id_table_rows(view, deps, table):
+    instructions = _reachable_thumb_instructions(
+        view["blob"], view["mappings"], deps, table["initializer_owner"]
+    )
+    addresses = sorted(instructions)
+    position = {address: index for index, address in enumerate(addresses)}
+    rows = []
+    for address in addresses:
+        item = instructions[address]
+        if not (
+            item.id == deps["str"]
+            and len(item.operands) == 2
+            and item.operands[0].type == deps["reg"]
+            and item.operands[0].reg == deps["r3"]
+            and item.operands[1].type == deps["mem"]
+            and item.operands[1].mem.base == deps["r0"]
+            and item.operands[1].mem.index == 0
+            and item.operands[1].mem.disp == 0
+            and not item.writeback
+        ):
+            continue
+        index = position[address]
+        if index == 0:
+            raise RuntimeError("static IdTable row value producer is missing")
+        producer = instructions[addresses[index - 1]]
+        if (
+            producer.id != deps["mov"]
+            or len(producer.operands) != 2
+            or producer.operands[0].type != deps["reg"]
+            or producer.operands[0].reg != deps["r3"]
+            or producer.operands[1].type != deps["imm"]
+        ):
+            continue
+        identifier = producer.operands[1].imm
+        candidates = []
+        for candidate_address in addresses[max(0, index - 16):index]:
+            candidate = instructions[candidate_address]
+            if (
+                candidate.id == deps["ldr"]
+                and len(candidate.operands) == 2
+                and candidate.operands[0].type == deps["reg"]
+                and candidate.operands[0].reg == deps["r1"]
+                and candidate.operands[1].type == deps["mem"]
+                and candidate.operands[1].mem.base == deps["pc"]
+                and candidate.operands[1].mem.index == 0
+            ):
+                candidates.append(candidate_address)
+        if not candidates:
+            raise RuntimeError("static IdTable row name producer is missing")
+        load_site = candidates[-1]
+        add_sites = [
+            candidate_address
+            for candidate_address in addresses[position[load_site] + 1:index]
+            if (
+                instructions[candidate_address].id == deps["add"]
+                and len(instructions[candidate_address].operands) == 2
+                and instructions[candidate_address].operands[0].type == deps["reg"]
+                and instructions[candidate_address].operands[0].reg == deps["r1"]
+                and instructions[candidate_address].operands[1].type == deps["reg"]
+                and instructions[candidate_address].operands[1].reg == deps["pc"]
+            )
+        ]
+        if len(add_sites) != 1:
+            raise RuntimeError("static IdTable row PIC add is ambiguous")
+        load = instructions[load_site]
+        literal = _transport._thumb_literal_address(
+            load, deps, deps["r1"], "static IdTable row name"
+        )
+        name_address = (
+            _word(view["blob"], view["mappings"], literal) + add_sites[0] + 4
+        ) & 0xFFFFFFFF
+        rows.append(
+            {
+                "id": identifier,
+                "name": _transport._cstring(
+                    view["blob"], view["mappings"], name_address
+                ),
+                "load_site": load_site,
+                "add_site": add_sites[0],
+                "name_address": name_address,
+                "store_site": address,
+            }
+        )
+    return rows
+
+
 def _plt_symbols(elf, blob, mappings):
     dynsym = elf.get_section_by_name(".dynsym")
     relplt = elf.get_section_by_name(".rel.plt")
@@ -301,6 +428,35 @@ def _validate_id_generator(obj, view, deps):
         expected["splitter_call"]["site"], expected["splitter_call"]["target"],
         "IdGenerator splitter", True,
     )
+    delimiter = expected["splitter_delimiter"]
+    _require_thumb_pic_pointer(
+        obj["blob"], obj["mappings"], deps,
+        delimiter["load_site"], delimiter["add_site"], deps["r8"],
+        delimiter["address"], "IdGenerator delimiter",
+    )
+    _require_ascii_at(
+        obj["blob"], obj["mappings"], delimiter["address"],
+        delimiter["value"], "IdGenerator delimiter",
+    )
+    _require_move(
+        obj["blob"], obj["mappings"], deps,
+        delimiter["consumer_argument_site"], deps["r1"], deps["r8"],
+        "IdGenerator delimiter consumer argument",
+    )
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            delimiter["consumer_argument_site"] + 2,
+            delimiter["consumer_call"]["site"],
+        ),
+        deps["r1"], label="IdGenerator delimiter consumer preservation",
+    )
+    _require_call_symbol(
+        obj["blob"], obj["mappings"], deps, obj["plt"],
+        delimiter["consumer_call"]["site"],
+        delimiter["consumer_call"]["symbol"],
+        "IdGenerator delimiter consumer",
+    )
     _require_add_immediate(
         obj["blob"], obj["mappings"], deps, expected["map_argument"]["site"],
         deps["r0"], deps["r4"], expected["map_argument"]["base_offset"],
@@ -320,19 +476,114 @@ def _validate_id_generator(obj, view, deps):
         deps["str"], deps["r4"], deps["r0"], expected["set_table"]["entry_store_offset"],
         "IdGenerator SetTable entry",
     )
-    if expected["input_alias"] != "model/CAMERA":
+    if (
+        expected["input_alias"] != "model/CAMERA"
+        or expected["splitter_delimiter_semantics_resolved"] is not True
+        or delimiter["value"] != "/"
+        or expected["input_alias"].split(delimiter["value"], 1)
+        != [expected["model_table_key"], expected["camera_row_key"]]
+        or expected["model_table_key_resolved"] is not True
+        or expected["camera_row_key_resolved"] is not True
+    ):
         raise RuntimeError("IdGenerator input-alias boundary differs")
-    if any(expected[field] is not False for field in (
-        "splitter_delimiter_semantics_resolved", "model_table_key_resolved", "camera_row_key_resolved",
-    )):
-        raise RuntimeError("IdGenerator split semantics were over-promoted")
     registration = expected["validated_static_set_table_call"]
-    if registration["table_key_resolved"] is not False:
-        raise RuntimeError("view SetTable key was over-promoted")
+    _require_owner(view["exidx"], registration["owner"], "view SetTable caller")
+    if registration["table_key_resolved"] is not True or registration["table_key"] != "view":
+        raise RuntimeError("view SetTable key differs")
     _require_call_symbol(
         view["blob"], view["mappings"], deps, view["plt"],
         registration["site"], registration["symbol"], "view SetTable call",
     )
+    _require_move(
+        view["blob"], view["mappings"], deps,
+        registration["key_constructor"]["destination_site"],
+        deps["r0"], deps["r7"], "view SetTable key construction destination",
+    )
+    _require_call_symbol(
+        view["blob"], view["mappings"], deps, view["plt"],
+        registration["key_constructor"]["call_site"],
+        registration["key_constructor"]["symbol"],
+        "view SetTable key construction",
+    )
+    _require_move(
+        view["blob"], view["mappings"], deps,
+        registration["key_argument_site"], deps["r0"], deps["r7"],
+        "view SetTable key argument",
+    )
+    _require_move(
+        view["blob"], view["mappings"], deps,
+        registration["table_argument_site"], deps["r1"], deps["r0"],
+        "view SetTable IdTable argument",
+    )
+    table = expected["validated_static_view_table"]
+    key = table["table_key_literal"]
+    _require_thumb_pic_pointer(
+        view["blob"], view["mappings"], deps,
+        key["load_site"], key["add_site"], deps["r1"], key["address"],
+        "view SetTable key",
+    )
+    _require_ascii_at(
+        view["blob"], view["mappings"], key["address"], key["value"],
+        "view SetTable key",
+    )
+    if key["value"] != registration["table_key"]:
+        raise RuntimeError("view SetTable key join differs")
+    _require_owner(view["exidx"], table["lazy_getter_owner"], "view IdTable getter")
+    _require_owner(view["exidx"], table["constructor_owner"], "view IdTable constructor")
+    _require_owner(view["exidx"], table["initializer_owner"], "view IdTable initializer")
+    chain = table["initializer_chain"]
+    _require_owner(view["exidx"], chain["initializer_thunk_owner"], "view IdTable initializer thunk")
+    _require_direct_target(
+        view["blob"], view["mappings"], deps,
+        0x37FD08, table["lazy_getter_owner"]["start"],
+        "view IdTable getter", True,
+    )
+    _require_thumb_pic_pointer(
+        view["blob"], view["mappings"], deps,
+        0x3F4B56, 0x3F4B58, deps["r0"], table["table_instance"],
+        "view IdTable instance",
+    )
+    _require_direct_target(
+        view["blob"], view["mappings"], deps,
+        chain["getter_constructor_call_site"], table["constructor_owner"]["start"],
+        "view IdTable constructor", True,
+    )
+    _require_direct_target(
+        view["blob"], view["mappings"], deps,
+        chain["constructor_initializer_call_site"], chain["initializer_thunk_entry"],
+        "view IdTable initializer thunk", True,
+    )
+    _require_direct_target(
+        view["blob"], view["mappings"], deps,
+        chain["initializer_thunk_branch_site"], table["initializer_owner"]["start"],
+        "view IdTable initializer", False,
+    )
+    rows = _static_id_table_rows(view, deps, table)
+    if (
+        len(rows) != table["row_count"]
+        or [row["id"] for row in rows]
+        != list(range(table["row_id_range"][0], table["row_id_range"][1] + 1))
+        or any(row["name"] == "CAMERA" for row in rows)
+        or table["exact_camera_row_found"] is not False
+    ):
+        raise RuntimeError("view IdTable row inventory differs")
+    id_11_rows = [row for row in rows if row["id"] == 11]
+    id_11 = table["id_11"]
+    if len(id_11_rows) != 1 or id_11_rows[0] != {
+        "id": 11,
+        "name": id_11["name"],
+        "load_site": id_11["name_load_site"],
+        "add_site": id_11["name_add_site"],
+        "name_address": id_11["name_address"],
+        "store_site": id_11["store_site"],
+    }:
+        raise RuntimeError("view IdTable ID 11 differs")
+    if (
+        expected["model_table_static_registration_found"] is not False
+        or expected["camera_row_numeric_value_resolved"] is not False
+        or expected["operation38_key7_equals_descriptor_id_11_proven"] is not False
+    ):
+        raise RuntimeError("model/CAMERA numeric identity was over-promoted")
     return copy.deepcopy(expected)
 
 

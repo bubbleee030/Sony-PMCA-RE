@@ -10,10 +10,27 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 REPORT_PATH = ROOT / "analysis" / "a6400-creative-style-root-consumers.json"
+HEADER_GOT_REPORT_PATH = ROOT / "analysis" / "a6400-ui-layout-header-got-boundary.json"
 EXPORTER_PATH = ROOT / "tools" / "static" / "export_a6400_creative_style_root_consumers.py"
 
 
 class CreativeStyleRootConsumerTests(unittest.TestCase):
+    def test_prior_header_got_digest_matches_the_current_validated_report(self):
+        from pmca.analysis.creative_style_root_consumers import (
+            UI_LAYOUT_HEADER_GOT_BOUNDARY_DIGEST,
+        )
+        from pmca.analysis.ui_layout_header_got_boundary import (
+            validate_ui_layout_header_got_boundary_report,
+        )
+
+        upstream = validate_ui_layout_header_got_boundary_report(
+            json.loads(HEADER_GOT_REPORT_PATH.read_text(encoding="utf-8"))
+        )
+        self.assertEqual(
+            UI_LAYOUT_HEADER_GOT_BOUNDARY_DIGEST,
+            upstream["export_summary"]["canonical_export_sha256"],
+        )
+
     def test_normalizer_accepts_only_the_pinned_zero_result(self):
         from pmca.analysis.creative_style_root_consumers import (
             EXPECTED_RAW_EXPORT,

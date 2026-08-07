@@ -440,9 +440,13 @@ registration result without promoting the candidate identity. On the
 statically identified AppConfig default-route branch only, AppConfig obtains
 `ModelConfig`, whose descriptor-table slot registers `@M00B` with
 `modelCamera.so` and `ModelCameraToInstance`. The runtime selector remains
-unresolved. `model/CAMERA` reaches `IdGenerator::Get`, but the splitter
-delimiter, table key/row semantics, and numeric ID remain unresolved; in
-particular, numeric equality to 11 is not proven. The ModelManager record
+unresolved. `model/CAMERA` reaches `IdGenerator::Get`; the splitter now proves
+`/` as its delimiter, so the lookup uses outer table key `model` and row key
+`CAMERA`. The validated direct `SetTable` call instead registers the unrelated
+`view` namespace. Its statically initialized 191-row table maps ID 11 to
+`AUTO_SELECTION` and has no exact `CAMERA` row. No static `model` table
+registration or `CAMERA` numeric value is proven, so equality to the separate
+`@M00B` descriptor ID 11 remains unproven. The ModelManager record
 layout, `dlopen`/`dlsym` loader chain, ParamList clone into the secondary Event,
 generic scheduler slot, and destination-bit-4 receiver/default-predicate
 structure are bounded. That branch-local registration does not resolve the
@@ -561,6 +565,16 @@ invocation: there is no resolved `viewUnified2`-to-factory edge, no
 orientation-to-factory join, and no geometry, control-direction, touch, hit
 test, or menu-selection dataflow through the factory/wrapper slice.
 
+The next static boundary is now narrower but still unresolved. `viewUnified2`
+contains separate exact NUL-terminated occurrences of `viewUnified7.so` and
+`17LkmLayoutModeMngr`; their shared registry or container is not proven.
+The pinned `viewUnified2`/`viewUnified7` pair has no reciprocal `DT_NEEDED`
+edge and no typed `LayoutST_DIAL` or `LayoutConverterBase` dynamic-symbol
+linkage. Together with the empty bounded slot-34 dispatch scan, this leaves
+runtime loading, layout-object selection, and indirect dispatch consumption as
+the first unresolved edge. It does not prove that the target ever invokes the
+five vertical factory registrations.
+
 The corrected dispatch report retains four bounded negative searches for the
 two real `ViewSettingMenu` resource/sample-owner questions and their mixed
 graphs. No invalid offset is treated as a function target. All nine
@@ -622,14 +636,26 @@ this gate.
 
 The packaged-selector scan narrows this missing edge without closing it.
 `up.sh` creates updater mode flags and sends the corresponding numeric LSI
-notification; the nested updater script, four exact `libObj.so` path-literal
-owners, and crypter flag classes prove packaged flag-state producers and
+notification. The packaged `ud_send_lsi.elf` writes the numeric argument into
+an OSAL message for queue `0x804b0376`; `libObj.so` registers its updater-mode
+callback on `0x004b0376`. Both `libosal_uipc.so` paths mask queue identifiers to
+the same low-15-bit value `0x376`, and the registered generic wrapper forwards
+the message payload to the callback. That callback clears and recreates only
+the known `/setting/updater/mode*` flags. Its successful flag-creation and
+acknowledgement-allocation path sends a reply; error paths release the input
+without proving a reply. This proves the packaged LSI-to-local-flag delivery
+path plus a conditional success acknowledgement, not an unconditional response
+for every payload and not the pre-normal partition selector.
+
+The nested updater script, four exact `libObj.so` path-literal owners, and
+crypter flag classes independently prove packaged flag-state producers and
 references. `bootin.elf` documents `normal`, `adj`, and `usbj` modes and has
-zero printable-string hits for the named updater-partition terms. That is only
-a bounded named-reference result: numeric or indirect selector analysis remains
-incomplete, and an unavailable or opaque component remains possible. The
-missing `/dev/nflasha1` selector join therefore blocks an exact external stock
-restore procedure and does not change `BLOCKED_STATIC_EVIDENCE`.
+zero printable-string hits for the named updater-partition terms. That remains
+only a bounded named-reference result: numeric or indirect selector analysis
+is incomplete, and an unavailable or opaque component remains possible. The
+missing consumer that converts mode/LSI state into `/dev/nflasha1` selection
+therefore still blocks an exact external stock restore procedure and does not
+change `BLOCKED_STATIC_EVIDENCE`.
 
 The α6400A control is now bounded further by a canonical read-only `sauu`
 graph: 37 functions, 71 calls, three unresolved indirect calls, and maximum
@@ -645,8 +671,9 @@ and derives no recovery promotion from it.
    factory-result capture/store join to the outer receiver before claiming any
    route-to-producer or producer-to-consumer EventManager identity. Do not
    promote ModelManager delivery from the currently unjoined route branches.
-2. Resolve the runtime `IdGenerator` table entry for `model/CAMERA` and the
-   ModelManager record-registration path. Join the resulting key-7 numeric ID
+2. Locate the runtime/indirect `SetTable("model", ...)` mutation and its exact
+   `CAMERA` row, then resolve the ModelManager record-registration path. Join
+   the resulting key-7 numeric ID
    to a record, its `+0x1c` executor, and a concrete factory before treating
    `ModelCamera` as the operation-38 handler. Trace the generic destination-4
    scheduling path separately rather than treating it as Creative Style logic.

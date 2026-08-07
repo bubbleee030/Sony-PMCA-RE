@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 MODULE_PATH = ROOT / "pmca" / "analysis" / "creative_style_registry_consumers.py"
 EXPORTER_PATH = ROOT / "tools" / "static" / "export_a6400_creative_style_registry_consumers.py"
 REPORT_PATH = ROOT / "analysis" / "a6400-creative-style-registry-consumers.json"
+ROOT_CONSUMERS_REPORT_PATH = ROOT / "analysis" / "a6400-creative-style-root-consumers.json"
 
 
 def _load(path, name):
@@ -33,6 +34,20 @@ def _live_registry_export():
 
 
 class CreativeStyleRegistryConsumersTests(unittest.TestCase):
+    def test_prior_root_consumer_digest_matches_the_current_validated_report(self):
+        module = _load(MODULE_PATH, "creative_style_registry_consumers_prior_contract")
+        from pmca.analysis.creative_style_root_consumers import (
+            validate_creative_style_root_consumers_report,
+        )
+
+        upstream = validate_creative_style_root_consumers_report(
+            json.loads(ROOT_CONSUMERS_REPORT_PATH.read_text(encoding="utf-8"))
+        )
+        self.assertEqual(
+            module.PRIOR_ARTIFACTS["creative_style_root_consumers_sha256"],
+            upstream["export_summary"]["canonical_export_sha256"],
+        )
+
     def test_normalizer_rejects_incomplete_duplicate_and_promoted_registry(self):
         spec = importlib.util.spec_from_file_location("creative_style_registry_consumers", MODULE_PATH)
         module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)

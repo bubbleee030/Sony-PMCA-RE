@@ -40,9 +40,22 @@ ID_GENERATOR = {
     "splitter_owner": {"start": 0x402424, "end": 0x4024A0},
     "splitter_call": {"site": 0x402DEE, "target": 0x402424},
     "input_alias": "model/CAMERA",
-    "splitter_delimiter_semantics_resolved": False,
-    "model_table_key_resolved": False,
-    "camera_row_key_resolved": False,
+    "splitter_delimiter_semantics_resolved": True,
+    "splitter_delimiter": {
+        "load_site": 0x40242A,
+        "add_site": 0x402434,
+        "consumer_argument_site": 0x40243C,
+        "consumer_call": {
+            "site": 0x402444,
+            "symbol": "_ZNKSs13find_first_ofEPKcjj",
+        },
+        "address": 0xEE4911,
+        "value": "/",
+    },
+    "model_table_key_resolved": True,
+    "model_table_key": "model",
+    "camera_row_key_resolved": True,
+    "camera_row_key": "CAMERA",
     "map_argument": {"site": 0x402E0A, "base_offset": 4},
     "map_lookup_call": {
         "site": 0x402E10,
@@ -61,12 +74,51 @@ ID_GENERATOR = {
     },
     "validated_static_set_table_call": {
         "module": "lib/viewUnified2.so",
+        "owner": {"start": 0x37FCB0, "end": 0x37FD3C},
         "site": 0x37FD10,
         "symbol": "_ZN11IdGenerator8SetTableESsP7IdTable",
-        "table_key_resolved": False,
+        "key_constructor": {
+            "destination_site": 0x37FCFE,
+            "call_site": 0x37FD04,
+            "symbol": "_ZNSsC1EPKcRKSaIcE",
+        },
+        "key_argument_site": 0x37FD0E,
+        "table_argument_site": 0x37FD0C,
+        "table_key_resolved": True,
+        "table_key": "view",
+    },
+    "validated_static_view_table": {
+        "table_key_literal": {
+            "load_site": 0x37FCFC,
+            "add_site": 0x37FD02,
+            "address": 0x79C21A,
+            "value": "view",
+        },
+        "lazy_getter_owner": {"start": 0x3F4B1C, "end": 0x3F4B8C},
+        "constructor_owner": {"start": 0x3F4AE4, "end": 0x3F4B1C},
+        "initializer_owner": {"start": 0x318720, "end": 0x31B128},
+        "initializer_chain": {
+            "getter_constructor_call_site": 0x3F4B3A,
+            "constructor_initializer_call_site": 0x3F4B02,
+            "initializer_thunk_owner": {"start": 0x4015A4, "end": 0x4015E0},
+            "initializer_thunk_entry": 0x4015C8,
+            "initializer_thunk_branch_site": 0x4015D0,
+        },
+        "table_instance": 0xB2F644,
+        "row_count": 191,
+        "row_id_range": [0, 190],
+        "id_11": {
+            "name": "AUTO_SELECTION",
+            "name_load_site": 0x3188F0,
+            "name_add_site": 0x3188FC,
+            "name_address": 0x7ABE4B,
+            "store_site": 0x31890E,
+        },
+        "exact_camera_row_found": False,
     },
     "model_table_static_registration_found": False,
     "camera_row_numeric_value_resolved": False,
+    "operation38_key7_equals_descriptor_id_11_proven": False,
 }
 
 MODEL_MANAGER_RECORDS = {
@@ -494,7 +546,6 @@ DESTINATION_4 = {
 }
 
 UNPROVEN_CLAIMS = (
-    "model_camera_name_split_proven",
     "model_camera_numeric_id_resolved",
     "model_table_registration_proven",
     "runtime_descriptor_provider_proven",
@@ -518,6 +569,7 @@ UNPROVEN_CLAIMS = (
 
 CLAIMS = {
     "model_camera_alias_reaches_id_generator_get_proven": True,
+    "model_camera_name_split_proven": True,
     "id_generator_runtime_lookup_boundary_reached": True,
     "generic_model_manager_record_lifecycle_layout_proven": True,
     "generic_dynamic_loader_chain_proven": True,
@@ -627,9 +679,11 @@ CONCLUSION = (
     "destination-4 receiver route plus its structural default predicate are statically bounded. "
     "On the statically identified AppConfig.so default route only, the AppConfig constructor "
     "obtains ModelConfig and its descriptor-table slot registers the @M00B ModelCamera manifest. "
-    "The splitter delimiter and exact "
-    "table/row semantics are not resolved, and no operation-38 join to the candidate path is "
-    "proven. The numeric model ID, runtime route selection, operation-38 key-7 equality, "
+    "The slash split is resolved as table key model and row key CAMERA, while the "
+    "validated direct registration is the unrelated view namespace, whose ID 11 is "
+    "AUTO_SELECTION. No static model table/row registration or operation-38 join to the "
+    "candidate path is proven. The numeric model ID, runtime route selection, operation-38 "
+    "key-7 equality, "
     "ModelCamera record/executor "
     "identity, operation-38 field consumption, rendering pipelines, runtime behavior, and "
     "installability remain unproven."

@@ -9,10 +9,25 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 REPORT_PATH = ROOT / "analysis" / "a6400-ui-layout-header-got-boundary.json"
+SLOT34_REPORT_PATH = ROOT / "analysis" / "a6400-ui-slot34-dispatch.json"
 EXPORTER_PATH = ROOT / "tools" / "static" / "export_a6400_ui_layout_header_got_boundary.py"
 
 
 class UILayoutHeaderGotBoundaryTests(unittest.TestCase):
+    def test_prior_slot34_digest_matches_the_current_validated_report(self):
+        from pmca.analysis.ui_layout_header_got_boundary import (
+            SLOT34_DISPATCH_DIGEST,
+        )
+        from pmca.analysis.ui_slot34_dispatch import validate_ui_slot34_dispatch_report
+
+        slot34 = validate_ui_slot34_dispatch_report(
+            json.loads(SLOT34_REPORT_PATH.read_text(encoding="utf-8"))
+        )
+        self.assertEqual(
+            SLOT34_DISPATCH_DIGEST,
+            slot34["export_summary"]["canonical_export_sha256"],
+        )
+
     def test_normalizer_accepts_only_the_exact_loader_boundary(self):
         from pmca.analysis.ui_layout_header_got_boundary import (
             EXPECTED_RAW_EXPORT,

@@ -98,10 +98,11 @@ class RecoveryPathTests(unittest.TestCase):
             {
                 "reference": "analysis/a6400-cxd90045-transition-boundary.json",
                 "schema_version": 5,
-                "canonical_report_sha256": "2c12b56315225e82ee26874b10617bc213b3235ed817e002174bc700a040e265",
+                "canonical_report_sha256": "4de80c13413a5615d1f77a09e6ce401a8138cc5c6450d6d4eb3bc9a9a0d9ec1d",
                 "packaged_selector_scan": {
                     "updater_flag_state_proven": True,
                     "lsi_notification_proven": True,
+                    "lsi_flag_delivery_path_proven": True,
                     "packaged_flag_consumer_proven": True,
                     "nflasha1_selector_join_proven": False,
                     "updater_partition_selector_present": False,

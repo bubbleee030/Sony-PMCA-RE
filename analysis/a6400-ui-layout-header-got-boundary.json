@@ -11,7 +11,7 @@
     "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
   },
   "export_summary": {
-    "canonical_export_sha256": "340bdc376c9cefb543871b1e194434db755c910c5dc87728869f726cbdbb13ef",
+    "canonical_export_sha256": "339ee0b43ca7f8e23dff6118733bf028e0d0446e5294130a4fe82f77815e51de",
     "layout_header_relocation_count": 5,
     "unsymbolized_relative_got_count": 194,
     "named_import_count": 1
@@ -22,7 +22,7 @@
   },
   "prior_slot34_dispatch": {
     "analysis_contract": "ui_slot34_dispatch",
-    "canonical_export_sha256": "7ffc38879262336103be44ea060ec8d958d98ec6ae6b7b67a43f893b2d633ab5"
+    "canonical_export_sha256": "34bedfe4e6f2cb881d759842ce6d11bdad1eb52fcd3bd1a7e76f6b1ff5c844f9"
   },
   "got_section": {
     "name": ".got",

@@ -67,7 +67,7 @@ class CreativeStyleRuntimeBindingTests(unittest.TestCase):
         self.assertTrue(CLAIMS["destination_4_receiver_route_and_default_predicate_found"])
         self.assertTrue(CLAIMS["appconfig_default_route_manifest_descriptor_table_proven"])
         self.assertFalse(CLAIMS["model_camera_numeric_id_resolved"])
-        self.assertFalse(CLAIMS["model_camera_name_split_proven"])
+        self.assertTrue(CLAIMS["model_camera_name_split_proven"])
         self.assertFalse(CLAIMS["key7_to_record_join_proven"])
         self.assertFalse(CLAIMS["record_is_modelcamera_proven"])
         self.assertFalse(CLAIMS["executor_is_modelcamera_proven"])
@@ -81,17 +81,79 @@ class CreativeStyleRuntimeBindingTests(unittest.TestCase):
         normalized = normalize_creative_style_runtime_binding_export(EXPECTED_EXPORT)
 
         self.assertEqual(normalized["id_generator"]["input_alias"], "model/CAMERA")
-        self.assertFalse(normalized["id_generator"]["splitter_delimiter_semantics_resolved"])
-        self.assertFalse(normalized["id_generator"]["model_table_key_resolved"])
-        self.assertFalse(normalized["id_generator"]["camera_row_key_resolved"])
+        self.assertTrue(normalized["id_generator"]["splitter_delimiter_semantics_resolved"])
+        self.assertEqual(
+            normalized["id_generator"]["splitter_delimiter"],
+            {
+                "load_site": 0x40242A,
+                "add_site": 0x402434,
+                "consumer_argument_site": 0x40243C,
+                "consumer_call": {
+                    "site": 0x402444,
+                    "symbol": "_ZNKSs13find_first_ofEPKcjj",
+                },
+                "address": 0xEE4911,
+                "value": "/",
+            },
+        )
+        self.assertTrue(normalized["id_generator"]["model_table_key_resolved"])
+        self.assertEqual(normalized["id_generator"]["model_table_key"], "model")
+        self.assertTrue(normalized["id_generator"]["camera_row_key_resolved"])
+        self.assertEqual(normalized["id_generator"]["camera_row_key"], "CAMERA")
         self.assertEqual(
             normalized["id_generator"]["validated_static_set_table_call"],
             {
                 "module": "lib/viewUnified2.so",
+                "owner": {"start": 0x37FCB0, "end": 0x37FD3C},
                 "site": 0x37FD10,
                 "symbol": "_ZN11IdGenerator8SetTableESsP7IdTable",
-                "table_key_resolved": False,
+                "key_constructor": {
+                    "destination_site": 0x37FCFE,
+                    "call_site": 0x37FD04,
+                    "symbol": "_ZNSsC1EPKcRKSaIcE",
+                },
+                "key_argument_site": 0x37FD0E,
+                "table_argument_site": 0x37FD0C,
+                "table_key_resolved": True,
+                "table_key": "view",
             },
+        )
+        self.assertEqual(
+            normalized["id_generator"]["validated_static_view_table"],
+            {
+                "table_key_literal": {
+                    "load_site": 0x37FCFC,
+                    "add_site": 0x37FD02,
+                    "address": 0x79C21A,
+                    "value": "view",
+                },
+                "lazy_getter_owner": {"start": 0x3F4B1C, "end": 0x3F4B8C},
+                "constructor_owner": {"start": 0x3F4AE4, "end": 0x3F4B1C},
+                "initializer_owner": {"start": 0x318720, "end": 0x31B128},
+                "initializer_chain": {
+                    "getter_constructor_call_site": 0x3F4B3A,
+                    "constructor_initializer_call_site": 0x3F4B02,
+                    "initializer_thunk_owner": {"start": 0x4015A4, "end": 0x4015E0},
+                    "initializer_thunk_entry": 0x4015C8,
+                    "initializer_thunk_branch_site": 0x4015D0,
+                },
+                "table_instance": 0xB2F644,
+                "row_count": 191,
+                "row_id_range": [0, 190],
+                "id_11": {
+                    "name": "AUTO_SELECTION",
+                    "name_load_site": 0x3188F0,
+                    "name_add_site": 0x3188FC,
+                    "name_address": 0x7ABE4B,
+                    "store_site": 0x31890E,
+                },
+                "exact_camera_row_found": False,
+            },
+        )
+        self.assertFalse(
+            normalized["id_generator"][
+                "operation38_key7_equals_descriptor_id_11_proven"
+            ]
         )
         self.assertEqual(normalized["model_manager_records"]["map_offset"], 0x88)
         self.assertEqual(
@@ -537,7 +599,7 @@ class CreativeStyleRuntimeBindingTests(unittest.TestCase):
         report = build_creative_style_runtime_binding_report(EXPECTED_EXPORT)
 
         self.assertRegex(summary["canonical_export_sha256"], r"^[0-9a-f]{64}$")
-        self.assertEqual(summary["proven_static_claim_count"], 8)
+        self.assertEqual(summary["proven_static_claim_count"], 9)
         self.assertEqual(summary["resolved_model_identity_count"], 0)
         self.assertEqual(summary["resolved_runtime_descriptor_count"], 1)
         self.assertFalse(report["camera_executed"])
@@ -553,9 +615,10 @@ class CreativeStyleRuntimeBindingTests(unittest.TestCase):
         false_fields = (
             ("id_generator", "model_table_static_registration_found"),
             ("id_generator", "camera_row_numeric_value_resolved"),
-            ("id_generator", "splitter_delimiter_semantics_resolved"),
-            ("id_generator", "model_table_key_resolved"),
-            ("id_generator", "camera_row_key_resolved"),
+            (
+                "id_generator",
+                "operation38_key7_equals_descriptor_id_11_proven",
+            ),
             ("model_manager_records", "runtime_descriptor_provider_resolved"),
             ("model_manager_records", "key7_to_record_lookup_join_found"),
             ("dynamic_loader", "exact_modelcamera_descriptor_join_found"),
@@ -664,7 +727,14 @@ class CreativeStyleRuntimeBindingExporterTests(unittest.TestCase):
 
     def test_id_generator_static_mutations_fail_closed(self):
         original_target = self.exporter._direct_target
-        for changed_site in (0x402DEE, 0x402E10, 0x402E34, 0x37FD10):
+        for changed_site in (
+            0x402444,
+            0x402DEE,
+            0x402E10,
+            0x402E34,
+            0x37FD04,
+            0x37FD10,
+        ):
             def changed_target(item, deps, *, changed_site=changed_site):
                 if item.address == changed_site:
                     return 0
@@ -677,6 +747,31 @@ class CreativeStyleRuntimeBindingExporterTests(unittest.TestCase):
                     self.exporter._validate_id_generator(
                         self.contexts["object"], self.contexts["view"], self.deps
                     )
+
+        original_decode_range = self.exporter._decode_range
+
+        def changed_delimiter_preservation(blob, mappings, deps, start, end):
+            items = original_decode_range(blob, mappings, deps, start, end)
+            return [
+                _InstructionProxy(
+                    item,
+                    list(item.operands),
+                    written_register=deps["r1"],
+                )
+                if item.address == 0x40243E
+                else item
+                for item in items
+            ]
+
+        with mock.patch.object(
+            self.exporter,
+            "_decode_range",
+            side_effect=changed_delimiter_preservation,
+        ):
+            with self.assertRaises(RuntimeError):
+                self.exporter._validate_id_generator(
+                    self.contexts["object"], self.contexts["view"], self.deps
+                )
 
         original_instruction = self.exporter._instruction
 
@@ -693,6 +788,54 @@ class CreativeStyleRuntimeBindingExporterTests(unittest.TestCase):
                 self.exporter._validate_id_generator(
                     self.contexts["object"], self.contexts["view"], self.deps
                 )
+
+        def changed_id_11_store(blob, mappings, deps, site):
+            if site == 0x31890E:
+                return original_instruction(blob, mappings, deps, 0x318910)
+            return original_instruction(blob, mappings, deps, site)
+
+        with mock.patch.object(
+            self.exporter, "_instruction", side_effect=changed_id_11_store
+        ):
+            with self.assertRaises(RuntimeError):
+                self.exporter._validate_id_generator(
+                    self.contexts["object"], self.contexts["view"], self.deps
+                )
+
+        original_word = self.exporter._word
+
+        def changed_delimiter_pointer(blob, mappings, address):
+            value = original_word(blob, mappings, address)
+            return value + 1 if address == 0x40249C else value
+
+        with mock.patch.object(
+            self.exporter, "_word", side_effect=changed_delimiter_pointer
+        ):
+            with self.assertRaises(RuntimeError):
+                self.exporter._validate_id_generator(
+                    self.contexts["object"], self.contexts["view"], self.deps
+                )
+
+        def changed_move_destination(blob, mappings, deps, site, *, changed_site):
+            item = original_instruction(blob, mappings, deps, site)
+            if site != changed_site:
+                return item
+            operands = list(item.operands)
+            operands[0] = _OperandProxy(operands[0], register=deps["r2"])
+            return _InstructionProxy(item, operands)
+
+        for changed_site in (0x40243C, 0x37FCFE, 0x37FD0C, 0x37FD0E):
+            with self.subTest(move_site=changed_site), mock.patch.object(
+                self.exporter,
+                "_instruction",
+                side_effect=lambda blob, mappings, deps, site, changed_site=changed_site: changed_move_destination(
+                    blob, mappings, deps, site, changed_site=changed_site
+                ),
+            ):
+                with self.assertRaises(RuntimeError):
+                    self.exporter._validate_id_generator(
+                        self.contexts["object"], self.contexts["view"], self.deps
+                    )
 
     def test_record_and_loader_static_mutations_fail_closed(self):
         original_instruction = self.exporter._instruction

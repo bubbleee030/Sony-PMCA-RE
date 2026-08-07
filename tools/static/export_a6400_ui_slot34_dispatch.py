@@ -22,6 +22,8 @@ from pmca.analysis.ui_slot34_dispatch import (
     OWNER_DIGEST,
     SLOT_OFFSET,
     VTABLE_DIGEST,
+    VIEW_UNIFIED2_SHA256,
+    VIEW_UNIFIED2_SIZE,
     VIEW_UNIFIED7_SHA256,
     VIEW_UNIFIED7_SIZE,
     normalize_ui_slot34_dispatch_export,
@@ -62,6 +64,70 @@ def _file_offset(elf, address, width):
     if len(matches) != 1:
         raise RuntimeError("relocation source is not uniquely file-backed")
     return matches[0]
+
+
+def _virtual_address(elf, offset, width):
+    matches = []
+    for segment in elf.iter_segments():
+        if segment["p_type"] != "PT_LOAD":
+            continue
+        if segment["p_offset"] <= offset and offset + width <= segment["p_offset"] + segment["p_filesz"]:
+            matches.append(segment["p_vaddr"] + offset - segment["p_offset"])
+    if len(matches) != 1:
+        raise RuntimeError("registry string is not uniquely load-backed")
+    return matches[0]
+
+
+def _unique_nul_terminated_name_address(elf, blob, name, expected_address):
+    value = name.encode("ascii") + b"\0"
+    if blob.count(value) != 1:
+        raise RuntimeError("pinned NUL-terminated name occurrence differs")
+    address = _virtual_address(elf, blob.index(value), len(value))
+    if address != expected_address:
+        raise RuntimeError("pinned NUL-terminated name address differs")
+
+
+def _needed(elf, library):
+    dynamic = elf.get_section_by_name(".dynamic")
+    if dynamic is None:
+        raise RuntimeError("dynamic section is missing")
+    return any(tag.needed == library for tag in dynamic.iter_tags("DT_NEEDED"))
+
+
+def _typed_layout_dynsym_modules(named_elfs):
+    result = {"layoutst_dial_modules": [], "layout_converter_base_modules": []}
+    for name, elf in named_elfs:
+        dynsym = elf.get_section_by_name(".dynsym")
+        if dynsym is None:
+            raise RuntimeError("dynamic symbol section is missing")
+        names = [symbol.name for symbol in dynsym.iter_symbols()]
+        if any("LayoutST_DIAL" in value for value in names):
+            result["layoutst_dial_modules"].append(name)
+        if any("LayoutConverterBase" in value for value in names):
+            result["layout_converter_base_modules"].append(name)
+    return result
+
+
+def _runtime_consumption_boundary(vu7_elf, vu2_path):
+    _, _, _, _, _, _, _, _, _, _, _, _, ELFFile = _dependencies()
+    source = Path(vu2_path)
+    before = _sha256(source)
+    if source.name != "viewUnified2.so" or before != VIEW_UNIFIED2_SHA256 or source.stat().st_size != VIEW_UNIFIED2_SIZE:
+        raise RuntimeError("VU2 source identity is not pinned")
+    vu2_blob = source.read_bytes()
+    with source.open("rb") as stream:
+        vu2_elf = ELFFile(stream)
+        boundary = EXPECTED_RAW_EXPORT["runtime_consumption_boundary"]
+        for occurrence in boundary["unique_nul_terminated_name_occurrences"]:
+            _unique_nul_terminated_name_address(vu2_elf, vu2_blob, occurrence["name"], occurrence["address"])
+        if _needed(vu2_elf, "viewUnified7.so") or _needed(vu7_elf, "viewUnified2.so"):
+            raise RuntimeError("pinned modules unexpectedly declare each other as needed")
+        typed = _typed_layout_dynsym_modules((("lib/viewUnified2.so", vu2_elf), ("lib/viewUnified7.so", vu7_elf)))
+    if _sha256(source) != before:
+        raise RuntimeError("VU2 source changed during read-only static export")
+    if typed != {"layoutst_dial_modules": [], "layout_converter_base_modules": []}:
+        raise RuntimeError("bounded typed-layout dynsym linkage differs")
+    return copy.deepcopy(EXPECTED_RAW_EXPORT["runtime_consumption_boundary"])
 
 
 def _prior(path, normalizer, summarizer, contract, digest):
@@ -137,7 +203,7 @@ def _structural_scan(elf, blob):
     return {"rule": copy.deepcopy(EXPECTED_RAW_EXPORT["structural_scan"]["rule"]), "accepted_candidates": ordered(accepted), "rejected_stack_candidates": ordered(stack), "direct_pc_literal_loads": ordered(literal)}
 
 
-def _metadata_from_file(source_path, vtable_path, owner_path):
+def _metadata_from_file(source_path, vtable_path, owner_path, vu2_path):
     _, _, _, _, _, _, _, _, _, _, _, _, ELFFile = _dependencies()
     source = Path(source_path)
     before = _sha256(source)
@@ -182,12 +248,14 @@ def _metadata_from_file(source_path, vtable_path, owner_path):
         if [actual.get(item["reference_address"]) for item in expected] != expected:
             raise RuntimeError("incoming vtable-header references are not the exact five typed records")
         scan = _structural_scan(elf, blob)
+        runtime_consumption_boundary = _runtime_consumption_boundary(elf, vu2_path)
     if _sha256(source) != before:
         raise RuntimeError("source changed during read-only static export")
     result = copy.deepcopy(EXPECTED_RAW_EXPORT)
     result["prior_vtable_interface"] = vtable
     result["prior_owner_registration"] = owner
     result["structural_scan"] = scan
+    result["runtime_consumption_boundary"] = runtime_consumption_boundary
     return result
 
 
@@ -200,10 +268,10 @@ def build_raw_export(adapter):
 
 
 class FileAdapter:
-    def __init__(self, source_path, vtable_path, owner_path):
-        self.source_path, self.vtable_path, self.owner_path = Path(source_path), Path(vtable_path), Path(owner_path)
+    def __init__(self, source_path, vtable_path, owner_path, vu2_path):
+        self.source_path, self.vtable_path, self.owner_path, self.vu2_path = Path(source_path), Path(vtable_path), Path(owner_path), Path(vu2_path)
     def metadata(self):
-        return _metadata_from_file(self.source_path, self.vtable_path, self.owner_path)
+        return _metadata_from_file(self.source_path, self.vtable_path, self.owner_path, self.vu2_path)
 
 
 def write_json_atomic(output_path, document):
@@ -231,12 +299,12 @@ def write_json_atomic(output_path, document):
 
 def main(args=None):
     args = list(args if args is not None else __import__("sys").argv[1:])
-    if len(args) != 4:
-        raise SystemExit("usage: <source.so> <vtable.json> <owner.json> <output.json>")
-    output = Path(args[3])
+    if len(args) != 5:
+        raise SystemExit("usage: <viewUnified7.so> <vtable.json> <owner.json> <viewUnified2.so> <output.json>")
+    output = Path(args[4])
     if Path(os.path.abspath(output)) != Path(os.path.abspath(OUTPUT_ROOT / "raw-ui-slot34-dispatch.json")):
         raise RuntimeError("slot-34 main output is not the pinned artifact path")
-    document = build_raw_export(FileAdapter(args[0], args[1], args[2]))
+    document = build_raw_export(FileAdapter(args[0], args[1], args[2], args[3]))
     write_json_atomic(output, document)
     print("UI_SLOT34_DISPATCH_EXPORT|header_refs=5|accepted=0|selector=0|touch=0")
 

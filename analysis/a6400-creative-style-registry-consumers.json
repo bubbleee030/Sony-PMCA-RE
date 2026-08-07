@@ -6,7 +6,7 @@
   "installable": false,
   "camera_test_eligible": false,
   "summary": {
-    "artifact_sha256": "fe47c5b09077daa02464cb72e1e3240dcd2478cb92f135175b5c9eb09d3f75ce",
+    "artifact_sha256": "4bb7a45b472e4c9f6d690579100d63493ec40281e9eacaccf33edccb0062c28d",
     "registry_slot_count": 415,
     "creative_style_slot": 15,
     "reference_module_count": 4,
