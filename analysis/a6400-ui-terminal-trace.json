@@ -13,60 +13,53 @@
     "source_graph_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22"
   },
   "export_summary": {
-    "canonical_export_sha256": "caf4f85e3edc4f558915fcbe5e6926f901c64c75a5a24c83b742449d94d8a16c",
-    "resolution_methods": [
+    "canonical_export_sha256": "eee7ccf337eb16545a67cb9b57a03ed476ee867076939e602208a65d5092cfc2",
+    "classification_methods": [
       "instruction-flow",
-      "pcode-literal",
-      "reference-target"
+      "reference-target",
+      "symbol-identity"
     ],
-    "resolved_track_count": 0,
-    "ambiguous_track_count": 0,
-    "unresolved_track_count": 2
+    "local_branch_landing_count": 1,
+    "exposure_mode_getter_plt_call_count": 1
   },
   "tracks": [
     {
-      "id": "orientation-handler-terminal",
+      "id": "orientation-handler-local-branch-landing",
       "root": "0x1bb41c",
-      "terminal": {
-        "caller": "0x1b9b44",
-        "site": "0x1b9b6a",
-        "kind": "unresolved-indirect"
-      },
-      "resolution": {
-        "status": "UNRESOLVED",
-        "candidate_count": 0,
-        "kind": null,
-        "target": null,
-        "table": null,
-        "slot": null,
-        "provenance": null
+      "site": {
+        "owner": "0x1b9b44",
+        "offset": "0x1b9b6a",
+        "classification": "local-branch-landing",
+        "flow_target": null,
+        "symbol": null
       }
     },
     {
-      "id": "layout-attach-terminal",
+      "id": "layout-attach-exposure-mode-getter",
       "root": "0x1bb2d2",
-      "terminal": {
-        "caller": "0x1bb2d2",
-        "site": "0x1bb30e",
-        "kind": "unresolved-indirect"
-      },
-      "resolution": {
-        "status": "UNRESOLVED",
-        "candidate_count": 0,
-        "kind": null,
-        "target": null,
-        "table": null,
-        "slot": null,
-        "provenance": null
+      "site": {
+        "owner": "0x1bb2d2",
+        "offset": "0x1bb30e",
+        "classification": "exposure-mode-getter-plt-call",
+        "flow_target": "0x14e688",
+        "symbol": "_ZN33CmnViewModelWrpCameraExposureMode21getExposureModeActValEv"
       }
     }
   ],
   "claims": {
-    "orientation_layout_selector_found": false
+    "view_unified2_to_view_unified7_factory_edge_found": false,
+    "orientation_layout_selector_found": false,
+    "orientation_to_vertical_layout_path_found": false
   },
   "behavior_support": {
-    "orientation-layout-selection": false
+    "orientation-layout-selection": false,
+    "portrait-landscape-geometry": false,
+    "control-direction-transform": false,
+    "touch-coordinate-transform": false,
+    "hit-test": false,
+    "menu-selection-dispatch": false,
+    "creative-look": false
   },
-  "readiness": "UNRESOLVED",
-  "conclusion": "The two smallest orientation/layout indirect terminals are bounded, but no complete ordered path from orientation state to a vertical layout owner is established. All modern UI behavior claims remain false."
+  "readiness": "CLASSIFIED_NO_FACTORY_HANDOFF",
+  "conclusion": "The previously misclassified sites are a local branch landing and an exposure-mode getter PLT call. Neither establishes a viewUnified2-to-viewUnified7 factory handoff or an orientation-driven UI path; all modern UI behavior claims remain false."
 }

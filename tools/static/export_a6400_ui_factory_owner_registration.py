@@ -19,11 +19,11 @@ EXPECTED_OWNER = {
     "direct_callers": (),
 }
 EXPECTED_TYPED_REGISTRATIONS = (
-    {"address": 0x70EE8, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x70FA0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x71040, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x710F0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x711A0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1268, "address": 0x70EE8, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1286, "address": 0x70FA0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1305, "address": 0x71040, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1327, "address": 0x710F0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1349, "address": 0x711A0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
 )
 EXPECTED_ORIENTATION_IMPORTS = (
     {"id": "camera_orientation", "symbol": "_ZN27CmnWrpOrientationRegisterAF20getCameraOrientationEv", "plt": 0x14958, "owners": ({"owner": 0x2D2C6, "site": 0x2D2CC}, {"owner": 0x30750, "site": 0x30934})},
@@ -36,6 +36,14 @@ EXPECTED_PATH_SUMMARY = {
     "paths_to_owner": (),
     "paths_to_factory": (),
 }
+
+
+def _validate_wrapper_registrations(elf, blob, mappings, deps, rels):
+    """Validate the five typed address-taken wrapper registrations, not invocation."""
+    del elf, blob, mappings, deps
+    if tuple(rels) != EXPECTED_TYPED_REGISTRATIONS:
+        raise RuntimeError("wrapper relocation index, type, site, or target is not exact")
+    return tuple(rels)
 
 
 def _require_dependencies():
@@ -169,17 +177,16 @@ def _metadata_from_file(source_path):
         for section in elf.iter_sections():
             if section["sh_type"] not in ("SHT_REL", "SHT_RELA"):
                 continue
-            for relocation in section.iter_relocations():
+            for index, relocation in enumerate(section.iter_relocations()):
                 if section.name != ".rel.dyn" or relocation["r_info_type"] != 23:
                     continue
                 file_offset = _virtual_to_file_offset(elf, relocation["r_offset"], 4)
                 thumb_pointer = int.from_bytes(blob[file_offset:file_offset + 4], "little")
                 target = thumb_pointer & ~1
                 if target == EXPECTED_OWNER["range"]["start"]:
-                    references.append({"address": relocation["r_offset"], "target": target, "thumb_pointer": thumb_pointer, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": section.name})
+                    references.append({"index": index, "address": relocation["r_offset"], "target": target, "thumb_pointer": thumb_pointer, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": section.name})
         references = tuple(sorted(references, key=lambda item: item["address"]))
-        if references != EXPECTED_TYPED_REGISTRATIONS:
-            raise RuntimeError("typed relative owner registration result is not exact")
+        references = _validate_wrapper_registrations(elf, blob, None, None, references)
     after = _sha256(path)
     if after != before:
         raise RuntimeError("UI owner registration source changed during read-only export")

@@ -1,137 +1,245 @@
 {
-  "schema_version": 1,
   "analysis_scope": "offline-static-target-filesystem",
+  "behavior_support": {
+    "control-direction-transform": false,
+    "menu-touch-hit-test": false,
+    "menu-touch-selection": false,
+    "orientation-layout-selection": false,
+    "shooting-layout-landscape": false,
+    "shooting-layout-portrait-shutter-down": false,
+    "shooting-layout-portrait-shutter-up": false,
+    "touch-coordinate-transform": false,
+    "ui-state-persistence": false
+  },
+  "bounded_export_summary": {
+    "artifact_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22",
+    "depth_cap": 32,
+    "direct_edge_count": 1697,
+    "edge_count": 2046,
+    "root_count": 4,
+    "truncated": false,
+    "unresolved_indirect_edge_count": 349,
+    "unresolved_indirect_terminal": true
+  },
+  "claims": {
+    "coordinate_consumer_found": false,
+    "menu_selection_dispatch_found": false,
+    "orientation_layout_selector_found": false
+  },
+  "edges": [],
+  "invalid_offset_classifications": [
+    {
+      "module": "lib/viewUnified2.so",
+      "offset": "0x181f18",
+      "owner": {
+        "start": "0x1729e8",
+        "end": "0x184ac4"
+      },
+      "instruction_boundary": true,
+      "classification": "internal-selector-branch",
+      "callable_owner": false,
+      "factory": false,
+      "class_id_load": false
+    },
+    {
+      "module": "lib/viewUnified2.so",
+      "offset": "0x24222c",
+      "owner": {
+        "start": "0x23a8c0",
+        "end": "0x2a3680"
+      },
+      "instruction_boundary": false,
+      "classification": "thumb2-second-halfword",
+      "callable_owner": false,
+      "factory": false,
+      "class_id_load": false
+    },
+    {
+      "module": "lib/viewUnified2.so",
+      "offset": "0x3ba6dc",
+      "owner": {
+        "start": "0x3b6940",
+        "end": "0x3bbed8"
+      },
+      "instruction_boundary": false,
+      "classification": "thumb2-second-halfword",
+      "callable_owner": false,
+      "factory": false,
+      "class_id_load": false
+    },
+    {
+      "module": "lib/viewUnified2.so",
+      "offset": "0x651684",
+      "owner": {
+        "start": "0x64da44",
+        "end": "0x6549e4"
+      },
+      "instruction_boundary": false,
+      "classification": "thumb2-second-halfword",
+      "callable_owner": false,
+      "factory": false,
+      "class_id_load": false
+    },
+    {
+      "module": "lib/viewUnified2.so",
+      "offset": "0x37b614",
+      "owner": {
+        "start": "0x37b60c",
+        "end": "0x37b630"
+      },
+      "instruction_boundary": true,
+      "classification": "constructor-vptr-material",
+      "callable_owner": false,
+      "factory": false,
+      "class_id_load": false
+    },
+    {
+      "module": "lib/viewUnified2.so",
+      "offset": "0x37aa18",
+      "owner": {
+        "start": "0x37aa10",
+        "end": "0x37aa34"
+      },
+      "instruction_boundary": true,
+      "classification": "constructor-vptr-material",
+      "callable_owner": false,
+      "factory": false,
+      "class_id_load": false
+    },
+    {
+      "module": "lib/viewUnified2.so",
+      "offset": "0x37b5e0",
+      "owner": {
+        "start": "0x37b5d8",
+        "end": "0x37b5fc"
+      },
+      "instruction_boundary": true,
+      "classification": "constructor-vptr-material",
+      "callable_owner": false,
+      "factory": false,
+      "class_id_load": false
+    },
+    {
+      "module": "lib/viewUnified2.so",
+      "offset": "0x37b648",
+      "owner": {
+        "start": "0x37b640",
+        "end": "0x37b664"
+      },
+      "instruction_boundary": true,
+      "classification": "constructor-vptr-material",
+      "callable_owner": false,
+      "factory": false,
+      "class_id_load": false
+    },
+    {
+      "module": "lib/viewUnified2.so",
+      "offset": "0x37b578",
+      "owner": {
+        "start": "0x37b570",
+        "end": "0x37b594"
+      },
+      "instruction_boundary": true,
+      "classification": "constructor-vptr-material",
+      "callable_owner": false,
+      "factory": false,
+      "class_id_load": false
+    }
+  ],
   "modules": [
     {
       "name": "lib/viewUnified2.so",
-      "size": 11530552,
-      "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
+      "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+      "size": 11530552
     },
     {
       "name": "lib/viewUnified7.so",
-      "size": 541024,
-      "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+      "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538",
+      "size": 541024
     },
     {
       "name": "share/app/master_camera.uxc",
-      "size": 101720,
-      "sha256": "5a0370408dff25dab43ed677c3b8e6c9be3b8bb8630d7ea15273d4f996cca7ec"
+      "sha256": "5a0370408dff25dab43ed677c3b8e6c9be3b8bb8630d7ea15273d4f996cca7ec",
+      "size": 101720
     },
     {
       "name": "share/app/viewStlrec.uxc",
-      "size": 32104,
-      "sha256": "f5aaa2f70f9b262b515a529ee2d80bf21928f0898504643cc7f174efa405d4f5"
+      "sha256": "f5aaa2f70f9b262b515a529ee2d80bf21928f0898504643cc7f174efa405d4f5",
+      "size": 32104
     }
   ],
-  "roots": [
+  "negative_searches": [
     {
-      "name": "ViewSettingMenuEventSwitch",
-      "role": "setting-menu-event-switch",
-      "module": "lib/viewUnified2.so",
-      "source_kind": "analysis-address",
-      "source_offset": "0x22355e",
-      "analysis_address": "0x22355e",
-      "function_address": "0x22355e"
+      "depth_cap": null,
+      "edge_kinds": [
+        "direct"
+      ],
+      "path_found": false,
+      "requested_roots": 21,
+      "resolved_roots": 21,
+      "root_set": "ViewSettingMenu-candidate-functions",
+      "search_method": "static-direct-call-graph",
+      "target_function_offset": "0x223b8c",
+      "target_module": "lib/viewUnified2.so",
+      "target_name": "root_resource_call_owner",
+      "target_requested_offset": "0x2307d0"
     },
     {
-      "name": "ViewStlrecOrientationRegistration",
-      "role": "orientation-registration",
-      "module": "lib/viewUnified2.so",
-      "source_kind": "elf-file-offset",
-      "source_offset": "0x1ab41c",
-      "analysis_address": "0x1bb41c",
-      "function_address": "0x1bb41c"
+      "depth_cap": null,
+      "edge_kinds": [
+        "direct"
+      ],
+      "path_found": false,
+      "requested_roots": 21,
+      "resolved_roots": 21,
+      "root_set": "ViewSettingMenu-candidate-functions",
+      "search_method": "static-direct-call-graph",
+      "target_function_offset": "0x6695d8",
+      "target_module": "lib/viewUnified2.so",
+      "target_name": "sample_view_resource_setup_owner",
+      "target_requested_offset": "0x6666a4"
     },
     {
-      "name": "ViewStlrecLayoutModeAttach",
-      "role": "layout-mode-attach",
-      "module": "lib/viewUnified2.so",
-      "source_kind": "elf-file-offset",
-      "source_offset": "0x1ab2d2",
-      "analysis_address": "0x1bb2d2",
-      "function_address": "0x1bb2d2"
+      "depth_cap": 32,
+      "edge_kinds": [
+        "direct"
+      ],
+      "path_found": false,
+      "requested_roots": 1,
+      "resolved_roots": 1,
+      "root_set": "ViewSettingMenuEventSwitch",
+      "search_method": "static-mixed-call-graph",
+      "target_function_offset": "0x223b8c",
+      "target_module": "lib/viewUnified2.so",
+      "target_name": "root_resource_call_owner",
+      "target_requested_offset": "0x2307d0",
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ]
     },
     {
-      "name": "ViewStlrecAfOrientationDispatch",
-      "role": "af-orientation-dispatch",
-      "module": "lib/viewUnified2.so",
-      "source_kind": "elf-file-offset",
-      "source_offset": "0x1b1e76",
-      "analysis_address": "0x1c1e76",
-      "function_address": "0x1c1e76"
+      "depth_cap": 32,
+      "edge_kinds": [
+        "direct"
+      ],
+      "path_found": false,
+      "requested_roots": 1,
+      "resolved_roots": 1,
+      "root_set": "ViewSettingMenuEventSwitch",
+      "search_method": "static-mixed-call-graph",
+      "target_function_offset": "0x6695d8",
+      "target_module": "lib/viewUnified2.so",
+      "target_name": "sample_view_resource_setup_owner",
+      "target_requested_offset": "0x6666a4",
+      "terminal_edge_kinds": [
+        "unresolved-indirect"
+      ]
     }
   ],
-  "bounded_export_summary": {
-    "root_count": 4,
-    "edge_count": 2046,
-    "direct_edge_count": 1697,
-    "unresolved_indirect_edge_count": 349,
-    "truncated": false,
-    "depth_cap": 32,
-    "unresolved_indirect_terminal": true,
-    "artifact_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22"
-  },
-  "uxc_owner_functions": [
-    {
-      "module": "lib/viewUnified2.so",
-      "function_offset": "0x181f18",
-      "matched_class_id_count": 5,
-      "semantic": "reference-owner-only"
-    },
-    {
-      "module": "lib/viewUnified2.so",
-      "function_offset": "0x24222c",
-      "matched_class_id_count": 1,
-      "semantic": "reference-owner-only"
-    },
-    {
-      "module": "lib/viewUnified2.so",
-      "function_offset": "0x37aa18",
-      "matched_class_id_count": 1,
-      "semantic": "reference-owner-only"
-    },
-    {
-      "module": "lib/viewUnified2.so",
-      "function_offset": "0x37b578",
-      "matched_class_id_count": 1,
-      "semantic": "reference-owner-only"
-    },
-    {
-      "module": "lib/viewUnified2.so",
-      "function_offset": "0x37b5e0",
-      "matched_class_id_count": 1,
-      "semantic": "reference-owner-only"
-    },
-    {
-      "module": "lib/viewUnified2.so",
-      "function_offset": "0x37b614",
-      "matched_class_id_count": 1,
-      "semantic": "reference-owner-only"
-    },
-    {
-      "module": "lib/viewUnified2.so",
-      "function_offset": "0x37b648",
-      "matched_class_id_count": 1,
-      "semantic": "reference-owner-only"
-    },
-    {
-      "module": "lib/viewUnified2.so",
-      "function_offset": "0x3ba6dc",
-      "matched_class_id_count": 5,
-      "semantic": "reference-owner-only"
-    },
-    {
-      "module": "lib/viewUnified2.so",
-      "function_offset": "0x651684",
-      "matched_class_id_count": 5,
-      "semantic": "reference-owner-only"
-    }
-  ],
-  "edges": [],
   "paths": [
     {
+      "edge_ids": [],
       "id": "direct-status-read",
-      "root": "ViewSettingMenuEventSwitch",
       "offsets": [
         {
           "module": "lib/viewUnified2.so",
@@ -150,13 +258,13 @@
           "offset": "0x1613f0"
         }
       ],
-      "edge_ids": [],
-      "semantic": "status-read-not-coordinate-dispatch",
-      "resolved": true
+      "resolved": true,
+      "root": "ViewSettingMenuEventSwitch",
+      "semantic": "status-read-not-coordinate-dispatch"
     },
     {
+      "edge_ids": [],
       "id": "direct-touchpad-reconfiguration",
-      "root": "ViewSettingMenuEventSwitch",
       "offsets": [
         {
           "module": "lib/viewUnified2.so",
@@ -179,387 +287,141 @@
           "offset": "0x41ae08"
         }
       ],
-      "edge_ids": [],
-      "semantic": "configuration-not-menu-selection",
-      "resolved": true
+      "resolved": true,
+      "root": "ViewSettingMenuEventSwitch",
+      "semantic": "configuration-not-menu-selection"
     }
   ],
+  "roots": [
+    {
+      "analysis_address": "0x22355e",
+      "function_address": "0x22355e",
+      "module": "lib/viewUnified2.so",
+      "name": "ViewSettingMenuEventSwitch",
+      "role": "setting-menu-event-switch",
+      "source_kind": "analysis-address",
+      "source_offset": "0x22355e"
+    },
+    {
+      "analysis_address": "0x1bb41c",
+      "function_address": "0x1bb41c",
+      "module": "lib/viewUnified2.so",
+      "name": "ViewStlrecOrientationRegistration",
+      "role": "orientation-registration",
+      "source_kind": "elf-file-offset",
+      "source_offset": "0x1ab41c"
+    },
+    {
+      "analysis_address": "0x1bb2d2",
+      "function_address": "0x1bb2d2",
+      "module": "lib/viewUnified2.so",
+      "name": "ViewStlrecLayoutModeAttach",
+      "role": "layout-mode-attach",
+      "source_kind": "elf-file-offset",
+      "source_offset": "0x1ab2d2"
+    },
+    {
+      "analysis_address": "0x1c1e76",
+      "function_address": "0x1c1e76",
+      "module": "lib/viewUnified2.so",
+      "name": "ViewStlrecAfOrientationDispatch",
+      "role": "af-orientation-dispatch",
+      "source_kind": "elf-file-offset",
+      "source_offset": "0x1b1e76"
+    }
+  ],
+  "schema_version": 1,
   "uxc_references": [
     {
-      "source": "share/app/master_camera.uxc",
       "kind": "class-id",
-      "value": "0x61dc811c",
       "offset": 53454,
-      "semantic": "reference-only"
+      "semantic": "reference-only",
+      "source": "share/app/master_camera.uxc",
+      "value": "0x61dc811c"
     },
     {
-      "source": "share/app/master_camera.uxc",
       "kind": "class-id",
-      "value": "0xbdbc36bd",
       "offset": 53646,
-      "semantic": "reference-only"
+      "semantic": "reference-only",
+      "source": "share/app/master_camera.uxc",
+      "value": "0xbdbc36bd"
     },
     {
-      "source": "share/app/master_camera.uxc",
       "kind": "class-id",
-      "value": "0x186c17f6",
       "offset": 56566,
-      "semantic": "reference-only"
+      "semantic": "reference-only",
+      "source": "share/app/master_camera.uxc",
+      "value": "0x186c17f6"
     },
     {
-      "source": "share/app/master_camera.uxc",
       "kind": "class-id",
-      "value": "0x7be1c309",
       "offset": 56910,
-      "semantic": "reference-only"
-    },
-    {
+      "semantic": "reference-only",
       "source": "share/app/master_camera.uxc",
+      "value": "0x7be1c309"
+    },
+    {
       "kind": "class-id",
-      "value": "0x8e7fdf88",
       "offset": 61502,
-      "semantic": "reference-only"
+      "semantic": "reference-only",
+      "source": "share/app/master_camera.uxc",
+      "value": "0x8e7fdf88"
     },
     {
-      "source": "share/app/viewStlrec.uxc",
       "kind": "class-id",
-      "value": "0x8e7fdf88",
       "offset": 30380,
-      "semantic": "reference-only"
+      "semantic": "reference-only",
+      "source": "share/app/viewStlrec.uxc",
+      "value": "0x8e7fdf88"
     },
     {
-      "source": "share/app/viewStlrec.uxc",
       "kind": "class-id",
-      "value": "0xbdbc36bd",
       "offset": 30440,
-      "semantic": "reference-only"
+      "semantic": "reference-only",
+      "source": "share/app/viewStlrec.uxc",
+      "value": "0xbdbc36bd"
     },
     {
-      "source": "share/app/viewStlrec.uxc",
       "kind": "class-id",
-      "value": "0x61dc811c",
       "offset": 30500,
-      "semantic": "reference-only"
+      "semantic": "reference-only",
+      "source": "share/app/viewStlrec.uxc",
+      "value": "0x61dc811c"
     },
     {
-      "source": "share/app/viewStlrec.uxc",
       "kind": "class-id",
-      "value": "0x186c17f6",
       "offset": 30560,
-      "semantic": "reference-only"
-    },
-    {
+      "semantic": "reference-only",
       "source": "share/app/viewStlrec.uxc",
+      "value": "0x186c17f6"
+    },
+    {
       "kind": "class-id",
-      "value": "0x7be1c309",
       "offset": 30680,
-      "semantic": "reference-only"
+      "semantic": "reference-only",
+      "source": "share/app/viewStlrec.uxc",
+      "value": "0x7be1c309"
     }
   ],
-  "negative_searches": [
-    {
-      "root_set": "ViewSettingMenu-candidate-functions",
-      "requested_roots": 21,
-      "resolved_roots": 21,
-      "target_name": "master_layout_factory",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x181f18",
-      "target_function_offset": "0x181f18",
-      "search_method": "static-direct-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "depth_cap": null,
-      "path_found": false
+  "vertical_factory_reference": {
+    "factory_report": "analysis/a6400-vertical-layout-factory.json",
+    "factory_report_sha256": "d21e73a1307be4709b6f30e3326a4e7d658fe01da6d18098db41b4c25b6825ce",
+    "owner_registration_report": "analysis/a6400-ui-factory-owner-registration.json",
+    "owner_registration_report_sha256": "5406b615542a0af4ab6ad07060126b98e00e673456d9958dbd9733a2f3508bab",
+    "factory_owner": {
+      "start": "0x52840",
+      "end": "0x529b8"
     },
-    {
-      "root_set": "ViewSettingMenu-candidate-functions",
-      "requested_roots": 21,
-      "resolved_roots": 21,
-      "target_name": "vertical_info_layout_factory",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x24222c",
-      "target_function_offset": "0x24222c",
-      "search_method": "static-direct-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "depth_cap": null,
-      "path_found": false
+    "wrapper_owner": {
+      "start": "0x529cc",
+      "end": "0x529e8"
     },
-    {
-      "root_set": "ViewSettingMenu-candidate-functions",
-      "requested_roots": 21,
-      "resolved_roots": 21,
-      "target_name": "root_resource_call_owner",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x2307d0",
-      "target_function_offset": "0x223b8c",
-      "search_method": "static-direct-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "depth_cap": null,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewSettingMenu-candidate-functions",
-      "requested_roots": 21,
-      "resolved_roots": 21,
-      "target_name": "sample_view_resource_setup_owner",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x6666a4",
-      "target_function_offset": "0x6695d8",
-      "search_method": "static-direct-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "depth_cap": null,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewStlrec-candidate-functions",
-      "requested_roots": 25,
-      "resolved_roots": 10,
-      "target_name": "master_layout_factory",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x181f18",
-      "target_function_offset": "0x181f18",
-      "search_method": "static-direct-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "depth_cap": null,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewStlrec-candidate-functions",
-      "requested_roots": 25,
-      "resolved_roots": 10,
-      "target_name": "vertical_info_layout_factory",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x24222c",
-      "target_function_offset": "0x24222c",
-      "search_method": "static-direct-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "depth_cap": null,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewStlrec-modern-ui-roots",
-      "requested_roots": 3,
-      "resolved_roots": 3,
-      "target_name": "master_layout_factory",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x181f18",
-      "target_function_offset": "0x181f18",
-      "search_method": "static-mixed-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "terminal_edge_kinds": [
-        "unresolved-indirect"
-      ],
-      "depth_cap": 32,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewStlrec-modern-ui-roots",
-      "requested_roots": 3,
-      "resolved_roots": 3,
-      "target_name": "vertical_info_layout_factory",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x24222c",
-      "target_function_offset": "0x24222c",
-      "search_method": "static-mixed-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "terminal_edge_kinds": [
-        "unresolved-indirect"
-      ],
-      "depth_cap": 32,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewSettingMenuEventSwitch",
-      "requested_roots": 1,
-      "resolved_roots": 1,
-      "target_name": "root_resource_call_owner",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x2307d0",
-      "target_function_offset": "0x223b8c",
-      "search_method": "static-mixed-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "terminal_edge_kinds": [
-        "unresolved-indirect"
-      ],
-      "depth_cap": 32,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewSettingMenuEventSwitch",
-      "requested_roots": 1,
-      "resolved_roots": 1,
-      "target_name": "sample_view_resource_setup_owner",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x6666a4",
-      "target_function_offset": "0x6695d8",
-      "search_method": "static-mixed-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "terminal_edge_kinds": [
-        "unresolved-indirect"
-      ],
-      "depth_cap": 32,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewStlrec-modern-ui-roots",
-      "requested_roots": 3,
-      "resolved_roots": 3,
-      "target_name": "layout_class_id_owner_37b614",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x37b614",
-      "target_function_offset": "0x37b614",
-      "search_method": "static-mixed-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "terminal_edge_kinds": [
-        "unresolved-indirect"
-      ],
-      "depth_cap": 32,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewStlrec-modern-ui-roots",
-      "requested_roots": 3,
-      "resolved_roots": 3,
-      "target_name": "layout_class_id_owner_37aa18",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x37aa18",
-      "target_function_offset": "0x37aa18",
-      "search_method": "static-mixed-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "terminal_edge_kinds": [
-        "unresolved-indirect"
-      ],
-      "depth_cap": 32,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewStlrec-modern-ui-roots",
-      "requested_roots": 3,
-      "resolved_roots": 3,
-      "target_name": "layout_class_id_owner_37b5e0",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x37b5e0",
-      "target_function_offset": "0x37b5e0",
-      "search_method": "static-mixed-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "terminal_edge_kinds": [
-        "unresolved-indirect"
-      ],
-      "depth_cap": 32,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewStlrec-modern-ui-roots",
-      "requested_roots": 3,
-      "resolved_roots": 3,
-      "target_name": "layout_class_id_owner_37b648",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x37b648",
-      "target_function_offset": "0x37b648",
-      "search_method": "static-mixed-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "terminal_edge_kinds": [
-        "unresolved-indirect"
-      ],
-      "depth_cap": 32,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewStlrec-modern-ui-roots",
-      "requested_roots": 3,
-      "resolved_roots": 3,
-      "target_name": "layout_class_id_owner_37b578",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x37b578",
-      "target_function_offset": "0x37b578",
-      "search_method": "static-mixed-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "terminal_edge_kinds": [
-        "unresolved-indirect"
-      ],
-      "depth_cap": 32,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewStlrec-modern-ui-roots",
-      "requested_roots": 3,
-      "resolved_roots": 3,
-      "target_name": "layout_class_id_owner_all_five_3ba6dc",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x3ba6dc",
-      "target_function_offset": "0x3ba6dc",
-      "search_method": "static-mixed-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "terminal_edge_kinds": [
-        "unresolved-indirect"
-      ],
-      "depth_cap": 32,
-      "path_found": false
-    },
-    {
-      "root_set": "ViewStlrec-modern-ui-roots",
-      "requested_roots": 3,
-      "resolved_roots": 3,
-      "target_name": "layout_class_id_owner_all_five_651684",
-      "target_module": "lib/viewUnified2.so",
-      "target_requested_offset": "0x651684",
-      "target_function_offset": "0x651684",
-      "search_method": "static-mixed-call-graph",
-      "edge_kinds": [
-        "direct"
-      ],
-      "terminal_edge_kinds": [
-        "unresolved-indirect"
-      ],
-      "depth_cap": 32,
-      "path_found": false
-    }
-  ],
-  "claims": {
-    "coordinate_consumer_found": false,
-    "menu_selection_dispatch_found": false,
-    "orientation_layout_selector_found": false
-  },
-  "behavior_support": {
-    "shooting-layout-landscape": false,
-    "shooting-layout-portrait-shutter-up": false,
-    "shooting-layout-portrait-shutter-down": false,
-    "orientation-layout-selection": false,
-    "control-direction-transform": false,
-    "touch-coordinate-transform": false,
-    "menu-touch-hit-test": false,
-    "menu-touch-selection": false,
-    "ui-state-persistence": false
+    "resource_reference_count": 10,
+    "total_constructor_arm_count": 12,
+    "vertical_constructor_arm_count": 5,
+    "wrapper_registration_count": 5,
+    "runtime_factory_invocation_proven": false,
+    "view_unified2_to_factory_edge_found": false,
+    "orientation_to_factory_join_proven": false
   }
 }

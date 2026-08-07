@@ -10,14 +10,24 @@ from pmca.analysis.ui_dispatch import (
     VIEW_UNIFIED2_SHA256,
     VIEW_UNIFIED7_SHA256,
     UiDispatchError,
+    build_ui_dispatch_report,
     normalize_ui_dispatch_export,
     validate_ui_dispatch_report,
+)
+from pmca.analysis.ui_factory_owner_registration import (
+    REPORT_CANONICAL_EXPORT_SHA256 as OWNER_REGISTRATION_SHA256,
+)
+from pmca.analysis.vertical_layout_factory_trace import (
+    CANONICAL_EXPORT_SHA256 as VERTICAL_FACTORY_SHA256,
 )
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 REPORT_PATH = REPOSITORY_ROOT / "analysis" / "a6400-ui-dispatch-boundary.json"
 EXPORTER_PATH = REPOSITORY_ROOT / "tools" / "ghidra" / "export_a6400_ui_dispatch.py"
+REGENERATOR_PATH = (
+    REPOSITORY_ROOT / "tools" / "static" / "regenerate_a6400_ui_evidence_reports.py"
+)
 BEHAVIOR_IDS = (
     "shooting-layout-landscape",
     "shooting-layout-portrait-shutter-up",
@@ -39,25 +49,44 @@ BOUNDED_EXPORT_SUMMARY = {
     "unresolved_indirect_terminal": True,
     "artifact_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22",
 }
-UXC_OWNER_FUNCTIONS = [
+INVALID_OFFSET_CLASSIFICATIONS = [
     {
         "module": "lib/viewUnified2.so",
-        "function_offset": offset,
-        "matched_class_id_count": count,
-        "semantic": "reference-owner-only",
+        "offset": offset,
+        "owner": {"start": owner_start, "end": owner_end},
+        "instruction_boundary": instruction_boundary,
+        "classification": classification,
+        "callable_owner": False,
+        "factory": False,
+        "class_id_load": False,
     }
-    for offset, count in (
-        ("0x181f18", 5),
-        ("0x24222c", 1),
-        ("0x37aa18", 1),
-        ("0x37b578", 1),
-        ("0x37b5e0", 1),
-        ("0x37b614", 1),
-        ("0x37b648", 1),
-        ("0x3ba6dc", 5),
-        ("0x651684", 5),
+    for offset, owner_start, owner_end, instruction_boundary, classification in (
+        ("0x181f18", "0x1729e8", "0x184ac4", True, "internal-selector-branch"),
+        ("0x24222c", "0x23a8c0", "0x2a3680", False, "thumb2-second-halfword"),
+        ("0x3ba6dc", "0x3b6940", "0x3bbed8", False, "thumb2-second-halfword"),
+        ("0x651684", "0x64da44", "0x6549e4", False, "thumb2-second-halfword"),
+        ("0x37b614", "0x37b60c", "0x37b630", True, "constructor-vptr-material"),
+        ("0x37aa18", "0x37aa10", "0x37aa34", True, "constructor-vptr-material"),
+        ("0x37b5e0", "0x37b5d8", "0x37b5fc", True, "constructor-vptr-material"),
+        ("0x37b648", "0x37b640", "0x37b664", True, "constructor-vptr-material"),
+        ("0x37b578", "0x37b570", "0x37b594", True, "constructor-vptr-material"),
     )
 ]
+VERTICAL_FACTORY_REFERENCE = {
+    "factory_report": "analysis/a6400-vertical-layout-factory.json",
+    "factory_report_sha256": VERTICAL_FACTORY_SHA256,
+    "owner_registration_report": "analysis/a6400-ui-factory-owner-registration.json",
+    "owner_registration_report_sha256": OWNER_REGISTRATION_SHA256,
+    "factory_owner": {"start": "0x52840", "end": "0x529b8"},
+    "wrapper_owner": {"start": "0x529cc", "end": "0x529e8"},
+    "resource_reference_count": 10,
+    "total_constructor_arm_count": 12,
+    "vertical_constructor_arm_count": 5,
+    "wrapper_registration_count": 5,
+    "runtime_factory_invocation_proven": False,
+    "view_unified2_to_factory_edge_found": False,
+    "orientation_to_factory_join_proven": False,
+}
 
 
 def _load_exporter():
@@ -103,6 +132,7 @@ def _report(
     claims=None,
     behavior_support=None,
     uxc_references=None,
+    negative_searches=None,
 ):
     return {
         "schema_version": 1,
@@ -168,11 +198,12 @@ def _report(
             },
         ],
         "bounded_export_summary": copy.deepcopy(BOUNDED_EXPORT_SUMMARY),
-        "uxc_owner_functions": copy.deepcopy(UXC_OWNER_FUNCTIONS),
+        "invalid_offset_classifications": copy.deepcopy(INVALID_OFFSET_CLASSIFICATIONS),
+        "vertical_factory_reference": copy.deepcopy(VERTICAL_FACTORY_REFERENCE),
         "edges": [] if edges is None else edges,
         "paths": [] if paths is None else paths,
         "uxc_references": [] if uxc_references is None else uxc_references,
-        "negative_searches": [],
+        "negative_searches": [] if negative_searches is None else negative_searches,
         "claims": claims
         or {
             "coordinate_consumer_found": False,
@@ -200,7 +231,7 @@ class UiDispatchTests(unittest.TestCase):
                 "configuration-not-menu-selection",
             ],
         )
-        self.assertEqual(len(validated["negative_searches"]), 17)
+        self.assertEqual(len(validated["negative_searches"]), 4)
         self.assertEqual(
             validated["claims"],
             {
@@ -215,10 +246,29 @@ class UiDispatchTests(unittest.TestCase):
         )
 
     def test_committed_report_contains_exact_reference_only_uxc_findings(self):
-        validated = validate_ui_dispatch_report(self.document)
+        valid_searches = [
+            copy.deepcopy(item)
+            for item in self.document["negative_searches"]
+            if item["target_name"] in {
+                "root_resource_call_owner",
+                "sample_view_resource_setup_owner",
+            }
+        ]
+        candidate = _report(
+            uxc_references=copy.deepcopy(self.document["uxc_references"]),
+            negative_searches=valid_searches,
+        )
+        try:
+            validated = validate_ui_dispatch_report(candidate)
+        except UiDispatchError as error:
+            self.fail(f"corrected UI metadata was rejected: {error}")
 
         self.assertEqual(validated["bounded_export_summary"], BOUNDED_EXPORT_SUMMARY)
-        self.assertEqual(validated["uxc_owner_functions"], UXC_OWNER_FUNCTIONS)
+        self.assertEqual(
+            validated["invalid_offset_classifications"],
+            INVALID_OFFSET_CLASSIFICATIONS,
+        )
+        self.assertEqual(validated["vertical_factory_reference"], VERTICAL_FACTORY_REFERENCE)
         self.assertEqual(len(validated["uxc_references"]), 10)
         self.assertEqual(
             Counter(
@@ -240,7 +290,7 @@ class UiDispatchTests(unittest.TestCase):
                 }
             ),
         )
-        self.assertEqual(len(validated["negative_searches"]), 17)
+        self.assertEqual(len(validated["negative_searches"]), 4)
         self.assertTrue(
             all(
                 item["search_method"] == "static-mixed-call-graph"
@@ -248,18 +298,92 @@ class UiDispatchTests(unittest.TestCase):
                 and item["terminal_edge_kinds"] == ["unresolved-indirect"]
                 and item["depth_cap"] == 32
                 and item["path_found"] is False
-                for item in validated["negative_searches"][-11:]
+                for item in validated["negative_searches"][-2:]
             )
         )
 
-    def test_export_summary_and_uxc_owner_metadata_are_pinned(self):
-        bad_count = copy.deepcopy(self.document)
+    def test_builder_migrates_legacy_owner_claims_without_mutating_source(self):
+        source = copy.deepcopy(self.document)
+        source_before = copy.deepcopy(source)
+
+        built = build_ui_dispatch_report(source)
+
+        self.assertEqual(source, source_before)
+        self.assertNotIn("uxc_owner_functions", built)
+        self.assertEqual(
+            built["invalid_offset_classifications"],
+            INVALID_OFFSET_CLASSIFICATIONS,
+        )
+        self.assertEqual(built["vertical_factory_reference"], VERTICAL_FACTORY_REFERENCE)
+        self.assertEqual(len(built["negative_searches"]), 4)
+        self.assertEqual(
+            {item["target_name"] for item in built["negative_searches"]},
+            {"root_resource_call_owner", "sample_view_resource_setup_owner"},
+        )
+        self.assertEqual(validate_ui_dispatch_report(built), built)
+
+    def test_invalid_offset_classification_fields_are_all_pinned(self):
+        mutations = (
+            ("module", "lib/viewUnified7.so"),
+            ("offset", "0x181f1a"),
+            ("instruction_boundary", False),
+            ("classification", "thumb2-second-halfword"),
+            ("callable_owner", True),
+            ("factory", True),
+            ("class_id_load", True),
+        )
+        for field, value in mutations:
+            candidate = _report()
+            candidate["invalid_offset_classifications"][0][field] = value
+            with self.subTest(field=field), self.assertRaises(UiDispatchError):
+                validate_ui_dispatch_report(candidate)
+
+        for field, value in (("start", "0x1729ea"), ("end", "0x184ac2")):
+            candidate = _report()
+            candidate["invalid_offset_classifications"][0]["owner"][field] = value
+            with self.subTest(owner_field=field), self.assertRaises(UiDispatchError):
+                validate_ui_dispatch_report(candidate)
+
+    def test_vertical_factory_reference_fields_are_all_pinned(self):
+        mutations = (
+            ("factory_report", "analysis/wrong.json"),
+            ("factory_report_sha256", "0" * 64),
+            ("owner_registration_report", "analysis/wrong.json"),
+            ("owner_registration_report_sha256", "0" * 64),
+            ("resource_reference_count", 9),
+            ("total_constructor_arm_count", 11),
+            ("vertical_constructor_arm_count", 4),
+            ("wrapper_registration_count", 4),
+            ("runtime_factory_invocation_proven", True),
+            ("view_unified2_to_factory_edge_found", True),
+            ("orientation_to_factory_join_proven", True),
+        )
+        for field, value in mutations:
+            candidate = _report()
+            candidate["vertical_factory_reference"][field] = value
+            with self.subTest(field=field), self.assertRaises(UiDispatchError):
+                validate_ui_dispatch_report(candidate)
+
+        for owner_field in ("factory_owner", "wrapper_owner"):
+            for range_field in ("start", "end"):
+                candidate = _report()
+                candidate["vertical_factory_reference"][owner_field][range_field] = "0x52842"
+                with self.subTest(owner=owner_field, edge=range_field), self.assertRaises(
+                    UiDispatchError
+                ):
+                    validate_ui_dispatch_report(candidate)
+
+    def test_export_summary_invalid_offsets_and_factory_reference_are_pinned(self):
+        bad_count = _report()
         bad_count["bounded_export_summary"]["direct_edge_count"] += 1
 
-        bad_owner = copy.deepcopy(self.document)
-        bad_owner["uxc_owner_functions"][0]["matched_class_id_count"] = 4
+        bad_classification = _report()
+        bad_classification["invalid_offset_classifications"][0]["factory"] = True
 
-        for candidate in (bad_count, bad_owner):
+        bad_reference = _report()
+        bad_reference["vertical_factory_reference"]["runtime_factory_invocation_proven"] = True
+
+        for candidate in (bad_count, bad_classification, bad_reference):
             with self.subTest(candidate=candidate), self.assertRaises(UiDispatchError):
                 validate_ui_dispatch_report(candidate)
 
@@ -1065,6 +1189,97 @@ class GhidraUiDispatchExporterTests(unittest.TestCase):
         serialized = json.dumps(written, sort_keys=True)
         for forbidden in ("raw", "bytes", "payload", "disassembly", "hex_dump"):
             self.assertNotIn(f'"{forbidden}":', serialized)
+
+
+class UiEvidenceRegeneratorTests(unittest.TestCase):
+    @staticmethod
+    def _load_regenerator():
+        spec = importlib.util.spec_from_file_location(
+            "regenerate_a6400_ui_evidence_reports", REGENERATOR_PATH
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_regenerator_builds_all_four_reports_and_is_idempotent(self):
+        from tests.analysis.test_ui_factory_owner_registration import (
+            raw_export as registration_export,
+        )
+        from tests.analysis.test_vertical_layout_factory_trace import (
+            raw_export as vertical_export,
+        )
+
+        module = self._load_regenerator()
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            paths = {
+                "VERTICAL_EXPORT_PATH": root / "raw-vertical.json",
+                "REGISTRATION_EXPORT_PATH": root / "raw-registration.json",
+                "VERTICAL_PATH": root / "vertical.json",
+                "REGISTRATION_PATH": root / "registration.json",
+                "DISPATCH_PATH": root / "dispatch.json",
+                "TARGET_PATH": root / "target.json",
+            }
+            sources = {
+                paths["VERTICAL_EXPORT_PATH"]: vertical_export(),
+                paths["REGISTRATION_EXPORT_PATH"]: registration_export(),
+                paths["VERTICAL_PATH"]: json.loads(
+                    (
+                        REPOSITORY_ROOT
+                        / "analysis"
+                        / "a6400-vertical-layout-factory.json"
+                    ).read_text(encoding="utf-8")
+                ),
+                paths["REGISTRATION_PATH"]: json.loads(
+                    (
+                        REPOSITORY_ROOT
+                        / "analysis"
+                        / "a6400-ui-factory-owner-registration.json"
+                    ).read_text(encoding="utf-8")
+                ),
+                paths["DISPATCH_PATH"]: json.loads(
+                    REPORT_PATH.read_text(encoding="utf-8")
+                ),
+                paths["TARGET_PATH"]: json.loads(
+                    (
+                        REPOSITORY_ROOT / "analysis" / "a6400-target-features.json"
+                    ).read_text(encoding="utf-8")
+                ),
+            }
+            for path, document in sources.items():
+                path.write_text(
+                    json.dumps(document, indent=2) + "\n", encoding="utf-8"
+                )
+            for field, path in paths.items():
+                setattr(module, field, path)
+
+            module.main()
+            first = {
+                field: path.read_bytes()
+                for field, path in paths.items()
+                if not field.endswith("EXPORT_PATH")
+            }
+            module.main()
+            second = {
+                field: path.read_bytes()
+                for field, path in paths.items()
+                if not field.endswith("EXPORT_PATH")
+            }
+
+            self.assertEqual(first, second)
+            target = json.loads(paths["TARGET_PATH"].read_text(encoding="utf-8"))
+            self.assertEqual(
+                list(target["creative_look_stack"]["layers"]),
+                [
+                    "interface",
+                    "state",
+                    "base_looks",
+                    "adjustment_axes",
+                    "pipeline_binding",
+                ],
+            )
+            self.assertEqual(len(target["ui_static_trace"]["negative_searches"]), 2)
+            self.assertNotIn("uxc_owner_functions", target["ui_indirect_trace"])
 
 
 if __name__ == "__main__":

@@ -13,11 +13,11 @@ EXPORTER_PATH = ROOT / "tools" / "static" / "export_a6400_ui_factory_owner_regis
 
 
 RELATIVE_REGISTRATIONS = [
-    {"address": 0x70EE8, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x70FA0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x71040, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x710F0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x711A0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1268, "address": 0x70EE8, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1286, "address": 0x70FA0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1305, "address": 0x71040, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1327, "address": 0x710F0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1349, "address": 0x711A0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
 ]
 ORIENTATION_IMPORTS = [
     {"id": "camera_orientation", "symbol": "_ZN27CmnWrpOrientationRegisterAF20getCameraOrientationEv", "plt": 0x14958, "owners": [{"owner": 0x2D2C6, "site": 0x2D2CC}, {"owner": 0x30750, "site": 0x30934}]},
@@ -51,6 +51,24 @@ def raw_export(*, registrations=None):
 
 
 class UIFactoryOwnerRegistrationTests(unittest.TestCase):
+    def test_relocation_indices_prove_registration_not_invocation(self):
+        from pmca.analysis.ui_factory_owner_registration import normalize_ui_factory_owner_registration_export
+
+        normalized = normalize_ui_factory_owner_registration_export(raw_export())
+        self.assertEqual([item["index"] for item in normalized["typed_registration_references"]], [1268, 1286, 1305, 1327, 1349])
+        self.assertTrue(normalized["claims"]["five_wrapper_registrations_found"])
+        self.assertFalse(normalized["claims"]["runtime_factory_invocation_proven"])
+        self.assertFalse(normalized["claims"]["orientation_to_factory_join_proven"])
+        self.assertFalse(normalized["claims"]["view_unified2_to_factory_edge_found"])
+
+    def test_registration_index_type_site_or_target_mutations_fail_closed(self):
+        from pmca.analysis.ui_factory_owner_registration import UIFactoryOwnerRegistrationError, normalize_ui_factory_owner_registration_export
+
+        for field, value in (("index", 0), ("relocation_type", "R_ARM_ABS32"), ("address", 0x70EEA), ("target", 0x529CE)):
+            candidate = raw_export()
+            candidate["typed_registration_references"][0][field] = value
+            with self.subTest(field=field), self.assertRaises(UIFactoryOwnerRegistrationError):
+                normalize_ui_factory_owner_registration_export(candidate)
     def test_relative_thumb_relocations_establish_registration_without_behavior_promotion(self):
         from pmca.analysis.ui_factory_owner_registration import normalize_ui_factory_owner_registration_export
 

@@ -1,4 +1,4 @@
-"""Validate the two smallest unresolved α6400 orientation/layout terminals."""
+"""Validate two corrected, non-handoff α6400 UI site classifications."""
 
 from __future__ import annotations
 
@@ -23,19 +23,22 @@ SOURCE_GRAPH_SHA256 = (
     "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22"
 )
 CANONICAL_EXPORT_SHA256 = (
-    "caf4f85e3edc4f558915fcbe5e6926f901c64c75a5a24c83b742449d94d8a16c"
+    "eee7ccf337eb16545a67cb9b57a03ed476ee867076939e602208a65d5092cfc2"
 )
-RESOLUTION_METHODS = (
+CLASSIFICATION_METHODS = (
     "instruction-flow",
-    "pcode-literal",
     "reference-target",
+    "symbol-identity",
+)
+EXPOSURE_GETTER_SYMBOL = (
+    "_ZN33CmnViewModelWrpCameraExposureMode21getExposureModeActValEv"
 )
 
 _ROOT = Path(__file__).resolve().parents[2]
 _UI_BOUNDARY_REFERENCE = "analysis/a6400-ui-dispatch-boundary.json"
 _TRACK_SPECS = (
     {
-        "id": "orientation-handler-terminal",
+        "id": "orientation-handler-local-branch-landing",
         "root": 0x1BB41C,
         "predecessor_edges": (
             {
@@ -45,20 +48,24 @@ _TRACK_SPECS = (
                 "kind": "direct",
             },
         ),
-        "terminal": {
-            "caller": 0x1B9B44,
-            "site": 0x1B9B6A,
-            "kind": "unresolved-indirect",
+        "site": {
+            "owner": 0x1B9B44,
+            "offset": 0x1B9B6A,
+            "classification": "local-branch-landing",
+            "flow_target": None,
+            "symbol": None,
         },
     },
     {
-        "id": "layout-attach-terminal",
+        "id": "layout-attach-exposure-mode-getter",
         "root": 0x1BB2D2,
         "predecessor_edges": (),
-        "terminal": {
-            "caller": 0x1BB2D2,
-            "site": 0x1BB30E,
-            "kind": "unresolved-indirect",
+        "site": {
+            "owner": 0x1BB2D2,
+            "offset": 0x1BB30E,
+            "classification": "exposure-mode-getter-plt-call",
+            "flow_target": 0x14E688,
+            "symbol": EXPOSURE_GETTER_SYMBOL,
         },
     },
 )
@@ -70,7 +77,7 @@ _RAW_FIELDS = {
     "image_size",
     "analysis_mode",
     "source_graph_sha256",
-    "resolution_methods",
+    "classification_methods",
     "tracks",
     "truncated",
 }
@@ -78,14 +85,10 @@ _RAW_TRACK_FIELDS = {
     "id",
     "root",
     "predecessor_edges",
-    "terminal",
-    "candidates",
+    "site",
 }
 _EDGE_FIELDS = {"caller", "site", "target", "kind"}
-_TERMINAL_FIELDS = {"caller", "site", "kind"}
-_CANDIDATE_FIELDS = {"kind", "target", "table", "slot", "provenance"}
-_CANDIDATE_KINDS = {"vtable-slot", "function-pointer-table"}
-_PROVENANCE = set(RESOLUTION_METHODS)
+_SITE_FIELDS = {"owner", "offset", "classification", "flow_target", "symbol"}
 _FORBIDDEN_KEYS = {
     "bytes",
     "device_path",
@@ -123,26 +126,23 @@ _SOURCE_FIELDS = {
 }
 _SUMMARY_FIELDS = {
     "canonical_export_sha256",
-    "resolution_methods",
-    "resolved_track_count",
-    "ambiguous_track_count",
-    "unresolved_track_count",
+    "classification_methods",
+    "local_branch_landing_count",
+    "exposure_mode_getter_plt_call_count",
 }
-_REPORT_TRACK_FIELDS = {"id", "root", "terminal", "resolution"}
-_REPORT_TERMINAL_FIELDS = {"caller", "site", "kind"}
-_RESOLUTION_FIELDS = {
-    "status",
-    "candidate_count",
-    "kind",
-    "target",
-    "table",
-    "slot",
-    "provenance",
+_REPORT_TRACK_FIELDS = {"id", "root", "site"}
+_REPORT_SITE_FIELDS = {
+    "owner",
+    "offset",
+    "classification",
+    "flow_target",
+    "symbol",
 }
 _CONCLUSION = (
-    "The two smallest orientation/layout indirect terminals are bounded, but no "
-    "complete ordered path from orientation state to a vertical layout owner is "
-    "established. All modern UI behavior claims remain false."
+    "The previously misclassified sites are a local branch landing and an exposure-"
+    "mode getter PLT call. Neither establishes a viewUnified2-to-viewUnified7 "
+    "factory handoff or an orientation-driven UI path; all modern UI behavior "
+    "claims remain false."
 )
 
 
@@ -172,49 +172,8 @@ def _address(value: object, label: str) -> int:
     return value
 
 
-def _normalized_candidate(value: object) -> dict:
-    candidate = _exact(value, _CANDIDATE_FIELDS, "terminal candidate")
-    if candidate["kind"] not in _CANDIDATE_KINDS:
-        raise UiTerminalTraceError("terminal candidate kind is invalid")
-    target = _address(candidate["target"], "terminal candidate target")
-    table = _address(candidate["table"], "terminal candidate table")
-    slot = candidate["slot"]
-    if type(slot) is not int or not 0 <= slot <= 1023:
-        raise UiTerminalTraceError("terminal candidate slot is invalid")
-    if candidate["provenance"] not in _PROVENANCE:
-        raise UiTerminalTraceError("terminal candidate provenance is invalid")
-    return {
-        "kind": candidate["kind"],
-        "target": target,
-        "table": table,
-        "slot": slot,
-        "provenance": candidate["provenance"],
-    }
-
-
-def _resolution(candidates: list[dict]) -> dict:
-    if not candidates:
-        status = "UNRESOLVED"
-        selected = None
-    elif len(candidates) == 1:
-        status = "RESOLVED"
-        selected = candidates[0]
-    else:
-        status = "AMBIGUOUS"
-        selected = None
-    return {
-        "status": status,
-        "candidate_count": len(candidates),
-        "kind": None if selected is None else selected["kind"],
-        "target": None if selected is None else selected["target"],
-        "table": None if selected is None else selected["table"],
-        "slot": None if selected is None else selected["slot"],
-        "provenance": None if selected is None else selected["provenance"],
-    }
-
-
 def normalize_ui_terminal_export(document: object) -> dict:
-    """Normalize metadata for exactly two unresolved indirect call sites."""
+    """Normalize metadata for exactly two non-handoff UI sites."""
 
     _reject_forbidden(document)
     raw = _exact(document, _RAW_FIELDS, "terminal export")
@@ -230,8 +189,8 @@ def normalize_ui_terminal_export(document: object) -> dict:
         raise UiTerminalTraceError("terminal export source identity is invalid")
     if raw["analysis_mode"] != {"read_only": True, "noanalysis": True}:
         raise UiTerminalTraceError("terminal export was not read-only/noanalysis")
-    if raw["resolution_methods"] != list(RESOLUTION_METHODS):
-        raise UiTerminalTraceError("terminal resolution methods are invalid")
+    if raw["classification_methods"] != list(CLASSIFICATION_METHODS):
+        raise UiTerminalTraceError("UI site classification methods are invalid")
     if raw["truncated"] is not False:
         raise UiTerminalTraceError("truncated terminal evidence is invalid")
     if not isinstance(raw["tracks"], list) or len(raw["tracks"]) != len(_TRACK_SPECS):
@@ -256,35 +215,23 @@ def normalize_ui_terminal_export(document: object) -> dict:
             for field in ("caller", "site", "target"):
                 _address(record[field], f"terminal predecessor {field}")
             normalized_predecessors.append(dict(record))
-        terminal = _exact(track["terminal"], _TERMINAL_FIELDS, "terminal site")
-        if terminal != spec["terminal"]:
-            raise UiTerminalTraceError("terminal site is not pinned")
-        _address(terminal["caller"], "terminal caller")
-        _address(terminal["site"], "terminal site")
-        candidates = track["candidates"]
-        if not isinstance(candidates, list) or len(candidates) > 32:
-            raise UiTerminalTraceError("terminal candidates are invalid or unbounded")
-        normalized_candidates = [_normalized_candidate(candidate) for candidate in candidates]
-        normalized_candidates.sort(
-            key=lambda value: (
-                value["kind"],
-                value["target"],
-                value["table"],
-                value["slot"],
-                value["provenance"],
-            )
-        )
-        identities = [tuple(candidate.values()) for candidate in normalized_candidates]
-        if len(set(identities)) != len(identities):
-            raise UiTerminalTraceError("terminal candidates are duplicated")
+        site = _exact(track["site"], _SITE_FIELDS, "UI site")
+        if site != spec["site"]:
+            raise UiTerminalTraceError("UI site classification is not pinned")
+        _address(site["owner"], "UI site owner")
+        _address(site["offset"], "UI site offset")
+        if site["flow_target"] is not None:
+            _address(site["flow_target"], "UI site flow target")
+        if site["symbol"] is not None and (
+            not isinstance(site["symbol"], str) or not site["symbol"]
+        ):
+            raise UiTerminalTraceError("UI site symbol is invalid")
         normalized_tracks.append(
             {
                 "id": spec["id"],
                 "root": spec["root"],
                 "predecessor_edges": normalized_predecessors,
-                "terminal": dict(spec["terminal"]),
-                "candidates": normalized_candidates,
-                "resolution": _resolution(normalized_candidates),
+                "site": dict(spec["site"]),
             }
         )
 
@@ -295,31 +242,96 @@ def normalize_ui_terminal_export(document: object) -> dict:
         "image_size": VIEW_UNIFIED2_SIZE,
         "analysis_mode": {"read_only": True, "noanalysis": True},
         "source_graph_sha256": SOURCE_GRAPH_SHA256,
-        "resolution_methods": list(RESOLUTION_METHODS),
+        "classification_methods": list(CLASSIFICATION_METHODS),
         "tracks": normalized_tracks,
-        "claims": {"orientation_layout_selector_found": False},
-        "behavior_support": {"orientation-layout-selection": False},
+        "claims": {
+            "view_unified2_to_view_unified7_factory_edge_found": False,
+            "orientation_layout_selector_found": False,
+            "orientation_to_vertical_layout_path_found": False,
+        },
+        "behavior_support": {
+            "orientation-layout-selection": False,
+            "portrait-landscape-geometry": False,
+            "control-direction-transform": False,
+            "touch-coordinate-transform": False,
+            "hit-test": False,
+            "menu-selection-dispatch": False,
+            "creative-look": False,
+        },
         "truncated": False,
     }
 
 
 def summarize_ui_terminal_export(document: object) -> dict:
-    """Create a digest-pinned, non-reconstructive terminal summary."""
+    """Create a digest-pinned, non-reconstructive UI-site summary."""
 
     normalized = normalize_ui_terminal_export(document)
     encoded = (
         json.dumps(normalized, sort_keys=True, separators=(",", ":")) + "\n"
     ).encode("utf-8")
-    statuses = [item["resolution"]["status"] for item in normalized["tracks"]]
+    classifications = [item["site"]["classification"] for item in normalized["tracks"]]
     return {
         "canonical_export_sha256": hashlib.sha256(encoded).hexdigest(),
-        "resolution_methods": list(RESOLUTION_METHODS),
-        "resolved_track_count": statuses.count("RESOLVED"),
-        "ambiguous_track_count": statuses.count("AMBIGUOUS"),
-        "unresolved_track_count": statuses.count("UNRESOLVED"),
+        "classification_methods": list(CLASSIFICATION_METHODS),
+        "local_branch_landing_count": classifications.count("local-branch-landing"),
+        "exposure_mode_getter_plt_call_count": classifications.count(
+            "exposure-mode-getter-plt-call"
+        ),
         "tracks": copy.deepcopy(normalized["tracks"]),
         "claims": copy.deepcopy(normalized["claims"]),
         "behavior_support": copy.deepcopy(normalized["behavior_support"]),
+    }
+
+
+def build_ui_terminal_report(document: object) -> dict:
+    """Build the committed fail-closed report from pinned static site metadata."""
+
+    summary = summarize_ui_terminal_export(document)
+    return {
+        "schema_version": 1,
+        "analysis_scope": "offline-static-target-ui-terminal-trace",
+        "camera_policy": "physically-disconnected",
+        "camera_executed": False,
+        "installable": False,
+        "camera_test_eligible": False,
+        "source": {
+            "module": "lib/viewUnified2.so",
+            "size": VIEW_UNIFIED2_SIZE,
+            "sha256": VIEW_UNIFIED2_SHA256,
+            "ui_boundary_reference": _UI_BOUNDARY_REFERENCE,
+            "source_graph_sha256": SOURCE_GRAPH_SHA256,
+        },
+        "export_summary": {
+            key: summary[key]
+            for key in (
+                "canonical_export_sha256",
+                "classification_methods",
+                "local_branch_landing_count",
+                "exposure_mode_getter_plt_call_count",
+            )
+        },
+        "tracks": [
+            {
+                "id": track["id"],
+                "root": _hex(track["root"]),
+                "site": {
+                    "owner": _hex(track["site"]["owner"]),
+                    "offset": _hex(track["site"]["offset"]),
+                    "classification": track["site"]["classification"],
+                    "flow_target": (
+                        None
+                        if track["site"]["flow_target"] is None
+                        else _hex(track["site"]["flow_target"])
+                    ),
+                    "symbol": track["site"]["symbol"],
+                },
+            }
+            for track in summary["tracks"]
+        ],
+        "claims": summary["claims"],
+        "behavior_support": summary["behavior_support"],
+        "readiness": "CLASSIFIED_NO_FACTORY_HANDOFF",
+        "conclusion": _CONCLUSION,
     }
 
 
@@ -365,54 +377,65 @@ def validate_ui_terminal_report(document: object) -> dict:
     summary = _exact(report["export_summary"], _SUMMARY_FIELDS, "terminal summary")
     if summary["canonical_export_sha256"] != CANONICAL_EXPORT_SHA256:
         raise UiTerminalTraceError("terminal export digest is invalid")
-    if summary["resolution_methods"] != list(RESOLUTION_METHODS):
-        raise UiTerminalTraceError("terminal summary methods are invalid")
+    if summary["classification_methods"] != list(CLASSIFICATION_METHODS):
+        raise UiTerminalTraceError("UI site summary methods are invalid")
     counts = [
-        summary["resolved_track_count"],
-        summary["ambiguous_track_count"],
-        summary["unresolved_track_count"],
+        summary["local_branch_landing_count"],
+        summary["exposure_mode_getter_plt_call_count"],
     ]
-    if counts != [0, 0, 2]:
-        raise UiTerminalTraceError("terminal summary counts are invalid")
+    if counts != [1, 1]:
+        raise UiTerminalTraceError("UI site summary counts are invalid")
 
     tracks = report["tracks"]
     if not isinstance(tracks, list) or len(tracks) != len(_TRACK_SPECS):
         raise UiTerminalTraceError("terminal report tracks are invalid")
-    observed_statuses = []
+    observed_classifications = []
     for item, spec in zip(tracks, _TRACK_SPECS):
-        track = _exact(item, _REPORT_TRACK_FIELDS, "terminal report track")
-        expected_terminal = {
-            "caller": _hex(spec["terminal"]["caller"]),
-            "site": _hex(spec["terminal"]["site"]),
-            "kind": "unresolved-indirect",
+        track = _exact(item, _REPORT_TRACK_FIELDS, "UI site report track")
+        expected_site = {
+            "owner": _hex(spec["site"]["owner"]),
+            "offset": _hex(spec["site"]["offset"]),
+            "classification": spec["site"]["classification"],
+            "flow_target": (
+                None
+                if spec["site"]["flow_target"] is None
+                else _hex(spec["site"]["flow_target"])
+            ),
+            "symbol": spec["site"]["symbol"],
         }
         if (
             track["id"] != spec["id"]
             or track["root"] != _hex(spec["root"])
-            or _exact(track["terminal"], _REPORT_TERMINAL_FIELDS, "report terminal")
-            != expected_terminal
+            or _exact(track["site"], _REPORT_SITE_FIELDS, "report UI site")
+            != expected_site
         ):
-            raise UiTerminalTraceError("terminal report track identity is invalid")
-        resolution = _exact(track["resolution"], _RESOLUTION_FIELDS, "track resolution")
-        expected_resolution = {
-            "status": "UNRESOLVED",
-            "candidate_count": 0,
-            "kind": None,
-            "target": None,
-            "table": None,
-            "slot": None,
-            "provenance": None,
-        }
-        if resolution != expected_resolution:
-            raise UiTerminalTraceError("terminal resolution differs from pinned export")
-        observed_statuses.append("UNRESOLVED")
-    if [observed_statuses.count(value) for value in ("RESOLVED", "AMBIGUOUS", "UNRESOLVED")] != counts:
-        raise UiTerminalTraceError("terminal report counts disagree with tracks")
+            raise UiTerminalTraceError("UI site report identity is invalid")
+        observed_classifications.append(spec["site"]["classification"])
+    if [
+        observed_classifications.count("local-branch-landing"),
+        observed_classifications.count("exposure-mode-getter-plt-call"),
+    ] != counts:
+        raise UiTerminalTraceError("UI site report counts disagree with tracks")
 
-    if report["claims"] != {"orientation_layout_selector_found": False}:
-        raise UiTerminalTraceError("terminal report cannot establish a selector")
-    if report["behavior_support"] != {"orientation-layout-selection": False}:
-        raise UiTerminalTraceError("terminal report cannot establish UI behavior")
-    if report["readiness"] != "UNRESOLVED" or report["conclusion"] != _CONCLUSION:
+    if report["claims"] != {
+        "view_unified2_to_view_unified7_factory_edge_found": False,
+        "orientation_layout_selector_found": False,
+        "orientation_to_vertical_layout_path_found": False,
+    }:
+        raise UiTerminalTraceError("UI site report cannot establish a factory or selector path")
+    if report["behavior_support"] != {
+        "orientation-layout-selection": False,
+        "portrait-landscape-geometry": False,
+        "control-direction-transform": False,
+        "touch-coordinate-transform": False,
+        "hit-test": False,
+        "menu-selection-dispatch": False,
+        "creative-look": False,
+    }:
+        raise UiTerminalTraceError("UI site report cannot establish UI behavior")
+    if (
+        report["readiness"] != "CLASSIFIED_NO_FACTORY_HANDOFF"
+        or report["conclusion"] != _CONCLUSION
+    ):
         raise UiTerminalTraceError("terminal report conclusion is not fail-closed")
     return copy.deepcopy(report)

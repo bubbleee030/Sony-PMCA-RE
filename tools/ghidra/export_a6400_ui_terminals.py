@@ -1,8 +1,8 @@
-# Export metadata for exactly two pinned ILCE-6400 UI indirect terminals.
+# Export metadata for exactly two corrected ILCE-6400 UI sites.
 # @category Sony.UI
 # @runtime PyGhidra
 
-"""Read-only Ghidra post-script for the bounded UI terminal trace."""
+"""Read-only Ghidra post-script for bounded, non-handoff UI sites."""
 
 from __future__ import annotations
 
@@ -20,14 +20,17 @@ EXPECTED_IMAGE_SIZE = 11_530_552
 SOURCE_GRAPH_SHA256 = (
     "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22"
 )
-RESOLUTION_METHODS = (
+CLASSIFICATION_METHODS = (
     "instruction-flow",
-    "pcode-literal",
     "reference-target",
+    "symbol-identity",
+)
+EXPOSURE_GETTER_SYMBOL = (
+    "_ZN33CmnViewModelWrpCameraExposureMode21getExposureModeActValEv"
 )
 TRACKS = (
     {
-        "id": "orientation-handler-terminal",
+        "id": "orientation-handler-local-branch-landing",
         "root": 0x1BB41C,
         "predecessor_edges": (
             {
@@ -37,27 +40,27 @@ TRACKS = (
                 "kind": "direct",
             },
         ),
-        "terminal": {
-            "caller": 0x1B9B44,
-            "site": 0x1B9B6A,
-            "kind": "unresolved-indirect",
+        "site": {
+            "owner": 0x1B9B44,
+            "offset": 0x1B9B6A,
+            "classification": "local-branch-landing",
+            "flow_target": None,
+            "symbol": None,
         },
     },
     {
-        "id": "layout-attach-terminal",
+        "id": "layout-attach-exposure-mode-getter",
         "root": 0x1BB2D2,
         "predecessor_edges": (),
-        "terminal": {
-            "caller": 0x1BB2D2,
-            "site": 0x1BB30E,
-            "kind": "unresolved-indirect",
+        "site": {
+            "owner": 0x1BB2D2,
+            "offset": 0x1BB30E,
+            "classification": "exposure-mode-getter-plt-call",
+            "flow_target": 0x14E688,
+            "symbol": EXPOSURE_GETTER_SYMBOL,
         },
     },
 )
-_CANDIDATE_FIELDS = {"kind", "target", "table", "slot", "provenance"}
-_CANDIDATE_KINDS = {"vtable-slot", "function-pointer-table"}
-
-
 def _optional_adapter_check(adapter, method_name, default):
     method = getattr(adapter, method_name, None)
     return default if method is None else method()
@@ -67,24 +70,8 @@ def _is_bounded_even_offset(value):
     return type(value) is int and 0 <= value < EXPECTED_IMAGE_SIZE and value % 2 == 0
 
 
-def _validate_candidate(value):
-    if not isinstance(value, dict) or set(value) != _CANDIDATE_FIELDS:
-        raise RuntimeError("Ghidra adapter returned an invalid terminal candidate")
-    if value["kind"] not in _CANDIDATE_KINDS:
-        raise RuntimeError("Ghidra adapter returned an invalid candidate kind")
-    if not _is_bounded_even_offset(value["target"]):
-        raise RuntimeError("Ghidra adapter returned an invalid candidate target")
-    if not _is_bounded_even_offset(value["table"]):
-        raise RuntimeError("Ghidra adapter returned an invalid candidate table")
-    if type(value["slot"]) is not int or not 0 <= value["slot"] <= 1023:
-        raise RuntimeError("Ghidra adapter returned an invalid candidate slot")
-    if value["provenance"] not in RESOLUTION_METHODS:
-        raise RuntimeError("Ghidra adapter returned invalid candidate provenance")
-    return dict(value)
-
-
 def build_raw_export(adapter):
-    """Inspect only the exact terminal sites in a pinned read-only project."""
+    """Inspect only the exact non-handoff sites in a pinned read-only project."""
 
     if adapter.program_name() != EXPECTED_PROGRAM:
         raise RuntimeError("Open Ghidra program is not the pinned UI module")
@@ -100,34 +87,21 @@ def build_raw_export(adapter):
 
     tracks = []
     for spec in TRACKS:
-        terminal = spec["terminal"]
-        candidates = [
-            _validate_candidate(item)
-            for item in adapter.candidate_targets(
-                terminal["caller"], terminal["site"]
-            )
-        ]
-        if len(candidates) > 32:
-            raise RuntimeError("UI terminal candidate cap exceeded")
-        candidates.sort(
-            key=lambda item: (
-                item["kind"],
-                item["target"],
-                item["table"],
-                item["slot"],
-                item["provenance"],
-            )
-        )
-        identities = [tuple(item[field] for field in sorted(_CANDIDATE_FIELDS)) for item in candidates]
-        if len(identities) != len(set(identities)):
-            raise RuntimeError("UI terminal candidates are duplicated")
+        site = spec["site"]
+        if adapter.verify_site(
+            site["owner"],
+            site["offset"],
+            site["classification"],
+            site["flow_target"],
+            site["symbol"],
+        ) is not True:
+            raise RuntimeError("Pinned UI site classification could not be verified")
         tracks.append(
             {
                 "id": spec["id"],
                 "root": spec["root"],
                 "predecessor_edges": [dict(item) for item in spec["predecessor_edges"]],
-                "terminal": dict(terminal),
-                "candidates": candidates,
+                "site": dict(site),
             }
         )
 
@@ -138,7 +112,7 @@ def build_raw_export(adapter):
         "image_size": EXPECTED_IMAGE_SIZE,
         "analysis_mode": {"read_only": True, "noanalysis": True},
         "source_graph_sha256": SOURCE_GRAPH_SHA256,
-        "resolution_methods": list(RESOLUTION_METHODS),
+        "classification_methods": list(CLASSIFICATION_METHODS),
         "tracks": tracks,
         "truncated": False,
     }
@@ -180,7 +154,7 @@ def write_json_atomic(output_path, document, approved_root):
 
 
 class GhidraProgramAdapter:
-    """Narrow Ghidra boundary that emits only proven table-backed targets."""
+    """Narrow Ghidra boundary that verifies only pinned UI-site classifications."""
 
     def __init__(self, program, task_monitor):
         self._program = program
@@ -188,6 +162,7 @@ class GhidraProgramAdapter:
         self._listing = program.getListing()
         self._manager = program.getFunctionManager()
         self._references = program.getReferenceManager()
+        self._symbols = program.getSymbolTable()
         self._address_space = program.getAddressFactory().getDefaultAddressSpace()
 
     def program_name(self):
@@ -225,27 +200,47 @@ class GhidraProgramAdapter:
     def _even(value):
         return value - 1 if value & 1 else value
 
-    def candidate_targets(self, caller, site):
+    def verify_site(self, owner, offset, classification, flow_target, symbol):
         self._monitor.checkCanceled()
-        address = self._address(site)
+        if classification not in {
+            "local-branch-landing",
+            "exposure-mode-getter-plt-call",
+        }:
+            raise RuntimeError("Pinned UI site classification is unsupported")
+        address = self._address(offset)
         instruction = self._listing.getInstructionAt(address)
         function = self._manager.getFunctionContaining(address)
         if instruction is None or function is None or function.isExternal():
-            raise RuntimeError("Pinned UI terminal is not an instruction in a function")
-        if self._even(int(function.getEntryPoint().getOffset())) != caller:
-            raise RuntimeError("Pinned UI terminal caller does not match Ghidra")
-        if not instruction.getFlowType().isComputed():
-            raise RuntimeError("Pinned UI terminal is no longer an indirect flow")
-
-        # Instruction flows, p-code inputs, and outgoing references were checked
-        # during the bounded trace, but none proves a table base and slot.  Do not
-        # relabel arbitrary referenced memory as a function-pointer table.  A
-        # future exporter may emit candidates only after both table and slot have
-        # independent static provenance.
-        tuple(instruction.getFlows())
-        tuple(instruction.getPcode())
-        tuple(self._references.getReferencesFrom(address))
-        return []
+            raise RuntimeError("Pinned UI site is not an instruction in a function")
+        if self._even(int(function.getEntryPoint().getOffset())) != owner:
+            raise RuntimeError("Pinned UI site owner does not match Ghidra")
+        if classification == "local-branch-landing":
+            if flow_target is not None or symbol is not None:
+                return False
+            for reference in self._references.getReferencesTo(address):
+                source = self._listing.getInstructionAt(reference.getFromAddress())
+                source_function = self._manager.getFunctionContaining(
+                    reference.getFromAddress()
+                )
+                if (
+                    source is not None
+                    and source_function is not None
+                    and self._even(int(source_function.getEntryPoint().getOffset())) == owner
+                    and source.getFlowType().isJump()
+                ):
+                    return True
+            return False
+        if flow_target != 0x14E688 or symbol != EXPOSURE_GETTER_SYMBOL:
+            return False
+        if not instruction.getFlowType().isCall():
+            return False
+        flows = tuple(
+            self._even(int(target.getOffset())) for target in instruction.getFlows()
+        )
+        if flows != (flow_target,):
+            return False
+        resolved = self._symbols.getPrimarySymbol(self._address(flow_target))
+        return resolved is not None and str(resolved.getName()) == symbol
 
 
 def _run_ghidra_script():
@@ -267,11 +262,8 @@ def _run_ghidra_script():
     )
     write_json_atomic(output_path, document, approved_root)
     print(
-        "UI_TERMINAL_EXPORT|tracks=%d|candidates=%d|truncated=false"
-        % (
-            len(document["tracks"]),
-            sum(len(item["candidates"]) for item in document["tracks"]),
-        )
+        "UI_SITE_EXPORT|tracks=%d|classifications=%d|truncated=false"
+        % (len(document["tracks"]), len(document["tracks"]))
     )
 
 

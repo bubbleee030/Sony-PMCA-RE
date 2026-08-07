@@ -22,7 +22,11 @@ from pmca.analysis.modern_ui_contract import (
     ModernUiContractError,
     validate_modern_ui_contract,
 )
-from pmca.analysis.ui_dispatch import UiDispatchError, validate_ui_dispatch_report
+from pmca.analysis.ui_dispatch import (
+    UiDispatchError,
+    build_ui_dispatch_report,
+    validate_ui_dispatch_report,
+)
 
 
 class TargetFeatureError(ValueError):
@@ -30,6 +34,12 @@ class TargetFeatureError(ValueError):
 
 
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
+_ANALYSIS_DIRECTORY = Path(__file__).resolve().parents[2] / "analysis"
+_NESTED_CREATIVE_REPORTS = {
+    "creative_look_stack": "a6400-creative-look-stack.json",
+    "creative_look_sources": "a6400-creative-look-sources.json",
+    "creative_look_boundary": "a6400-creative-look-boundary.json",
+}
 _TOP_FIELDS = {
     "schema_version",
     "subject",
@@ -319,6 +329,34 @@ def _require_fields(value: object, fields: set[str], label: str) -> dict:
     return value
 
 
+def build_target_feature_report(
+    source_document: dict, ui_dispatch_report: dict | None = None
+) -> dict:
+    """Migrate pinned target evidence to the corrected UI dispatch contract."""
+
+    document = copy.deepcopy(source_document)
+    trace = document.get("ui_static_trace")
+    if not isinstance(trace, dict) or not isinstance(
+        trace.get("negative_searches"), list
+    ):
+        raise TargetFeatureError("UI static trace cannot be migrated")
+
+    trace["negative_searches"] = [
+        copy.deepcopy(search)
+        for search in trace["negative_searches"]
+        if isinstance(search, dict)
+        and search.get("target_name")
+        in {"root_resource_call_owner", "sample_view_resource_setup_owner"}
+    ]
+    if ui_dispatch_report is None:
+        ui_dispatch_report = build_ui_dispatch_report(document["ui_indirect_trace"])
+    document["ui_indirect_trace"] = copy.deepcopy(ui_dispatch_report)
+    for field, filename in _NESTED_CREATIVE_REPORTS.items():
+        with (_ANALYSIS_DIRECTORY / filename).open("r", encoding="utf-8") as stream:
+            document[field] = json.load(stream)
+    return validate_target_feature_report(document)
+
+
 def _bounded_text(value: object, label: str, maximum: int = 1000) -> str:
     if (
         not isinstance(value, str)
@@ -592,26 +630,6 @@ def validate_target_feature_report(document: object) -> dict:
                 "root_set": "ViewSettingMenu-candidate-functions",
                 "requested_roots": 21,
                 "resolved_roots": 21,
-                "target_name": "master_layout_factory",
-                "target_requested_offset": "0x181f18",
-                "target_function_offset": "0x181f18",
-                "search_method": "static-direct-call-graph",
-                "path_found": False,
-            },
-            {
-                "root_set": "ViewSettingMenu-candidate-functions",
-                "requested_roots": 21,
-                "resolved_roots": 21,
-                "target_name": "vertical_info_layout_factory",
-                "target_requested_offset": "0x24222c",
-                "target_function_offset": "0x24222c",
-                "search_method": "static-direct-call-graph",
-                "path_found": False,
-            },
-            {
-                "root_set": "ViewSettingMenu-candidate-functions",
-                "requested_roots": 21,
-                "resolved_roots": 21,
                 "target_name": "root_resource_call_owner",
                 "target_requested_offset": "0x2307d0",
                 "target_function_offset": "0x223b8c",
@@ -625,26 +643,6 @@ def validate_target_feature_report(document: object) -> dict:
                 "target_name": "sample_view_resource_setup_owner",
                 "target_requested_offset": "0x6666a4",
                 "target_function_offset": "0x6695d8",
-                "search_method": "static-direct-call-graph",
-                "path_found": False,
-            },
-            {
-                "root_set": "ViewStlrec-candidate-functions",
-                "requested_roots": 25,
-                "resolved_roots": 10,
-                "target_name": "master_layout_factory",
-                "target_requested_offset": "0x181f18",
-                "target_function_offset": "0x181f18",
-                "search_method": "static-direct-call-graph",
-                "path_found": False,
-            },
-            {
-                "root_set": "ViewStlrec-candidate-functions",
-                "requested_roots": 25,
-                "resolved_roots": 10,
-                "target_name": "vertical_info_layout_factory",
-                "target_requested_offset": "0x24222c",
-                "target_function_offset": "0x24222c",
                 "search_method": "static-direct-call-graph",
                 "path_found": False,
             },
@@ -685,6 +683,24 @@ def validate_target_feature_report(document: object) -> dict:
         is not indirect_trace["claims"]["orientation_layout_selector_found"]
     ):
         raise TargetFeatureError("Orientation selector evidence is inconsistent")
+    factory_reference = indirect_trace["vertical_factory_reference"]
+    if (
+        factory_reference["factory_owner"]["start"]
+        != vertical["layout_factory_offset"]
+        or factory_reference["total_constructor_arm_count"] != 12
+        or factory_reference["vertical_constructor_arm_count"]
+        != len(vertical["vertical_named_layouts"])
+        or factory_reference["wrapper_registration_count"] != 5
+        or any(
+            factory_reference[field] is not False
+            for field in (
+                "runtime_factory_invocation_proven",
+                "view_unified2_to_factory_edge_found",
+                "orientation_to_factory_join_proven",
+            )
+        )
+    ):
+        raise TargetFeatureError("Vertical factory provenance is inconsistent")
     if vertical["modern_vertical_menu_established"] is not False:
         raise TargetFeatureError("Modern vertical menu was overclaimed")
     if touch["full_setting_menu_touch_established"] is not False:

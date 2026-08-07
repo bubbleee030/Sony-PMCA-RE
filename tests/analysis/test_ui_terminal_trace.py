@@ -7,6 +7,7 @@ from pathlib import Path
 
 from pmca.analysis.ui_terminal_trace import (
     UiTerminalTraceError,
+    build_ui_terminal_report,
     normalize_ui_terminal_export,
     summarize_ui_terminal_export,
     validate_ui_terminal_report,
@@ -18,7 +19,12 @@ REPORT_PATH = ROOT / "analysis" / "a6400-ui-terminal-trace.json"
 EXPORTER_PATH = ROOT / "tools" / "ghidra" / "export_a6400_ui_terminals.py"
 
 
-def synthetic_raw(candidates=None):
+EXPOSURE_GETTER_SYMBOL = (
+    "_ZN33CmnViewModelWrpCameraExposureMode21getExposureModeActValEv"
+)
+
+
+def synthetic_raw():
     return {
         "schema_version": 1,
         "program": "viewUnified2.so",
@@ -26,14 +32,14 @@ def synthetic_raw(candidates=None):
         "image_size": 11530552,
         "analysis_mode": {"read_only": True, "noanalysis": True},
         "source_graph_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22",
-        "resolution_methods": [
+        "classification_methods": [
             "instruction-flow",
-            "pcode-literal",
             "reference-target",
+            "symbol-identity",
         ],
         "tracks": [
             {
-                "id": "orientation-handler-terminal",
+                "id": "orientation-handler-local-branch-landing",
                 "root": 0x1BB41C,
                 "predecessor_edges": [
                     {
@@ -43,23 +49,25 @@ def synthetic_raw(candidates=None):
                         "kind": "direct",
                     }
                 ],
-                "terminal": {
-                    "caller": 0x1B9B44,
-                    "site": 0x1B9B6A,
-                    "kind": "unresolved-indirect",
+                "site": {
+                    "owner": 0x1B9B44,
+                    "offset": 0x1B9B6A,
+                    "classification": "local-branch-landing",
+                    "flow_target": None,
+                    "symbol": None,
                 },
-                "candidates": copy.deepcopy((candidates or {}).get("orientation", [])),
             },
             {
-                "id": "layout-attach-terminal",
+                "id": "layout-attach-exposure-mode-getter",
                 "root": 0x1BB2D2,
                 "predecessor_edges": [],
-                "terminal": {
-                    "caller": 0x1BB2D2,
-                    "site": 0x1BB30E,
-                    "kind": "unresolved-indirect",
+                "site": {
+                    "owner": 0x1BB2D2,
+                    "offset": 0x1BB30E,
+                    "classification": "exposure-mode-getter-plt-call",
+                    "flow_target": 0x14E688,
+                    "symbol": EXPOSURE_GETTER_SYMBOL,
                 },
-                "candidates": copy.deepcopy((candidates or {}).get("layout", [])),
             },
         ],
         "truncated": False,
@@ -67,78 +75,43 @@ def synthetic_raw(candidates=None):
 
 
 class UiTerminalNormalizationTests(unittest.TestCase):
-    def test_exact_two_tracks_normalize_without_promotion(self):
+    def test_exact_two_sites_normalize_as_non_factory_handoffs(self):
         normalized = normalize_ui_terminal_export(synthetic_raw())
 
         self.assertEqual(
             [item["id"] for item in normalized["tracks"]],
-            ["orientation-handler-terminal", "layout-attach-terminal"],
+            [
+                "orientation-handler-local-branch-landing",
+                "layout-attach-exposure-mode-getter",
+            ],
         )
         self.assertEqual(
-            [item["terminal"]["site"] for item in normalized["tracks"]],
-            [0x1B9B6A, 0x1BB30E],
+            [item["site"]["classification"] for item in normalized["tracks"]],
+            ["local-branch-landing", "exposure-mode-getter-plt-call"],
         )
-        self.assertTrue(
-            all(item["resolution"]["status"] == "UNRESOLVED" for item in normalized["tracks"])
-        )
+        self.assertEqual(normalized["tracks"][1]["site"]["flow_target"], 0x14E688)
+        self.assertEqual(normalized["tracks"][1]["site"]["symbol"], EXPOSURE_GETTER_SYMBOL)
+        self.assertFalse(normalized["claims"]["view_unified2_to_view_unified7_factory_edge_found"])
         self.assertFalse(normalized["claims"]["orientation_layout_selector_found"])
-        self.assertFalse(normalized["behavior_support"]["orientation-layout-selection"])
-
-    def test_unique_candidate_resolves_only_its_track_not_the_selector(self):
-        candidate = {
-            "kind": "function-pointer-table",
-            "target": 0x24222C,
-            "table": 0x8DED88,
-            "slot": 12,
-            "provenance": "reference-target",
-        }
-        normalized = normalize_ui_terminal_export(
-            synthetic_raw({"layout": [candidate]})
-        )
-
-        self.assertEqual(normalized["tracks"][1]["resolution"]["status"], "RESOLVED")
-        self.assertFalse(normalized["claims"]["orientation_layout_selector_found"])
-
-    def test_ambiguous_candidates_remain_nonpromoting(self):
-        first = {
-            "kind": "vtable-slot",
-            "target": 0x181F18,
-            "table": 0x8DED88,
-            "slot": 4,
-            "provenance": "reference-target",
-        }
-        second = {**first, "target": 0x24222C}
-        normalized = normalize_ui_terminal_export(
-            synthetic_raw({"orientation": [first, second]})
-        )
-
-        self.assertEqual(normalized["tracks"][0]["resolution"]["status"], "AMBIGUOUS")
-        self.assertFalse(normalized["claims"]["orientation_layout_selector_found"])
+        self.assertTrue(all(value is False for value in normalized["behavior_support"].values()))
 
     def test_identity_sites_provenance_and_forbidden_material_are_strict(self):
         candidates = []
 
         candidate = synthetic_raw()
-        candidate["tracks"][0]["terminal"]["site"] += 2
+        candidate["tracks"][0]["site"]["classification"] = "unresolved-indirect"
+        candidates.append(candidate)
+
+        candidate = synthetic_raw()
+        candidate["tracks"][1]["site"]["flow_target"] = 0x14E68A
+        candidates.append(candidate)
+
+        candidate = synthetic_raw()
+        candidate["tracks"][1]["site"]["symbol"] = "wrong"
         candidates.append(candidate)
 
         candidate = synthetic_raw()
         candidate["tracks"].reverse()
-        candidates.append(candidate)
-
-        candidate = synthetic_raw(
-            {
-                "orientation": [
-                    {
-                        "kind": "vtable-slot",
-                        "target": 0x181F18,
-                        "table": 0x8DED88,
-                        "slot": 4,
-                        "provenance": "guess",
-                    }
-                ]
-            }
-        )
         candidates.append(candidate)
 
         candidate = synthetic_raw()
@@ -151,38 +124,62 @@ class UiTerminalNormalizationTests(unittest.TestCase):
             ):
                 normalize_ui_terminal_export(candidate)
 
-    def test_summary_is_digest_pinned_and_retains_false_claims(self):
+    def test_summary_counts_classified_non_handoff_sites(self):
         summary = summarize_ui_terminal_export(synthetic_raw())
 
         self.assertRegex(summary["canonical_export_sha256"], r"^[0-9a-f]{64}$")
-        self.assertEqual(summary["resolved_track_count"], 0)
-        self.assertEqual(summary["ambiguous_track_count"], 0)
-        self.assertEqual(summary["unresolved_track_count"], 2)
+        self.assertEqual(summary["local_branch_landing_count"], 1)
+        self.assertEqual(summary["exposure_mode_getter_plt_call_count"], 1)
+        self.assertFalse(summary["claims"]["view_unified2_to_view_unified7_factory_edge_found"])
         self.assertFalse(summary["claims"]["orientation_layout_selector_found"])
 
 
 class UiTerminalReportTests(unittest.TestCase):
+    def test_builder_renders_a_fail_closed_report_from_the_pinned_sites(self):
+        report = build_ui_terminal_report(synthetic_raw())
+
+        self.assertEqual(report["readiness"], "CLASSIFIED_NO_FACTORY_HANDOFF")
+        self.assertEqual(
+            [item["site"]["classification"] for item in report["tracks"]],
+            ["local-branch-landing", "exposure-mode-getter-plt-call"],
+        )
+        self.assertFalse(report["claims"]["view_unified2_to_view_unified7_factory_edge_found"])
+        self.assertTrue(all(value is False for value in report["behavior_support"].values()))
+
     def test_committed_report_is_fail_closed_and_dynamically_validated(self):
         document = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
         validated = validate_ui_terminal_report(document)
 
-        self.assertEqual(validated["readiness"], "UNRESOLVED")
+        self.assertEqual(validated["readiness"], "CLASSIFIED_NO_FACTORY_HANDOFF")
         self.assertEqual(
             validated["export_summary"]["canonical_export_sha256"],
-            "caf4f85e3edc4f558915fcbe5e6926f901c64c75a5a24c83b742449d94d8a16c",
+            "eee7ccf337eb16545a67cb9b57a03ed476ee867076939e602208a65d5092cfc2",
         )
+        self.assertEqual(
+            {
+                item["site"]["offset"]: item["site"]["classification"]
+                for item in validated["tracks"]
+            },
+            {
+                "0x1b9b6a": "local-branch-landing",
+                "0x1bb30e": "exposure-mode-getter-plt-call",
+            },
+        )
+        self.assertEqual(validated["tracks"][1]["site"]["flow_target"], "0x14e688")
+        self.assertEqual(validated["tracks"][1]["site"]["symbol"], EXPOSURE_GETTER_SYMBOL)
+        self.assertFalse(validated["claims"]["view_unified2_to_view_unified7_factory_edge_found"])
         self.assertFalse(validated["claims"]["orientation_layout_selector_found"])
-        self.assertFalse(
-            validated["behavior_support"]["orientation-layout-selection"]
-        )
+        self.assertTrue(all(value is False for value in validated["behavior_support"].values()))
         self.assertFalse(validated["installable"])
         self.assertFalse(validated["camera_test_eligible"])
 
     def test_report_claims_cannot_be_promoted_without_complete_path(self):
         document = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
         for section, field in (
+            ("claims", "view_unified2_to_view_unified7_factory_edge_found"),
             ("claims", "orientation_layout_selector_found"),
             ("behavior_support", "orientation-layout-selection"),
+            ("behavior_support", "touch-coordinate-transform"),
         ):
             candidate = copy.deepcopy(document)
             candidate[section][field] = True
@@ -191,30 +188,15 @@ class UiTerminalReportTests(unittest.TestCase):
             ):
                 validate_ui_terminal_report(candidate)
 
-    def test_report_rejects_forged_digest_or_resolved_metadata(self):
+    def test_report_rejects_forged_digest_or_factory_handoff_metadata(self):
         document = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
         forged_digest = copy.deepcopy(document)
         forged_digest["export_summary"]["canonical_export_sha256"] = "0" * 64
 
-        forged_resolution = copy.deepcopy(document)
-        forged_resolution["export_summary"].update(
-            {
-                "resolved_track_count": 1,
-                "ambiguous_track_count": 0,
-                "unresolved_track_count": 1,
-            }
-        )
-        forged_resolution["tracks"][0]["resolution"] = {
-            "status": "RESOLVED",
-            "candidate_count": 1,
-            "kind": "not-a-kind",
-            "target": "not-an-address",
-            "table": -1,
-            "slot": "any",
-            "provenance": "forged",
-        }
+        forged_handoff = copy.deepcopy(document)
+        forged_handoff["tracks"][0]["site"]["classification"] = "unresolved-indirect"
 
-        for candidate in (forged_digest, forged_resolution):
+        for candidate in (forged_digest, forged_handoff):
             with self.subTest(candidate=candidate), self.assertRaises(
                 UiTerminalTraceError
             ):
@@ -229,7 +211,7 @@ class UiTerminalExporterTests(unittest.TestCase):
         spec.loader.exec_module(module)
         return module
 
-    def test_exporter_requests_only_the_two_pinned_terminals(self):
+    def test_exporter_verifies_only_the_two_pinned_non_handoff_sites(self):
         exporter = self._load_exporter()
 
         class Adapter:
@@ -248,16 +230,27 @@ class UiTerminalExporterTests(unittest.TestCase):
             def program_is_changed(self):
                 return False
 
-            def candidate_targets(self, caller, site):
-                self.requested = getattr(self, "requested", []) + [(caller, site)]
-                return []
+            def verify_site(self, owner, offset, classification, flow_target, symbol):
+                self.requested = getattr(self, "requested", []) + [
+                    (owner, offset, classification, flow_target, symbol)
+                ]
+                return True
 
         adapter = Adapter()
         raw = exporter.build_raw_export(adapter)
 
         self.assertEqual(
             adapter.requested,
-            [(0x1B9B44, 0x1B9B6A), (0x1BB2D2, 0x1BB30E)],
+            [
+                (0x1B9B44, 0x1B9B6A, "local-branch-landing", None, None),
+                (
+                    0x1BB2D2,
+                    0x1BB30E,
+                    "exposure-mode-getter-plt-call",
+                    0x14E688,
+                    EXPOSURE_GETTER_SYMBOL,
+                ),
+            ],
         )
         self.assertFalse(raw["truncated"])
 
@@ -284,8 +277,8 @@ class UiTerminalExporterTests(unittest.TestCase):
             def program_is_changed(self):
                 return False
 
-            def candidate_targets(self, caller, site):
-                return []
+            def verify_site(self, owner, offset, classification, flow_target, symbol):
+                return True
 
         for adapter in (Adapter(read_only=False), Adapter(noanalysis=False)):
             with self.subTest(adapter=adapter), self.assertRaises(RuntimeError):
@@ -309,6 +302,125 @@ class UiTerminalExporterTests(unittest.TestCase):
                 exporter.write_json_atomic(
                     outside / "raw-ui-terminals.json", {}, approved
                 )
+
+    def test_ghidra_adapter_requires_exact_exposure_getter_target_and_symbol(self):
+        exporter = self._load_exporter()
+
+        class Address:
+            def __init__(self, value):
+                self.value = value
+
+            def getOffset(self):
+                return self.value
+
+        class FlowType:
+            def __init__(self, *, call=False, jump=False):
+                self.call = call
+                self.jump = jump
+
+            def isCall(self):
+                return self.call
+
+            def isJump(self):
+                return self.jump
+
+        class Instruction:
+            def __init__(self, target, *, call=True):
+                self.target = target
+                self.call = call
+
+            def getFlowType(self):
+                return FlowType(call=self.call)
+
+            def getFlows(self):
+                return (Address(self.target),)
+
+        class Function:
+            def getEntryPoint(self):
+                return Address(0x1BB2D2)
+
+            def isExternal(self):
+                return False
+
+        class Symbol:
+            def __init__(self, name):
+                self.name = name
+
+            def getName(self):
+                return self.name
+
+        class AddressSpace:
+            def getAddress(self, value):
+                return Address(int(value, 16))
+
+        class AddressFactory:
+            def getDefaultAddressSpace(self):
+                return AddressSpace()
+
+        class Listing:
+            def __init__(self, instruction):
+                self.instruction = instruction
+
+            def getInstructionAt(self, address):
+                return self.instruction if address.value == 0x1BB30E else None
+
+        class Manager:
+            def getFunctionContaining(self, address):
+                return Function() if address.value == 0x1BB30E else None
+
+        class References:
+            def getReferencesTo(self, address):
+                return ()
+
+        class Symbols:
+            def __init__(self, name):
+                self.name = name
+
+            def getPrimarySymbol(self, address):
+                return Symbol(self.name) if address.value == 0x14E688 else None
+
+        class Monitor:
+            def checkCanceled(self):
+                return None
+
+        class Program:
+            def __init__(self, instruction, symbol):
+                self.listing = Listing(instruction)
+                self.symbols = Symbols(symbol)
+
+            def getListing(self):
+                return self.listing
+
+            def getFunctionManager(self):
+                return Manager()
+
+            def getReferenceManager(self):
+                return References()
+
+            def getAddressFactory(self):
+                return AddressFactory()
+
+            def getSymbolTable(self):
+                return self.symbols
+
+        def verify(instruction, symbol):
+            adapter = exporter.GhidraProgramAdapter(
+                Program(instruction, symbol), Monitor()
+            )
+            return adapter.verify_site(
+                0x1BB2D2,
+                0x1BB30E,
+                "exposure-mode-getter-plt-call",
+                0x14E688,
+                EXPOSURE_GETTER_SYMBOL,
+            )
+
+        self.assertTrue(verify(Instruction(0x14E688), EXPOSURE_GETTER_SYMBOL))
+        self.assertFalse(verify(Instruction(0x14E68A), EXPOSURE_GETTER_SYMBOL))
+        self.assertFalse(verify(Instruction(0x14E688), "wrong"))
+        self.assertFalse(
+            verify(Instruction(0x14E688, call=False), EXPOSURE_GETTER_SYMBOL)
+        )
 
 
 if __name__ == "__main__":

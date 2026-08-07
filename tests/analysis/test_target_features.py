@@ -5,6 +5,7 @@ from pathlib import Path
 
 from pmca.analysis.target_features import (
     TargetFeatureError,
+    build_target_feature_report,
     validate_target_feature_report,
 )
 
@@ -52,6 +53,35 @@ class TargetFeatureTests(unittest.TestCase):
 
         self.assertEqual(validated["ui_indirect_trace"], standalone_trace)
         self.assertEqual(validated["modern_ui_contract"], standalone_contract)
+
+    def test_builder_migrates_stale_ui_trace_without_mutating_the_source(self):
+        source = copy.deepcopy(self.document)
+        built = build_target_feature_report(source)
+
+        self.assertEqual(source, self.document)
+        self.assertNotIn("uxc_owner_functions", built["ui_indirect_trace"])
+        self.assertIn("invalid_offset_classifications", built["ui_indirect_trace"])
+        self.assertIn("vertical_factory_reference", built["ui_indirect_trace"])
+        self.assertEqual(
+            built["creative_look_stack"],
+            json.loads(CREATIVE_LOOK_STACK_PATH.read_text(encoding="utf-8")),
+        )
+        self.assertEqual(
+            built["creative_look_sources"],
+            json.loads(CREATIVE_LOOK_SOURCES_PATH.read_text(encoding="utf-8")),
+        )
+        self.assertEqual(
+            built["creative_look_boundary"],
+            json.loads(CREATIVE_LOOK_BOUNDARY_PATH.read_text(encoding="utf-8")),
+        )
+        self.assertEqual(
+            [
+                search["target_name"]
+                for search in built["ui_static_trace"]["negative_searches"]
+            ],
+            ["root_resource_call_owner", "sample_view_resource_setup_owner"],
+        )
+        self.assertEqual(validate_target_feature_report(built), built)
 
     def test_creative_look_evidence_matches_all_standalone_reports(self):
         validated = validate_target_feature_report(self.document)
@@ -108,6 +138,18 @@ class TargetFeatureTests(unittest.TestCase):
         candidate["ui_indirect_trace"]["behavior_support"][
             "menu-touch-selection"
         ] = True
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["ui_indirect_trace"]["vertical_factory_reference"][
+            "runtime_factory_invocation_proven"
+        ] = True
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["ui_indirect_trace"]["vertical_factory_reference"][
+            "factory_report_sha256"
+        ] = "00" * 32
         candidates.append(candidate)
 
         for candidate in candidates:
@@ -350,26 +392,6 @@ class TargetFeatureTests(unittest.TestCase):
                     "root_set": "ViewSettingMenu-candidate-functions",
                     "requested_roots": 21,
                     "resolved_roots": 21,
-                    "target_name": "master_layout_factory",
-                    "target_requested_offset": "0x181f18",
-                    "target_function_offset": "0x181f18",
-                    "search_method": "static-direct-call-graph",
-                    "path_found": False,
-                },
-                {
-                    "root_set": "ViewSettingMenu-candidate-functions",
-                    "requested_roots": 21,
-                    "resolved_roots": 21,
-                    "target_name": "vertical_info_layout_factory",
-                    "target_requested_offset": "0x24222c",
-                    "target_function_offset": "0x24222c",
-                    "search_method": "static-direct-call-graph",
-                    "path_found": False,
-                },
-                {
-                    "root_set": "ViewSettingMenu-candidate-functions",
-                    "requested_roots": 21,
-                    "resolved_roots": 21,
                     "target_name": "root_resource_call_owner",
                     "target_requested_offset": "0x2307d0",
                     "target_function_offset": "0x223b8c",
@@ -383,26 +405,6 @@ class TargetFeatureTests(unittest.TestCase):
                     "target_name": "sample_view_resource_setup_owner",
                     "target_requested_offset": "0x6666a4",
                     "target_function_offset": "0x6695d8",
-                    "search_method": "static-direct-call-graph",
-                    "path_found": False,
-                },
-                {
-                    "root_set": "ViewStlrec-candidate-functions",
-                    "requested_roots": 25,
-                    "resolved_roots": 10,
-                    "target_name": "master_layout_factory",
-                    "target_requested_offset": "0x181f18",
-                    "target_function_offset": "0x181f18",
-                    "search_method": "static-direct-call-graph",
-                    "path_found": False,
-                },
-                {
-                    "root_set": "ViewStlrec-candidate-functions",
-                    "requested_roots": 25,
-                    "resolved_roots": 10,
-                    "target_name": "vertical_info_layout_factory",
-                    "target_requested_offset": "0x24222c",
-                    "target_function_offset": "0x24222c",
                     "search_method": "static-direct-call-graph",
                     "path_found": False,
                 },

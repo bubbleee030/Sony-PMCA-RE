@@ -7,6 +7,12 @@ import re
 import unicodedata
 
 from pmca.analysis.modern_ui_contract import BEHAVIOR_IDS
+from pmca.analysis.ui_factory_owner_registration import (
+    REPORT_CANONICAL_EXPORT_SHA256 as OWNER_REGISTRATION_SHA256,
+)
+from pmca.analysis.vertical_layout_factory_trace import (
+    CANONICAL_EXPORT_SHA256 as VERTICAL_FACTORY_SHA256,
+)
 
 
 VIEW_UNIFIED2_SIZE = 11_530_552
@@ -76,7 +82,8 @@ _TOP_FIELDS = {
     "modules",
     "roots",
     "bounded_export_summary",
-    "uxc_owner_functions",
+    "invalid_offset_classifications",
+    "vertical_factory_reference",
     "edges",
     "paths",
     "uxc_references",
@@ -119,11 +126,31 @@ _BOUNDED_EXPORT_SUMMARY_FIELDS = {
     "unresolved_indirect_terminal",
     "artifact_sha256",
 }
-_UXC_OWNER_FIELDS = {
+_INVALID_OFFSET_FIELDS = {
     "module",
-    "function_offset",
-    "matched_class_id_count",
-    "semantic",
+    "offset",
+    "owner",
+    "instruction_boundary",
+    "classification",
+    "callable_owner",
+    "factory",
+    "class_id_load",
+}
+_OWNER_RANGE_FIELDS = {"start", "end"}
+_VERTICAL_FACTORY_REFERENCE_FIELDS = {
+    "factory_report",
+    "factory_report_sha256",
+    "owner_registration_report",
+    "owner_registration_report_sha256",
+    "factory_owner",
+    "wrapper_owner",
+    "resource_reference_count",
+    "total_constructor_arm_count",
+    "vertical_constructor_arm_count",
+    "wrapper_registration_count",
+    "runtime_factory_invocation_proven",
+    "view_unified2_to_factory_edge_found",
+    "orientation_to_factory_join_proven",
 }
 _NEGATIVE_FIELDS = {
     "root_set",
@@ -161,25 +188,44 @@ _BOUNDED_EXPORT_SUMMARY = {
     "unresolved_indirect_terminal": True,
     "artifact_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22",
 }
-_UXC_OWNER_FUNCTIONS = [
+_INVALID_OFFSET_CLASSIFICATIONS = [
     {
         "module": "lib/viewUnified2.so",
-        "function_offset": offset,
-        "matched_class_id_count": count,
-        "semantic": "reference-owner-only",
+        "offset": offset,
+        "owner": {"start": owner_start, "end": owner_end},
+        "instruction_boundary": instruction_boundary,
+        "classification": classification,
+        "callable_owner": False,
+        "factory": False,
+        "class_id_load": False,
     }
-    for offset, count in (
-        ("0x181f18", 5),
-        ("0x24222c", 1),
-        ("0x37aa18", 1),
-        ("0x37b578", 1),
-        ("0x37b5e0", 1),
-        ("0x37b614", 1),
-        ("0x37b648", 1),
-        ("0x3ba6dc", 5),
-        ("0x651684", 5),
+    for offset, owner_start, owner_end, instruction_boundary, classification in (
+        ("0x181f18", "0x1729e8", "0x184ac4", True, "internal-selector-branch"),
+        ("0x24222c", "0x23a8c0", "0x2a3680", False, "thumb2-second-halfword"),
+        ("0x3ba6dc", "0x3b6940", "0x3bbed8", False, "thumb2-second-halfword"),
+        ("0x651684", "0x64da44", "0x6549e4", False, "thumb2-second-halfword"),
+        ("0x37b614", "0x37b60c", "0x37b630", True, "constructor-vptr-material"),
+        ("0x37aa18", "0x37aa10", "0x37aa34", True, "constructor-vptr-material"),
+        ("0x37b5e0", "0x37b5d8", "0x37b5fc", True, "constructor-vptr-material"),
+        ("0x37b648", "0x37b640", "0x37b664", True, "constructor-vptr-material"),
+        ("0x37b578", "0x37b570", "0x37b594", True, "constructor-vptr-material"),
     )
 ]
+_VERTICAL_FACTORY_REFERENCE = {
+    "factory_report": "analysis/a6400-vertical-layout-factory.json",
+    "factory_report_sha256": VERTICAL_FACTORY_SHA256,
+    "owner_registration_report": "analysis/a6400-ui-factory-owner-registration.json",
+    "owner_registration_report_sha256": OWNER_REGISTRATION_SHA256,
+    "factory_owner": {"start": "0x52840", "end": "0x529b8"},
+    "wrapper_owner": {"start": "0x529cc", "end": "0x529e8"},
+    "resource_reference_count": 10,
+    "total_constructor_arm_count": 12,
+    "vertical_constructor_arm_count": 5,
+    "wrapper_registration_count": 5,
+    "runtime_factory_invocation_proven": False,
+    "view_unified2_to_factory_edge_found": False,
+    "orientation_to_factory_join_proven": False,
+}
 _RAW_EXPORT_FIELDS = {
     "program",
     "sha256",
@@ -593,6 +639,43 @@ def _semantic_has_support(document: dict, required_semantic: str) -> bool:
     return False
 
 
+def build_ui_dispatch_report(source_document: dict) -> dict:
+    """Migrate the pinned legacy report into the corrected fail-closed schema."""
+
+    if not isinstance(source_document, dict):
+        raise UiDispatchError("UI dispatch source report must be an object")
+    _reject_forbidden_keys(source_document)
+    source_fields = set(source_document)
+    legacy_fields = (
+        _TOP_FIELDS
+        - {"invalid_offset_classifications", "vertical_factory_reference"}
+    ) | {"uxc_owner_functions"}
+    if source_fields not in (_TOP_FIELDS, legacy_fields):
+        raise UiDispatchError("UI dispatch source report fields are not exact")
+
+    report = copy.deepcopy(source_document)
+    report.pop("uxc_owner_functions", None)
+    report["invalid_offset_classifications"] = copy.deepcopy(
+        _INVALID_OFFSET_CLASSIFICATIONS
+    )
+    report["vertical_factory_reference"] = copy.deepcopy(
+        _VERTICAL_FACTORY_REFERENCE
+    )
+    searches = report.get("negative_searches")
+    if not isinstance(searches, list):
+        raise UiDispatchError("UI dispatch source negative searches must be a list")
+    report["negative_searches"] = [
+        item
+        for item in searches
+        if isinstance(item, dict)
+        and item.get("target_name")
+        in {"root_resource_call_owner", "sample_view_resource_setup_owner"}
+    ]
+    if len(report["negative_searches"]) != 4:
+        raise UiDispatchError("Corrected UI dispatch report must retain four searches")
+    return validate_ui_dispatch_report(report)
+
+
 def validate_ui_dispatch_report(document: dict) -> dict:
     """Return an isolated copy of exact, fail-closed target UI evidence."""
 
@@ -639,27 +722,50 @@ def validate_ui_dispatch_report(document: dict) -> dict:
     if export_summary != _BOUNDED_EXPORT_SUMMARY:
         raise UiDispatchError("Bounded export summary is invalid")
 
-    owner_functions = report["uxc_owner_functions"]
-    if not isinstance(owner_functions, list):
-        raise UiDispatchError("UXC owner functions must be a list")
-    for owner in owner_functions:
-        validated_owner = _require_exact_fields(
-            owner, _UXC_OWNER_FIELDS, "UXC owner function"
+    classifications = report["invalid_offset_classifications"]
+    if not isinstance(classifications, list):
+        raise UiDispatchError("Invalid-offset classifications must be a list")
+    for classification in classifications:
+        item = _require_exact_fields(
+            classification, _INVALID_OFFSET_FIELDS, "Invalid-offset classification"
         )
         module_name = _require_module(
-            validated_owner["module"], "UXC owner module", executable=True
+            item["module"], "Invalid-offset module", executable=True
         )
-        _require_address(
-            validated_owner["function_offset"], "UXC owner function", module_name
+        _require_address(item["offset"], "Invalid-offset site", module_name)
+        owner = _require_exact_fields(
+            item["owner"], _OWNER_RANGE_FIELDS, "Invalid-offset owner"
         )
-        if (
-            type(validated_owner["matched_class_id_count"]) is not int
-            or not 1 <= validated_owner["matched_class_id_count"] <= 5
-            or validated_owner["semantic"] != "reference-owner-only"
-        ):
-            raise UiDispatchError("UXC owner function metadata is invalid")
-    if owner_functions != _UXC_OWNER_FUNCTIONS:
-        raise UiDispatchError("UXC owner function mapping is invalid")
+        _require_address(owner["start"], "Invalid-offset owner start", module_name)
+        _require_address(owner["end"], "Invalid-offset owner end", module_name)
+        if int(owner["start"], 16) >= int(owner["end"], 16):
+            raise UiDispatchError("Invalid-offset owner range is empty")
+        if type(item["instruction_boundary"]) is not bool:
+            raise UiDispatchError("Invalid-offset boundary flag is invalid")
+        if item["classification"] not in {
+            "internal-selector-branch",
+            "thumb2-second-halfword",
+            "constructor-vptr-material",
+        }:
+            raise UiDispatchError("Invalid-offset classification is invalid")
+        if any(item[field] is not False for field in ("callable_owner", "factory", "class_id_load")):
+            raise UiDispatchError("Invalid offset was promoted to an owner, factory, or class-ID load")
+    if classifications != _INVALID_OFFSET_CLASSIFICATIONS:
+        raise UiDispatchError("Invalid-offset classifications differ")
+
+    factory_reference = _require_exact_fields(
+        report["vertical_factory_reference"],
+        _VERTICAL_FACTORY_REFERENCE_FIELDS,
+        "Vertical factory reference",
+    )
+    for field in ("factory_owner", "wrapper_owner"):
+        owner = _require_exact_fields(
+            factory_reference[field], _OWNER_RANGE_FIELDS, "Vertical factory owner"
+        )
+        for edge in ("start", "end"):
+            _require_address(owner[edge], "Vertical factory owner address", "lib/viewUnified7.so")
+    if factory_reference != _VERTICAL_FACTORY_REFERENCE:
+        raise UiDispatchError("Vertical factory reference differs")
 
     if not isinstance(report["edges"], list) or len(report["edges"]) > _MAX_EDGES:
         raise UiDispatchError("UI dispatch edges are invalid or exceed the cap")

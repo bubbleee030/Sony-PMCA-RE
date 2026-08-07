@@ -17,11 +17,11 @@ VIEW_UNIFIED7_SIZE = 541_024
 OWNER_RANGE = {"start": 0x529CC, "end": 0x529E8}
 FORWARDING_EDGE = {"caller": 0x529CC, "site": 0x529D6, "target": 0x52840, "kind": "direct"}
 RELATIVE_REGISTRATIONS = [
-    {"address": 0x70EE8, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x70FA0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x71040, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x710F0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
-    {"address": 0x711A0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1268, "address": 0x70EE8, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1286, "address": 0x70FA0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1305, "address": 0x71040, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1327, "address": 0x710F0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
+    {"index": 1349, "address": 0x711A0, "target": 0x529CC, "thumb_pointer": 0x529CD, "evidence_kind": "relocation", "relocation_type": "R_ARM_RELATIVE", "section_name": ".rel.dyn"},
 ]
 ORIENTATION_ROOTS = [0x2D2C6, 0x30750, 0x189DC, 0x1B070, 0x1C56C]
 ORIENTATION_IMPORTS = [
@@ -41,6 +41,13 @@ CLAIMS = {
     "factory_forwarding_owner_found": True,
     "typed_owner_registration_found": True,
     "orientation_layout_selector_found": False,
+    "five_wrapper_registrations_found": True,
+    "runtime_factory_invocation_proven": False,
+    "view_unified2_to_factory_edge_found": False,
+    "orientation_to_factory_join_proven": False,
+    "portrait_geometry_proven": False,
+    "touch_coordinate_transform_proven": False,
+    "menu_selection_dispatch_proven": False,
 }
 BEHAVIOR_SUPPORT = {
     "touch-coordinate-transform": False,
@@ -48,7 +55,7 @@ BEHAVIOR_SUPPORT = {
     "menu-touch-selection": False,
 }
 READINESS = "TYPED_OWNER_REGISTRATION_BOUNDED_ROUTE_UNESTABLISHED"
-REPORT_CANONICAL_EXPORT_SHA256 = "a6a669db167c7335a65cd3015c59a20a08af4b8de46330a4ca1c3231fa2b8e0a"
+REPORT_CANONICAL_EXPORT_SHA256 = "5406b615542a0af4ab6ad07060126b98e00e673456d9958dbd9733a2f3508bab"
 CONCLUSION = (
     "Five typed .rel.dyn R_ARM_RELATIVE registrations preserve the unnamed "
     "forwarding owner's Thumb pointer through PT_LOAD-mapped addends. No direct "
@@ -88,7 +95,7 @@ def _normalized_reference(reference):
         raise UIFactoryOwnerRegistrationError("typed registration reference is invalid")
     kind = reference.get("evidence_kind")
     allowed = {
-        "relocation": {"address", "target", "thumb_pointer", "evidence_kind", "relocation_type", "section_name"},
+        "relocation": {"index", "address", "target", "thumb_pointer", "evidence_kind", "relocation_type", "section_name"},
         "symbol": {"address", "target", "evidence_kind", "symbol_name", "section_name"},
         "section-membership": {"address", "target", "evidence_kind", "section_name"},
     }
@@ -99,7 +106,9 @@ def _normalized_reference(reference):
         raise UIFactoryOwnerRegistrationError("registration target is not the forwarding owner")
     if kind == "relocation" and (reference["relocation_type"] != "R_ARM_RELATIVE" or reference["section_name"] != ".rel.dyn" or reference["thumb_pointer"] != OWNER_RANGE["start"] | 1):
         raise UIFactoryOwnerRegistrationError("relative relocation does not preserve the forwarding-owner Thumb pointer")
-    for field in set(reference) - {"address", "target", "thumb_pointer", "evidence_kind"}:
+    if kind == "relocation" and type(reference["index"]) is not int:
+        raise UIFactoryOwnerRegistrationError("relative relocation index is invalid")
+    for field in set(reference) - {"index", "address", "target", "thumb_pointer", "evidence_kind"}:
         if not isinstance(reference[field], str) or not reference[field]:
             raise UIFactoryOwnerRegistrationError("registration metadata is empty")
     return copy.deepcopy(reference)
@@ -160,12 +169,30 @@ def summarize_ui_factory_owner_registration_export(document):
     }
 
 
+def build_ui_factory_owner_registration_report(export_document):
+    """Build the deterministic registration report from validated ELF metadata."""
+    normalized = normalize_ui_factory_owner_registration_export(export_document)
+    summary = summarize_ui_factory_owner_registration_export(export_document)
+    return {
+        "schema_version": 1, "analysis_scope": "offline-static-ui-factory-owner-registration",
+        "camera_policy": "physically-disconnected", "camera_executed": False, "installable": False,
+        "camera_test_eligible": False,
+        "source": {"module": "lib/viewUnified7.so", "size": VIEW_UNIFIED7_SIZE, "sha256": VIEW_UNIFIED7_SHA256},
+        "export_summary": summary,
+        "owner": {"range": {key: f"0x{value:x}" for key, value in OWNER_RANGE.items()}, "forwarding_edge": {key: (f"0x{value:x}" if key in {"caller", "site", "target"} else value) for key, value in FORWARDING_EDGE.items()}, "direct_callers": []},
+        "registrations": [{key: (f"0x{value:x}" if key in {"address", "target", "thumb_pointer"} else value) for key, value in item.items()} for item in RELATIVE_REGISTRATIONS],
+        "claims": copy.deepcopy(normalized["claims"]), "behavior_support": copy.deepcopy(normalized["behavior_support"]),
+        "readiness": "TYPED_WRAPPER_REGISTRATION_BOUNDED_INVOCATION_UNESTABLISHED",
+        "conclusion": "Five R_ARM_RELATIVE address-taken wrapper registrations are bounded. Registration is not invocation; no direct viewUnified2-to-factory, orientation, geometry, touch, or menu join is established by this static slice.",
+    }
+
+
 def validate_ui_factory_owner_registration_report(document):
     _forbid(document)
     report = _exact(document, {
         "schema_version", "analysis_scope", "camera_policy", "camera_executed", "installable",
-        "camera_test_eligible", "source", "export_summary", "owner", "orientation_imports", "direct_path_summary",
-        "claims", "behavior_support", "readiness", "conclusion",
+        "camera_test_eligible", "source", "export_summary", "owner", "registrations", "claims",
+        "behavior_support", "readiness", "conclusion",
     }, "owner registration report")
     if report["schema_version"] != 1 or report["analysis_scope"] != "offline-static-ui-factory-owner-registration" or report["camera_policy"] != "physically-disconnected":
         raise UIFactoryOwnerRegistrationError("report scope is invalid")
@@ -178,10 +205,7 @@ def validate_ui_factory_owner_registration_report(document):
         raise UIFactoryOwnerRegistrationError("report summary is invalid")
     if report["owner"] != {"range": {"start": "0x529cc", "end": "0x529e8"}, "forwarding_edge": {"caller": "0x529cc", "site": "0x529d6", "target": "0x52840", "kind": "direct"}, "direct_callers": []}:
         raise UIFactoryOwnerRegistrationError("report owner result is invalid")
-    expected_imports = [{"id": item["id"], "symbol": item["symbol"], "plt": f"0x{item['plt']:x}", "owners": [{"owner": f"0x{owner['owner']:x}", "site": f"0x{owner['site']:x}"} for owner in item["owners"]]} for item in ORIENTATION_IMPORTS]
-    if report["orientation_imports"] != expected_imports:
-        raise UIFactoryOwnerRegistrationError("report orientation import evidence is invalid")
-    expected_paths = {**PATH_SUMMARY, "orientation_roots": [f"0x{item:x}" for item in ORIENTATION_ROOTS], "layout_mode_roots": [f"0x{item:x}" for item in LAYOUT_MODE_ROOTS]}
-    if report["direct_path_summary"] != expected_paths or report["claims"] != CLAIMS or report["behavior_support"] != BEHAVIOR_SUPPORT or report["readiness"] != READINESS or report["conclusion"] != CONCLUSION:
+    expected_registrations = [{key: (f"0x{value:x}" if key in {"address", "target", "thumb_pointer"} else value) for key, value in item.items()} for item in RELATIVE_REGISTRATIONS]
+    if report["registrations"] != expected_registrations or report["claims"] != CLAIMS or report["behavior_support"] != BEHAVIOR_SUPPORT or report["readiness"] != "TYPED_WRAPPER_REGISTRATION_BOUNDED_INVOCATION_UNESTABLISHED" or "Registration is not invocation" not in report["conclusion"]:
         raise UIFactoryOwnerRegistrationError("report promotes unestablished behavior")
     return copy.deepcopy(report)
