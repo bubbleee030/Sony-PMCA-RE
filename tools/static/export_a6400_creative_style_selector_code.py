@@ -62,16 +62,20 @@ def _dependencies():
             ARM_CC_EQ,
             ARM_CC_GT,
             ARM_INS_IT,
+            ARM_INS_LDM,
             ARM_INS_LSL,
             ARM_INS_MVN,
+            ARM_INS_STM,
             ARM_INS_SUB,
+            ARM_REG_IP,
             ARM_REG_R6,
         )
     except (ImportError, AttributeError) as exc:
         raise RuntimeError("local Capstone and pyelftools are required") from exc
     deps.update({
         "al": ARM_CC_AL, "eq": ARM_CC_EQ, "gt": ARM_CC_GT, "it": ARM_INS_IT,
-        "lsl": ARM_INS_LSL, "mvn": ARM_INS_MVN, "sub": ARM_INS_SUB, "r6": ARM_REG_R6,
+        "ldm": ARM_INS_LDM, "lsl": ARM_INS_LSL, "mvn": ARM_INS_MVN,
+        "stm": ARM_INS_STM, "sub": ARM_INS_SUB, "ip": ARM_REG_IP, "r6": ARM_REG_R6,
     })
     return deps
 
@@ -983,6 +987,128 @@ def _validate_dynamic_records(blob, mappings, deps, plt_symbols):
     return copy.deepcopy(expected)
 
 
+def _validate_record_id_tables(elf, blob, mappings, deps, plt_symbols):
+    expected = EXPECTED_EXPORT["record_id_tables"]
+    rodata = elf.get_section_by_name(".rodata")
+    rodata_range = expected["rodata_range"]
+    if (
+        rodata is None
+        or rodata["sh_addr"] != rodata_range["start"]
+        or rodata["sh_addr"] + rodata["sh_size"] != rodata_range["end"]
+    ):
+        raise RuntimeError("record ID table read-only range differs")
+    if sum(item["row_count"] for item in expected["families"]) != expected["total_row_count"]:
+        raise RuntimeError("record ID table row count differs")
+
+    def require_source(side):
+        source_load = _instruction(blob, mappings, deps, side["source_site"])
+        memory = source_load.operands[1].mem
+        if (
+            source_load.id != deps["ldr"]
+            or len(source_load.operands) != 2
+            or source_load.operands[0].type != deps["reg"]
+            or source_load.operands[1].type != deps["mem"]
+            or memory.base != deps["pc"]
+            or memory.index != 0
+        ):
+            raise RuntimeError("record ID table source load differs")
+        source_register = source_load.operands[0].reg
+        source_add = _instruction(blob, mappings, deps, side["source_add_site"])
+        if (
+            source_add.id != deps["add"]
+            or len(source_add.operands) != 2
+            or source_add.operands[0].type != deps["reg"]
+            or source_add.operands[0].reg != source_register
+            or source_add.operands[1].type != deps["reg"]
+            or source_add.operands[1].reg != deps["pc"]
+        ):
+            raise RuntimeError("record ID table source add differs")
+        literal = ((source_load.address + 4) & ~3) + memory.disp
+        resolved = source_add.address + 4 + _word(blob, mappings, literal, signed=True)
+        if resolved != side["source"]:
+            raise RuntimeError("record ID table source address differs")
+        return source_register
+
+    def require_inline_copy(side, destination_register, load_sites, store_sites):
+        source_register = require_source(side)
+        destination = _instruction(
+            blob, mappings, deps, side["destination_site"]
+        )
+        _require_add_immediate(
+            destination,
+            deps,
+            destination_register,
+            deps["r7"],
+            side["destination_offset"],
+            "record ID table inline destination",
+        )
+        expected_registers = ([deps["r0"], deps["r1"], deps["r2"], deps["r3"]], [deps["r0"], deps["r1"], deps["r2"]])
+        for index, (load_site, store_site) in enumerate(zip(load_sites, store_sites)):
+            load = _instruction(blob, mappings, deps, load_site)
+            store = _instruction(blob, mappings, deps, store_site)
+            registers = expected_registers[index]
+            if (
+                load.id != deps["ldm"]
+                or store.id != deps["stm"]
+                or load.operands[0].reg != source_register
+                or store.operands[0].reg != destination_register
+                or [item.reg for item in load.operands[1:]] != registers
+                or [item.reg for item in store.operands[1:]] != registers
+                or load.writeback != (index == 0)
+                or store.writeback != (index == 0)
+            ):
+                raise RuntimeError("record ID table inline copy differs")
+
+    first = expected["families"][0]
+    require_inline_copy(
+        first["setter"], deps["r4"], (0x4893C2, 0x4893C6), (0x4893C4, 0x4893CA)
+    )
+    require_inline_copy(
+        first["getter"], deps["ip"], (0x48B916, 0x48B91E), (0x48B91A, 0x48B922)
+    )
+
+    for family in expected["families"]:
+        count = family["row_count"]
+        expected_values = family["record_ids"]
+        if len(expected_values) != count:
+            raise RuntimeError("record ID table family length differs")
+        observed = []
+        for side in ("setter", "getter"):
+            source = family[side]["source"]
+            if not rodata_range["start"] <= source <= rodata_range["end"] - count * 4:
+                raise RuntimeError("record ID table source is outside read-only storage")
+            values = [_word(blob, mappings, source + index * 4) for index in range(count)]
+            if values != expected_values:
+                raise RuntimeError("record ID table values differ")
+            observed.append(values)
+        if observed[0] != observed[1] or family["setter_getter_values_equal"] is not True:
+            raise RuntimeError("record ID table setter/getter equality differs")
+        if family["row_count"] == 20:
+            for side_name in ("setter", "getter"):
+                side = family[side_name]
+                require_source(side)
+                _require_mov_immediate(
+                    _instruction(blob, mappings, deps, side["size_site"]),
+                    deps,
+                    deps["r2"],
+                    80,
+                    "record ID table copy size",
+                )
+                _require_add_immediate(
+                    _instruction(blob, mappings, deps, side["destination_site"]),
+                    deps,
+                    deps["r0"],
+                    deps["r7"],
+                    side["destination_offset"],
+                    "record ID table copy destination",
+                )
+                if _call_symbol(
+                    blob, mappings, deps, plt_symbols, side["copy_call_site"]
+                ) != "memcpy":
+                    raise RuntimeError("record ID table memcpy boundary differs")
+    return copy.deepcopy(expected)
+
+
 class ElfAdapter:
     def metadata(self):
         if not sources_available():
@@ -1005,6 +1131,9 @@ class ElfAdapter:
             selector_record, argument_2_record = _validate_persistence(blob, mappings, deps, plt_symbols)
             request = _validate_request(blob, mappings, deps, plt_symbols)
             getter = _validate_getter(blob, mappings, deps, plt_symbols)
+            record_id_tables = _validate_record_id_tables(
+                elf, blob, mappings, deps, plt_symbols
+            )
             dynamic = _validate_dynamic_records(blob, mappings, deps, plt_symbols)
         if _sha256(SOURCE_PATH) != before:
             raise RuntimeError("pinned viewUnified2 source changed during export")
@@ -1016,6 +1145,7 @@ class ElfAdapter:
             "argument_2_record": argument_2_record,
             "request_boundary": request,
             "getter_boundary": getter,
+            "record_id_tables": record_id_tables,
             "dynamic_records": dynamic,
         })
         return document

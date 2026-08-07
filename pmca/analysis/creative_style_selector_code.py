@@ -287,9 +287,134 @@ GETTER_BOUNDARY = {
         {"call_site": 0x48BC20, "buffer_base_site": 0x48BC18, "buffer_base_offset": 0x134, "buffer_adjust_site": None, "buffer_adjustment": 0, "buffer_local_offset": 0x134},
     ],
     "branch_dependent_backup_read_count": 10,
-    "branch_dependent_record_ids_resolved": False,
+    "branch_dependent_record_ids_resolved": True,
     "branch_dependent_setter_record_join_found": False,
     "manager_or_view_output_position_proven": False,
+}
+
+RECORD_ID_TABLES = {
+    "rodata_range": {"start": 0x666968, "end": 0x812DEE},
+    "total_row_count": 67,
+    "families": [
+        {
+            "role": "selector-code",
+            "row_count": 7,
+            "setter": {
+                "source": 0x7B8560,
+                "destination_offset": 0xF8,
+                "source_site": 0x4893B2,
+                "source_add_site": 0x4893B8,
+                "destination_site": 0x4893BE,
+                "initialization_range": [0x4893BE, 0x4893CC],
+            },
+            "getter": {
+                "source": 0x7B8544,
+                "destination_offset": 0xF8,
+                "source_site": 0x48B908,
+                "source_add_site": 0x48B914,
+                "destination_site": 0x48B90C,
+                "initialization_range": [0x48B908, 0x48B924],
+            },
+            "record_ids": [
+                0xFFFFFFFF, 0x0107075C, 0x0107075D, 0x0107075E,
+                0x0107075F, 0x01070760, 0x01070761,
+            ],
+            "setter_getter_values_equal": True,
+        },
+        {
+            "role": "argument-3",
+            "row_count": 20,
+            "setter": {
+                "source": 0x7B82F8,
+                "destination_offset": 0xA8,
+                "source_site": 0x4893D0,
+                "source_add_site": 0x4893D6,
+                "size_site": 0x4893CE,
+                "destination_site": 0x4893D2,
+                "copy_call_site": 0x4893D8,
+            },
+            "getter": {
+                "source": 0x7B84F4,
+                "destination_offset": 0xA8,
+                "source_site": 0x48B928,
+                "source_add_site": 0x48B92E,
+                "size_site": 0x48B926,
+                "destination_site": 0x48B92A,
+                "copy_call_site": 0x48B930,
+            },
+            "record_ids": [
+                0xFFFFFFFF, 0x01070735, 0x01070736, 0x0107073A,
+                0x0107073B, 0x0107073C, 0x0107073D, 0x0107073E,
+                0x0107073F, 0x01070740, 0x01070741, 0x01070737,
+                0x01070738, 0x01070739, 0x01070A0F, 0x01070A10,
+                0x01070A11, 0x01070A12, 0x01070A13, 0x01070A14,
+            ],
+            "setter_getter_values_equal": True,
+        },
+        {
+            "role": "argument-4",
+            "row_count": 20,
+            "setter": {
+                "source": 0x7B8348,
+                "destination_offset": 0x58,
+                "source_site": 0x4893DC,
+                "source_add_site": 0x4893E4,
+                "size_site": 0x4893DE,
+                "destination_site": 0x4893E0,
+                "copy_call_site": 0x4893E6,
+            },
+            "getter": {
+                "source": 0x7B857C,
+                "destination_offset": 0x58,
+                "source_site": 0x48B934,
+                "source_add_site": 0x48B93C,
+                "size_site": 0x48B936,
+                "destination_site": 0x48B938,
+                "copy_call_site": 0x48B93E,
+            },
+            "record_ids": [
+                0xFFFFFFFF, 0x01070742, 0x01070743, 0x01070747,
+                0x01070748, 0x01070749, 0x0107074A, 0x0107074B,
+                0x0107074C, 0x0107074D, 0x0107074E, 0x01070744,
+                0x01070745, 0x01070746, 0x01070A15, 0x01070A16,
+                0x01070A17, 0x01070A18, 0x01070A19, 0x01070A1A,
+            ],
+            "setter_getter_values_equal": True,
+        },
+        {
+            "role": "argument-5",
+            "row_count": 20,
+            "setter": {
+                "source": 0x7B8398,
+                "destination_offset": 0x08,
+                "source_site": 0x4893EA,
+                "source_add_site": 0x4893F2,
+                "size_site": 0x4893EC,
+                "destination_site": 0x4893EE,
+                "copy_call_site": 0x4893F4,
+            },
+            "getter": {
+                "source": 0x7B85CC,
+                "destination_offset": 0x08,
+                "source_site": 0x48B942,
+                "source_add_site": 0x48B94A,
+                "size_site": 0x48B944,
+                "destination_site": 0x48B946,
+                "copy_call_site": 0x48B94C,
+            },
+            "record_ids": [
+                0xFFFFFFFF, 0x0107074F, 0x01070750, 0x01070754,
+                0x01070755, 0x01070756, 0x01070757, 0x01070758,
+                0x01070759, 0x0107075A, 0x0107075B, 0x01070751,
+                0x01070752, 0x01070753, 0x01070A1B, 0x01070A1C,
+                0x01070A1D, 0x01070A1E, 0x01070A1F, 0x01070A20,
+            ],
+            "setter_getter_values_equal": True,
+        },
+    ],
+    "static_family_value_join_found": True,
+    "runtime_index_equality_proven": False,
+    "runtime_write_read_transaction_proven": False,
 }
 
 DYNAMIC_RECORDS = {
@@ -365,8 +490,8 @@ DYNAMIC_RECORDS = {
             "backup_write_call_site": 0x489598,
         },
     ],
-    "numeric_record_ids_resolved": False,
-    "record_id_source_initialization_resolved": False,
+    "numeric_record_ids_resolved": True,
+    "record_id_source_initialization_resolved": True,
     "record_id_human_semantics_resolved": False,
     "record_id_semantics_resolved": False,
     "human_field_semantics_resolved": False,
@@ -381,7 +506,9 @@ CLAIMS = {
     "getter_argument_2_record_boundary_found": True,
     "request_parameter_keys_found": True,
     "selector_code_fixed_record_found": False,
-    "dynamic_record_ids_resolved": False,
+    "dynamic_record_ids_resolved": True,
+    "record_id_source_initialization_resolved": True,
+    "static_setter_getter_family_join_found": True,
     "dynamic_setter_getter_record_join_found": False,
     "human_style_labels_mapped": False,
     "menu_selected_state_join_found": False,
@@ -413,6 +540,7 @@ EXPECTED_EXPORT = {
     "argument_2_record": ARGUMENT_2_RECORD,
     "request_boundary": REQUEST_BOUNDARY,
     "getter_boundary": GETTER_BOUNDARY,
+    "record_id_tables": RECORD_ID_TABLES,
     "dynamic_records": DYNAMIC_RECORDS,
     "claims": CLAIMS,
     "evidence_digest": canonical_digest({
@@ -422,23 +550,26 @@ EXPECTED_EXPORT = {
         "argument_2_record": ARGUMENT_2_RECORD,
         "request_boundary": REQUEST_BOUNDARY,
         "getter_boundary": GETTER_BOUNDARY,
+        "record_id_tables": RECORD_ID_TABLES,
         "dynamic_records": DYNAMIC_RECORDS,
     }),
     "truncated": False,
 }
 
-READINESS = "TYPED_ELEMENT_SELECTOR_AND_DYNAMIC_RECORD_GEOMETRY"
+READINESS = "TYPED_ELEMENT_SELECTOR_AND_STATIC_RECORD_TABLES"
 CONCLUSION = (
     "The typed CustomCreativeStyle setter has a bounded selector-to-persisted-code table: inputs "
     "0..13 reject 12 and map the other thirteen values to exact codes. That code reaches an adjacent "
-    "dynamic backup-record boundary on the argument-2-nonzero path; its record-ID semantics remain "
-    "unresolved. Fixed backup item 0x01070762 instead carries a low-byte argument-2 encoding into the "
+    "dynamic backup-record boundary on the argument-2-nonzero path. Four fixed read-only record-ID "
+    "tables are copied into both setter and getter frames, establishing their numeric domains and "
+    "static family-value equality. Fixed backup item 0x01070762 separately carries a low-byte "
+    "argument-2 encoding into the "
     "getter's second direct output reference: nonpositive input writes 0xff, positive n writes the low "
     "byte of n-1, signed -1 leaves the preinitialized output zero, and other signed bytes are incremented. "
     "No admissible input range is proven, so a universal round trip is not claimed. The four dynamic "
     "setter writes now have exact frame-relative record-source and value-pointer formulas, and the ten "
-    "branch-dependent getter reads have exact scratch-buffer pointers. Their numeric record IDs and any "
-    "setter/getter dynamic-record join remain unresolved. Five ParamList "
+    "branch-dependent getter reads have exact scratch-buffer pointers. The independently supplied runtime "
+    "indices are not joined, so no write-followed-by-read transaction is claimed. Five ParamList "
     "keys are exact, but named preset labels, menu-selected-state identity, full five-field semantics, "
     "renderer/output effects, Creative Look equivalence, runtime behavior, and installability remain unproven."
 )
@@ -475,6 +606,7 @@ def normalize_creative_style_selector_code_export(document):
         "argument_2_record": document["argument_2_record"],
         "request_boundary": document["request_boundary"],
         "getter_boundary": document["getter_boundary"],
+        "record_id_tables": document["record_id_tables"],
         "dynamic_records": document["dynamic_records"],
     }):
         raise CreativeStyleSelectorCodeError("selector-code digest differs")
@@ -484,7 +616,7 @@ def normalize_creative_style_selector_code_export(document):
         "human_style_labels_mapped", "menu_selected_state_join_found",
         "caution_config_selected_state_join_found", "five_argument_semantics_resolved",
         "selector_code_fixed_record_found",
-        "dynamic_record_ids_resolved", "dynamic_setter_getter_record_join_found",
+        "dynamic_setter_getter_record_join_found",
         "renderer_or_output_sink_found", "creative_look_equivalence_found",
         "runtime_execution_proven",
     )
@@ -505,7 +637,28 @@ def summarize_creative_style_selector_code_export(document):
         "request_param_count": len(export["request_boundary"]["param_keys"]),
         "branch_dependent_getter_read_count": export["getter_boundary"]["branch_dependent_backup_read_count"],
         "branch_dependent_getter_buffer_count": len(export["getter_boundary"]["branch_dependent_reads"]),
+        "record_id_table_family_count": len(export["record_id_tables"]["families"]),
+        "record_id_table_row_count": export["record_id_tables"]["total_row_count"],
     }
+
+
+def build_creative_style_selector_code_report(export_document):
+    export = normalize_creative_style_selector_code_export(export_document)
+    report = {
+        "schema_version": 1,
+        "analysis_scope": "offline-static-creative-style-selector-code",
+        "camera_policy": "physically-disconnected",
+        "camera_executed": False,
+        "installable": False,
+        "camera_test_eligible": False,
+        "source": copy.deepcopy(SOURCE),
+        "summary": summarize_creative_style_selector_code_export(export),
+        "evidence_digest": export["evidence_digest"],
+        "claims": copy.deepcopy(export["claims"]),
+        "readiness": READINESS,
+        "conclusion": CONCLUSION,
+    }
+    return validate_creative_style_selector_code_report(report)
 
 
 def validate_creative_style_selector_code_report(document):

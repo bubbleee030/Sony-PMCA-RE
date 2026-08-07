@@ -84,7 +84,7 @@ class CreativeStyleSelectorCodeContractTests(unittest.TestCase):
         self.assertEqual(other["other_backup_write_count"], 3)
         self.assertNotIn(selector_site, other["other_backup_write_call_sites"])
 
-    def test_dynamic_write_geometry_is_exact_but_record_ids_stay_unresolved(self):
+    def test_dynamic_write_geometry_uses_initialized_numeric_record_tables(self):
         from pmca.analysis.creative_style_selector_code import EXPECTED_EXPORT
 
         dynamic = EXPECTED_EXPORT["dynamic_records"]
@@ -110,12 +110,51 @@ class CreativeStyleSelectorCodeContractTests(unittest.TestCase):
         self.assertEqual(dynamic["writes"][1]["id_index_semantics"], "four-times-(argument-2-plus-13)")
         self.assertEqual(dynamic["writes"][2]["id_index_semantics"], "four-times-(argument-2-plus-13)")
         self.assertEqual(dynamic["writes"][3]["id_index_semantics"], "four-times-(argument-2-plus-13)")
-        self.assertFalse(dynamic["numeric_record_ids_resolved"])
+        self.assertTrue(dynamic["numeric_record_ids_resolved"])
+        self.assertTrue(dynamic["record_id_source_initialization_resolved"])
         self.assertFalse(dynamic["record_id_human_semantics_resolved"])
         self.assertTrue(EXPECTED_EXPORT["claims"]["dynamic_record_geometry_found"])
         self.assertTrue(EXPECTED_EXPORT["claims"]["branch_dependent_getter_buffer_geometry_found"])
-        self.assertFalse(EXPECTED_EXPORT["claims"]["dynamic_record_ids_resolved"])
+        self.assertTrue(EXPECTED_EXPORT["claims"]["dynamic_record_ids_resolved"])
+        self.assertTrue(EXPECTED_EXPORT["claims"]["record_id_source_initialization_resolved"])
+        self.assertTrue(EXPECTED_EXPORT["claims"]["static_setter_getter_family_join_found"])
         self.assertFalse(EXPECTED_EXPORT["claims"]["dynamic_setter_getter_record_join_found"])
+
+    def test_static_record_id_tables_are_value_identical_across_setter_and_getter(self):
+        from pmca.analysis.creative_style_selector_code import EXPECTED_EXPORT
+
+        tables = EXPECTED_EXPORT["record_id_tables"]
+        self.assertEqual(tables["rodata_range"], {"start": 0x666968, "end": 0x812DEE})
+        self.assertEqual(tables["total_row_count"], 67)
+        self.assertEqual(
+            [
+                (
+                    item["role"], item["row_count"],
+                    item["setter"]["source"], item["setter"]["destination_offset"],
+                    item["getter"]["source"], item["getter"]["destination_offset"],
+                )
+                for item in tables["families"]
+            ],
+            [
+                ("selector-code", 7, 0x7B8560, 0xF8, 0x7B8544, 0xF8),
+                ("argument-3", 20, 0x7B82F8, 0xA8, 0x7B84F4, 0xA8),
+                ("argument-4", 20, 0x7B8348, 0x58, 0x7B857C, 0x58),
+                ("argument-5", 20, 0x7B8398, 0x08, 0x7B85CC, 0x08),
+            ],
+        )
+        self.assertEqual(
+            [item["record_ids"] for item in tables["families"]],
+            [
+                [0xFFFFFFFF, 0x0107075C, 0x0107075D, 0x0107075E, 0x0107075F, 0x01070760, 0x01070761],
+                [0xFFFFFFFF, 0x01070735, 0x01070736, 0x0107073A, 0x0107073B, 0x0107073C, 0x0107073D, 0x0107073E, 0x0107073F, 0x01070740, 0x01070741, 0x01070737, 0x01070738, 0x01070739, 0x01070A0F, 0x01070A10, 0x01070A11, 0x01070A12, 0x01070A13, 0x01070A14],
+                [0xFFFFFFFF, 0x01070742, 0x01070743, 0x01070747, 0x01070748, 0x01070749, 0x0107074A, 0x0107074B, 0x0107074C, 0x0107074D, 0x0107074E, 0x01070744, 0x01070745, 0x01070746, 0x01070A15, 0x01070A16, 0x01070A17, 0x01070A18, 0x01070A19, 0x01070A1A],
+                [0xFFFFFFFF, 0x0107074F, 0x01070750, 0x01070754, 0x01070755, 0x01070756, 0x01070757, 0x01070758, 0x01070759, 0x0107075A, 0x0107075B, 0x01070751, 0x01070752, 0x01070753, 0x01070A1B, 0x01070A1C, 0x01070A1D, 0x01070A1E, 0x01070A1F, 0x01070A20],
+            ],
+        )
+        self.assertTrue(all(item["setter_getter_values_equal"] for item in tables["families"]))
+        self.assertTrue(tables["static_family_value_join_found"])
+        self.assertFalse(tables["runtime_index_equality_proven"])
+        self.assertFalse(tables["runtime_write_read_transaction_proven"])
 
     def test_getter_fixed_record_does_not_promote_selected_menu_state(self):
         from pmca.analysis.creative_style_selector_code import EXPECTED_EXPORT
@@ -139,7 +178,7 @@ class CreativeStyleSelectorCodeContractTests(unittest.TestCase):
             "human_style_labels_mapped", "menu_selected_state_join_found",
             "caution_config_selected_state_join_found", "five_argument_semantics_resolved",
             "selector_code_fixed_record_found",
-            "dynamic_record_ids_resolved", "dynamic_setter_getter_record_join_found",
+            "dynamic_setter_getter_record_join_found",
             "renderer_or_output_sink_found", "creative_look_equivalence_found",
             "runtime_execution_proven",
         ):
@@ -153,10 +192,23 @@ class CreativeStyleSelectorCodeContractTests(unittest.TestCase):
         from pmca.analysis.creative_style_selector_code import validate_creative_style_selector_code_report
 
         report = validate_creative_style_selector_code_report(json.loads(REPORT.read_text(encoding="utf-8")))
-        self.assertEqual(report["readiness"], "TYPED_ELEMENT_SELECTOR_AND_DYNAMIC_RECORD_GEOMETRY")
+        self.assertEqual(report["readiness"], "TYPED_ELEMENT_SELECTOR_AND_STATIC_RECORD_TABLES")
         self.assertFalse(report["camera_executed"])
         self.assertFalse(report["installable"])
         self.assertFalse(report["camera_test_eligible"])
+
+    def test_report_builder_produces_the_validated_checked_in_contract(self):
+        import pmca.analysis.creative_style_selector_code as selector_code
+
+        builder = getattr(selector_code, "build_creative_style_selector_code_report", None)
+        self.assertIsNotNone(builder)
+        report = builder(selector_code.EXPECTED_EXPORT)
+        self.assertEqual(
+            selector_code.validate_creative_style_selector_code_report(report), report
+        )
+        self.assertEqual(report["readiness"], "TYPED_ELEMENT_SELECTOR_AND_STATIC_RECORD_TABLES")
+        self.assertEqual(report["summary"]["record_id_table_family_count"], 4)
+        self.assertEqual(report["summary"]["record_id_table_row_count"], 67)
 
 
 class CreativeStyleSelectorCodeExporterTests(unittest.TestCase):
@@ -372,6 +424,91 @@ class CreativeStyleSelectorCodeExporterTests(unittest.TestCase):
                         exporter._validate_dynamic_records(blob, mappings, deps, plt_symbols)
         finally:
             handle.close()
+
+    def test_record_id_table_source_mutations_are_rejected(self):
+        if not self.exporter.sources_available() or not self.exporter.dependencies_available():
+            self.skipTest("pinned source or parser dependencies are unavailable")
+        exporter = self.exporter
+        original_word = exporter._word
+        source_sites = (
+            0x7B8560, 0x7B82F8, 0x7B8348, 0x7B8398,
+            0x7B8544, 0x7B84F4, 0x7B857C, 0x7B85CC,
+        )
+
+        for changed_site in source_sites:
+            def changed_word(blob, mappings, address, *, signed=False):
+                value = original_word(blob, mappings, address, signed=signed)
+                return value ^ 1 if address == changed_site else value
+
+            with self.subTest(site=changed_site), mock.patch.object(
+                exporter, "_word", side_effect=changed_word
+            ):
+                with self.assertRaisesRegex(RuntimeError, "record ID table"):
+                    exporter.build_raw_export()
+
+    def test_record_id_table_copy_site_mutations_are_rejected(self):
+        if not self.exporter.sources_available() or not self.exporter.dependencies_available():
+            self.skipTest("pinned source or parser dependencies are unavailable")
+        exporter = self.exporter
+        original_instruction = exporter._instruction
+
+        class WrongInstruction:
+            def __init__(self, item):
+                self._item = item
+                self.id = -1
+
+            def __getattr__(self, name):
+                return getattr(self._item, name)
+
+        copy_sites = (
+            0x4893B2, 0x4893B8, 0x4893BE, 0x4893C2, 0x4893C4, 0x4893C6, 0x4893CA,
+            0x4893CE, 0x4893D0, 0x4893D2, 0x4893D6,
+            0x4893DC, 0x4893DE, 0x4893E0, 0x4893E4,
+            0x4893EA, 0x4893EC, 0x4893EE, 0x4893F2,
+            0x48B908, 0x48B90C, 0x48B914, 0x48B916, 0x48B91A, 0x48B91E, 0x48B922,
+            0x48B926, 0x48B928, 0x48B92A, 0x48B92E,
+            0x48B934, 0x48B936, 0x48B938, 0x48B93C,
+            0x48B942, 0x48B944, 0x48B946, 0x48B94A,
+        )
+        blob = exporter.SOURCE_PATH.read_bytes()
+        deps = exporter._dependencies()
+        with exporter.SOURCE_PATH.open("rb") as handle:
+            elf = deps["ELFFile"](handle)
+            mappings = exporter._mappings(elf)
+            plt_symbols = exporter._plt_symbols(elf, blob, mappings)
+
+            for changed_site in copy_sites:
+                def changed_instruction(local_blob, local_mappings, local_deps, site):
+                    item = original_instruction(local_blob, local_mappings, local_deps, site)
+                    return WrongInstruction(item) if site == changed_site else item
+
+                with self.subTest(site=changed_site), mock.patch.object(
+                    exporter, "_instruction", side_effect=changed_instruction
+                ):
+                    with self.assertRaisesRegex(RuntimeError, "record ID table"):
+                        exporter._validate_record_id_tables(
+                            elf, blob, mappings, deps, plt_symbols
+                        )
+
+            original_call_symbol = exporter._call_symbol
+            for changed_site in (
+                0x4893D8, 0x4893E6, 0x4893F4,
+                0x48B930, 0x48B93E, 0x48B94C,
+            ):
+                def changed_call_symbol(local_blob, local_mappings, local_deps, local_symbols, site):
+                    if site == changed_site:
+                        return "not_memcpy"
+                    return original_call_symbol(
+                        local_blob, local_mappings, local_deps, local_symbols, site
+                    )
+
+                with self.subTest(call_site=changed_site), mock.patch.object(
+                    exporter, "_call_symbol", side_effect=changed_call_symbol
+                ):
+                    with self.assertRaisesRegex(RuntimeError, "record ID table"):
+                        exporter._validate_record_id_tables(
+                            elf, blob, mappings, deps, plt_symbols
+                        )
 
     def test_real_export_matches_when_available(self):
         if not self.exporter.sources_available() or not self.exporter.dependencies_available():
