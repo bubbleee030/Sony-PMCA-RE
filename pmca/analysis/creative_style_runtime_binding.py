@@ -8,6 +8,10 @@ import json
 from pathlib import Path
 import re
 
+from pmca.analysis.creative_style_model_request_transport import (
+    validate_creative_style_model_request_transport_report,
+)
+
 
 class CreativeStyleRuntimeBindingError(ValueError):
     """Raised when runtime-binding evidence exceeds the pinned static boundary."""
@@ -16,7 +20,7 @@ class CreativeStyleRuntimeBindingError(ValueError):
 ROOT = Path(__file__).resolve().parents[2]
 UPSTREAM_REPORT = "analysis/a6400-creative-style-model-request-transport.json"
 UPSTREAM_EVIDENCE_DIGEST = (
-    "3303e96ac7f7f6bd237c4bf043056874aafde56b4ceb3ef3b2b4d38989619f0d"
+    "7575751cc125bef4d26df426d6558166f501209ce6d918bee0af11639ca56e6a"
 )
 SOURCES = {
     "object": {
@@ -181,6 +185,244 @@ MODELCAMERA_CANDIDATE = {
     "manifest_to_runtime_descriptor_join_found": False,
 }
 
+DEFAULT_ROUTE_DESCRIPTOR_PROVIDER = {
+    "condition": {
+        "selector": "AppConfig.so",
+        "runtime_selector_resolved": False,
+    },
+    "app_config_constructor": {
+        "owner": {"start": 0x3FD794, "end": 0x3FD8C0},
+        "model_config_store": {
+            "resolver_call_site": 0x3FD7CC,
+            "site": 0x3FD7D0,
+            "offset": 8,
+        },
+        "vtable": {
+            "header_got_cell": 0x136DFB0,
+            "header_got_sites": {
+                "base_literal_site": 0x3FD798,
+                "base_add_site": 0x3FD7A2,
+                "offset_literal_site": 0x3FD7A0,
+                "load_site": 0x3FD7A8,
+                "address_point_add_site": 0x3FD7AE,
+                "store_site": 0x3FD7B0,
+            },
+            "header_relocation_index": 64884,
+            "header": 0x133E3E0,
+            "address_point": 0x133E3E8,
+        },
+    },
+    "app_config_to_manager": {
+        "app_config_vslot": {
+            "offset": 0x1C,
+            "cell": 0x133E404,
+            "relocation_index": 37833,
+            "target": 0x3FD456,
+            "model_config_load": {"site": 0x3FD456, "offset": 8},
+            "model_config_vptr_load": {"site": 0x3FD45C},
+            "model_config_slot_load": {"site": 0x3FD45E, "offset": 8},
+            "model_config_slot_call": {"site": 0x3FD460, "target_register": "r3"},
+        },
+        "manager_constructor": {
+            "owner": {"start": 0x84986A, "end": 0x849932},
+            "app_config_receiver": {"site": 0x84989A, "source": "r5", "destination": "r0"},
+            "vptr_load": {"site": 0x84989C, "receiver": "r5"},
+            "vslot_load": {"site": 0x8498A4, "offset": 0x1C},
+            "vslot_call": {"site": 0x8498A6, "target_register": "r3"},
+            "result_store": {"site": 0x8498AA, "manager_offset": 8},
+        },
+    },
+    "model_config_resolver": {
+        "owner": {"start": 0x3FD6A0, "end": 0x3FD724},
+        "module": "libObj.so",
+        "symbols": ["initializeModelConfig", "getModelConfig"],
+        "dlopen_call": {"site": 0x3FD6B0, "symbol": "dlopen"},
+        "dlopen_success_branch": {"site": 0x3FD6BA, "register": "r0", "target": 0x3FD6CC},
+        "dlsym_calls": [0x3FD6CE, 0x3FD6F4],
+        "constructor_calls": [0x3FD7CC, 0x3FD7E4, 0x3FD7FC, 0x3FD816],
+        "model_config_call": {
+            "site": 0x3FD7CC,
+            "arguments": {
+                "module": {"load_site": 0x3FD7B8, "add_site": 0x3FD7BE, "address": 0xF05632, "register": "r0"},
+                "initialize": {"load_site": 0x3FD7BA, "add_site": 0x3FD7C2, "address": 0xF24CDF, "register": "r1"},
+                "get": {"load_site": 0x3FD7C8, "add_site": 0x3FD7CA, "address": 0xF24CF5, "register": "r2"},
+                "handle_slot": {"load_site": 0x3FD7C0, "add_site": 0x3FD7C4, "address": 0x13EF1BC, "register": "r3"},
+            },
+            "argument_preservation": {
+                "module": {"start": 0x3FD7C0, "end": 0x3FD7CC, "register": "r0"},
+                "initialize": {"start": 0x3FD7C4, "end": 0x3FD7CC, "register": "r1"},
+                "handle_slot": {"start": 0x3FD7C6, "end": 0x3FD7CC, "register": "r3"},
+            },
+            "pic_argument_preservation": {
+                "module": {"start": 0x3FD7BA, "end": 0x3FD7BE, "register": "r0"},
+                "initialize": {"start": 0x3FD7BC, "end": 0x3FD7C2, "register": "r1"},
+                "handle_slot": {"start": 0x3FD7C2, "end": 0x3FD7C4, "register": "r3"},
+            },
+            "pic_adjacent_argument": "get",
+        },
+        "entry_argument_preservation": {
+            "module": {"start": 0x3FD6A0, "end": 0x3FD6B0, "register": "r0"},
+            "initialize": {"start": 0x3FD6A0, "end": 0x3FD6A4, "register": "r1"},
+            "get": {"start": 0x3FD6A0, "end": 0x3FD6AE, "register": "r2"},
+            "handle_slot": {"start": 0x3FD6A0, "end": 0x3FD6AC, "register": "r3"},
+        },
+        "dlopen_flags": {
+            "site": 0x3FD6A8,
+            "register": "r1",
+            "value": 257,
+            "preservation": {"start": 0x3FD6AC, "end": 0x3FD6B0, "register": "r1"},
+        },
+        "handle_flow": {
+            "slot_capture": {"site": 0x3FD6AC, "source": "r3", "destination": "r8"},
+            "slot_base_to_store_preservation": {"start": 0x3FD6AE, "end": 0x3FD6B6, "register": "r8"},
+            "dlopen_result_capture": {"site": 0x3FD6B4, "source": "r0", "destination": "r5"},
+            "dlopen_result_preservation": {"start": 0x3FD6B4, "end": 0x3FD6BA, "register": "r0"},
+            "slot_store": {"site": 0x3FD6B6, "source": "r0", "base": "r8", "offset": 0},
+            "success_path_slot_base_preservation": [
+                {"start": 0x3FD6CC, "end": 0x3FD6D4, "register": "r8"},
+                {"start": 0x3FD6EC, "end": 0x3FD6EE, "register": "r8"},
+            ],
+            "slot_reload": {"site": 0x3FD6EE, "destination": "r0", "base": "r8", "offset": 0},
+        },
+        "initialize_callable": {
+            "symbol_capture": {"site": 0x3FD6A4, "source": "r1", "destination": "r4"},
+            "dlsym_argument": {"site": 0x3FD6CC, "source": "r4", "destination": "r1"},
+            "dlsym_call": {"site": 0x3FD6CE, "symbol": "dlsym"},
+            "result_preservation": {"start": 0x3FD6D2, "end": 0x3FD6D4, "register": "r0"},
+            "success_branch": {"site": 0x3FD6D4, "register": "r0", "target": 0x3FD6EC},
+            "call": {"site": 0x3FD6EC, "target_register": "r0"},
+        },
+        "get_callable": {
+            "symbol_capture": {"site": 0x3FD6AE, "source": "r2", "destination": "r6"},
+            "dlsym_argument": {"site": 0x3FD6F2, "source": "r6", "destination": "r1"},
+            "dlsym_call": {"site": 0x3FD6F4, "symbol": "dlsym"},
+            "result_preservation": {"start": 0x3FD6F8, "end": 0x3FD6FA, "register": "r0"},
+            "success_branch": {"site": 0x3FD6FA, "register": "r0", "target": 0x3FD712},
+            "call": {"site": 0x3FD712, "target_register": "r0"},
+            "return": {"site": 0x3FD714, "register": "r0", "control": "pop-pc"},
+        },
+    },
+    "factory_to_manager_provenance": {
+        "config_factory_owner": {"start": 0x843C68, "end": 0x843CD8},
+        "outer_constructor_owner": {"start": 0x843CD8, "end": 0x843E34},
+        "factory_call": {"site": 0x843CEC, "target": 0x843C68},
+        "factory_result_store": {"site": 0x843CF4, "outer_offset": 0x14},
+        "manager_config_argument": {"site": 0x843D82, "outer_offset": 0x14},
+        "manager_config_argument_preservation": {"start": 0x843D84, "end": 0x843D86, "register": "r2"},
+        "manager_constructor_call": {"site": 0x843D86, "target": 0x84986A},
+        "manager_config_capture": {"site": 0x84987E, "source": "r2", "destination": "r5"},
+        "manager_config_receiver_preservation": {"start": 0x849880, "end": 0x84989A, "register": "r5"},
+    },
+    "model_config_symbols": {
+        "initialize": {
+            "name": "initializeModelConfig",
+            "dynsym_index": 2633,
+            "address": 0x38E609,
+        },
+        "get": {
+            "name": "getModelConfig",
+            "dynsym_index": 2362,
+            "address": 0x38E63D,
+        },
+    },
+    "model_config_singleton": 0x13EE49C,
+    "model_config_singleton_lifecycle": {
+        "initialize": {
+            "owner": {"start": 0x38E608, "end": 0x38E624},
+            "allocation_result_capture": {"site": 0x38E612, "source": "r0", "destination": "r4"},
+            "constructor_call": {"site": 0x38E614, "target": 0x38E5E4},
+            "singleton_address": {"load_site": 0x38E618, "add_site": 0x38E61A, "address": 0x13EE49C, "register": "r3"},
+            "singleton_store": {"site": 0x38E61C, "source": "r4", "base": "r3"},
+        },
+        "constructor": {
+            "owner": {"start": 0x38E5E4, "end": 0x38E608},
+            "instance_capture": {"site": 0x38E5EA, "source": "r0", "destination": "r5"},
+            "instance_preservation": {"start": 0x38E5EC, "end": 0x38E5FA, "register": "r5"},
+            "vtable_header_got_cell": 0x137241C,
+            "vtable_header_got_sites": {
+                "base_literal_site": 0x38E5E8,
+                "base_add_site": 0x38E5F2,
+                "offset_literal_site": 0x38E5F0,
+                "load_site": 0x38E5F6,
+                "address_point_add_site": 0x38E5F8,
+                "store_site": 0x38E5FA,
+            },
+            "vtable_header_relocation_index": 69234,
+            "vtable_header": 0x13394C8,
+            "vtable_address_point": 0x13394D0,
+        },
+        "get": {
+            "owner": {"start": 0x38E624, "end": 0x38E64C},
+            "singleton_address": {"load_site": 0x38E63C, "add_site": 0x38E640, "address": 0x13EE49C, "register": "r0"},
+            "singleton_load": {"site": 0x38E642, "destination": "r0", "base": "r0"},
+            "return_preservation": {"start": 0x38E644, "end": 0x38E646, "register": "r0"},
+            "return_control": {"site": 0x38E646, "control": "pop-pc"},
+        },
+    },
+    "model_config_vtable": {
+        "address_point": 0x13394D0,
+        "descriptor_slot": {
+            "offset": 8,
+            "cell": 0x13394D8,
+            "relocation_index": 35733,
+            "target": 0x340710,
+            "owner": {"start": 0x340710, "end": 0x345554},
+        },
+    },
+    "modelcamera_table_entry": {
+        "id_generator_get": {
+            "site": 0x340828,
+            "symbol": "_ZN11IdGenerator3GetEPKc",
+        },
+        "id_so_table_add": {
+            "site": 0x340838,
+            "symbol": "_ZN9IdSoTable3addEiPKcS1_",
+        },
+        "manifest": {
+            "alias": {"address": 0xF03447, "value": "@M00B"},
+            "component": {"address": 0xF0344D, "value": "modelCamera.so"},
+            "factory": {"address": 0xF0345C, "value": "ModelCameraToInstance"},
+        },
+        "argument_abi": {
+            "get_alias": {"load_site": 0x340824, "add_site": 0x340826, "address": 0xF03447, "register": "r0"},
+            "get_result_to_table_key": {"site": 0x340834, "source": "r0", "destination": "r1"},
+            "component": {"load_site": 0x34082C, "add_site": 0x340830, "address": 0xF0344D, "register": "r2"},
+            "factory": {"load_site": 0x34082E, "add_site": 0x340832, "address": 0xF0345C, "register": "r3"},
+            "table_receiver": {"site": 0x340836, "source": "r4", "destination": "r0"},
+        },
+    },
+    "model_manager_descriptor_lookup": {
+        "registration_owner": {"start": 0x849D88, "end": 0x849E58},
+        "lookup_owner": {"start": 0x848350, "end": 0x84837A},
+        "provider_field": {"site": 0x848354, "offset": 8},
+        "default_lookup_branch": {"site": 0x84835A, "target": 0x842BDE},
+        "alternate_lookup_call": {"site": 0x848368, "target": 0x842BAE},
+        "provider_lookup_owners": {
+            "alternate": {"start": 0x842BAE, "end": 0x842BDE},
+            "default": {"start": 0x842BDE, "end": 0x842C0E},
+        },
+        "provider_record_result_loads": [
+            {"site": 0x842BD4, "offset": 12},
+            {"site": 0x842C04, "offset": 8},
+        ],
+        "registration_lookup_calls": [
+            {"site": 0x849DCC, "target": 0x848350},
+            {"site": 0x849DD6, "target": 0x84835E},
+        ],
+        "record_descriptor_fields": {"component_offset": 0x10, "factory_offset": 0x14},
+        "record_construction_dataflow": {
+            "lookup_key_load_sites": [0x849DC8, 0x849DD0],
+            "component_result_capture": {"site": 0x849DD2, "source": "r0", "destination": "r8"},
+            "factory_result_capture": {"site": 0x849DDA, "source": "r0", "destination": "r10"},
+            "component_constructor_argument": {"site": 0x849DF6, "source": "r8", "destination": "r3"},
+            "factory_stack_argument": {"site": 0x849DF8, "source": "r10", "stack_offset": 0},
+            "component_store": {"site": 0x8410B4, "record_offset": 0x10},
+            "factory_stack_load": {"site": 0x8410B8, "stack_offset": 0xC},
+            "factory_store": {"site": 0x8410C6, "record_offset": 0x14},
+        },
+    },
+}
+
 GENERIC_EXECUTOR = {
     "model_manager_dispatch_owner": {"start": 0x84A830, "end": 0x84AC94},
     "candidate_branch_range": {"start": 0x84A95C, "end": 0x84A9E4},
@@ -282,6 +524,7 @@ CLAIMS = {
     "modelcamera_candidate_manifest_and_factory_found": True,
     "modelbase_scheduler_slot_proven": True,
     "destination_4_receiver_route_and_default_predicate_found": True,
+    "appconfig_default_route_manifest_descriptor_table_proven": True,
     **{claim: False for claim in UNPROVEN_CLAIMS},
 }
 
@@ -318,7 +561,8 @@ def _reject_forbidden(value: object) -> None:
 def _validate_committed_upstream() -> None:
     try:
         document = json.loads((ROOT / UPSTREAM_REPORT).read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        validate_creative_style_model_request_transport_report(document)
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
         raise CreativeStyleRuntimeBindingError("upstream transport report is unavailable") from error
     if (
         not isinstance(document, dict)
@@ -337,6 +581,7 @@ _EVIDENCE = {
     "model_manager_records": MODEL_MANAGER_RECORDS,
     "dynamic_loader": DYNAMIC_LOADER,
     "modelcamera_candidate": MODELCAMERA_CANDIDATE,
+    "default_route_descriptor_provider": DEFAULT_ROUTE_DESCRIPTOR_PROVIDER,
     "generic_executor": GENERIC_EXECUTOR,
     "destination_4": DESTINATION_4,
     "claims": CLAIMS,
@@ -370,19 +615,22 @@ def summarize_creative_style_runtime_binding_export(document: dict) -> dict:
             value is True for value in normalized["claims"].values()
         ),
         "resolved_model_identity_count": 0,
-        "resolved_runtime_descriptor_count": 0,
+        "resolved_runtime_descriptor_count": 1,
         "resolved_pipeline_sink_count": 0,
     }
 
 
-READINESS = "GENERIC_RUNTIME_BINDING_NO_MODELCAMERA_RECORD_OR_PIPELINE"
+READINESS = "CONDITIONAL_DEFAULT_ROUTE_DESCRIPTOR_NO_OPERATION38_RECORD_OR_PIPELINE"
 CONCLUSION = (
     "The model/CAMERA alias reaches IdGenerator::Get, and the generic ID lookup, ModelManager "
     "record lifecycle, dynamic loader, generic ModelBase scheduler slot, and conditional "
     "destination-4 receiver route plus its structural default predicate are statically bounded. "
+    "On the statically identified AppConfig.so default route only, the AppConfig constructor "
+    "obtains ModelConfig and its descriptor-table slot registers the @M00B ModelCamera manifest. "
     "The splitter delimiter and exact "
     "table/row semantics are not resolved, and no operation-38 join to the candidate path is "
-    "proven. The numeric model ID, runtime descriptor provider, ModelCamera record/executor "
+    "proven. The numeric model ID, runtime route selection, operation-38 key-7 equality, "
+    "ModelCamera record/executor "
     "identity, operation-38 field consumption, rendering pipelines, runtime behavior, and "
     "installability remain unproven."
 )
@@ -405,6 +653,9 @@ def build_creative_style_runtime_binding_report(export_document: dict) -> dict:
         "model_manager_records": copy.deepcopy(export["model_manager_records"]),
         "dynamic_loader": copy.deepcopy(export["dynamic_loader"]),
         "modelcamera_candidate": copy.deepcopy(export["modelcamera_candidate"]),
+        "default_route_descriptor_provider": copy.deepcopy(
+            export["default_route_descriptor_provider"]
+        ),
         "generic_executor": copy.deepcopy(export["generic_executor"]),
         "destination_4": copy.deepcopy(export["destination_4"]),
         "claims": copy.deepcopy(export["claims"]),

@@ -4,6 +4,7 @@
   "camera_policy": "physically-disconnected",
   "camera_test_eligible": false,
   "claims": {
+    "appconfig_default_route_manifest_descriptor_table_proven": true,
     "candidate_branch_to_modelcamera_executor_join_proven": false,
     "concrete_operation_38_handler_proven": false,
     "destination_4_receiver_route_and_default_predicate_found": true,
@@ -32,7 +33,622 @@
     "runtime_execution_proven": false,
     "still_jpeg_binding_proven": false
   },
-  "conclusion": "The model/CAMERA alias reaches IdGenerator::Get, and the generic ID lookup, ModelManager record lifecycle, dynamic loader, generic ModelBase scheduler slot, and conditional destination-4 receiver route plus its structural default predicate are statically bounded. The splitter delimiter and exact table/row semantics are not resolved, and no operation-38 join to the candidate path is proven. The numeric model ID, runtime descriptor provider, ModelCamera record/executor identity, operation-38 field consumption, rendering pipelines, runtime behavior, and installability remain unproven.",
+  "conclusion": "The model/CAMERA alias reaches IdGenerator::Get, and the generic ID lookup, ModelManager record lifecycle, dynamic loader, generic ModelBase scheduler slot, and conditional destination-4 receiver route plus its structural default predicate are statically bounded. On the statically identified AppConfig.so default route only, the AppConfig constructor obtains ModelConfig and its descriptor-table slot registers the @M00B ModelCamera manifest. The splitter delimiter and exact table/row semantics are not resolved, and no operation-38 join to the candidate path is proven. The numeric model ID, runtime route selection, operation-38 key-7 equality, ModelCamera record/executor identity, operation-38 field consumption, rendering pipelines, runtime behavior, and installability remain unproven.",
+  "default_route_descriptor_provider": {
+    "app_config_constructor": {
+      "model_config_store": {
+        "offset": 8,
+        "resolver_call_site": 4184012,
+        "site": 4184016
+      },
+      "owner": {
+        "end": 4184256,
+        "start": 4183956
+      },
+      "vtable": {
+        "address_point": 20177896,
+        "header": 20177888,
+        "header_got_cell": 20373424,
+        "header_got_sites": {
+          "address_point_add_site": 4183982,
+          "base_add_site": 4183970,
+          "base_literal_site": 4183960,
+          "load_site": 4183976,
+          "offset_literal_site": 4183968,
+          "store_site": 4183984
+        },
+        "header_relocation_index": 64884
+      }
+    },
+    "app_config_to_manager": {
+      "app_config_vslot": {
+        "cell": 20177924,
+        "model_config_load": {
+          "offset": 8,
+          "site": 4183126
+        },
+        "model_config_slot_call": {
+          "site": 4183136,
+          "target_register": "r3"
+        },
+        "model_config_slot_load": {
+          "offset": 8,
+          "site": 4183134
+        },
+        "model_config_vptr_load": {
+          "site": 4183132
+        },
+        "offset": 28,
+        "relocation_index": 37833,
+        "target": 4183126
+      },
+      "manager_constructor": {
+        "app_config_receiver": {
+          "destination": "r0",
+          "site": 8689818,
+          "source": "r5"
+        },
+        "owner": {
+          "end": 8689970,
+          "start": 8689770
+        },
+        "result_store": {
+          "manager_offset": 8,
+          "site": 8689834
+        },
+        "vptr_load": {
+          "receiver": "r5",
+          "site": 8689820
+        },
+        "vslot_call": {
+          "site": 8689830,
+          "target_register": "r3"
+        },
+        "vslot_load": {
+          "offset": 28,
+          "site": 8689828
+        }
+      }
+    },
+    "condition": {
+      "runtime_selector_resolved": false,
+      "selector": "AppConfig.so"
+    },
+    "factory_to_manager_provenance": {
+      "config_factory_owner": {
+        "end": 8666328,
+        "start": 8666216
+      },
+      "factory_call": {
+        "site": 8666348,
+        "target": 8666216
+      },
+      "factory_result_store": {
+        "outer_offset": 20,
+        "site": 8666356
+      },
+      "manager_config_argument": {
+        "outer_offset": 20,
+        "site": 8666498
+      },
+      "manager_config_argument_preservation": {
+        "end": 8666502,
+        "register": "r2",
+        "start": 8666500
+      },
+      "manager_config_capture": {
+        "destination": "r5",
+        "site": 8689790,
+        "source": "r2"
+      },
+      "manager_config_receiver_preservation": {
+        "end": 8689818,
+        "register": "r5",
+        "start": 8689792
+      },
+      "manager_constructor_call": {
+        "site": 8666502,
+        "target": 8689770
+      },
+      "outer_constructor_owner": {
+        "end": 8666676,
+        "start": 8666328
+      }
+    },
+    "model_config_resolver": {
+      "constructor_calls": [
+        4184012,
+        4184036,
+        4184060,
+        4184086
+      ],
+      "dlopen_call": {
+        "site": 4183728,
+        "symbol": "dlopen"
+      },
+      "dlopen_flags": {
+        "preservation": {
+          "end": 4183728,
+          "register": "r1",
+          "start": 4183724
+        },
+        "register": "r1",
+        "site": 4183720,
+        "value": 257
+      },
+      "dlopen_success_branch": {
+        "register": "r0",
+        "site": 4183738,
+        "target": 4183756
+      },
+      "dlsym_calls": [
+        4183758,
+        4183796
+      ],
+      "entry_argument_preservation": {
+        "get": {
+          "end": 4183726,
+          "register": "r2",
+          "start": 4183712
+        },
+        "handle_slot": {
+          "end": 4183724,
+          "register": "r3",
+          "start": 4183712
+        },
+        "initialize": {
+          "end": 4183716,
+          "register": "r1",
+          "start": 4183712
+        },
+        "module": {
+          "end": 4183728,
+          "register": "r0",
+          "start": 4183712
+        }
+      },
+      "get_callable": {
+        "call": {
+          "site": 4183826,
+          "target_register": "r0"
+        },
+        "dlsym_argument": {
+          "destination": "r1",
+          "site": 4183794,
+          "source": "r6"
+        },
+        "dlsym_call": {
+          "site": 4183796,
+          "symbol": "dlsym"
+        },
+        "result_preservation": {
+          "end": 4183802,
+          "register": "r0",
+          "start": 4183800
+        },
+        "return": {
+          "control": "pop-pc",
+          "register": "r0",
+          "site": 4183828
+        },
+        "success_branch": {
+          "register": "r0",
+          "site": 4183802,
+          "target": 4183826
+        },
+        "symbol_capture": {
+          "destination": "r6",
+          "site": 4183726,
+          "source": "r2"
+        }
+      },
+      "handle_flow": {
+        "dlopen_result_capture": {
+          "destination": "r5",
+          "site": 4183732,
+          "source": "r0"
+        },
+        "dlopen_result_preservation": {
+          "end": 4183738,
+          "register": "r0",
+          "start": 4183732
+        },
+        "slot_base_to_store_preservation": {
+          "end": 4183734,
+          "register": "r8",
+          "start": 4183726
+        },
+        "slot_capture": {
+          "destination": "r8",
+          "site": 4183724,
+          "source": "r3"
+        },
+        "slot_reload": {
+          "base": "r8",
+          "destination": "r0",
+          "offset": 0,
+          "site": 4183790
+        },
+        "slot_store": {
+          "base": "r8",
+          "offset": 0,
+          "site": 4183734,
+          "source": "r0"
+        },
+        "success_path_slot_base_preservation": [
+          {
+            "end": 4183764,
+            "register": "r8",
+            "start": 4183756
+          },
+          {
+            "end": 4183790,
+            "register": "r8",
+            "start": 4183788
+          }
+        ]
+      },
+      "initialize_callable": {
+        "call": {
+          "site": 4183788,
+          "target_register": "r0"
+        },
+        "dlsym_argument": {
+          "destination": "r1",
+          "site": 4183756,
+          "source": "r4"
+        },
+        "dlsym_call": {
+          "site": 4183758,
+          "symbol": "dlsym"
+        },
+        "result_preservation": {
+          "end": 4183764,
+          "register": "r0",
+          "start": 4183762
+        },
+        "success_branch": {
+          "register": "r0",
+          "site": 4183764,
+          "target": 4183788
+        },
+        "symbol_capture": {
+          "destination": "r4",
+          "site": 4183716,
+          "source": "r1"
+        }
+      },
+      "model_config_call": {
+        "argument_preservation": {
+          "handle_slot": {
+            "end": 4184012,
+            "register": "r3",
+            "start": 4184006
+          },
+          "initialize": {
+            "end": 4184012,
+            "register": "r1",
+            "start": 4184004
+          },
+          "module": {
+            "end": 4184012,
+            "register": "r0",
+            "start": 4184000
+          }
+        },
+        "arguments": {
+          "get": {
+            "add_site": 4184010,
+            "address": 15879413,
+            "load_site": 4184008,
+            "register": "r2"
+          },
+          "handle_slot": {
+            "add_site": 4184004,
+            "address": 20902332,
+            "load_site": 4184000,
+            "register": "r3"
+          },
+          "initialize": {
+            "add_site": 4184002,
+            "address": 15879391,
+            "load_site": 4183994,
+            "register": "r1"
+          },
+          "module": {
+            "add_site": 4183998,
+            "address": 15750706,
+            "load_site": 4183992,
+            "register": "r0"
+          }
+        },
+        "pic_adjacent_argument": "get",
+        "pic_argument_preservation": {
+          "handle_slot": {
+            "end": 4184004,
+            "register": "r3",
+            "start": 4184002
+          },
+          "initialize": {
+            "end": 4184002,
+            "register": "r1",
+            "start": 4183996
+          },
+          "module": {
+            "end": 4183998,
+            "register": "r0",
+            "start": 4183994
+          }
+        },
+        "site": 4184012
+      },
+      "module": "libObj.so",
+      "owner": {
+        "end": 4183844,
+        "start": 4183712
+      },
+      "symbols": [
+        "initializeModelConfig",
+        "getModelConfig"
+      ]
+    },
+    "model_config_singleton": 20898972,
+    "model_config_singleton_lifecycle": {
+      "constructor": {
+        "instance_capture": {
+          "destination": "r5",
+          "site": 3728874,
+          "source": "r0"
+        },
+        "instance_preservation": {
+          "end": 3728890,
+          "register": "r5",
+          "start": 3728876
+        },
+        "owner": {
+          "end": 3728904,
+          "start": 3728868
+        },
+        "vtable_address_point": 20157648,
+        "vtable_header": 20157640,
+        "vtable_header_got_cell": 20390940,
+        "vtable_header_got_sites": {
+          "address_point_add_site": 3728888,
+          "base_add_site": 3728882,
+          "base_literal_site": 3728872,
+          "load_site": 3728886,
+          "offset_literal_site": 3728880,
+          "store_site": 3728890
+        },
+        "vtable_header_relocation_index": 69234
+      },
+      "get": {
+        "owner": {
+          "end": 3728972,
+          "start": 3728932
+        },
+        "return_control": {
+          "control": "pop-pc",
+          "site": 3728966
+        },
+        "return_preservation": {
+          "end": 3728966,
+          "register": "r0",
+          "start": 3728964
+        },
+        "singleton_address": {
+          "add_site": 3728960,
+          "address": 20898972,
+          "load_site": 3728956,
+          "register": "r0"
+        },
+        "singleton_load": {
+          "base": "r0",
+          "destination": "r0",
+          "site": 3728962
+        }
+      },
+      "initialize": {
+        "allocation_result_capture": {
+          "destination": "r4",
+          "site": 3728914,
+          "source": "r0"
+        },
+        "constructor_call": {
+          "site": 3728916,
+          "target": 3728868
+        },
+        "owner": {
+          "end": 3728932,
+          "start": 3728904
+        },
+        "singleton_address": {
+          "add_site": 3728922,
+          "address": 20898972,
+          "load_site": 3728920,
+          "register": "r3"
+        },
+        "singleton_store": {
+          "base": "r3",
+          "site": 3728924,
+          "source": "r4"
+        }
+      }
+    },
+    "model_config_symbols": {
+      "get": {
+        "address": 3728957,
+        "dynsym_index": 2362,
+        "name": "getModelConfig"
+      },
+      "initialize": {
+        "address": 3728905,
+        "dynsym_index": 2633,
+        "name": "initializeModelConfig"
+      }
+    },
+    "model_config_vtable": {
+      "address_point": 20157648,
+      "descriptor_slot": {
+        "cell": 20157656,
+        "offset": 8,
+        "owner": {
+          "end": 3429716,
+          "start": 3409680
+        },
+        "relocation_index": 35733,
+        "target": 3409680
+      }
+    },
+    "model_manager_descriptor_lookup": {
+      "alternate_lookup_call": {
+        "site": 8684392,
+        "target": 8661934
+      },
+      "default_lookup_branch": {
+        "site": 8684378,
+        "target": 8661982
+      },
+      "lookup_owner": {
+        "end": 8684410,
+        "start": 8684368
+      },
+      "provider_field": {
+        "offset": 8,
+        "site": 8684372
+      },
+      "provider_lookup_owners": {
+        "alternate": {
+          "end": 8661982,
+          "start": 8661934
+        },
+        "default": {
+          "end": 8662030,
+          "start": 8661982
+        }
+      },
+      "provider_record_result_loads": [
+        {
+          "offset": 12,
+          "site": 8661972
+        },
+        {
+          "offset": 8,
+          "site": 8662020
+        }
+      ],
+      "record_construction_dataflow": {
+        "component_constructor_argument": {
+          "destination": "r3",
+          "site": 8691190,
+          "source": "r8"
+        },
+        "component_result_capture": {
+          "destination": "r8",
+          "site": 8691154,
+          "source": "r0"
+        },
+        "component_store": {
+          "record_offset": 16,
+          "site": 8655028
+        },
+        "factory_result_capture": {
+          "destination": "r10",
+          "site": 8691162,
+          "source": "r0"
+        },
+        "factory_stack_argument": {
+          "site": 8691192,
+          "source": "r10",
+          "stack_offset": 0
+        },
+        "factory_stack_load": {
+          "site": 8655032,
+          "stack_offset": 12
+        },
+        "factory_store": {
+          "record_offset": 20,
+          "site": 8655046
+        },
+        "lookup_key_load_sites": [
+          8691144,
+          8691152
+        ]
+      },
+      "record_descriptor_fields": {
+        "component_offset": 16,
+        "factory_offset": 20
+      },
+      "registration_lookup_calls": [
+        {
+          "site": 8691148,
+          "target": 8684368
+        },
+        {
+          "site": 8691158,
+          "target": 8684382
+        }
+      ],
+      "registration_owner": {
+        "end": 8691288,
+        "start": 8691080
+      }
+    },
+    "modelcamera_table_entry": {
+      "argument_abi": {
+        "component": {
+          "add_site": 3409968,
+          "address": 15742029,
+          "load_site": 3409964,
+          "register": "r2"
+        },
+        "factory": {
+          "add_site": 3409970,
+          "address": 15742044,
+          "load_site": 3409966,
+          "register": "r3"
+        },
+        "get_alias": {
+          "add_site": 3409958,
+          "address": 15742023,
+          "load_site": 3409956,
+          "register": "r0"
+        },
+        "get_result_to_table_key": {
+          "destination": "r1",
+          "site": 3409972,
+          "source": "r0"
+        },
+        "table_receiver": {
+          "destination": "r0",
+          "site": 3409974,
+          "source": "r4"
+        }
+      },
+      "id_generator_get": {
+        "site": 3409960,
+        "symbol": "_ZN11IdGenerator3GetEPKc"
+      },
+      "id_so_table_add": {
+        "site": 3409976,
+        "symbol": "_ZN9IdSoTable3addEiPKcS1_"
+      },
+      "manifest": {
+        "alias": {
+          "address": 15742023,
+          "value": "@M00B"
+        },
+        "component": {
+          "address": 15742029,
+          "value": "modelCamera.so"
+        },
+        "factory": {
+          "address": 15742044,
+          "value": "ModelCameraToInstance"
+        }
+      }
+    }
+  },
   "destination_4": {
     "central_dispatch_owner": {
       "end": 8666184,
@@ -139,7 +755,7 @@
       "site": 8655164
     }
   },
-  "evidence_digest": "aa71b88fa1335c0f61fb64f34cd2c5398938c0085c6c59d6daca87bd04512a03",
+  "evidence_digest": "92dcdc06f9d6642de223bcba11528833dc2e227267d7e807a90d22b83c4fbebe",
   "generic_executor": {
     "candidate_branch_range": {
       "end": 8694244,
@@ -421,7 +1037,7 @@
       "start": 4187828
     }
   },
-  "readiness": "GENERIC_RUNTIME_BINDING_NO_MODELCAMERA_RECORD_OR_PIPELINE",
+  "readiness": "CONDITIONAL_DEFAULT_ROUTE_DESCRIPTOR_NO_OPERATION38_RECORD_OR_PIPELINE",
   "schema_version": 1,
   "sources": {
     "object": {
@@ -436,14 +1052,14 @@
     }
   },
   "summary": {
-    "canonical_export_sha256": "e4cf1387c8b9d745dd483668660aa1e25ee44499a80d34e305409b04b1467f33",
-    "proven_static_claim_count": 7,
+    "canonical_export_sha256": "7a8c91657191942fe6eaab1026334c7487af045148695dff5db334230c303a13",
+    "proven_static_claim_count": 8,
     "resolved_model_identity_count": 0,
     "resolved_pipeline_sink_count": 0,
-    "resolved_runtime_descriptor_count": 0
+    "resolved_runtime_descriptor_count": 1
   },
   "upstream": {
-    "evidence_digest": "3303e96ac7f7f6bd237c4bf043056874aafde56b4ceb3ef3b2b4d38989619f0d",
+    "evidence_digest": "7575751cc125bef4d26df426d6558166f501209ce6d918bee0af11639ca56e6a",
     "report": "analysis/a6400-creative-style-model-request-transport.json"
   }
 }

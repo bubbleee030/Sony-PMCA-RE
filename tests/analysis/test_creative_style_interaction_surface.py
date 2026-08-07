@@ -9,6 +9,12 @@ from unittest import mock
 from pathlib import Path
 
 
+ROOT = Path(__file__).resolve().parents[2]
+DEEP_DIVE = ROOT / "analysis" / "a6400a-updater-and-creative-style-deep-dive.md"
+REPORT = ROOT / "analysis" / "a6400-creative-style-interaction-surface.json"
+EXPORTER = ROOT / "tools" / "static" / "export_a6400_creative_style_interaction_surface.py"
+
+
 class _MemoryProxy:
     def __init__(self, memory, *, displacement=None):
         self.base = memory.base
@@ -43,12 +49,14 @@ class _InstructionProxy:
         return getattr(self._item, name)
 
 
-ROOT = Path(__file__).resolve().parents[2]
-REPORT = ROOT / "analysis" / "a6400-creative-style-interaction-surface.json"
-EXPORTER = ROOT / "tools" / "static" / "export_a6400_creative_style_interaction_surface.py"
-
-
 class CreativeStyleInteractionSurfaceContractTests(unittest.TestCase):
+    def test_deep_dive_keeps_viewbase_constructor_candidate_unbound(self):
+        text = DEEP_DIVE.read_text(encoding="utf-8")
+        self.assertIn("matching global definition in", text)
+        self.assertIn("does not declare that", text)
+        self.assertIn("Neither fact\nproves the binding", text)
+        self.assertNotIn("stop at an unresolved external `ViewBase` constructor", text)
+
     def test_widget_lookup_only_reaches_generic_btncombo_cast(self):
         """Changing the post-lookup target/type filter must invalidate the boundary."""
         from pmca.analysis.creative_style_interaction_surface import EXPECTED_EXPORT
@@ -103,6 +111,72 @@ class CreativeStyleInteractionSurfaceContractTests(unittest.TestCase):
         self.assertEqual((belt["flag_1"], belt["flag_2"]), (True, False))
         self.assertFalse(belt["concrete_belt_type_proven"])
         self.assertFalse(belt["belt_creation_or_store_proven"])
+
+    def test_viewbase_constructor_candidate_is_unbound_and_has_no_direct_belt_store(self):
+        """A matching libObj symbol must not become Creative Style ownership evidence."""
+        from pmca.analysis.creative_style_interaction_surface import EXPECTED_EXPORT
+
+        boundary = EXPECTED_EXPORT["field_0x14c_constructor_boundary"]
+        import_edge = boundary["viewbase_constructor_import"]
+        self.assertEqual(
+            import_edge,
+            {
+                "module": "lib/viewUnified2.so",
+                "call_site": 0x2F29FC,
+                "symbol": "_ZN8ViewBaseC2EP11ViewManager",
+                "dynsym_index": 1112,
+                "symbol_undefined": True,
+                "rel_plt_index": 1573,
+                "got": 0x945F40,
+                "relocation_type": 22,
+                "branch_target": 0x153810,
+                "declared_dependencies": ["CautionConfig.so", "libgcc_s.so.1", "libc.so.6"],
+                "candidate_module_declared_dependency": False,
+                "binding_proven": False,
+            },
+        )
+        candidate = boundary["libobj_candidate"]
+        self.assertEqual(
+            candidate["source"],
+            {
+                "module": "lib/libObj.so",
+                "size": 20_860_436,
+                "sha256": "60ffd2b0f31f4bc139a7c13a4f62c25cdeb6a531ad5ef35df48471e6e36e88b1",
+            },
+        )
+        self.assertEqual(candidate["symbol"], "_ZN8ViewBaseC2EP11ViewManager")
+        self.assertEqual(candidate["symbol_entry"], 0x3EDBAD)
+        self.assertEqual(candidate["owner"], {"start": 0x3EDBAC, "end": 0x3EDC7C, "instruction_count": 73})
+        self.assertEqual(candidate["receiver_transfer_site"], 0x3EDBB0)
+        self.assertEqual(
+            candidate["receiver_store_offsets"],
+            {
+                "0x3edbd6": 0x0,
+                "0x3edbd8": 0x28,
+                "0x3edbf8": 0x74,
+                "0x3edbfc": 0x78,
+                "0x3edc08": 0xD8,
+                "0x3edc2a": 0x100,
+                "0x3edc2e": 0x64,
+                "0x3edc3a": 0x11C,
+            },
+        )
+        self.assertFalse(candidate["direct_0x14c_store_found"])
+        self.assertEqual(
+            candidate["first_plt_boundary"],
+            {
+                "call_site": 0x3EDBBA,
+                "plt_target": 0x1004F4,
+                "rel_plt_index": 1231,
+                "got": 0x136B668,
+                "relocation_type": 22,
+                "symbol": "_ZN8ViewBase18getViewBootElementEv",
+                "dynsym_index": 2501,
+                "same_module_definition": {"entry": 0x3EBFE7, "size": 0x46},
+                "binding_proven": False,
+            },
+        )
+        self.assertFalse(boundary["field_0x14c_concrete_type_resolved"])
 
     def test_navigation_selector_is_not_controller_or_style_state(self):
         from pmca.analysis.creative_style_interaction_surface import EXPECTED_EXPORT
@@ -405,6 +479,42 @@ class CreativeStyleInteractionSurfaceExporterTests(unittest.TestCase):
             with mock.patch.object(exporter, "_call_symbol", return_value="wrong_constructor"), self.assertRaises(RuntimeError):
                 exporter._validate_field_0x14c_constructor_boundary(
                     blob, mappings, deps, plt_symbols, exidx
+                )
+
+    def test_libobj_constructor_byte_mutation_rejects_candidate_boundary(self):
+        """Changing the proven receiver-transfer byte must invalidate the candidate evidence."""
+        if not self.exporter.sources_available() or not self.exporter.dependencies_available():
+            self.skipTest("pinned source or parser dependencies are unavailable")
+        exporter = self.exporter
+        deps = exporter._dependencies()
+        view_blob = exporter.SOURCE_PATH.read_bytes()
+        candidate_blob = bytearray(exporter.LIBOBJ_SOURCE_PATH.read_bytes())
+        with exporter.SOURCE_PATH.open("rb") as view_stream, exporter.LIBOBJ_SOURCE_PATH.open("rb") as candidate_stream:
+            view_elf = deps["ELFFile"](view_stream)
+            candidate_elf = deps["ELFFile"](candidate_stream)
+            view_mappings = exporter._mappings(view_elf)
+            candidate_mappings = exporter._mappings(candidate_elf)
+            view_plt_symbols = exporter._plt_symbols(view_elf, view_blob, view_mappings)
+            self.assertEqual(
+                exporter._validate_viewbase_constructor_candidate(
+                    view_blob, view_mappings, view_elf, view_plt_symbols,
+                    candidate_blob, candidate_mappings, candidate_elf, deps,
+                ),
+                exporter.EXPECTED_EXPORT["field_0x14c_constructor_boundary"],
+            )
+
+            transfer = exporter.EXPECTED_EXPORT["field_0x14c_constructor_boundary"]["libobj_candidate"]["receiver_transfer_site"]
+            for segment in candidate_elf.iter_segments():
+                if segment["p_type"] == "PT_LOAD" and segment["p_vaddr"] <= transfer < segment["p_vaddr"] + segment["p_filesz"]:
+                    candidate_blob[segment["p_offset"] + transfer - segment["p_vaddr"]] ^= 0x01
+                    break
+            else:
+                self.fail("candidate receiver-transfer address is not file-backed")
+
+            with self.assertRaises(RuntimeError):
+                exporter._validate_viewbase_constructor_candidate(
+                    view_blob, view_mappings, view_elf, view_plt_symbols,
+                    candidate_blob, candidate_mappings, candidate_elf, deps,
                 )
 
 

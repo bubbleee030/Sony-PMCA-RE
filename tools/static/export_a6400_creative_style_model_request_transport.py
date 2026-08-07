@@ -78,6 +78,7 @@ def _dependencies():
             ARM_INS_CBZ,
             ARM_INS_CBNZ,
             ARM_INS_LDRB,
+            ARM_REG_FP,
             ARM_REG_LR,
             ARM_REG_R10,
             ARM_REG_R8,
@@ -91,6 +92,7 @@ def _dependencies():
         "cbz": ARM_INS_CBZ,
         "and": ARM_INS_AND,
         "ldrb": ARM_INS_LDRB,
+        "fp": ARM_REG_FP,
         "lr": ARM_REG_LR,
         "r10": ARM_REG_R10,
         "ne": ARM_CC_NE,
@@ -207,6 +209,48 @@ def _resolve_thumb_got_cell(
     offset_address = _thumb_literal_address(offset_literal, deps, deps["r3"], label + " offset literal")
     base = _word(blob, mappings, base_address) + base_add.address + 4
     return base + _word(blob, mappings, offset_address)
+
+
+def _resolve_thumb_pc_relative_address(
+    blob, mappings, deps, literal_site, add_site, register, label,
+):
+    literal_item = _instruction(blob, mappings, deps, literal_site)
+    literal_address = _thumb_literal_address(literal_item, deps, register, label + " literal")
+    add_item = _instruction(blob, mappings, deps, add_site)
+    if (
+        add_item.id != deps["add"]
+        or len(add_item.operands) != 2
+        or add_item.operands[0].type != deps["reg"]
+        or add_item.operands[0].reg != register
+        or add_item.operands[1].type != deps["reg"]
+        or add_item.operands[1].reg != deps["pc"]
+    ):
+        raise RuntimeError(label + " PC-relative add differs")
+    return (_word(blob, mappings, literal_address) + add_item.address + 4) & 0xFFFFFFFF
+
+
+def _require_cbnz(item, deps, register, target, label):
+    if (
+        item.id != deps["cbnz"]
+        or len(item.operands) != 2
+        or item.operands[0].type != deps["reg"]
+        or item.operands[0].reg != register
+        or item.operands[1].type != deps["imm"]
+        or item.operands[1].imm != target
+    ):
+        raise RuntimeError(label + " differs")
+
+
+def _require_indirect_call_register(item, deps, register, label):
+    if (
+        item.id != deps["blx"]
+        or not item.group(deps["call_group"])
+        or _direct_target(item, deps) is not None
+        or len(item.operands) != 1
+        or item.operands[0].type != deps["reg"]
+        or item.operands[0].reg != register
+    ):
+        raise RuntimeError(label + " differs")
 
 
 def _arm_attribute_tags(elf):
@@ -1221,6 +1265,598 @@ def _validate_operation_38_queue_consumer_identity(elf, blob, mappings, deps, dy
     ):
         _require_owner(exidx, expected[key], label)
 
+    plt_symbols = _plt_symbols(elf, blob, mappings)
+    rel_dyn = list(elf.get_section_by_name(".rel.dyn").iter_relocations())
+
+    selector = expected["config_selector"]
+    _require_owner(exidx, selector["selector_owner"], "config selector")
+    selector_buffer = _resolve_thumb_pc_relative_address(
+        blob, mappings, deps,
+        selector["thread_buffer_literal_load_site"], selector["thread_buffer_add_site"],
+        deps["r1"], "config selector buffer",
+    )
+    if selector_buffer != selector["buffer_address"]:
+        raise RuntimeError("config selector buffer address differs")
+    containing_sections = [
+        section for section in elf.iter_sections()
+        if section["sh_addr"] <= selector_buffer < section["sh_addr"] + section["sh_size"]
+    ]
+    if (
+        len(containing_sections) != 1
+        or containing_sections[0].name != selector["storage_section"]
+        or containing_sections[0]["sh_type"] != "SHT_NOBITS"
+    ):
+        raise RuntimeError("config selector runtime storage differs")
+    selector_outer_segment = selector["outer_argument_preservation_segment"]
+    if selector_outer_segment != [0x843CD8, selector["outer_factory_call"]["site"]]:
+        raise RuntimeError("config selector outer argument segment differs")
+    _require_register_unchanged(
+        _decode(
+            blob, mappings, deps,
+            selector_outer_segment[0], selector_outer_segment[1], complete=False,
+        ),
+        deps["r1"], label="config selector outer argument preservation",
+    )
+    _require_direct_edge(
+        blob, mappings, deps,
+        selector["outer_factory_call"]["site"], selector["outer_factory_call"]["target"],
+        call=True, label="config selector factory call",
+    )
+    _require_reg_to_reg(
+        _instruction(blob, mappings, deps, selector["selector_input_capture_site"]),
+        deps, deps["mov"], deps["r5"], deps["r1"], "config selector input capture",
+    )
+    input_capture = selector["selector_input_capture"]
+    if input_capture != {"source_register": "r1", "captured_register": "r5"}:
+        raise RuntimeError("config selector input capture contract differs")
+    compare_abi = selector["compare_argument_abi"]
+    if (
+        compare_abi["literal_register"] != "r0"
+        or compare_abi["selector_input_register"] != "r1"
+        or compare_abi["length_register"] != "r2"
+        or compare_abi["length"] != 20
+        or len(compare_abi["input_forward_sites"]) != len(selector["compare_call_sites"])
+        or len(compare_abi["length_sites"]) != len(selector["compare_call_sites"])
+    ):
+        raise RuntimeError("AppConfig selector comparison ABI contract differs")
+    for input_forward_site, length_site in zip(
+        compare_abi["input_forward_sites"], compare_abi["length_sites"],
+    ):
+        _require_reg_to_reg(
+            _instruction(blob, mappings, deps, input_forward_site),
+            deps, deps["mov"], deps["r1"], deps["r5"],
+            "AppConfig selector input forward",
+        )
+        _require_mov_immediate(
+            _instruction(blob, mappings, deps, length_site),
+            deps, deps["r2"], compare_abi["length"],
+            "AppConfig selector comparison length",
+        )
+    for literal_site, add_site, compare_site in zip(
+        selector["app_config_literal_load_sites"],
+        selector["app_config_literal_add_sites"],
+        selector["compare_call_sites"],
+    ):
+        name_address = _resolve_thumb_pc_relative_address(
+            blob, mappings, deps, literal_site, add_site, deps["r0"],
+            "AppConfig selector name",
+        )
+        if (
+            name_address != selector["app_config_name_address"]
+            or _cstring(blob, mappings, name_address) != selector["app_config_name"]
+            or _call_symbol(blob, mappings, deps, plt_symbols, compare_site) != "strncmp"
+        ):
+            raise RuntimeError("AppConfig selector comparison differs")
+    _require_cbnz(
+        _instruction(blob, mappings, deps, selector["first_nonmatch_branch"]["site"]),
+        deps, deps["r0"], selector["first_nonmatch_branch"]["target"],
+        "AppConfig first nonmatch branch",
+    )
+    default_route = expected["app_config_default_route"]
+    compare_routes = selector["compare_routes"]
+    initialize_route = compare_routes["initialize"]
+    if (
+        initialize_route["match_call_site"] != selector["initialize_call_site"]
+        or initialize_route["match_symbol"] != default_route["initialize_symbol"]
+        or initialize_route["nonmatch_call_site"] != selector["first_nonmatch_branch"]["target"]
+    ):
+        raise RuntimeError("AppConfig initialize selector route differs")
+    if (
+        _call_symbol(
+            blob, mappings, deps, plt_symbols, selector["initialize_call_site"],
+        ) != default_route["initialize_symbol"]
+    ):
+        raise RuntimeError("AppConfig initialize call differs")
+    _require_cbnz(
+        _instruction(blob, mappings, deps, selector["second_nonmatch_branch"]["site"]),
+        deps, deps["r0"], selector["second_nonmatch_branch"]["target"],
+        "AppConfig second nonmatch branch",
+    )
+    get_config_got = selector["get_config_got"]
+    get_config_route = compare_routes["get_config"]
+    if (
+        get_config_route["match_offset_literal_site"] != get_config_got["offset_literal_site"]
+        or get_config_route["match_symbol"] != get_config_got["relocation"]["symbol"]
+        or get_config_route["nonmatch_offset_literal_site"]
+        != selector["second_nonmatch_branch"]["target"]
+    ):
+        raise RuntimeError("AppConfig getConfig selector route differs")
+    get_config_cell = _resolve_thumb_got_cell(
+        blob, mappings, deps,
+        get_config_got["base_literal_site"], get_config_got["base_add_site"],
+        get_config_got["offset_literal_site"], "getConfig GOT", base_register=deps["r4"],
+    )
+    if get_config_cell != get_config_got["cell"]:
+        raise RuntimeError("getConfig GOT cell differs")
+    get_config_load = _instruction(blob, mappings, deps, get_config_got["load_site"])
+    if (
+        get_config_load.id != deps["ldr"]
+        or len(get_config_load.operands) != 2
+        or get_config_load.operands[0].reg != deps["r3"]
+        or get_config_load.operands[1].type != deps["mem"]
+        or get_config_load.operands[1].mem.base != deps["r4"]
+        or get_config_load.operands[1].mem.index != deps["r3"]
+        or get_config_load.operands[1].mem.disp != 0
+    ):
+        raise RuntimeError("getConfig GOT load differs")
+    get_config_relocation_contract = get_config_got["relocation"]
+    get_config_relocation = rel_dyn[get_config_relocation_contract["index"]]
+    if (
+        get_config_relocation["r_offset"] != get_config_cell
+        or get_config_relocation["r_info_type"] != get_config_relocation_contract["type"]
+        or get_config_relocation["r_info_sym"]
+        != get_config_relocation_contract["symbol_index"]
+        or dynsym.get_symbol(get_config_relocation["r_info_sym"]).name
+        != get_config_relocation_contract["symbol"]
+    ):
+        raise RuntimeError("getConfig relocation differs")
+    _require_indirect_call_register(
+        _instruction(blob, mappings, deps, selector["getter_dispatch_site"]),
+        deps, deps["r3"], "getConfig dispatch",
+    )
+    if (
+        selector["runtime_contents_resolved"] is not False
+        or selector["runtime_app_config_route_selected"] is not False
+    ):
+        raise RuntimeError("config selector runtime claim differs")
+
+    non_default = expected["non_app_config_route"]
+    _require_owner(exidx, non_default["initialize_owner"], "non-AppConfig initializer")
+    _require_owner(exidx, non_default["constructor_owner"], "non-AppConfig constructor")
+    _require_owner(exidx, non_default["getter_owner"], "non-AppConfig getter")
+    _require_direct_edge(
+        blob, mappings, deps,
+        non_default["initialize_call"]["site"], non_default["initialize_call"]["target"],
+        call=True, label="non-AppConfig initializer call",
+    )
+    _require_mov_immediate(
+        _instruction(blob, mappings, deps, non_default["allocation_size_site"]),
+        deps, deps["r0"], non_default["allocation_size"],
+        "non-AppConfig allocation size",
+    )
+    if _call_symbol(
+        blob, mappings, deps, plt_symbols, non_default["allocation_call_site"],
+    ) != "_Znwj":
+        raise RuntimeError("non-AppConfig allocation call differs")
+    _require_reg_to_reg(
+        _instruction(blob, mappings, deps, 0x667BFE),
+        deps, deps["mov"], deps["r4"], deps["r0"],
+        "non-AppConfig allocation capture",
+    )
+    _require_direct_edge(
+        blob, mappings, deps,
+        non_default["constructor_call"]["site"], non_default["constructor_call"]["target"],
+        call=True, label="non-AppConfig constructor call",
+    )
+    singleton_store_address = _resolve_thumb_pc_relative_address(
+        blob, mappings, deps, 0x667C04, 0x667C06, deps["r3"],
+        "non-AppConfig singleton store",
+    )
+    if singleton_store_address != non_default["singleton_address"]:
+        raise RuntimeError("non-AppConfig singleton store address differs")
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, non_default["singleton_store_site"]),
+        deps, deps["str"], deps["r4"], deps["r3"], 0,
+        "non-AppConfig singleton store",
+    )
+    singleton_load_address = _resolve_thumb_pc_relative_address(
+        blob, mappings, deps, 0x667BC0, 0x667BC4, deps["r0"],
+        "non-AppConfig singleton getter",
+    )
+    if singleton_load_address != non_default["singleton_address"]:
+        raise RuntimeError("non-AppConfig singleton getter address differs")
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, non_default["getter_global_load_site"]),
+        deps, deps["ldr"], deps["r0"], deps["r0"], 0,
+        "non-AppConfig singleton getter load",
+    )
+    generic_getter_cell = _resolve_thumb_got_cell(
+        blob, mappings, deps,
+        get_config_got["base_literal_site"], get_config_got["base_add_site"],
+        non_default["getter_got"]["offset_literal_site"], "non-AppConfig getter GOT",
+        base_register=deps["r4"],
+    )
+    generic_getter = non_default["getter_got"]
+    if (
+        generic_getter_cell != generic_getter["cell"]
+        or generic_getter["load_site"] != get_config_got["load_site"]
+    ):
+        raise RuntimeError("non-AppConfig getter GOT cell differs")
+    generic_getter_relocation_contract = generic_getter["relocation"]
+    generic_getter_relocation = rel_dyn[generic_getter_relocation_contract["index"]]
+    if (
+        generic_getter_relocation["r_offset"] != generic_getter_cell
+        or generic_getter_relocation["r_info_type"] != generic_getter_relocation_contract["type"]
+        or generic_getter_relocation["r_info_sym"] != generic_getter_relocation_contract["symbol_index"]
+        or _word(blob, mappings, generic_getter_cell) != generic_getter_relocation_contract["target"]
+    ):
+        raise RuntimeError("non-AppConfig getter relocation differs")
+
+    generic_vtable_cell = _resolve_thumb_got_cell(
+        blob, mappings, deps, 0x667BD4, 0x667BDE, 0x667BDC,
+        "non-AppConfig vtable header", base_register=deps["r4"],
+    )
+    if generic_vtable_cell != non_default["vtable_header_got_cell"]:
+        raise RuntimeError("non-AppConfig vtable GOT cell differs")
+    generic_vtable_relocation_contract = non_default["vtable_header_relocation"]
+    generic_vtable_relocation = rel_dyn[generic_vtable_relocation_contract["index"]]
+    if (
+        generic_vtable_relocation["r_offset"] != generic_vtable_cell
+        or generic_vtable_relocation["r_info_type"] != generic_vtable_relocation_contract["type"]
+        or generic_vtable_relocation["r_info_sym"] != generic_vtable_relocation_contract["symbol_index"]
+        or _word(blob, mappings, generic_vtable_cell) != generic_vtable_relocation_contract["target"]
+        or non_default["vtable_address_point"] != generic_vtable_relocation_contract["target"] + 8
+    ):
+        raise RuntimeError("non-AppConfig vtable relocation differs")
+    generic_vptr_add = _instruction(blob, mappings, deps, 0x667BE4)
+    if (
+        generic_vptr_add.id != deps["add"]
+        or len(generic_vptr_add.operands) != 2
+        or generic_vptr_add.operands[0].type != deps["reg"]
+        or generic_vptr_add.operands[0].reg != deps["r3"]
+        or generic_vptr_add.operands[1].type != deps["imm"]
+        or generic_vptr_add.operands[1].imm != 8
+    ):
+        raise RuntimeError("non-AppConfig vtable address point differs")
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, non_default["vtable_store_site"]),
+        deps, deps["str"], deps["r3"], deps["r5"], 0,
+        "non-AppConfig vtable store",
+    )
+    for slot_name, label in (
+        ("utility_manager_slot", "non-AppConfig UtilityManager slot"),
+        ("utility_manager_initialize_slot", "non-AppConfig initialize slot"),
+        ("producer_initialize_slot", "non-AppConfig producer slot"),
+    ):
+        slot = non_default[slot_name]
+        if slot["cell"] != non_default["vtable_address_point"] + slot["offset"]:
+            raise RuntimeError(label + " cell differs")
+        relocation_contract = slot["relocation"]
+        relocation = rel_dyn[relocation_contract["index"]]
+        if (
+            relocation["r_offset"] != slot["cell"]
+            or relocation["r_info_type"] != relocation_contract["type"]
+            or relocation["r_info_sym"] != relocation_contract["symbol_index"]
+            or _word(blob, mappings, slot["cell"]) != relocation_contract["target"]
+            or (relocation_contract["target"] & ~1) != slot["default_target"]
+        ):
+            raise RuntimeError(label + " relocation differs")
+        _require_owner(exidx, slot["owner"], label)
+    generic_utility_slot = non_default["utility_manager_slot"]
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, generic_utility_slot["field_load"]["site"]),
+        deps, deps["ldr"], deps["r0"], deps["r0"],
+        generic_utility_slot["field_load"]["offset"],
+        "non-AppConfig UtilityManager field load",
+    )
+    if (
+        non_default["default_producer_owner_reused"] is not False
+        or non_default["event_manager_identity_join_proven"] is not False
+        or non_default["producer_initialize_slot"]["owner"]
+        == expected["producer_initialization_caller_owner"]
+    ):
+        raise RuntimeError("non-AppConfig identity claim differs")
+
+    _require_defined_symbol(
+        dynsym, default_route["initialize_symbol"],
+        default_route["initialize_default_definition"]["start"],
+        default_route["initialize_default_definition"]["end"],
+        "initializeConfig default",
+    )
+    _require_defined_symbol(
+        dynsym, default_route["get_config_symbol"],
+        default_route["get_config_default_definition"]["start"],
+        default_route["get_config_default_definition"]["end"],
+        "getConfig default",
+    )
+    _require_owner(exidx, default_route["constructor"], "AppConfig constructor")
+    _require_mov_immediate(
+        _instruction(
+            blob, mappings, deps, default_route["initialize_allocation_size_site"],
+        ),
+        deps, deps["r0"], default_route["initialize_allocation_size"],
+        "AppConfig allocation size",
+    )
+    if _call_symbol(
+        blob, mappings, deps, plt_symbols, default_route["initialize_allocation_call_site"],
+    ) != "_Znwj":
+        raise RuntimeError("AppConfig allocation call differs")
+    _require_reg_to_reg(
+        _instruction(blob, mappings, deps, default_route["initialize_result_capture_site"]),
+        deps, deps["mov"], deps["r4"], deps["r0"], "AppConfig result capture",
+    )
+    _require_direct_edge(
+        blob, mappings, deps,
+        default_route["initialize_constructor_call"]["site"],
+        default_route["initialize_constructor_call"]["target"],
+        call=True, label="AppConfig constructor call",
+    )
+    initialize_global = _resolve_thumb_pc_relative_address(
+        blob, mappings, deps, 0x3FD8D0, 0x3FD8D2, deps["r3"],
+        "AppConfig initialize global",
+    )
+    get_config_global = _resolve_thumb_pc_relative_address(
+        blob, mappings, deps, 0x3FD784, 0x3FD788, deps["r0"],
+        "AppConfig getter global",
+    )
+    if initialize_global != default_route["singleton_global"] or get_config_global != initialize_global:
+        raise RuntimeError("AppConfig singleton global join differs")
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, default_route["initialize_global_store_site"]),
+        deps, deps["str"], deps["r4"], deps["r3"], 0,
+        "AppConfig singleton store",
+    )
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, default_route["get_config_global_load_site"]),
+        deps, deps["ldr"], deps["r0"], deps["r0"], 0,
+        "AppConfig singleton load",
+    )
+
+    vtable_sites = default_route["vtable_header_got_sites"]
+    vtable_header_cell = _resolve_thumb_got_cell(
+        blob, mappings, deps,
+        vtable_sites["base_literal_site"], vtable_sites["base_add_site"],
+        vtable_sites["offset_literal_site"], "AppConfig vtable header",
+        base_register=deps["r5"],
+    )
+    if vtable_header_cell != default_route["vtable_header_got_cell"]:
+        raise RuntimeError("AppConfig vtable header GOT cell differs")
+    vtable_header_load = _instruction(blob, mappings, deps, vtable_sites["load_site"])
+    if (
+        vtable_header_load.id != deps["ldr"]
+        or vtable_header_load.operands[0].reg != deps["r3"]
+        or vtable_header_load.operands[1].mem.base != deps["r5"]
+        or vtable_header_load.operands[1].mem.index != deps["r3"]
+    ):
+        raise RuntimeError("AppConfig vtable header load differs")
+    address_point_add = _instruction(
+        blob, mappings, deps, vtable_sites["address_point_add_site"],
+    )
+    if (
+        address_point_add.id != deps["add"]
+        or len(address_point_add.operands) != 2
+        or address_point_add.operands[0].reg != deps["r3"]
+        or address_point_add.operands[1].type != deps["imm"]
+        or address_point_add.operands[1].imm != 8
+    ):
+        raise RuntimeError("AppConfig vtable address-point add differs")
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, vtable_sites["store_site"]),
+        deps, deps["str"], deps["r3"], deps["r4"], 0,
+        "AppConfig vptr store",
+    )
+
+    def require_relative_cell(cell, contract, label):
+        relocation = rel_dyn[contract["index"]]
+        if (
+            contract["section"] != ".rel.dyn"
+            or relocation["r_offset"] != cell
+            or relocation["r_info_type"] != contract["type"]
+            or relocation["r_info_sym"] != contract["symbol_index"]
+            or _word(blob, mappings, cell) != contract["target"]
+        ):
+            raise RuntimeError(label + " relocation differs")
+
+    require_relative_cell(
+        vtable_header_cell, default_route["vtable_header_relocation"],
+        "AppConfig vtable header",
+    )
+    if default_route["vtable_address_point"] != default_route["vtable_header_relocation"]["target"] + 8:
+        raise RuntimeError("AppConfig vtable address point differs")
+
+    for slot_key, outer_sites, label in (
+        ("utility_manager_initialize_slot", [0x843D14, 0x843D16, 0x843D18, 0x843D1A], "UtilityManager initialize"),
+        ("utility_manager_slot", [0x843DA2, 0x843DA6, 0x843DA8, 0x843DAA], "UtilityManager accessor"),
+        ("producer_initialize_slot", [0x843DBE, 0x843DC0, 0x843DC2, 0x843DC4], "producer initializer"),
+    ):
+        slot = default_route[slot_key]
+        if slot.get("outer_call_sites", outer_sites) != outer_sites:
+            raise RuntimeError(label + " outer call sites differ")
+        expected_cell = default_route["vtable_address_point"] + slot["offset"]
+        if slot["cell"] != expected_cell:
+            raise RuntimeError(label + " vtable cell differs")
+        require_relative_cell(slot["cell"], slot["relocation"], label + " slot")
+        if (slot["relocation"]["target"] & ~1) != slot["default_target"]:
+            raise RuntimeError(label + " default target differs")
+        _require_unindexed_memory(
+            _instruction(blob, mappings, deps, outer_sites[0]),
+            deps, deps["ldr"], deps["r0"], deps["r4"], 0x14,
+            label + " AppConfig receiver load",
+        )
+        _require_unindexed_memory(
+            _instruction(blob, mappings, deps, outer_sites[1]),
+            deps, deps["ldr"], deps["r3"], deps["r0"], 0,
+            label + " vptr load",
+        )
+        _require_unindexed_memory(
+            _instruction(blob, mappings, deps, outer_sites[2]),
+            deps, deps["ldr"], deps["r3"], deps["r3"], slot["offset"],
+            label + " slot load",
+        )
+        _require_indirect_call_register(
+            _instruction(blob, mappings, deps, outer_sites[3]),
+            deps, deps["r3"], label + " slot call",
+        )
+
+    utility_slot = default_route["utility_manager_slot"]
+    utility_field_load = utility_slot["field_load"]
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, utility_field_load["site"]),
+        deps, deps["ldr"], deps["r0"], deps["r0"], utility_field_load["offset"],
+        "AppConfig UtilityManager field load",
+    )
+    initialize_slot = default_route["utility_manager_initialize_slot"]
+    _require_reg_to_reg(
+        _instruction(blob, mappings, deps, initialize_slot["receiver_capture_site"]),
+        deps, deps["mov"], deps["r4"], deps["r0"],
+        "AppConfig initialize receiver capture",
+    )
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, initialize_slot["field_store"]["site"]),
+        deps, deps["str"], deps["r5"], deps["r4"],
+        initialize_slot["field_store"]["offset"], "AppConfig UtilityManager field store",
+    )
+    producer_slot = default_route["producer_initialize_slot"]
+    _require_reg_to_reg(
+        _instruction(blob, mappings, deps, producer_slot["receiver_capture_site"]),
+        deps, deps["mov"], deps["r4"], deps["r0"],
+        "AppConfig producer receiver capture",
+    )
+
+    wrapper_construction = expected["outer_wrapper_construction"]
+    _require_mov_immediate(
+        _instruction(blob, mappings, deps, wrapper_construction["allocation_size_site"]),
+        deps, deps["r0"], wrapper_construction["allocation_size"],
+        "outer wrapper allocation size",
+    )
+    if _call_symbol(
+        blob, mappings, deps, plt_symbols, wrapper_construction["allocation_call_site"],
+    ) != "_Znwj":
+        raise RuntimeError("outer wrapper allocation call differs")
+    wrapper_event_argument = wrapper_construction["event_manager_argument_load"]
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, wrapper_event_argument["site"]),
+        deps, deps["ldr"], deps["r1"], deps["r4"], wrapper_event_argument["offset"],
+        "outer wrapper EventManager argument load",
+    )
+    wrapper_argument_segment = wrapper_construction["event_manager_argument_preservation_segment"]
+    if wrapper_argument_segment != [0x843D96, wrapper_construction["constructor_call"]["site"]]:
+        raise RuntimeError("outer wrapper EventManager argument segment differs")
+    _require_register_unchanged(
+        _decode(
+            blob, mappings, deps,
+            wrapper_argument_segment[0], wrapper_argument_segment[1], complete=False,
+        ),
+        deps["r1"], label="outer wrapper EventManager argument preservation",
+    )
+    _require_reg_to_reg(
+        _instruction(blob, mappings, deps, wrapper_construction["result_capture_site"]),
+        deps, deps["mov"], deps["r5"], deps["r0"], "outer wrapper result capture",
+    )
+    _require_direct_edge(
+        blob, mappings, deps,
+        wrapper_construction["constructor_call"]["site"],
+        wrapper_construction["constructor_call"]["target"],
+        call=True, label="outer wrapper constructor call",
+    )
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, wrapper_construction["outer_store"]["site"]),
+        deps, deps["str"], deps["r5"], deps["r4"],
+        wrapper_construction["outer_store"]["offset"], "outer wrapper store",
+    )
+
+    wrapper_binding = expected["wrapper_event_manager_binding"]
+    _require_owner(exidx, wrapper_binding["owner"], "outer wrapper constructor")
+    _require_reg_to_reg(
+        _instruction(blob, mappings, deps, wrapper_binding["wrapper_capture_site"]),
+        deps, deps["mov"], deps["r5"], deps["r0"], "wrapper this capture",
+    )
+    _require_reg_to_reg(
+        _instruction(blob, mappings, deps, wrapper_binding["event_manager_capture_site"]),
+        deps, deps["mov"], deps["fp"], deps["r1"], "wrapper EventManager capture",
+    )
+    _require_register_unchanged(
+        _decode(
+            blob, mappings, deps,
+            wrapper_binding["preservation_segment"][0],
+            wrapper_binding["preservation_segment"][1], complete=False,
+        ),
+        deps["fp"], label="wrapper EventManager preservation",
+    )
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, wrapper_binding["event_manager_store"]["site"]),
+        deps, deps["str"], deps["fp"], deps["r5"],
+        wrapper_binding["event_manager_store"]["offset"], "wrapper EventManager store",
+    )
+
+    handoff = expected["utility_manager_wrapper_handoff"]
+    if handoff["handoff_body_range"] != {"start": 0x843096, "end": 0x8430AA}:
+        raise RuntimeError("UtilityManager handoff body range differs")
+    for site_key, destination, base, displacement, label in (
+        ("utility_manager_receiver_load_site", deps["r0"], deps["r4"], 0x14, "handoff AppConfig receiver load"),
+        ("vtable_load_site", deps["r3"], deps["r0"], 0, "handoff AppConfig vptr load"),
+        ("slot_load_site", deps["r3"], deps["r3"], utility_slot["offset"], "handoff UtilityManager slot load"),
+    ):
+        _require_unindexed_memory(
+            _instruction(blob, mappings, deps, handoff[site_key]),
+            deps, deps["ldr"], destination, base, displacement, label,
+        )
+    _require_indirect_call_register(
+        _instruction(blob, mappings, deps, handoff["slot_call_site"]),
+        deps, deps["r3"], "handoff UtilityManager slot call",
+    )
+    utility_result_segment = handoff["utility_manager_result_preservation_segment"]
+    _require_register_unchanged(
+        _decode(
+            blob, mappings, deps,
+            utility_result_segment[0], utility_result_segment[1], complete=False,
+        ),
+        deps["r0"], label="handoff UtilityManager result preservation",
+    )
+    handoff_event_argument = handoff["event_manager_argument_load"]
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, handoff_event_argument["site"]),
+        deps, deps["ldr"], deps["r1"], deps["r4"], handoff_event_argument["offset"],
+        "handoff EventManager argument load",
+    )
+    _require_register_unchanged(
+        _decode(
+            blob, mappings, deps,
+            handoff["event_manager_argument_preservation_segment"][0],
+            handoff["event_manager_argument_preservation_segment"][1], complete=False,
+        ),
+        deps["r1"], label="handoff EventManager argument preservation",
+    )
+    handoff_wrapper_argument = handoff["wrapper_argument_load"]
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, handoff_wrapper_argument["site"]),
+        deps, deps["ldr"], deps["r3"], deps["r4"], handoff_wrapper_argument["offset"],
+        "handoff wrapper argument load",
+    )
+    _require_register_unchanged(
+        _decode(
+            blob, mappings, deps,
+            handoff["wrapper_argument_preservation_segment"][0],
+            handoff["wrapper_argument_preservation_segment"][1], complete=False,
+        ),
+        deps["r3"], label="handoff wrapper argument preservation",
+    )
+    _require_direct_edge(
+        blob, mappings, deps,
+        handoff["handoff_call"]["site"], handoff["handoff_call"]["target"],
+        call=True, label="UtilityManager wrapper handoff call",
+    )
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, handoff["wrapper_store"]["site"]),
+        deps, deps["str"], deps["r3"], deps["r0"], handoff["wrapper_store"]["offset"],
+        "UtilityManager wrapper store",
+    )
+    _require_unindexed_memory(
+        _instruction(blob, mappings, deps, handoff["event_manager_store"]["site"]),
+        deps, deps["str"], deps["r1"], deps["r0"],
+        handoff["event_manager_store"]["offset"], "UtilityManager EventManager store",
+    )
+
     utility_load = expected["utility_manager_load"]
     _require_unindexed_memory(
         _instruction(blob, mappings, deps, utility_load["site"]),
@@ -1420,9 +2056,13 @@ def _validate_operation_38_queue_consumer_identity(elf, blob, mappings, deps, dy
     )
     if (
         expected["producer_receiver_steps"] != [
-            "utility_manager=load(app_config+0x10)",
-            "wrapper=load(utility_manager+0x0c)",
-            "producer_event_manager=load(wrapper+0x10)",
+            "outer_event_manager=load(outer+0x10)",
+            "wrapper=construct_with_event_manager(outer_event_manager)",
+            "store(wrapper+0x10=outer_event_manager)",
+            "utility_manager=load(unjoined outer+0x14)",
+            "store(utility_manager+0x0c=wrapper)",
+            "producer_wrapper=load(utility_manager+0x0c)",
+            "producer_event_manager=load(producer_wrapper+0x10)",
         ]
         or expected["consumer_receiver_steps"] != [
             "outer=thread_stack_frame+4",
@@ -1430,7 +2070,15 @@ def _validate_operation_38_queue_consumer_identity(elf, blob, mappings, deps, dy
         ]
         or expected["producer_receiver_expression_proven"] is not True
         or expected["consumer_receiver_expression_proven"] is not True
-        or expected["utility_manager_outer_backref_proven"] is not False
+        or expected["factory_result_to_outer_receiver_join_proven"] is not False
+        or expected["app_config_default_route_identity_join_proven"] is not False
+        or expected["non_app_config_route_identity_join_proven"] is not False
+        or expected["all_config_routes_identity_join_proven"] is not False
+        or expected["runtime_config_selector_resolved"] is not False
+        or EXPECTED_EXPORT["claims"]["app_config_default_route_queue_identity_proven"] is not False
+        or EXPECTED_EXPORT["claims"]["non_app_config_route_queue_identity_proven"] is not False
+        or EXPECTED_EXPORT["claims"]["all_config_routes_queue_identity_proven"] is not False
+        or EXPECTED_EXPORT["claims"]["runtime_config_selector_resolved"] is not False
         or expected["same_event_manager_instance_proven"] is not False
         or expected["operation_38_queue_to_consumer_identity_proven"] is not False
     ):
@@ -2213,7 +2861,11 @@ def write_export(document, output_root=OUTPUT_ROOT):
 
 def main():
     output = write_export(build_raw_export())
-    print("CREATIVE_STYLE_MODEL_REQUEST_TRANSPORT_EXPORT|typed=1|candidate=1|handler=0|sink=0|installable=0")
+    print(
+        "CREATIVE_STYLE_MODEL_REQUEST_TRANSPORT_EXPORT|typed=1|"
+        "selector_routes_bounded=1|conditional_identity=0|"
+        "runtime_selector=0|handler=0|sink=0|installable=0"
+    )
     print(output)
 
 

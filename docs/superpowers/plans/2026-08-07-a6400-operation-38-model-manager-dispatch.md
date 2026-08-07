@@ -126,7 +126,7 @@
 
 - [x] **Step 1: Update readiness and conclusion**
 
-  Use readiness `OPERATION_38_TAG_ZERO_QUEUE_NO_CONSUMER_IDENTITY`; state that exact tag 0 bypasses all three queue indirect callbacks, while receiver equality to the consumer loop is unproven. Describe the ModelManager request-event branch and model/CAMERA component only as bounded candidates until that join and key-7 record binding are proven.
+  Subsequent evidence refinement uses readiness `OPERATION_38_CONFIG_ROUTE_TO_PRODUCER_IDENTITY_UNRESOLVED`: exact tag 0 bypasses all three queue indirect callbacks, and both selector comparison ABIs and their AppConfig/non-AppConfig routes are bounded. No factory-result capture or store joins either route to the later producer/consumer EventManager dataflow, so all route identity claims remain false. The runtime BSS route selector remains unresolved, and ModelManager delivery plus the model/CAMERA key-7 record binding remain bounded candidates.
 
 - [x] **Step 2: Integrate only independently proven stronger results**
 

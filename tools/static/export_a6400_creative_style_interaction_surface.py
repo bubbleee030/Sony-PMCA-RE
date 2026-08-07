@@ -49,6 +49,7 @@ ARTIFACT_BASE = ROOT / ".artifacts"
 OUTPUT_ROOT = ARTIFACT_BASE / "creative-style-interaction-surface" / "a6400-v2.00"
 OUTPUT_NAME = "creative-style-interaction-surface-export.json"
 REPORT_PATH = ROOT / "analysis" / "a6400-creative-style-interaction-surface.json"
+LIBOBJ_SOURCE_PATH = SOURCE_PATH.with_name("libObj.so")
 
 
 def _require_mov_immediate(item, deps, register, value, label):
@@ -502,6 +503,111 @@ def _validate_field_0x14c_constructor_boundary(blob, mappings, deps, plt_symbols
     return copy.deepcopy(expected)
 
 
+def _needed_libraries(elf):
+    dynamic = elf.get_section_by_name(".dynamic")
+    if dynamic is None:
+        raise RuntimeError("dynamic dependency table is unavailable")
+    return [tag.needed for tag in dynamic.iter_tags() if tag.entry.d_tag == "DT_NEEDED"]
+
+
+def _validate_viewbase_constructor_candidate(
+    view_blob, view_mappings, view_elf, view_plt_symbols,
+    candidate_blob, candidate_mappings, candidate_elf, deps,
+):
+    """Pin an unbound libObj candidate without inferring Creative Style ownership."""
+    expected = EXPECTED_EXPORT["field_0x14c_constructor_boundary"]
+    imported = expected["viewbase_constructor_import"]
+    if (
+        imported["module"] != SOURCE["module"]
+        or _call_symbol(view_blob, view_mappings, deps, view_plt_symbols, imported["call_site"])
+        != imported["symbol"]
+        or _direct_target(_instruction(view_blob, view_mappings, deps, imported["call_site"]), deps)
+        != imported["branch_target"]
+        or _needed_libraries(view_elf) != imported["declared_dependencies"]
+        or imported["candidate_module_declared_dependency"] is not False
+        or imported["binding_proven"] is not False
+    ):
+        raise RuntimeError("ViewBase constructor import boundary differs")
+    view_dynsym = view_elf.get_section_by_name(".dynsym")
+    view_symbol = view_dynsym.get_symbol(imported["dynsym_index"])
+    view_relplt = list(view_elf.get_section_by_name(".rel.plt").iter_relocations())
+    view_relocation = view_relplt[imported["rel_plt_index"]]
+    if (
+        view_symbol.name != imported["symbol"]
+        or view_symbol["st_shndx"] != "SHN_UNDEF"
+        or imported["symbol_undefined"] is not True
+        or view_relocation["r_info_sym"] != imported["dynsym_index"]
+        or view_relocation["r_offset"] != imported["got"]
+        or view_relocation["r_info_type"] != imported["relocation_type"]
+    ):
+        raise RuntimeError("ViewBase constructor import relocation differs")
+
+    candidate = expected["libobj_candidate"]
+    source = candidate["source"]
+    if (
+        source["module"] != "lib/libObj.so"
+        or LIBOBJ_SOURCE_PATH.stat().st_size != source["size"]
+        or _sha256(LIBOBJ_SOURCE_PATH) != source["sha256"]
+    ):
+        raise RuntimeError("libObj candidate source identity differs")
+    candidate_dynsym = candidate_elf.get_section_by_name(".dynsym")
+    candidate_symbol = candidate_dynsym.get_symbol(candidate["dynsym_index"])
+    owner = candidate["owner"]
+    if (
+        candidate_symbol.name != candidate["symbol"]
+        or candidate_symbol["st_shndx"] == "SHN_UNDEF"
+        or candidate_symbol["st_value"] != candidate["symbol_entry"]
+        or candidate_symbol["st_size"] != owner["end"] - owner["start"]
+        or candidate["symbol_entry"] & ~1 != owner["start"]
+    ):
+        raise RuntimeError("libObj ViewBase constructor symbol differs")
+    items = _decode(candidate_blob, candidate_mappings, deps, owner["start"], owner["end"])
+    transfer = _instruction(candidate_blob, candidate_mappings, deps, candidate["receiver_transfer_site"])
+    if (
+        len(items) != owner["instruction_count"]
+        or transfer.id != deps["mov"]
+        or len(transfer.operands) != 2
+        or transfer.operands[0].type != deps["reg"]
+        or transfer.operands[0].reg != deps["r4"]
+        or transfer.operands[1].type != deps["reg"]
+        or transfer.operands[1].reg != deps["r0"]
+    ):
+        raise RuntimeError("libObj ViewBase constructor receiver transfer differs")
+    stores = {
+        f"0x{item.address:x}": operand.mem.disp
+        for item in items
+        if item.id in (deps["str"], deps["strb"])
+        for operand in item.operands
+        if operand.type == deps["mem"] and operand.mem.base == deps["r4"]
+    }
+    if (
+        stores != candidate["receiver_store_offsets"]
+        or candidate["direct_0x14c_store_found"] is not False
+        or 0x14C in stores.values()
+    ):
+        raise RuntimeError("libObj ViewBase constructor belt-store boundary differs")
+    first = candidate["first_plt_boundary"]
+    call = _instruction(candidate_blob, candidate_mappings, deps, first["call_site"])
+    candidate_relplt = list(candidate_elf.get_section_by_name(".rel.plt").iter_relocations())
+    relocation = candidate_relplt[first["rel_plt_index"]]
+    called_symbol = candidate_dynsym.get_symbol(relocation["r_info_sym"])
+    same_module = candidate_dynsym.get_symbol(first["dynsym_index"])
+    if (
+        not call.group(deps["call_group"])
+        or _direct_target(call, deps) != first["plt_target"]
+        or relocation["r_offset"] != first["got"]
+        or relocation["r_info_type"] != first["relocation_type"]
+        or relocation["r_info_sym"] != first["dynsym_index"]
+        or called_symbol.name != first["symbol"]
+        or same_module.name != first["symbol"]
+        or same_module["st_value"] != first["same_module_definition"]["entry"]
+        or same_module["st_size"] != first["same_module_definition"]["size"]
+        or first["binding_proven"] is not False
+    ):
+        raise RuntimeError("libObj ViewBase constructor PLT boundary differs")
+    return copy.deepcopy(expected)
+
+
 def _resolve_pc_string(blob, mappings, deps, record):
     load = _instruction(blob, mappings, deps, record["load_site"])
     add = _instruction(blob, mappings, deps, record["add_site"])
@@ -639,14 +745,20 @@ class ElfAdapter:
     def metadata(self):
         if not sources_available():
             raise RuntimeError("pinned viewUnified2 source is unavailable")
+        if not LIBOBJ_SOURCE_PATH.is_file() or LIBOBJ_SOURCE_PATH.is_symlink():
+            raise RuntimeError("pinned libObj candidate source is unavailable")
         before = _sha256(SOURCE_PATH)
+        candidate_before = _sha256(LIBOBJ_SOURCE_PATH)
         if SOURCE_PATH.stat().st_size != SOURCE["size"] or before != SOURCE["sha256"]:
             raise RuntimeError("pinned viewUnified2 source identity differs")
         blob = SOURCE_PATH.read_bytes()
+        candidate_blob = LIBOBJ_SOURCE_PATH.read_bytes()
         deps = _dependencies()
-        with SOURCE_PATH.open("rb") as handle:
+        with SOURCE_PATH.open("rb") as handle, LIBOBJ_SOURCE_PATH.open("rb") as candidate_handle:
             elf = deps["ELFFile"](handle)
+            candidate_elf = deps["ELFFile"](candidate_handle)
             mappings = _mappings(elf)
+            candidate_mappings = _mappings(candidate_elf)
             rels, by_site = _relocations(elf)
             dynsym = elf.get_section_by_name(".dynsym")
             plt_symbols = _plt_symbols(elf, blob, mappings)
@@ -661,10 +773,14 @@ class ElfAdapter:
             constructor_boundary = _validate_field_0x14c_constructor_boundary(
                 blob, mappings, deps, plt_symbols, exidx
             )
+            constructor_boundary = _validate_viewbase_constructor_candidate(
+                blob, mappings, elf, plt_symbols,
+                candidate_blob, candidate_mappings, candidate_elf, deps,
+            )
             navigation = _validate_navigation(blob, mappings, deps, plt_symbols, exidx)
             touchability = _validate_touchability(blob, mappings, deps, rels, by_site, dynsym, plt_symbols, exidx)
-        if _sha256(SOURCE_PATH) != before:
-            raise RuntimeError("pinned viewUnified2 source changed during export")
+        if _sha256(SOURCE_PATH) != before or _sha256(LIBOBJ_SOURCE_PATH) != candidate_before:
+            raise RuntimeError("pinned interaction source changed during export")
         document = copy.deepcopy(EXPECTED_EXPORT)
         document.update({
             "view_dispatcher": dispatcher,

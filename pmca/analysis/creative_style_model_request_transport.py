@@ -336,6 +336,211 @@ OPERATION_38_QUEUE_DISPATCH = {
 }
 
 OPERATION_38_QUEUE_CONSUMER_IDENTITY = {
+    "config_selector": {
+        "thread_buffer_literal_load_site": 0x8431A6,
+        "thread_buffer_add_site": 0x8431AC,
+        "buffer_address": 0x1424D78,
+        "storage_section": ".bss",
+        "selector_owner": {"start": 0x843C68, "end": 0x843CD8, "complete": True},
+        "outer_argument_preservation_segment": [0x843CD8, 0x843CEC],
+        "outer_factory_call": {"site": 0x843CEC, "target": 0x843C68},
+        "selector_input_capture_site": 0x843C70,
+        "selector_input_capture": {
+            "source_register": "r1", "captured_register": "r5",
+        },
+        "app_config_name": "AppConfig.so",
+        "app_config_name_address": 0x10027D7,
+        "app_config_literal_load_sites": [0x843C8C, 0x843CAA],
+        "app_config_literal_add_sites": [0x843C96, 0x843CB0],
+        "compare_call_sites": [0x843C9A, 0x843CB2],
+        "compare_argument_abi": {
+            "literal_register": "r0",
+            "selector_input_register": "r1",
+            "length_register": "r2",
+            "length": 20,
+            "input_forward_sites": [0x843C90, 0x843CAC],
+            "length_sites": [0x843C98, 0x843CAE],
+        },
+        "compare_routes": {
+            "initialize": {
+                "match_call_site": 0x843CA0,
+                "match_symbol": "initializeConfig",
+                "nonmatch_call_site": 0x843CA6,
+            },
+            "get_config": {
+                "match_offset_literal_site": 0x843CB8,
+                "match_symbol": "getConfig",
+                "nonmatch_offset_literal_site": 0x843CBC,
+            },
+        },
+        "first_nonmatch_branch": {"site": 0x843C9E, "target": 0x843CA6},
+        "initialize_call_site": 0x843CA0,
+        "second_nonmatch_branch": {"site": 0x843CB6, "target": 0x843CBC},
+        "get_config_got": {
+            "base_literal_site": 0x843C78,
+            "base_add_site": 0x843C7A,
+            "offset_literal_site": 0x843CB8,
+            "cell": 0x136FC9C,
+            "load_site": 0x843CBE,
+            "relocation": {
+                "section": ".rel.dyn", "index": 97137, "type": 21,
+                "symbol_index": 2136, "symbol": "getConfig",
+            },
+        },
+        "getter_dispatch_site": 0x843CC0,
+        "runtime_contents_resolved": False,
+        "runtime_app_config_route_selected": False,
+    },
+    "app_config_default_route": {
+        "initialize_symbol": "initializeConfig",
+        "initialize_default_definition": {"start": 0x3FD8C0, "end": 0x3FD8E8},
+        "get_config_symbol": "getConfig",
+        "get_config_default_definition": {"start": 0x3FD784, "end": 0x3FD794},
+        "constructor": {"start": 0x3FD794, "end": 0x3FD8C0},
+        "singleton_global": 0x13EF1C4,
+        "initialize_allocation_size_site": 0x3FD8C2,
+        "initialize_allocation_size": 0x18,
+        "initialize_allocation_call_site": 0x3FD8C6,
+        "initialize_result_capture_site": 0x3FD8CA,
+        "initialize_constructor_call": {"site": 0x3FD8CC, "target": 0x3FD794},
+        "initialize_global_store_site": 0x3FD8D4,
+        "get_config_global_load_site": 0x3FD78A,
+        "vtable_header_got_cell": 0x136DFB0,
+        "vtable_header_got_sites": {
+            "base_literal_site": 0x3FD798,
+            "base_add_site": 0x3FD7A2,
+            "offset_literal_site": 0x3FD7A0,
+            "load_site": 0x3FD7A8,
+            "address_point_add_site": 0x3FD7AE,
+            "store_site": 0x3FD7B0,
+        },
+        "vtable_header_relocation": {
+            "section": ".rel.dyn", "index": 64884, "type": 23,
+            "symbol_index": 0, "target": 0x133E3E0,
+        },
+        "vtable_address_point": 0x133E3E8,
+        "utility_manager_slot": {
+            "offset": 0x40, "cell": 0x133E428,
+            "relocation": {
+                "section": ".rel.dyn", "index": 37842, "type": 23,
+                "symbol_index": 0, "target": 0x3FD4F1,
+            },
+            "default_target": 0x3FD4F0,
+            "field_load": {"site": 0x3FD4F4, "offset": 0x10},
+        },
+        "utility_manager_initialize_slot": {
+            "offset": 0x50, "cell": 0x133E438,
+            "relocation": {
+                "section": ".rel.dyn", "index": 37846, "type": 23,
+                "symbol_index": 0, "target": 0x3FDA65,
+            },
+            "default_target": 0x3FDA64,
+            "outer_call_sites": [0x843D14, 0x843D16, 0x843D18, 0x843D1A],
+            "receiver_capture_site": 0x3FDA6A,
+            "field_store": {"site": 0x3FDAA0, "offset": 0x10},
+        },
+        "producer_initialize_slot": {
+            "offset": 0x54, "cell": 0x133E43C,
+            "relocation": {
+                "section": ".rel.dyn", "index": 37847, "type": 23,
+                "symbol_index": 0, "target": 0x3FD8E9,
+            },
+            "default_target": 0x3FD8E8,
+            "outer_call_sites": [0x843DBE, 0x843DC0, 0x843DC2, 0x843DC4],
+            "receiver_capture_site": 0x3FD8EC,
+        },
+    },
+    "non_app_config_route": {
+        "initialize_call": {"site": 0x843CA6, "target": 0x667BF4},
+        "initialize_owner": {"start": 0x667BF4, "end": 0x667C1C, "complete": True},
+        "allocation_size_site": 0x667BF6,
+        "allocation_size": 0x10,
+        "allocation_call_site": 0x667BFA,
+        "constructor_call": {"site": 0x667C00, "target": 0x667BD0},
+        "constructor_owner": {"start": 0x667BD0, "end": 0x667BF4, "complete": True},
+        "singleton_address": 0x13EFB98,
+        "singleton_store_site": 0x667C08,
+        "getter_owner": {"start": 0x667BA8, "end": 0x667BD0, "complete": True},
+        "getter_global_load_site": 0x667BC6,
+        "getter_got": {
+            "offset_literal_site": 0x843CBC,
+            "cell": 0x136E97C,
+            "load_site": 0x843CBE,
+            "relocation": {
+                "section": ".rel.dyn", "index": 65505, "type": 23,
+                "symbol_index": 0, "target": 0x667BC1,
+            },
+        },
+        "vtable_header_got_cell": 0x1372D78,
+        "vtable_header_relocation": {
+            "section": ".rel.dyn", "index": 69831, "type": 23,
+            "symbol_index": 0, "target": 0x134DD20,
+        },
+        "vtable_address_point": 0x134DD28,
+        "vtable_store_site": 0x667BE6,
+        "utility_manager_slot": {
+            "offset": 0x40, "cell": 0x134DD68,
+            "relocation": {
+                "section": ".rel.dyn", "index": 48371, "type": 23,
+                "symbol_index": 0, "target": 0x667761,
+            },
+            "default_target": 0x667760,
+            "owner": {"start": 0x6676C4, "end": 0x667778, "complete": True},
+            "field_load": {"site": 0x667764, "offset": 4},
+        },
+        "utility_manager_initialize_slot": {
+            "offset": 0x50, "cell": 0x134DD78,
+            "relocation": {
+                "section": ".rel.dyn", "index": 48375, "type": 23,
+                "symbol_index": 0, "target": 0x66796D,
+            },
+            "default_target": 0x66796C,
+            "owner": {"start": 0x66796C, "end": 0x6679B0, "complete": True},
+        },
+        "producer_initialize_slot": {
+            "offset": 0x54, "cell": 0x134DD7C,
+            "relocation": {
+                "section": ".rel.dyn", "index": 48376, "type": 23,
+                "symbol_index": 0, "target": 0x667C1D,
+            },
+            "default_target": 0x667C1C,
+            "owner": {"start": 0x667C1C, "end": 0x667CBC, "complete": True},
+        },
+        "default_producer_owner_reused": False,
+        "event_manager_identity_join_proven": False,
+    },
+    "outer_wrapper_construction": {
+        "allocation_size_site": 0x843D8C,
+        "allocation_size": 0x70,
+        "allocation_call_site": 0x843D8E,
+        "event_manager_argument_load": {"site": 0x843D94, "offset": 0x10},
+        "event_manager_argument_preservation_segment": [0x843D96, 0x843D9E],
+        "result_capture_site": 0x843D9C,
+        "constructor_call": {"site": 0x843D9E, "target": 0x845CA0},
+        "outer_store": {"site": 0x843DA4, "offset": 0},
+    },
+    "wrapper_event_manager_binding": {
+        "owner": {"start": 0x845CA0, "end": 0x845E00, "complete": True},
+        "wrapper_capture_site": 0x845CA8,
+        "event_manager_capture_site": 0x845CAA,
+        "event_manager_store": {"site": 0x845CFE, "offset": 0x10},
+        "preservation_segment": [0x845CAC, 0x845CFE],
+    },
+    "utility_manager_wrapper_handoff": {
+        "utility_manager_receiver_load_site": 0x843DA2,
+        "vtable_load_site": 0x843DA6,
+        "slot_load_site": 0x843DA8,
+        "slot_call_site": 0x843DAA,
+        "utility_manager_result_preservation_segment": [0x843DAC, 0x843DBA],
+        "event_manager_argument_load": {"site": 0x843DAE, "offset": 0x10},
+        "event_manager_argument_preservation_segment": [0x843DB0, 0x843DBA],
+        "wrapper_argument_load": {"site": 0x843DB6, "offset": 0},
+        "wrapper_argument_preservation_segment": [0x843DB8, 0x843DBA],
+        "handoff_call": {"site": 0x843DBA, "target": 0x843096},
+        "handoff_body_range": {"start": 0x843096, "end": 0x8430AA},
+        "wrapper_store": {"site": 0x84309A, "offset": 0x0C},
+        "event_manager_store": {"site": 0x84309E, "offset": 4},
+    },
     "producer_initialization_caller_owner": {
         "start": 0x3FD8E8, "end": 0x3FD9D4, "complete": True,
     },
@@ -364,9 +569,13 @@ OPERATION_38_QUEUE_CONSUMER_IDENTITY = {
     "queue_helper_owner": {"start": 0x8447F0, "end": 0x844800, "complete": True},
     "producer_receiver_load": {"site": 0x8447F6, "offset": 0x10},
     "producer_receiver_steps": [
-        "utility_manager=load(app_config+0x10)",
-        "wrapper=load(utility_manager+0x0c)",
-        "producer_event_manager=load(wrapper+0x10)",
+        "outer_event_manager=load(outer+0x10)",
+        "wrapper=construct_with_event_manager(outer_event_manager)",
+        "store(wrapper+0x10=outer_event_manager)",
+        "utility_manager=load(unjoined outer+0x14)",
+        "store(utility_manager+0x0c=wrapper)",
+        "producer_wrapper=load(utility_manager+0x0c)",
+        "producer_event_manager=load(producer_wrapper+0x10)",
     ],
     "thread_owner": {"start": 0x84319C, "end": 0x84320C, "complete": True},
     "outer_constructor_argument_site": 0x8431A8,
@@ -408,10 +617,14 @@ OPERATION_38_QUEUE_CONSUMER_IDENTITY = {
     },
     "producer_receiver_expression_proven": True,
     "consumer_receiver_expression_proven": True,
-    "utility_manager_outer_backref_proven": False,
+    "factory_result_to_outer_receiver_join_proven": False,
+    "app_config_default_route_identity_join_proven": False,
+    "non_app_config_route_identity_join_proven": False,
+    "all_config_routes_identity_join_proven": False,
+    "runtime_config_selector_resolved": False,
     "same_event_manager_instance_proven": False,
     "operation_38_queue_to_consumer_identity_proven": False,
-    "classification": "distinct-producer-consumer-receiver-expressions-no-equality-join",
+    "classification": "config-route-to-producer-identity-unresolved",
 }
 
 MODEL_MANAGER_REQUEST_EVENT_CANDIDATE = {
@@ -547,6 +760,10 @@ CLAIMS = {
     "operation_38_indirect_queue_callbacks_bypassed": True,
     "producer_receiver_expression_proven": True,
     "consumer_receiver_expression_proven": True,
+    "app_config_default_route_queue_identity_proven": False,
+    "non_app_config_route_queue_identity_proven": False,
+    "all_config_routes_queue_identity_proven": False,
+    "runtime_config_selector_resolved": False,
     "operation_38_queue_to_consumer_identity_proven": False,
     "model_manager_request_event_branch_found": True,
     "operation_38_reaches_model_manager_dispatch": False,
@@ -608,7 +825,7 @@ EXPECTED_EXPORT = {
     "truncated": False,
 }
 
-READINESS = "OPERATION_38_TAG_ZERO_QUEUE_NO_CONSUMER_IDENTITY"
+READINESS = "OPERATION_38_CONFIG_ROUTE_TO_PRODUCER_IDENTITY_UNRESOLVED"
 CONCLUSION = (
     "The typed CustomCreativeStyle setter emits an exact @M00B operation-38 request with five parameters. "
     "Its local wrapper preserves code 38 and the ParamList through a bounded dispatcher; unsigned gate "
@@ -617,12 +834,17 @@ CONCLUSION = (
     "numeric result reaches Event key 7, while the operation code passes through a separate opaque mapper "
     "before key 8. The builder fixes Event ID 0x11004003, destination 2, and queue tag 0, then forwards the "
     "Event to EventManager::push with boolean true. Tag 0 bypasses all three indirect push callbacks and "
-    "takes the direct queue-zero path. The producer receiver is derived through a UtilityManager wrapper, "
-    "whereas the consumer loop uses the thread-local outer object's EventManager; no static equality join "
-    "between them is proven. A matching ModelManager request-Event branch, key-7 lookup, and generic executor "
-    "virtual boundary are bounded candidates only. Literal 38 in key 8, the numeric key-7 ID, operation-38 "
-    "delivery to that consumer, a concrete model record or handler, renderer/live-view, still-JPEG, movie, "
-    "Creative Look equivalence, runtime behavior, and installability remain unproven."
+    "takes the direct queue-zero path. The AppConfig default route and non-AppConfig selector branches, including both "
+    "strncmp ABIs (captured selector input, AppConfig.so literal, and length 20), are statically bounded. "
+    "However, no factory-result capture or store joins either selector result to the outer receiver used by the "
+    "wrapper/UtilityManager handoff, so neither route proves the producer wrapper's EventManager equals the "
+    "consumer's thread-local outer+0x10 EventManager. The non-AppConfig route constructs a separate generic "
+    "singleton with a distinct generic vtable, including different +0x40, +0x50, and +0x54 targets; it does not "
+    "reuse the default producer owner. The route name itself comes from unresolved runtime BSS, so the runtime "
+    "selector and unconditional operation-38 delivery to that consumer remain unproven. A matching ModelManager request-Event "
+    "branch, key-7 lookup, and generic executor virtual boundary are bounded candidates only. Literal 38 in key 8, "
+    "the numeric key-7 ID, a concrete model record or handler, renderer/live-view, still-JPEG, movie, Creative Look "
+    "equivalence, runtime behavior, and installability remain unproven."
 )
 
 _SHA = re.compile(r"[0-9a-f]{64}\Z")
@@ -670,6 +892,10 @@ def normalize_creative_style_model_request_transport_export(document):
         "original_model_identity_preserved",
         "literal_operation_38_event_field_proven",
         "operation_38_queue_to_consumer_identity_proven",
+        "app_config_default_route_queue_identity_proven",
+        "non_app_config_route_queue_identity_proven",
+        "all_config_routes_queue_identity_proven",
+        "runtime_config_selector_resolved",
         "operation_38_reaches_model_manager_dispatch",
         "concrete_model_record_found",
         "concrete_model_executor_handler_found",
@@ -693,6 +919,7 @@ def summarize_creative_style_model_request_transport_export(document):
         "fixed_event_header_count": 1,
         "tag_zero_queue_path_count": 1,
         "shared_request_queue_join_count": 1,
+        "conditional_default_route_queue_identity_join_count": 0,
         "queue_to_consumer_identity_join_count": 0,
         "model_manager_request_event_candidate_count": 1,
         "indirect_queue_call_count": export["event_queue_boundary"]["indirect_call_count"],

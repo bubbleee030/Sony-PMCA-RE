@@ -188,6 +188,18 @@ def _require_indirect_call_register(blob, mappings, deps, site, register, label)
         raise RuntimeError(label + " indirect call differs")
 
 
+def _require_pop_pc_return(blob, mappings, deps, site, label):
+    item = _instruction(blob, mappings, deps, site)
+    if (
+        item.id != deps["pop"]
+        or not item.operands
+        or any(operand.type != deps["reg"] for operand in item.operands)
+        or item.operands[-1].reg != deps["pc"]
+        or sum(operand.reg == deps["pc"] for operand in item.operands) != 1
+    ):
+        raise RuntimeError(label + " return control differs")
+
+
 def _require_ascii_at(blob, mappings, address, value, label):
     encoded = value.encode("ascii") + b"\0"
     if _at(blob, mappings, address, len(encoded)) != encoded:
@@ -218,6 +230,39 @@ def _require_call_symbol(blob, mappings, deps, plt_symbols, site, symbol, label)
     item = _instruction(blob, mappings, deps, site)
     if not item.group(deps["call_group"]) or plt_symbols.get(_direct_target(item, deps)) != symbol:
         raise RuntimeError(label + " relocation/symbol binding differs")
+
+
+def _require_dynsym_exact(obj, contract, label):
+    symbol = obj["dynsym"].get_symbol(contract["dynsym_index"])
+    if (
+        symbol.name != contract["name"]
+        or symbol["st_value"] != contract["address"]
+        or symbol["st_shndx"] == "SHN_UNDEF"
+    ):
+        raise RuntimeError(label + " dynamic symbol differs")
+
+
+def _require_bss_address(obj, address, label):
+    section = obj["elf"].get_section_by_name(".bss")
+    if section is None or not section["sh_addr"] <= address < section["sh_addr"] + section["sh_size"]:
+        raise RuntimeError(label + " BSS address differs")
+
+
+def _require_thumb_pic_pointer(blob, mappings, deps, load_site, add_site, register, address, label):
+    load = _instruction(blob, mappings, deps, load_site)
+    cell = _transport._thumb_literal_address(load, deps, register, label + " literal")
+    add = _instruction(blob, mappings, deps, add_site)
+    if (
+        add.id != deps["add"]
+        or len(add.operands) != 2
+        or add.operands[0].type != deps["reg"]
+        or add.operands[0].reg != register
+        or add.operands[1].type != deps["reg"]
+        or add.operands[1].reg != deps["pc"]
+        or add.writeback
+        or ((_word(blob, mappings, cell) + add.address + 4) & 0xFFFFFFFF) != address
+    ):
+        raise RuntimeError(label + " PIC pointer differs")
 
 
 def _plt_symbols(elf, blob, mappings):
@@ -432,6 +477,855 @@ def _validate_modelcamera(obj, deps):
     return copy.deepcopy(expected)
 
 
+def _validate_default_route_descriptor_provider(obj, deps):
+    expected = EXPECTED_EXPORT["default_route_descriptor_provider"]
+    condition = expected["condition"]
+    if condition != {"selector": "AppConfig.so", "runtime_selector_resolved": False}:
+        raise RuntimeError("default descriptor-provider condition differs")
+
+    constructor = expected["app_config_constructor"]
+    resolver = expected["model_config_resolver"]
+    _require_owner(obj["exidx"], constructor["owner"], "AppConfig constructor")
+    model_config_store = constructor["model_config_store"]
+    _require_direct_target(
+        obj["blob"], obj["mappings"], deps, model_config_store["resolver_call_site"],
+        resolver["owner"]["start"], "AppConfig ModelConfig resolver result", True,
+    )
+    resolver_call = _instruction(
+        obj["blob"], obj["mappings"], deps, model_config_store["resolver_call_site"]
+    )
+    if resolver_call.address + resolver_call.size != model_config_store["site"]:
+        raise RuntimeError("AppConfig ModelConfig resolver result is not stored directly")
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, model_config_store["site"],
+        deps["str"], deps["r0"], deps["r4"], model_config_store["offset"],
+        "AppConfig ModelConfig store",
+    )
+    app_vtable = constructor["vtable"]
+    vtable_sites = app_vtable["header_got_sites"]
+    resolved_vtable_cell = _transport._resolve_thumb_got_cell(
+        obj["blob"], obj["mappings"], deps,
+        vtable_sites["base_literal_site"], vtable_sites["base_add_site"],
+        vtable_sites["offset_literal_site"], "AppConfig vtable header",
+        base_register=deps["r5"],
+    )
+    if (
+        resolved_vtable_cell != app_vtable["header_got_cell"]
+        or app_vtable["address_point"] != app_vtable["header"] + 8
+    ):
+        raise RuntimeError("AppConfig constructed vtable geometry differs")
+    _require_rel_dyn(
+        obj, app_vtable["header_relocation_index"], app_vtable["header_got_cell"], 23, 0,
+        app_vtable["header"], "AppConfig constructed vtable header",
+    )
+    vtable_load = _instruction(
+        obj["blob"], obj["mappings"], deps, vtable_sites["load_site"]
+    )
+    if (
+        vtable_load.id != deps["ldr"]
+        or len(vtable_load.operands) != 2
+        or vtable_load.operands[0].type != deps["reg"]
+        or vtable_load.operands[0].reg != deps["r3"]
+        or vtable_load.operands[1].type != deps["mem"]
+        or vtable_load.operands[1].mem.base != deps["r5"]
+        or vtable_load.operands[1].mem.index != deps["r3"]
+        or vtable_load.operands[1].mem.disp != 0
+        or vtable_load.writeback
+    ):
+        raise RuntimeError("AppConfig constructed vtable load differs")
+    address_point_add = _instruction(
+        obj["blob"], obj["mappings"], deps, vtable_sites["address_point_add_site"]
+    )
+    if (
+        address_point_add.id != deps["add"]
+        or len(address_point_add.operands) != 2
+        or address_point_add.operands[0].type != deps["reg"]
+        or address_point_add.operands[0].reg != deps["r3"]
+        or address_point_add.operands[1].type != deps["imm"]
+        or address_point_add.operands[1].imm != 8
+    ):
+        raise RuntimeError("AppConfig constructed vtable address point differs")
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, vtable_sites["store_site"], deps["str"],
+        deps["r3"], deps["r4"], 0, "AppConfig constructed vptr store",
+    )
+    _require_owner(obj["exidx"], resolver["owner"], "ModelConfig resolver")
+    if resolver["module"] != "libObj.so" or resolver["symbols"] != [
+        "initializeModelConfig", "getModelConfig"
+    ]:
+        raise RuntimeError("ModelConfig resolver names differ")
+    _require_call_symbol(
+        obj["blob"], obj["mappings"], deps, obj["plt"], resolver["dlopen_call"]["site"],
+        resolver["dlopen_call"]["symbol"], "ModelConfig resolver dlopen",
+    )
+    for site in resolver["dlsym_calls"]:
+        _require_call_symbol(
+            obj["blob"], obj["mappings"], deps, obj["plt"], site, "dlsym",
+            "ModelConfig resolver dlsym",
+        )
+    for site in resolver["constructor_calls"]:
+        _require_direct_target(
+            obj["blob"], obj["mappings"], deps, site, resolver["owner"]["start"],
+            "AppConfig ModelConfig resolver", True,
+        )
+    model_config_call = resolver["model_config_call"]
+    if model_config_call["site"] != model_config_store["resolver_call_site"]:
+        raise RuntimeError("AppConfig ModelConfig resolver call identity differs")
+    for field, value in (("module", "libObj.so"), ("initialize", "initializeModelConfig"), ("get", "getModelConfig")):
+        argument = model_config_call["arguments"][field]
+        _require_thumb_pic_pointer(
+            obj["blob"], obj["mappings"], deps, argument["load_site"], argument["add_site"],
+            deps[argument["register"]], argument["address"], "ModelConfig resolver " + field,
+        )
+        _require_ascii_at(
+            obj["blob"], obj["mappings"], argument["address"], value,
+            "ModelConfig resolver " + field,
+        )
+    handle_argument = model_config_call["arguments"]["handle_slot"]
+    _require_thumb_pic_pointer(
+        obj["blob"], obj["mappings"], deps,
+        handle_argument["load_site"], handle_argument["add_site"],
+        deps[handle_argument["register"]], handle_argument["address"],
+        "ModelConfig resolver handle slot",
+    )
+    _require_bss_address(obj, handle_argument["address"], "ModelConfig resolver handle slot")
+    for field, preservation in model_config_call["pic_argument_preservation"].items():
+        argument = model_config_call["arguments"][field]
+        argument_load = _instruction(obj["blob"], obj["mappings"], deps, argument["load_site"])
+        if (
+            argument_load.address + argument_load.size != preservation["start"]
+            or preservation["end"] != argument["add_site"]
+            or preservation["register"] != argument["register"]
+        ):
+            raise RuntimeError("ModelConfig resolver caller " + field + " PIC span differs")
+        _transport._require_register_unchanged(
+            _decode_range(
+                obj["blob"], obj["mappings"], deps,
+                preservation["start"], preservation["end"],
+            ),
+            deps[preservation["register"]],
+            label="ModelConfig resolver caller " + field + " PIC preservation",
+        )
+    adjacent_field = model_config_call["pic_adjacent_argument"]
+    adjacent_argument = model_config_call["arguments"][adjacent_field]
+    adjacent_load = _instruction(
+        obj["blob"], obj["mappings"], deps, adjacent_argument["load_site"]
+    )
+    if adjacent_load.address + adjacent_load.size != adjacent_argument["add_site"]:
+        raise RuntimeError("ModelConfig resolver caller adjacent PIC handoff differs")
+    for field, preservation in model_config_call["argument_preservation"].items():
+        argument = model_config_call["arguments"][field]
+        argument_add = _instruction(obj["blob"], obj["mappings"], deps, argument["add_site"])
+        if (
+            argument_add.address + argument_add.size != preservation["start"]
+            or preservation["end"] != model_config_call["site"]
+            or preservation["register"] != argument["register"]
+        ):
+            raise RuntimeError("ModelConfig resolver caller " + field + " span differs")
+        _transport._require_register_unchanged(
+            _decode_range(
+                obj["blob"], obj["mappings"], deps,
+                preservation["start"], preservation["end"],
+            ),
+            deps[preservation["register"]],
+            label="ModelConfig resolver caller " + field + " preservation",
+        )
+    get_argument = model_config_call["arguments"]["get"]
+    get_argument_add = _instruction(
+        obj["blob"], obj["mappings"], deps, get_argument["add_site"]
+    )
+    if get_argument_add.address + get_argument_add.size != model_config_call["site"]:
+        raise RuntimeError("ModelConfig resolver caller get handoff differs")
+    for symbol_key, label in (("initialize", "initializeModelConfig"), ("get", "getModelConfig")):
+        _require_dynsym_exact(obj, expected["model_config_symbols"][symbol_key], label)
+    _require_bss_address(obj, expected["model_config_singleton"], "ModelConfig singleton")
+
+    initialize_callable = resolver["initialize_callable"]
+    get_callable = resolver["get_callable"]
+    handle_flow = resolver["handle_flow"]
+    entry_consumers = {
+        "module": resolver["dlopen_call"]["site"],
+        "initialize": initialize_callable["symbol_capture"]["site"],
+        "get": get_callable["symbol_capture"]["site"],
+        "handle_slot": handle_flow["slot_capture"]["site"],
+    }
+    for field, preservation in resolver["entry_argument_preservation"].items():
+        if (
+            preservation["start"] != resolver["owner"]["start"]
+            or preservation["end"] != entry_consumers[field]
+            or preservation["register"] != model_config_call["arguments"][field]["register"]
+        ):
+            raise RuntimeError("ModelConfig resolver entry " + field + " span differs")
+        _transport._require_register_unchanged(
+            _decode_range(
+                obj["blob"], obj["mappings"], deps,
+                preservation["start"], preservation["end"],
+            ),
+            deps[preservation["register"]],
+            label="ModelConfig resolver entry " + field + " preservation",
+        )
+    dlopen_flags = resolver["dlopen_flags"]
+    _require_mov_immediate(
+        obj["blob"], obj["mappings"], deps, dlopen_flags["site"],
+        deps[dlopen_flags["register"]], dlopen_flags["value"],
+        "ModelConfig resolver dlopen flags",
+    )
+    flags_item = _instruction(obj["blob"], obj["mappings"], deps, dlopen_flags["site"])
+    flags_preservation = dlopen_flags["preservation"]
+    if (
+        flags_item.address + flags_item.size != flags_preservation["start"]
+        or flags_preservation["end"] != resolver["dlopen_call"]["site"]
+        or flags_preservation["register"] != dlopen_flags["register"]
+    ):
+        raise RuntimeError("ModelConfig resolver dlopen flags span differs")
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            flags_preservation["start"], flags_preservation["end"],
+        ),
+        deps[flags_preservation["register"]],
+        label="ModelConfig resolver dlopen flags preservation",
+    )
+
+    slot_capture = handle_flow["slot_capture"]
+    _require_move(
+        obj["blob"], obj["mappings"], deps, slot_capture["site"],
+        deps[slot_capture["destination"]], deps[slot_capture["source"]],
+        "ModelConfig resolver handle-slot capture",
+    )
+    slot_capture_item = _instruction(
+        obj["blob"], obj["mappings"], deps, slot_capture["site"]
+    )
+    slot_to_store = handle_flow["slot_base_to_store_preservation"]
+    if (
+        slot_capture_item.address + slot_capture_item.size != slot_to_store["start"]
+        or slot_to_store["end"] != handle_flow["slot_store"]["site"]
+        or slot_to_store["register"] != slot_capture["destination"]
+    ):
+        raise RuntimeError("ModelConfig resolver handle-slot/store span differs")
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            slot_to_store["start"], slot_to_store["end"],
+        ),
+        deps[slot_to_store["register"]],
+        label="ModelConfig resolver handle-slot preservation to store",
+    )
+
+    dlopen_result_capture = handle_flow["dlopen_result_capture"]
+    dlopen_call_item = _instruction(
+        obj["blob"], obj["mappings"], deps, resolver["dlopen_call"]["site"]
+    )
+    if dlopen_call_item.address + dlopen_call_item.size != dlopen_result_capture["site"]:
+        raise RuntimeError("ModelConfig resolver dlopen result capture is not direct")
+    _require_move(
+        obj["blob"], obj["mappings"], deps, dlopen_result_capture["site"],
+        deps[dlopen_result_capture["destination"]], deps[dlopen_result_capture["source"]],
+        "ModelConfig resolver dlopen result capture",
+    )
+    slot_store = handle_flow["slot_store"]
+    dlopen_capture_item = _instruction(
+        obj["blob"], obj["mappings"], deps, dlopen_result_capture["site"]
+    )
+    if dlopen_capture_item.address + dlopen_capture_item.size != slot_store["site"]:
+        raise RuntimeError("ModelConfig resolver dlopen result store is not direct")
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, slot_store["site"], deps["str"],
+        deps[slot_store["source"]], deps[slot_store["base"]], slot_store["offset"],
+        "ModelConfig resolver handle-slot store",
+    )
+
+    dlopen_success = resolver["dlopen_success_branch"]
+    dlopen_result_preservation = handle_flow["dlopen_result_preservation"]
+    slot_store_item = _instruction(obj["blob"], obj["mappings"], deps, slot_store["site"])
+    if (
+        dlopen_result_preservation["start"] != dlopen_result_capture["site"]
+        or dlopen_result_preservation["end"] != dlopen_success["site"]
+        or dlopen_result_preservation["register"] != dlopen_success["register"]
+        or slot_store_item.address + slot_store_item.size != dlopen_success["site"]
+    ):
+        raise RuntimeError("ModelConfig resolver dlopen result span differs")
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            dlopen_result_preservation["start"], dlopen_result_preservation["end"],
+        ),
+        deps[dlopen_result_preservation["register"]],
+        label="ModelConfig resolver dlopen result preservation",
+    )
+    _transport._require_cbnz(
+        _instruction(obj["blob"], obj["mappings"], deps, dlopen_success["site"]),
+        deps, deps[dlopen_success["register"]], dlopen_success["target"],
+        "ModelConfig resolver dlopen success branch",
+    )
+    initialize_symbol_capture = initialize_callable["symbol_capture"]
+    _require_move(
+        obj["blob"], obj["mappings"], deps, initialize_symbol_capture["site"],
+        deps[initialize_symbol_capture["destination"]], deps[initialize_symbol_capture["source"]],
+        "initializeModelConfig symbol capture",
+    )
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            initialize_symbol_capture["site"] + _instruction(
+                obj["blob"], obj["mappings"], deps, initialize_symbol_capture["site"]
+            ).size,
+            dlopen_success["site"],
+        ),
+        deps[initialize_symbol_capture["destination"]],
+        label="initializeModelConfig symbol preservation",
+    )
+    initialize_dlsym_argument = initialize_callable["dlsym_argument"]
+    if initialize_dlsym_argument["site"] != dlopen_success["target"]:
+        raise RuntimeError("initializeModelConfig dlsym is not on the dlopen success path")
+    _require_move(
+        obj["blob"], obj["mappings"], deps, initialize_dlsym_argument["site"],
+        deps[initialize_dlsym_argument["destination"]], deps[initialize_dlsym_argument["source"]],
+        "initializeModelConfig dlsym argument",
+    )
+    initialize_argument_item = _instruction(
+        obj["blob"], obj["mappings"], deps, initialize_dlsym_argument["site"]
+    )
+    if initialize_argument_item.address + initialize_argument_item.size != initialize_callable["dlsym_call"]["site"]:
+        raise RuntimeError("initializeModelConfig dlsym handle/argument handoff differs")
+    _require_call_symbol(
+        obj["blob"], obj["mappings"], deps, obj["plt"],
+        initialize_callable["dlsym_call"]["site"], initialize_callable["dlsym_call"]["symbol"],
+        "initializeModelConfig dlsym",
+    )
+    initialize_success = initialize_callable["success_branch"]
+    initialize_result_preservation = initialize_callable["result_preservation"]
+    initialize_dlsym_item = _instruction(
+        obj["blob"], obj["mappings"], deps, initialize_callable["dlsym_call"]["site"]
+    )
+    if (
+        initialize_dlsym_item.address + initialize_dlsym_item.size
+        != initialize_result_preservation["start"]
+        or initialize_result_preservation["end"] != initialize_success["site"]
+        or initialize_result_preservation["register"] != initialize_success["register"]
+    ):
+        raise RuntimeError("initializeModelConfig dlsym result span differs")
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            initialize_result_preservation["start"], initialize_result_preservation["end"],
+        ),
+        deps[initialize_result_preservation["register"]],
+        label="initializeModelConfig dlsym result preservation",
+    )
+    _transport._require_cbnz(
+        _instruction(obj["blob"], obj["mappings"], deps, initialize_success["site"]),
+        deps, deps[initialize_success["register"]], initialize_success["target"],
+        "initializeModelConfig callable success branch",
+    )
+    initialize_call = initialize_callable["call"]
+    if initialize_call["site"] != initialize_success["target"]:
+        raise RuntimeError("initializeModelConfig callable branch/call identity differs")
+    _require_indirect_call_register(
+        obj["blob"], obj["mappings"], deps, initialize_call["site"],
+        deps[initialize_call["target_register"]], "initializeModelConfig callable",
+    )
+
+    slot_base_spans = handle_flow["success_path_slot_base_preservation"]
+    slot_reload = handle_flow["slot_reload"]
+    expected_slot_base_spans = (
+        (dlopen_success["target"], initialize_success["site"]),
+        (initialize_success["target"], slot_reload["site"]),
+    )
+    if len(slot_base_spans) != len(expected_slot_base_spans):
+        raise RuntimeError("ModelConfig resolver handle-slot success spans differ")
+    for preservation, (start, end) in zip(slot_base_spans, expected_slot_base_spans):
+        if (
+            preservation["start"] != start
+            or preservation["end"] != end
+            or preservation["register"] != slot_capture["destination"]
+        ):
+            raise RuntimeError("ModelConfig resolver handle-slot success span differs")
+        _transport._require_register_unchanged(
+            _decode_range(
+                obj["blob"], obj["mappings"], deps,
+                preservation["start"], preservation["end"],
+            ),
+            deps[preservation["register"]],
+            label="ModelConfig resolver handle-slot success-path preservation",
+        )
+    initialize_call_item = _instruction(
+        obj["blob"], obj["mappings"], deps, initialize_call["site"]
+    )
+    if initialize_call_item.address + initialize_call_item.size != slot_reload["site"]:
+        raise RuntimeError("ModelConfig resolver handle reload is not after initialization")
+    if (
+        slot_reload["base"] != slot_store["base"]
+        or slot_reload["offset"] != slot_store["offset"]
+        or slot_reload["destination"] != dlopen_result_capture["source"]
+    ):
+        raise RuntimeError("ModelConfig resolver handle store/reload identity differs")
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, slot_reload["site"], deps["ldr"],
+        deps[slot_reload["destination"]], deps[slot_reload["base"]], slot_reload["offset"],
+        "ModelConfig resolver handle-slot reload",
+    )
+
+    symbol_capture = get_callable["symbol_capture"]
+    _require_move(
+        obj["blob"], obj["mappings"], deps, symbol_capture["site"],
+        deps[symbol_capture["destination"]], deps[symbol_capture["source"]],
+        "getModelConfig symbol capture",
+    )
+    dlsym_argument = get_callable["dlsym_argument"]
+    for start, end in (
+        (
+            symbol_capture["site"] + _instruction(
+                obj["blob"], obj["mappings"], deps, symbol_capture["site"]
+            ).size,
+            dlopen_success["site"],
+        ),
+        (dlopen_success["target"], initialize_success["site"]),
+        (initialize_success["target"], dlsym_argument["site"]),
+    ):
+        _transport._require_register_unchanged(
+            _decode_range(obj["blob"], obj["mappings"], deps, start, end),
+            deps[symbol_capture["destination"]],
+            label="getModelConfig symbol preservation on resolver success path",
+        )
+    _require_move(
+        obj["blob"], obj["mappings"], deps, dlsym_argument["site"],
+        deps[dlsym_argument["destination"]], deps[dlsym_argument["source"]],
+        "getModelConfig dlsym argument",
+    )
+    slot_reload_item = _instruction(
+        obj["blob"], obj["mappings"], deps, slot_reload["site"]
+    )
+    dlsym_argument_item = _instruction(
+        obj["blob"], obj["mappings"], deps, dlsym_argument["site"]
+    )
+    if (
+        slot_reload_item.address + slot_reload_item.size != dlsym_argument["site"]
+        or dlsym_argument_item.address + dlsym_argument_item.size != get_callable["dlsym_call"]["site"]
+    ):
+        raise RuntimeError("getModelConfig dlsym handle/argument handoff differs")
+    _require_call_symbol(
+        obj["blob"], obj["mappings"], deps, obj["plt"],
+        get_callable["dlsym_call"]["site"], get_callable["dlsym_call"]["symbol"],
+        "getModelConfig dlsym",
+    )
+    success_branch = get_callable["success_branch"]
+    get_result_preservation = get_callable["result_preservation"]
+    get_dlsym_item = _instruction(
+        obj["blob"], obj["mappings"], deps, get_callable["dlsym_call"]["site"]
+    )
+    if (
+        get_dlsym_item.address + get_dlsym_item.size != get_result_preservation["start"]
+        or get_result_preservation["end"] != success_branch["site"]
+        or get_result_preservation["register"] != success_branch["register"]
+    ):
+        raise RuntimeError("getModelConfig dlsym result span differs")
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            get_result_preservation["start"], get_result_preservation["end"],
+        ),
+        deps[get_result_preservation["register"]],
+        label="getModelConfig dlsym result preservation",
+    )
+    _transport._require_cbnz(
+        _instruction(obj["blob"], obj["mappings"], deps, success_branch["site"]),
+        deps, deps[success_branch["register"]], success_branch["target"],
+        "getModelConfig callable success branch",
+    )
+    get_call = get_callable["call"]
+    if get_call["site"] != success_branch["target"]:
+        raise RuntimeError("getModelConfig callable branch/call identity differs")
+    _require_indirect_call_register(
+        obj["blob"], obj["mappings"], deps, get_call["site"],
+        deps[get_call["target_register"]], "getModelConfig callable",
+    )
+    get_return = get_callable["return"]
+    get_call_item = _instruction(obj["blob"], obj["mappings"], deps, get_call["site"])
+    if get_call_item.address + get_call_item.size != get_return["site"]:
+        raise RuntimeError("getModelConfig callable result is not returned directly")
+    if get_return["control"] != "pop-pc":
+        raise RuntimeError("getModelConfig resolver return contract differs")
+    _require_pop_pc_return(
+        obj["blob"], obj["mappings"], deps, get_return["site"],
+        "getModelConfig resolver",
+    )
+    _transport._require_register_unchanged(
+        [_instruction(obj["blob"], obj["mappings"], deps, get_return["site"])],
+        deps[get_return["register"]], label="getModelConfig resolver return",
+    )
+
+    lifecycle = expected["model_config_singleton_lifecycle"]
+    initialize = lifecycle["initialize"]
+    model_constructor = lifecycle["constructor"]
+    singleton_get = lifecycle["get"]
+    _require_owner(obj["exidx"], initialize["owner"], "initializeModelConfig")
+    _require_owner(obj["exidx"], model_constructor["owner"], "ModelConfig constructor")
+    _require_owner(obj["exidx"], singleton_get["owner"], "getModelConfig")
+    allocation_capture = initialize["allocation_result_capture"]
+    _require_move(
+        obj["blob"], obj["mappings"], deps, allocation_capture["site"],
+        deps[allocation_capture["destination"]], deps[allocation_capture["source"]],
+        "ModelConfig allocation result capture",
+    )
+    allocation_capture_item = _instruction(
+        obj["blob"], obj["mappings"], deps, allocation_capture["site"]
+    )
+    if allocation_capture_item.address + allocation_capture_item.size != initialize["constructor_call"]["site"]:
+        raise RuntimeError("ModelConfig allocation is not passed directly to its constructor")
+    _require_direct_target(
+        obj["blob"], obj["mappings"], deps, initialize["constructor_call"]["site"],
+        initialize["constructor_call"]["target"], "ModelConfig constructor", True,
+    )
+    singleton_address = initialize["singleton_address"]
+    if _transport._resolve_thumb_pc_relative_address(
+        obj["blob"], obj["mappings"], deps, singleton_address["load_site"],
+        singleton_address["add_site"], deps[singleton_address["register"]],
+        "initializeModelConfig singleton",
+    ) != singleton_address["address"] or singleton_address["address"] != expected["model_config_singleton"]:
+        raise RuntimeError("initializeModelConfig singleton address differs")
+    singleton_store = initialize["singleton_store"]
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            initialize["constructor_call"]["site"], singleton_store["site"],
+        ),
+        deps[singleton_store["source"]],
+        label="ModelConfig instance preservation to singleton store",
+    )
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, singleton_store["site"], deps["str"],
+        deps[singleton_store["source"]], deps[singleton_store["base"]], 0,
+        "initializeModelConfig singleton store",
+    )
+
+    instance_capture = model_constructor["instance_capture"]
+    _require_move(
+        obj["blob"], obj["mappings"], deps, instance_capture["site"],
+        deps[instance_capture["destination"]], deps[instance_capture["source"]],
+        "ModelConfig constructor instance capture",
+    )
+    model_vtable_sites = model_constructor["vtable_header_got_sites"]
+    instance_preservation = model_constructor["instance_preservation"]
+    instance_capture_item = _instruction(
+        obj["blob"], obj["mappings"], deps, instance_capture["site"]
+    )
+    if (
+        instance_capture_item.address + instance_capture_item.size != instance_preservation["start"]
+        or instance_preservation["end"] != model_vtable_sites["store_site"]
+        or instance_preservation["register"] != instance_capture["destination"]
+    ):
+        raise RuntimeError("ModelConfig constructor instance span differs")
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            instance_preservation["start"], instance_preservation["end"],
+        ),
+        deps[instance_preservation["register"]],
+        label="ModelConfig constructor instance preservation",
+    )
+    resolved_model_vtable_cell = _transport._resolve_thumb_got_cell(
+        obj["blob"], obj["mappings"], deps,
+        model_vtable_sites["base_literal_site"], model_vtable_sites["base_add_site"],
+        model_vtable_sites["offset_literal_site"], "ModelConfig vtable header",
+        base_register=deps["r4"],
+    )
+    if (
+        resolved_model_vtable_cell != model_constructor["vtable_header_got_cell"]
+        or model_constructor["vtable_address_point"] != model_constructor["vtable_header"] + 8
+    ):
+        raise RuntimeError("ModelConfig constructed vtable geometry differs")
+    _require_rel_dyn(
+        obj, model_constructor["vtable_header_relocation_index"],
+        model_constructor["vtable_header_got_cell"], 23, 0,
+        model_constructor["vtable_header"], "ModelConfig constructed vtable header",
+    )
+    model_vtable_load = _instruction(
+        obj["blob"], obj["mappings"], deps, model_vtable_sites["load_site"]
+    )
+    if (
+        model_vtable_load.id != deps["ldr"]
+        or len(model_vtable_load.operands) != 2
+        or model_vtable_load.operands[0].type != deps["reg"]
+        or model_vtable_load.operands[0].reg != deps["r3"]
+        or model_vtable_load.operands[1].type != deps["mem"]
+        or model_vtable_load.operands[1].mem.base != deps["r4"]
+        or model_vtable_load.operands[1].mem.index != deps["r3"]
+        or model_vtable_load.operands[1].mem.disp != 0
+        or model_vtable_load.writeback
+    ):
+        raise RuntimeError("ModelConfig constructed vtable load differs")
+    model_address_point_add = _instruction(
+        obj["blob"], obj["mappings"], deps, model_vtable_sites["address_point_add_site"]
+    )
+    if (
+        model_address_point_add.id != deps["add"]
+        or len(model_address_point_add.operands) != 2
+        or model_address_point_add.operands[0].type != deps["reg"]
+        or model_address_point_add.operands[0].reg != deps["r3"]
+        or model_address_point_add.operands[1].type != deps["imm"]
+        or model_address_point_add.operands[1].imm != 8
+    ):
+        raise RuntimeError("ModelConfig constructed vtable address point differs")
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, model_vtable_sites["store_site"], deps["str"],
+        deps["r3"], deps[instance_capture["destination"]], 0,
+        "ModelConfig constructed vptr store",
+    )
+
+    get_singleton_address = singleton_get["singleton_address"]
+    if _transport._resolve_thumb_pc_relative_address(
+        obj["blob"], obj["mappings"], deps, get_singleton_address["load_site"],
+        get_singleton_address["add_site"], deps[get_singleton_address["register"]],
+        "getModelConfig singleton",
+    ) != get_singleton_address["address"] or get_singleton_address["address"] != expected["model_config_singleton"]:
+        raise RuntimeError("getModelConfig singleton address differs")
+    singleton_load = singleton_get["singleton_load"]
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, singleton_load["site"], deps["ldr"],
+        deps[singleton_load["destination"]], deps[singleton_load["base"]], 0,
+        "getModelConfig singleton load",
+    )
+    return_preservation = singleton_get["return_preservation"]
+    singleton_load_item = _instruction(
+        obj["blob"], obj["mappings"], deps, singleton_load["site"]
+    )
+    return_control = singleton_get["return_control"]
+    if (
+        singleton_load_item.address + singleton_load_item.size != return_preservation["start"]
+        or return_preservation["end"] != return_control["site"]
+        or return_preservation["register"] != singleton_load["destination"]
+        or return_control["control"] != "pop-pc"
+    ):
+        raise RuntimeError("getModelConfig singleton return span differs")
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            return_preservation["start"], return_preservation["end"],
+        ),
+        deps[return_preservation["register"]],
+        label="getModelConfig singleton return preservation",
+    )
+    _require_pop_pc_return(
+        obj["blob"], obj["mappings"], deps, return_control["site"],
+        "getModelConfig singleton",
+    )
+
+    provenance = expected["factory_to_manager_provenance"]
+    _require_owner(obj["exidx"], provenance["config_factory_owner"], "configuration factory")
+    _require_owner(obj["exidx"], provenance["outer_constructor_owner"], "outer constructor")
+    _require_direct_target(
+        obj["blob"], obj["mappings"], deps, provenance["factory_call"]["site"],
+        provenance["factory_call"]["target"], "outer configuration factory", True,
+    )
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            provenance["factory_call"]["site"] + 4,
+            provenance["factory_result_store"]["site"],
+        ),
+        deps["r0"], label="configuration factory result preservation",
+    )
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, provenance["factory_result_store"]["site"],
+        deps["str"], deps["r0"], deps["r4"], provenance["factory_result_store"]["outer_offset"],
+        "outer configuration factory result",
+    )
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, provenance["manager_config_argument"]["site"],
+        deps["ldr"], deps["r2"], deps["r4"], provenance["manager_config_argument"]["outer_offset"],
+        "ModelManager configuration argument",
+    )
+    argument_preservation = provenance["manager_config_argument_preservation"]
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            argument_preservation["start"], argument_preservation["end"],
+        ),
+        deps[argument_preservation["register"]],
+        label="ModelManager configuration argument preservation",
+    )
+    _require_direct_target(
+        obj["blob"], obj["mappings"], deps, provenance["manager_constructor_call"]["site"],
+        provenance["manager_constructor_call"]["target"], "ModelManager constructor provenance", True,
+    )
+    capture = provenance["manager_config_capture"]
+    _require_move(
+        obj["blob"], obj["mappings"], deps, capture["site"], deps[capture["destination"]],
+        deps[capture["source"]], "ModelManager configuration capture",
+    )
+    receiver_preservation = provenance["manager_config_receiver_preservation"]
+    _transport._require_register_unchanged(
+        _decode_range(
+            obj["blob"], obj["mappings"], deps,
+            receiver_preservation["start"], receiver_preservation["end"],
+        ),
+        deps[receiver_preservation["register"]],
+        label="ModelManager AppConfig receiver preservation",
+    )
+
+    manager = expected["app_config_to_manager"]
+    vslot = manager["app_config_vslot"]
+    if vslot["cell"] != 0x133E3E8 + vslot["offset"]:
+        raise RuntimeError("AppConfig ModelConfig vslot geometry differs")
+    _require_rel_dyn(
+        obj, vslot["relocation_index"], vslot["cell"], 23, 0, vslot["target"],
+        "AppConfig ModelConfig vslot",
+    )
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, vslot["model_config_load"]["site"], deps["ldr"],
+        deps["r0"], deps["r0"], vslot["model_config_load"]["offset"], "AppConfig ModelConfig load",
+    )
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, vslot["model_config_vptr_load"]["site"], deps["ldr"],
+        deps["r3"], deps["r0"], 0, "AppConfig ModelConfig vptr",
+    )
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, vslot["model_config_slot_load"]["site"], deps["ldr"],
+        deps["r3"], deps["r3"], vslot["model_config_slot_load"]["offset"],
+        "AppConfig ModelConfig descriptor slot",
+    )
+    _require_indirect_call_register(
+        obj["blob"], obj["mappings"], deps, vslot["model_config_slot_call"]["site"],
+        deps[vslot["model_config_slot_call"]["target_register"]], "AppConfig ModelConfig descriptor slot",
+    )
+    manager_ctor = manager["manager_constructor"]
+    _require_owner(obj["exidx"], manager_ctor["owner"], "ModelManager constructor")
+    receiver = manager_ctor["app_config_receiver"]
+    _require_move(
+        obj["blob"], obj["mappings"], deps, receiver["site"],
+        deps[receiver["destination"]], deps[receiver["source"]], "ModelManager AppConfig receiver",
+    )
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, manager_ctor["vptr_load"]["site"], deps["ldr"],
+        deps["r3"], deps[manager_ctor["vptr_load"]["receiver"]], 0, "ModelManager AppConfig vptr",
+    )
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, manager_ctor["vslot_load"]["site"], deps["ldr"],
+        deps["r3"], deps["r3"], manager_ctor["vslot_load"]["offset"], "ModelManager AppConfig vslot",
+    )
+    _require_indirect_call_register(
+        obj["blob"], obj["mappings"], deps, manager_ctor["vslot_call"]["site"],
+        deps[manager_ctor["vslot_call"]["target_register"]], "ModelManager AppConfig vslot",
+    )
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, manager_ctor["result_store"]["site"], deps["str"],
+        deps["r0"], deps["r4"], manager_ctor["result_store"]["manager_offset"],
+        "ModelManager ModelConfig store",
+    )
+
+    vtable = expected["model_config_vtable"]
+    if vtable["address_point"] != model_constructor["vtable_address_point"]:
+        raise RuntimeError("constructed ModelConfig vtable/descriptor table identity differs")
+    descriptor_slot = vtable["descriptor_slot"]
+    if descriptor_slot["cell"] != vtable["address_point"] + descriptor_slot["offset"]:
+        raise RuntimeError("ModelConfig descriptor slot geometry differs")
+    _require_owner(obj["exidx"], descriptor_slot["owner"], "ModelConfig descriptor slot")
+    _require_rel_dyn(
+        obj, descriptor_slot["relocation_index"], descriptor_slot["cell"], 23, 0,
+        descriptor_slot["target"], "ModelConfig descriptor slot",
+    )
+
+    table = expected["modelcamera_table_entry"]
+    for record in table["manifest"].values():
+        _require_ascii_at(
+            obj["blob"], obj["mappings"], record["address"], record["value"],
+            "default-route ModelCamera manifest",
+        )
+    _require_call_symbol(
+        obj["blob"], obj["mappings"], deps, obj["plt"],
+        table["id_generator_get"]["site"], table["id_generator_get"]["symbol"],
+        "default-route IdGenerator Get",
+    )
+    _require_call_symbol(
+        obj["blob"], obj["mappings"], deps, obj["plt"],
+        table["id_so_table_add"]["site"], table["id_so_table_add"]["symbol"],
+        "default-route IdSoTable add",
+    )
+    abi = table["argument_abi"]
+    for field, label in (("get_alias", "IdGenerator alias"), ("component", "IdSoTable component"), ("factory", "IdSoTable factory")):
+        pointer = abi[field]
+        _require_thumb_pic_pointer(
+            obj["blob"], obj["mappings"], deps, pointer["load_site"], pointer["add_site"],
+            deps[pointer["register"]], pointer["address"], label,
+        )
+    key = abi["get_result_to_table_key"]
+    _require_move(
+        obj["blob"], obj["mappings"], deps, key["site"], deps[key["destination"]],
+        deps[key["source"]], "IdGenerator result to IdSoTable key",
+    )
+    receiver = abi["table_receiver"]
+    _require_move(
+        obj["blob"], obj["mappings"], deps, receiver["site"], deps[receiver["destination"]],
+        deps[receiver["source"]], "IdSoTable receiver",
+    )
+
+    lookup = expected["model_manager_descriptor_lookup"]
+    _require_owner(obj["exidx"], lookup["registration_owner"], "ModelManager registration")
+    _require_owner(obj["exidx"], lookup["lookup_owner"], "ModelManager descriptor lookup")
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, lookup["provider_field"]["site"],
+        deps["ldr"], deps["r0"], deps["r0"], lookup["provider_field"]["offset"],
+        "ModelManager descriptor provider",
+    )
+    _require_direct_target(
+        obj["blob"], obj["mappings"], deps, lookup["default_lookup_branch"]["site"],
+        lookup["default_lookup_branch"]["target"], "ModelManager default descriptor lookup", False,
+    )
+    _require_direct_target(
+        obj["blob"], obj["mappings"], deps, lookup["alternate_lookup_call"]["site"],
+        lookup["alternate_lookup_call"]["target"], "ModelManager alternate descriptor lookup", False,
+    )
+    for label, owner in lookup["provider_lookup_owners"].items():
+        _require_owner(obj["exidx"], owner, "ModelConfig " + label + " descriptor lookup")
+    for field in lookup["provider_record_result_loads"]:
+        _require_memory(
+            obj["blob"], obj["mappings"], deps, field["site"], deps["ldr"], deps["r0"],
+            deps["r0"], field["offset"], "ModelConfig descriptor record result",
+        )
+    for call in lookup["registration_lookup_calls"]:
+        _require_direct_target(
+            obj["blob"], obj["mappings"], deps, call["site"], call["target"],
+            "ModelManager registration descriptor lookup", True,
+        )
+    if lookup["record_descriptor_fields"] != {"component_offset": 0x10, "factory_offset": 0x14}:
+        raise RuntimeError("ModelManager descriptor record field layout differs")
+    flow = lookup["record_construction_dataflow"]
+    for site in flow["lookup_key_load_sites"]:
+        _require_memory(
+            obj["blob"], obj["mappings"], deps, site, deps["ldr"], deps["r1"], deps["r7"],
+            0x20, "ModelManager descriptor lookup key",
+        )
+    for field, label in (("component_result_capture", "component lookup result"), ("factory_result_capture", "factory lookup result"), ("component_constructor_argument", "component constructor argument")):
+        move = flow[field]
+        _require_move(
+            obj["blob"], obj["mappings"], deps, move["site"], deps[move["destination"]],
+            deps[move["source"]], "ModelManager " + label,
+        )
+    factory_stack = flow["factory_stack_argument"]
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, factory_stack["site"], deps["str"],
+        deps[factory_stack["source"]], deps["sp"], factory_stack["stack_offset"],
+        "ModelManager factory stack argument",
+    )
+    component_store = flow["component_store"]
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, component_store["site"], deps["str"], deps["r3"],
+        deps["r0"], component_store["record_offset"], "model record component store",
+    )
+    factory_stack_load = flow["factory_stack_load"]
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, factory_stack_load["site"], deps["ldr"], deps["r3"],
+        deps["r7"], factory_stack_load["stack_offset"], "model record factory stack load",
+    )
+    factory_store = flow["factory_store"]
+    _require_memory(
+        obj["blob"], obj["mappings"], deps, factory_store["site"], deps["str"], deps["r3"],
+        deps["r0"], factory_store["record_offset"], "model record factory store",
+    )
+    return copy.deepcopy(expected)
+
+
 def _validate_executor_and_destination(obj, deps):
     executor = EXPECTED_EXPORT["generic_executor"]
     destination = EXPECTED_EXPORT["destination_4"]
@@ -577,6 +1471,9 @@ def _metadata_from_files(sources=SOURCES):
         _validate_transport_boundaries(contexts["object"], contexts["view"])
         records, loader = _validate_records_and_loader(contexts["object"], deps)
         modelcamera = _validate_modelcamera(contexts["object"], deps)
+        default_route_descriptor_provider = _validate_default_route_descriptor_provider(
+            contexts["object"], deps
+        )
         executor, destination = _validate_executor_and_destination(contexts["object"], deps)
     finally:
         for context in contexts.values():
@@ -584,7 +1481,7 @@ def _metadata_from_files(sources=SOURCES):
     if any(_sha256(path) != before[role] for role, path in sources.items()):
         raise RuntimeError("pinned source changed during static export")
     document = copy.deepcopy(EXPECTED_EXPORT)
-    document.update({"id_generator": id_generator, "model_manager_records": records, "dynamic_loader": loader, "modelcamera_candidate": modelcamera, "generic_executor": executor, "destination_4": destination})
+    document.update({"id_generator": id_generator, "model_manager_records": records, "dynamic_loader": loader, "modelcamera_candidate": modelcamera, "default_route_descriptor_provider": default_route_descriptor_provider, "generic_executor": executor, "destination_4": destination})
     return document
 
 

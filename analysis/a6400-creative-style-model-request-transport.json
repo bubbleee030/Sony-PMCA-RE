@@ -5,6 +5,8 @@
   "camera_test_eligible": false,
   "claims": {
     "candidate_cross_module_request_edge_found": true,
+    "app_config_default_route_queue_identity_proven": false,
+    "all_config_routes_queue_identity_proven": false,
     "concrete_model_executor_handler_found": false,
     "concrete_model_record_found": false,
     "consumer_receiver_expression_proven": true,
@@ -16,6 +18,7 @@
     "model_manager_request_event_branch_found": true,
     "movie_sink_found": false,
     "named_model_handler_found": false,
+    "non_app_config_route_queue_identity_proven": false,
     "operation_38_candidate_branch_proven": true,
     "operation_38_event_header_proven": true,
     "operation_38_indirect_queue_callbacks_bypassed": true,
@@ -29,16 +32,17 @@
     "producer_receiver_expression_proven": true,
     "renderer_or_live_view_sink_found": false,
     "runtime_execution_proven": false,
+    "runtime_config_selector_resolved": false,
     "shared_event_construction_boundary_found": true,
     "shared_request_to_event_queue_join_found": true,
     "still_jpeg_sink_found": false,
     "typed_custom_creative_style_request_found": true,
     "view_wrapper_transport_found": true
   },
-  "conclusion": "The typed CustomCreativeStyle setter emits an exact @M00B operation-38 request with five parameters. Its local wrapper preserves code 38 and the ParamList through a bounded dispatcher; unsigned gate arithmetic proves that code 38 takes the named cross-module request edge on the model-mapping helper's normal-return path. The view mapper resolves @M00B to model/CAMERA; IdGenerator's runtime-dependent numeric result reaches Event key 7, while the operation code passes through a separate opaque mapper before key 8. The builder fixes Event ID 0x11004003, destination 2, and queue tag 0, then forwards the Event to EventManager::push with boolean true. Tag 0 bypasses all three indirect push callbacks and takes the direct queue-zero path. The producer receiver is derived through a UtilityManager wrapper, whereas the consumer loop uses the thread-local outer object's EventManager; no static equality join between them is proven. A matching ModelManager request-Event branch, key-7 lookup, and generic executor virtual boundary are bounded candidates only. Literal 38 in key 8, the numeric key-7 ID, operation-38 delivery to that consumer, a concrete model record or handler, renderer/live-view, still-JPEG, movie, Creative Look equivalence, runtime behavior, and installability remain unproven.",
-  "evidence_digest": "3303e96ac7f7f6bd237c4bf043056874aafde56b4ceb3ef3b2b4d38989619f0d",
+  "conclusion": "The typed CustomCreativeStyle setter emits an exact @M00B operation-38 request with five parameters. Its local wrapper preserves code 38 and the ParamList through a bounded dispatcher; unsigned gate arithmetic proves that code 38 takes the named cross-module request edge on the model-mapping helper's normal-return path. The view mapper resolves @M00B to model/CAMERA; IdGenerator's runtime-dependent numeric result reaches Event key 7, while the operation code passes through a separate opaque mapper before key 8. The builder fixes Event ID 0x11004003, destination 2, and queue tag 0, then forwards the Event to EventManager::push with boolean true. Tag 0 bypasses all three indirect push callbacks and takes the direct queue-zero path. The AppConfig default route and non-AppConfig selector branches, including both strncmp ABIs (captured selector input, AppConfig.so literal, and length 20), are statically bounded. However, no factory-result capture or store joins either selector result to the outer receiver used by the wrapper/UtilityManager handoff, so neither route proves the producer wrapper's EventManager equals the consumer's thread-local outer+0x10 EventManager. The non-AppConfig route constructs a separate generic singleton with a distinct generic vtable, including different +0x40, +0x50, and +0x54 targets; it does not reuse the default producer owner. The route name itself comes from unresolved runtime BSS, so the runtime selector and unconditional operation-38 delivery to that consumer remain unproven. A matching ModelManager request-Event branch, key-7 lookup, and generic executor virtual boundary are bounded candidates only. Literal 38 in key 8, the numeric key-7 ID, a concrete model record or handler, renderer/live-view, still-JPEG, movie, Creative Look equivalence, runtime behavior, and installability remain unproven.",
+  "evidence_digest": "7575751cc125bef4d26df426d6558166f501209ce6d918bee0af11639ca56e6a",
   "installable": false,
-  "readiness": "OPERATION_38_TAG_ZERO_QUEUE_NO_CONSUMER_IDENTITY",
+  "readiness": "OPERATION_38_CONFIG_ROUTE_TO_PRODUCER_IDENTITY_UNRESOLVED",
   "schema_version": 1,
   "sources": {
     "object": {
@@ -53,7 +57,8 @@
     }
   },
   "summary": {
-    "canonical_export_sha256": "6b7554e8cc570ac89f4871707826836e0d51cc962eacd36ae79a07f1dcb25c06",
+    "canonical_export_sha256": "e03c61b1d71ebe628fb97f5ea93efdf8e925b6c61022b541e595bc232b66c1a7",
+    "conditional_default_route_queue_identity_join_count": 0,
     "fixed_event_header_count": 1,
     "indirect_queue_call_count": 3,
     "mapped_operation_event_parameter_count": 1,

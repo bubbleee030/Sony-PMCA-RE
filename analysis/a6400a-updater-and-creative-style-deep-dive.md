@@ -344,8 +344,8 @@ the manager or view exposes that reference as selected style.
 The four dynamic setter writes now have exact frame-relative geometry. Four
 fixed read-only record-ID tables copied into both setter and getter frames
 establish their fixed numeric domains and static setter/getter family equality,
-but not their human field meanings or a runtime write-followed-by-read
-transaction. The selector code uses the
+but not their human field meanings; static table equality does not prove a
+runtime transaction or a runtime write-followed-by-read join. The selector code uses the
 record word at `r7 + 0xf8 + 4*argument-2` and the byte at `r7 + 0x11e`.
 Arguments 3 and 4 use record words at `r7 + 0xdc + 4*argument-2` and
 `r7 + 0x8c + 4*argument-2`, with values at `r7 + 0x4` and `r7 + 0x140`.
@@ -401,20 +401,32 @@ The builder fixes Event ID `0x11004003`, destination `2`, and queue tag `0`,
 attaches the `ParamList`, and adds the scalar parameters. Its continuation adds
 key 6 and reaches `EventManager::push(Event*,true)` through an exact
 interworking PLT relocation. The push owner reads tag 0, bypasses all three
-indirect callback sites, and takes the direct queue-zero helper. The unresolved
-boundary is now receiver identity: the producer loads a UtilityManager from
-`AppConfig+0x10`, a wrapper from `UtilityManager+0x0c`, and its EventManager
-from `wrapper+0x10`; the consumer loop loads its EventManager from
-`outer+0x10`, where `outer` is the same thread-local object passed to that
-loop's constructor. No static assignment proves `UtilityManager+0x0c` is that
-`outer`, so the queued operation-38-origin Event is not proven to reach this
-consumer.
+indirect callback sites, and takes the direct queue-zero helper. The AppConfig default route selector
+captures its input from `r1` into callee-saved `r5`; both `strncmp` calls pass
+the `AppConfig.so` literal in `r0`, that captured input in `r1`, and length 20
+in `r2`. Their nonmatch branches select the generic initialize/getConfig path,
+while the fallthrough paths select the AppConfig initialize/getConfig imports.
+This bounds the static branch ABI, not the runtime buffer contents.
+
+The remaining boundary is the runtime BSS selector at `0x1424d78`. The thread
+passes that zero-fill buffer to the configuration factory, which recognizes
+`AppConfig.so` only through a runtime comparison. Static file data does not
+prove the buffer contents or select that route. The non-AppConfig route creates
+a separate `0x10`-byte generic singleton with a distinct generic vtable: its
+`+0x40`, `+0x50`, and `+0x54` slots resolve to different owners, and the
+`+0x54` path does not reuse the default producer initializer. The later outer
+constructor/handoff does prove the local wrapper-to-EventManager stores, but
+no factory-result capture or store joins a selector result to the outer
+receiver used there. No static assignment proves `UtilityManager+0x0c` is that
+`outer`; consequently neither selector route proves a producer/consumer
+EventManager identity join. Unconditional operation-38 delivery to the
+consumer and its ModelManager branch remains unproven.
 
 A separately bounded ModelManager candidate branch matches Event ID
 `0x11004003` and destination bit 2, reads keys 6, 7, and 8, performs the key-7
 record lookup, and conditionally loads an executor from record offset `+0x1c`
-before a virtual call at slot `+0x18`. It is not joined to the operation-38
-producer. A co-located `@M00B` / `modelCamera.so` /
+before a virtual call at slot `+0x18`. It is not unconditionally joined to the
+operation-38 producer. A co-located `@M00B` / `modelCamera.so` /
 `ModelCameraToInstance` component, `ModelCamera` RTTI, and factory are concrete
 component candidates, but no static registration edge binds the key-7 record
 to that factory or executor. The resolved ModelCamera slot `+0x18` is inherited
@@ -423,17 +435,22 @@ tag 0—not a Creative Style-specific operation handler. No named handler or
 renderer/live-view/still-JPEG/movie sink is proven. The fail-closed record is
 `analysis/a6400-creative-style-model-request-transport.json`.
 
-The follow-on runtime-binding slice proves generic machinery without promoting
-the candidate identity. `model/CAMERA` reaches `IdGenerator::Get`, but the
-splitter delimiter, table key/row semantics, and numeric ID remain unresolved.
-The ModelManager record layout, `dlopen`/`dlsym` loader chain, ParamList clone
-into the secondary Event, generic scheduler slot, and destination-bit-4
-receiver/default-predicate structure are bounded. A co-located manifest,
-factory export, RTTI, or matching table entry is compatible evidence only:
-static table equality does not prove a runtime transaction. No operation-38
-edge reaches the candidate branch, no runtime descriptor binds the record to
-`ModelCamera`, and no five-field consumer or live-view/still-JPEG/movie sink is
-proven. The fail-closed record is
+The follow-on runtime-binding slice proves generic machinery and one qualified
+registration result without promoting the candidate identity. On the
+statically identified AppConfig default-route branch only, AppConfig obtains
+`ModelConfig`, whose descriptor-table slot registers `@M00B` with
+`modelCamera.so` and `ModelCameraToInstance`. The runtime selector remains
+unresolved. `model/CAMERA` reaches `IdGenerator::Get`, but the splitter
+delimiter, table key/row semantics, and numeric ID remain unresolved; in
+particular, numeric equality to 11 is not proven. The ModelManager record
+layout, `dlopen`/`dlsym` loader chain, ParamList clone into the secondary Event,
+generic scheduler slot, and destination-bit-4 receiver/default-predicate
+structure are bounded. That branch-local registration does not resolve the
+runtime selector, prove that `model/CAMERA`'s numeric ID equals 11, or join
+operation 38/key 7 to that record or executor. All route-to-producer/consumer
+EventManager identity claims remain false. It does not promote runtime
+behavior, any live-view/JPEG/movie pipeline sink, or installability. The
+fail-closed record is
 `analysis/a6400-creative-style-runtime-binding.json`.
 
 A separate controller field at object offset `0x15c` takes observed values
@@ -480,7 +497,12 @@ After the widget lookup, the exact thunk/interworking edge reaches the defined
 default implementation of `PAS_BtnCombo::cast(Widget*)`. That generic virtual
 type filter returns the original widget or null. It does not type the belt
 member at `+0x14c`; bounded derived/default-base constructors contain no direct
-store to that field and stop at an unresolved external `ViewBase` constructor.
+store to that field. The `viewUnified2.so` call is an undefined
+`ViewBase::C2(ViewManager*)` relocation, while a matching global definition in
+`libObj.so` is only a candidate because `viewUnified2.so` does not declare that
+module as a dependency. The candidate constructor also has no direct `+0x14c`
+store and immediately reaches another PLT/GOT-mediated call. Neither fact
+proves the binding, belt ownership, or a concrete input-event route.
 
 The nearest concrete touchability lead does not yet solve touch. A typed
 `ViewMovieRecPatch` path gets and checks a `PAS_BarCtrlDial`, then passes the
@@ -619,10 +641,10 @@ and derives no recovery promotion from it.
 
 ## Next safe experiments
 
-1. Resolve or falsify the missing EventManager identity join: trace the object
-   stored at `UtilityManager+0x0c` to the thread-local `outer`, or locate the
-   actual consumer of the producer's queue-zero EventManager. Do not promote
-   the bounded ModelManager branch until the exact Event instance can reach it.
+1. Resolve the runtime BSS configuration selector at `0x1424d78`, and prove a
+   factory-result capture/store join to the outer receiver before claiming any
+   route-to-producer or producer-to-consumer EventManager identity. Do not
+   promote ModelManager delivery from the currently unjoined route branches.
 2. Resolve the runtime `IdGenerator` table entry for `model/CAMERA` and the
    ModelManager record-registration path. Join the resulting key-7 numeric ID
    to a record, its `+0x1c` executor, and a concrete factory before treating

@@ -183,6 +183,54 @@ FIELD_0X14C_CONSTRUCTOR_BOUNDARY = {
         "symbol": "_ZN8ViewBaseC2EP11ViewManager",
         "resolved": False,
     },
+    "viewbase_constructor_import": {
+        "module": "lib/viewUnified2.so",
+        "call_site": 0x2F29FC,
+        "symbol": "_ZN8ViewBaseC2EP11ViewManager",
+        "dynsym_index": 1112,
+        "symbol_undefined": True,
+        "rel_plt_index": 1573,
+        "got": 0x945F40,
+        "relocation_type": 22,
+        "branch_target": 0x153810,
+        "declared_dependencies": ["CautionConfig.so", "libgcc_s.so.1", "libc.so.6"],
+        "candidate_module_declared_dependency": False,
+        "binding_proven": False,
+    },
+    "libobj_candidate": {
+        "source": {
+            "module": "lib/libObj.so",
+            "size": 20_860_436,
+            "sha256": "60ffd2b0f31f4bc139a7c13a4f62c25cdeb6a531ad5ef35df48471e6e36e88b1",
+        },
+        "symbol": "_ZN8ViewBaseC2EP11ViewManager",
+        "dynsym_index": 3758,
+        "symbol_entry": 0x3EDBAD,
+        "owner": {"start": 0x3EDBAC, "end": 0x3EDC7C, "instruction_count": 73},
+        "receiver_transfer_site": 0x3EDBB0,
+        "receiver_store_offsets": {
+            "0x3edbd6": 0x0,
+            "0x3edbd8": 0x28,
+            "0x3edbf8": 0x74,
+            "0x3edbfc": 0x78,
+            "0x3edc08": 0xD8,
+            "0x3edc2a": 0x100,
+            "0x3edc2e": 0x64,
+            "0x3edc3a": 0x11C,
+        },
+        "direct_0x14c_store_found": False,
+        "first_plt_boundary": {
+            "call_site": 0x3EDBBA,
+            "plt_target": 0x1004F4,
+            "rel_plt_index": 1231,
+            "got": 0x136B668,
+            "relocation_type": 22,
+            "symbol": "_ZN8ViewBase18getViewBootElementEv",
+            "dynsym_index": 2501,
+            "same_module_definition": {"entry": 0x3EBFE7, "size": 0x46},
+            "binding_proven": False,
+        },
+    },
     "field_0x14c_concrete_type_resolved": False,
 }
 
@@ -318,8 +366,9 @@ CONCLUSION = (
     "initialization loop, twelve greyout call sites, a pre-existing belt-cursor update boundary, "
     "and exact navigation routes. The post-lookup call reaches the generic PAS_BtnCombo::cast "
     "Widget type filter, which returns the original widget or null; it does not type the belt member "
-    "at +0x14c. The bounded derived/default-base constructors contain no direct +0x14c store and "
-    "stop at the unresolved external ViewBase constructor. The belt object's concrete type, creation, "
+    "at +0x14c. The bounded derived/default-base constructors contain no direct +0x14c store. A "
+    "candidate ViewBase constructor in libObj is not a declared viewUnified2 dependency, has no direct "
+    "+0x14c store, and reaches a PLT/GOT boundary without a proved binding. The belt object's concrete type, creation, "
     "and touch route remain unproven. A separate Movie Rec path acquires a checked PAS_BarCtrlDial "
     "but explicitly calls "
     "setTouchable(false); its converter only forwards an unresolved value. This proves reusable UI "

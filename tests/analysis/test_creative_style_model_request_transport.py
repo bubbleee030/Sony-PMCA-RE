@@ -3,14 +3,18 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import io
 import json
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[2]
 REPORT = ROOT / "analysis" / "a6400-creative-style-model-request-transport.json"
+DEEP_DIVE = ROOT / "analysis" / "a6400a-updater-and-creative-style-deep-dive.md"
+DISPATCH_PLAN = ROOT / "docs" / "superpowers" / "plans" / "2026-08-07-a6400-operation-38-model-manager-dispatch.md"
 EXPORTER = ROOT / "tools" / "static" / "export_a6400_creative_style_model_request_transport.py"
 
 
@@ -241,10 +245,219 @@ class CreativeStyleModelRequestTransportContractTests(unittest.TestCase):
         self.assertTrue(EXPECTED_EXPORT["claims"]["operation_38_indirect_queue_callbacks_bypassed"])
         self.assertFalse(EXPECTED_EXPORT["claims"]["named_model_handler_found"])
 
-    def test_operation_38_queue_to_consumer_identity_remains_unproven(self):
+    def test_selector_abi_is_bounded_but_config_route_to_producer_identity_is_unresolved(self):
         from pmca.analysis.creative_style_model_request_transport import EXPECTED_EXPORT
 
         identity = EXPECTED_EXPORT["operation_38_queue_consumer_identity"]
+        self.assertEqual(identity["config_selector"], {
+            "thread_buffer_literal_load_site": 0x8431A6,
+            "thread_buffer_add_site": 0x8431AC,
+            "buffer_address": 0x1424D78,
+            "storage_section": ".bss",
+            "selector_owner": {"start": 0x843C68, "end": 0x843CD8, "complete": True},
+            "outer_argument_preservation_segment": [0x843CD8, 0x843CEC],
+            "outer_factory_call": {"site": 0x843CEC, "target": 0x843C68},
+            "selector_input_capture_site": 0x843C70,
+            "selector_input_capture": {
+                "source_register": "r1", "captured_register": "r5",
+            },
+            "app_config_name": "AppConfig.so",
+            "app_config_name_address": 0x10027D7,
+            "app_config_literal_load_sites": [0x843C8C, 0x843CAA],
+            "app_config_literal_add_sites": [0x843C96, 0x843CB0],
+            "compare_call_sites": [0x843C9A, 0x843CB2],
+            "compare_argument_abi": {
+                "literal_register": "r0",
+                "selector_input_register": "r1",
+                "length_register": "r2",
+                "length": 20,
+                "input_forward_sites": [0x843C90, 0x843CAC],
+                "length_sites": [0x843C98, 0x843CAE],
+            },
+            "compare_routes": {
+                "initialize": {
+                    "match_call_site": 0x843CA0,
+                    "match_symbol": "initializeConfig",
+                    "nonmatch_call_site": 0x843CA6,
+                },
+                "get_config": {
+                    "match_offset_literal_site": 0x843CB8,
+                    "match_symbol": "getConfig",
+                    "nonmatch_offset_literal_site": 0x843CBC,
+                },
+            },
+            "first_nonmatch_branch": {"site": 0x843C9E, "target": 0x843CA6},
+            "initialize_call_site": 0x843CA0,
+            "second_nonmatch_branch": {"site": 0x843CB6, "target": 0x843CBC},
+            "get_config_got": {
+                "base_literal_site": 0x843C78,
+                "base_add_site": 0x843C7A,
+                "offset_literal_site": 0x843CB8,
+                "cell": 0x136FC9C,
+                "load_site": 0x843CBE,
+                "relocation": {
+                    "section": ".rel.dyn", "index": 97137, "type": 21,
+                    "symbol_index": 2136, "symbol": "getConfig",
+                },
+            },
+            "getter_dispatch_site": 0x843CC0,
+            "runtime_contents_resolved": False,
+            "runtime_app_config_route_selected": False,
+        })
+        self.assertEqual(identity["app_config_default_route"], {
+            "initialize_symbol": "initializeConfig",
+            "initialize_default_definition": {
+                "start": 0x3FD8C0, "end": 0x3FD8E8,
+            },
+            "get_config_symbol": "getConfig",
+            "get_config_default_definition": {
+                "start": 0x3FD784, "end": 0x3FD794,
+            },
+            "constructor": {"start": 0x3FD794, "end": 0x3FD8C0},
+            "singleton_global": 0x13EF1C4,
+            "initialize_allocation_size_site": 0x3FD8C2,
+            "initialize_allocation_size": 0x18,
+            "initialize_allocation_call_site": 0x3FD8C6,
+            "initialize_result_capture_site": 0x3FD8CA,
+            "initialize_constructor_call": {"site": 0x3FD8CC, "target": 0x3FD794},
+            "initialize_global_store_site": 0x3FD8D4,
+            "get_config_global_load_site": 0x3FD78A,
+            "vtable_header_got_cell": 0x136DFB0,
+            "vtable_header_got_sites": {
+                "base_literal_site": 0x3FD798,
+                "base_add_site": 0x3FD7A2,
+                "offset_literal_site": 0x3FD7A0,
+                "load_site": 0x3FD7A8,
+                "address_point_add_site": 0x3FD7AE,
+                "store_site": 0x3FD7B0,
+            },
+            "vtable_header_relocation": {
+                "section": ".rel.dyn", "index": 64884, "type": 23,
+                "symbol_index": 0, "target": 0x133E3E0,
+            },
+            "vtable_address_point": 0x133E3E8,
+            "utility_manager_slot": {
+                "offset": 0x40, "cell": 0x133E428,
+                "relocation": {
+                    "section": ".rel.dyn", "index": 37842, "type": 23,
+                    "symbol_index": 0, "target": 0x3FD4F1,
+                },
+                "default_target": 0x3FD4F0,
+                "field_load": {"site": 0x3FD4F4, "offset": 0x10},
+            },
+            "utility_manager_initialize_slot": {
+                "offset": 0x50, "cell": 0x133E438,
+                "relocation": {
+                    "section": ".rel.dyn", "index": 37846, "type": 23,
+                    "symbol_index": 0, "target": 0x3FDA65,
+                },
+                "default_target": 0x3FDA64,
+                "outer_call_sites": [0x843D14, 0x843D16, 0x843D18, 0x843D1A],
+                "receiver_capture_site": 0x3FDA6A,
+                "field_store": {"site": 0x3FDAA0, "offset": 0x10},
+            },
+            "producer_initialize_slot": {
+                "offset": 0x54, "cell": 0x133E43C,
+                "relocation": {
+                    "section": ".rel.dyn", "index": 37847, "type": 23,
+                    "symbol_index": 0, "target": 0x3FD8E9,
+                },
+                "default_target": 0x3FD8E8,
+                "outer_call_sites": [0x843DBE, 0x843DC0, 0x843DC2, 0x843DC4],
+                "receiver_capture_site": 0x3FD8EC,
+            },
+        })
+        self.assertEqual(identity["non_app_config_route"], {
+            "initialize_call": {"site": 0x843CA6, "target": 0x667BF4},
+            "initialize_owner": {"start": 0x667BF4, "end": 0x667C1C, "complete": True},
+            "allocation_size_site": 0x667BF6,
+            "allocation_size": 0x10,
+            "allocation_call_site": 0x667BFA,
+            "constructor_call": {"site": 0x667C00, "target": 0x667BD0},
+            "constructor_owner": {"start": 0x667BD0, "end": 0x667BF4, "complete": True},
+            "singleton_address": 0x13EFB98,
+            "singleton_store_site": 0x667C08,
+            "getter_owner": {"start": 0x667BA8, "end": 0x667BD0, "complete": True},
+            "getter_global_load_site": 0x667BC6,
+            "getter_got": {
+                "offset_literal_site": 0x843CBC,
+                "cell": 0x136E97C,
+                "load_site": 0x843CBE,
+                "relocation": {
+                    "section": ".rel.dyn", "index": 65505, "type": 23,
+                    "symbol_index": 0, "target": 0x667BC1,
+                },
+            },
+            "vtable_header_got_cell": 0x1372D78,
+            "vtable_header_relocation": {
+                "section": ".rel.dyn", "index": 69831, "type": 23,
+                "symbol_index": 0, "target": 0x134DD20,
+            },
+            "vtable_address_point": 0x134DD28,
+            "vtable_store_site": 0x667BE6,
+            "utility_manager_slot": {
+                "offset": 0x40, "cell": 0x134DD68,
+                "relocation": {
+                    "section": ".rel.dyn", "index": 48371, "type": 23,
+                    "symbol_index": 0, "target": 0x667761,
+                },
+                "default_target": 0x667760,
+                "owner": {"start": 0x6676C4, "end": 0x667778, "complete": True},
+                "field_load": {"site": 0x667764, "offset": 4},
+            },
+            "utility_manager_initialize_slot": {
+                "offset": 0x50, "cell": 0x134DD78,
+                "relocation": {
+                    "section": ".rel.dyn", "index": 48375, "type": 23,
+                    "symbol_index": 0, "target": 0x66796D,
+                },
+                "default_target": 0x66796C,
+                "owner": {"start": 0x66796C, "end": 0x6679B0, "complete": True},
+            },
+            "producer_initialize_slot": {
+                "offset": 0x54, "cell": 0x134DD7C,
+                "relocation": {
+                    "section": ".rel.dyn", "index": 48376, "type": 23,
+                    "symbol_index": 0, "target": 0x667C1D,
+                },
+                "default_target": 0x667C1C,
+                "owner": {"start": 0x667C1C, "end": 0x667CBC, "complete": True},
+            },
+            "default_producer_owner_reused": False,
+            "event_manager_identity_join_proven": False,
+        })
+        self.assertEqual(identity["outer_wrapper_construction"], {
+            "allocation_size_site": 0x843D8C,
+            "allocation_size": 0x70,
+            "allocation_call_site": 0x843D8E,
+            "event_manager_argument_load": {"site": 0x843D94, "offset": 0x10},
+            "event_manager_argument_preservation_segment": [0x843D96, 0x843D9E],
+            "result_capture_site": 0x843D9C,
+            "constructor_call": {"site": 0x843D9E, "target": 0x845CA0},
+            "outer_store": {"site": 0x843DA4, "offset": 0},
+        })
+        self.assertEqual(identity["wrapper_event_manager_binding"], {
+            "owner": {"start": 0x845CA0, "end": 0x845E00, "complete": True},
+            "wrapper_capture_site": 0x845CA8,
+            "event_manager_capture_site": 0x845CAA,
+            "event_manager_store": {"site": 0x845CFE, "offset": 0x10},
+            "preservation_segment": [0x845CAC, 0x845CFE],
+        })
+        self.assertEqual(identity["utility_manager_wrapper_handoff"], {
+            "utility_manager_receiver_load_site": 0x843DA2,
+            "vtable_load_site": 0x843DA6,
+            "slot_load_site": 0x843DA8,
+            "slot_call_site": 0x843DAA,
+            "utility_manager_result_preservation_segment": [0x843DAC, 0x843DBA],
+            "event_manager_argument_load": {"site": 0x843DAE, "offset": 0x10},
+            "event_manager_argument_preservation_segment": [0x843DB0, 0x843DBA],
+            "wrapper_argument_load": {"site": 0x843DB6, "offset": 0},
+            "wrapper_argument_preservation_segment": [0x843DB8, 0x843DBA],
+            "handoff_call": {"site": 0x843DBA, "target": 0x843096},
+            "handoff_body_range": {"start": 0x843096, "end": 0x8430AA},
+            "wrapper_store": {"site": 0x84309A, "offset": 0x0C},
+            "event_manager_store": {"site": 0x84309E, "offset": 4},
+        })
         self.assertEqual(identity["producer_global"], {
             "got_cell": 0x136EC90,
             "relocation": {
@@ -253,9 +466,13 @@ class CreativeStyleModelRequestTransportContractTests(unittest.TestCase):
             },
         })
         self.assertEqual(identity["producer_receiver_steps"], [
-            "utility_manager=load(app_config+0x10)",
-            "wrapper=load(utility_manager+0x0c)",
-            "producer_event_manager=load(wrapper+0x10)",
+            "outer_event_manager=load(outer+0x10)",
+            "wrapper=construct_with_event_manager(outer_event_manager)",
+            "store(wrapper+0x10=outer_event_manager)",
+            "utility_manager=load(unjoined outer+0x14)",
+            "store(utility_manager+0x0c=wrapper)",
+            "producer_wrapper=load(utility_manager+0x0c)",
+            "producer_event_manager=load(producer_wrapper+0x10)",
         ])
         self.assertEqual(identity["consumer_receiver_steps"], [
             "outer=thread_stack_frame+4",
@@ -275,7 +492,17 @@ class CreativeStyleModelRequestTransportContractTests(unittest.TestCase):
         })
         self.assertTrue(identity["producer_receiver_expression_proven"])
         self.assertTrue(identity["consumer_receiver_expression_proven"])
-        self.assertFalse(identity["utility_manager_outer_backref_proven"])
+        self.assertFalse(identity["factory_result_to_outer_receiver_join_proven"])
+        self.assertFalse(identity["app_config_default_route_identity_join_proven"])
+        self.assertFalse(identity["non_app_config_route_identity_join_proven"])
+        self.assertFalse(identity["all_config_routes_identity_join_proven"])
+        self.assertFalse(identity["runtime_config_selector_resolved"])
+        self.assertFalse(
+            EXPECTED_EXPORT["claims"]["app_config_default_route_queue_identity_proven"]
+        )
+        self.assertFalse(EXPECTED_EXPORT["claims"]["runtime_config_selector_resolved"])
+        self.assertFalse(EXPECTED_EXPORT["claims"]["non_app_config_route_queue_identity_proven"])
+        self.assertFalse(EXPECTED_EXPORT["claims"]["all_config_routes_queue_identity_proven"])
         self.assertFalse(identity["same_event_manager_instance_proven"])
         self.assertFalse(identity["operation_38_queue_to_consumer_identity_proven"])
         self.assertFalse(EXPECTED_EXPORT["claims"]["operation_38_queue_to_consumer_identity_proven"])
@@ -368,6 +595,10 @@ class CreativeStyleModelRequestTransportContractTests(unittest.TestCase):
         for key in (
             "original_model_identity_preserved",
             "literal_operation_38_event_field_proven",
+            "runtime_config_selector_resolved",
+            "app_config_default_route_queue_identity_proven",
+            "non_app_config_route_queue_identity_proven",
+            "all_config_routes_queue_identity_proven",
             "named_model_handler_found", "renderer_or_live_view_sink_found",
             "still_jpeg_sink_found", "movie_sink_found", "runtime_execution_proven",
         ):
@@ -381,10 +612,62 @@ class CreativeStyleModelRequestTransportContractTests(unittest.TestCase):
         from pmca.analysis.creative_style_model_request_transport import validate_creative_style_model_request_transport_report
 
         report = validate_creative_style_model_request_transport_report(json.loads(REPORT.read_text(encoding="utf-8")))
-        self.assertEqual(report["readiness"], "OPERATION_38_TAG_ZERO_QUEUE_NO_CONSUMER_IDENTITY")
+        self.assertEqual(
+            report["readiness"],
+            "OPERATION_38_CONFIG_ROUTE_TO_PRODUCER_IDENTITY_UNRESOLVED",
+        )
+        self.assertIn("AppConfig default route", report["conclusion"])
+        self.assertIn("non-AppConfig route", report["conclusion"])
+        self.assertIn("runtime selector", report["conclusion"])
+        self.assertEqual(report["summary"]["conditional_default_route_queue_identity_join_count"], 0)
+        self.assertEqual(report["summary"]["queue_to_consumer_identity_join_count"], 0)
         self.assertFalse(report["camera_executed"])
         self.assertFalse(report["installable"])
         self.assertFalse(report["camera_test_eligible"])
+
+    def test_deep_dive_preserves_unresolved_config_route_to_producer_boundary(self):
+        text = DEEP_DIVE.read_text(encoding="utf-8")
+        normalized = " ".join(text.split())
+        self.assertIn("AppConfig default route", text)
+        self.assertIn("runtime BSS selector", text)
+        self.assertIn("non-AppConfig route", text)
+        self.assertIn("distinct generic vtable", text)
+        self.assertIn("producer/consumer\nEventManager identity join", text)
+        self.assertIn("no factory-result capture or store joins", text)
+        self.assertIn(
+            "On the statically identified AppConfig default-route branch only, "
+            "AppConfig obtains `ModelConfig`, whose descriptor-table slot registers "
+            "`@M00B` with `modelCamera.so` and `ModelCameraToInstance`.",
+            normalized,
+        )
+        self.assertIn(
+            "That branch-local registration does not resolve the runtime selector, "
+            "prove that `model/CAMERA`'s numeric ID equals 11, or join operation 38/key 7 "
+            "to that record or executor.",
+            normalized,
+        )
+        self.assertIn(
+            "All route-to-producer/consumer EventManager identity claims remain false.",
+            normalized,
+        )
+        self.assertIn(
+            "It does not promote runtime behavior, any live-view/JPEG/movie pipeline "
+            "sink, or installability.",
+            normalized,
+        )
+
+    def test_dispatch_plan_does_not_promote_stale_default_route_identity(self):
+        text = DISPATCH_PLAN.read_text(encoding="utf-8")
+        self.assertNotIn(
+            "OPERATION_38_DEFAULT_APPCONFIG_QUEUE_IDENTITY_RUNTIME_SELECTOR_UNRESOLVED",
+            text,
+        )
+        self.assertNotIn(
+            "the AppConfig default route proves receiver equality to the consumer loop",
+            text,
+        )
+        self.assertIn("OPERATION_38_CONFIG_ROUTE_TO_PRODUCER_IDENTITY_UNRESOLVED", text)
+        self.assertIn("all route identity claims remain false", text)
 
 
 class CreativeStyleModelRequestTransportExporterTests(unittest.TestCase):
@@ -403,6 +686,20 @@ class CreativeStyleModelRequestTransportExporterTests(unittest.TestCase):
                 return copy.deepcopy(EXPECTED_EXPORT)
 
         self.assertEqual(self.exporter.build_raw_export(FakeAdapter()), EXPECTED_EXPORT)
+
+    def test_main_status_does_not_promote_conditional_identity(self):
+        exporter = self.exporter
+        output = io.StringIO()
+        with (
+            mock.patch.object(exporter, "build_raw_export", return_value={}),
+            mock.patch.object(exporter, "write_export", return_value=Path("checked-export.json")),
+            redirect_stdout(output),
+        ):
+            exporter.main()
+        status = output.getvalue()
+        self.assertNotIn("conditional_identity=1", status)
+        self.assertIn("selector_routes_bounded=1", status)
+        self.assertIn("conditional_identity=0", status)
 
     def _real_context(self, role):
         exporter = self.exporter
@@ -785,6 +1082,42 @@ class CreativeStyleModelRequestTransportExporterTests(unittest.TestCase):
         finally:
             handle.close()
 
+    def test_queue_consumer_identity_selector_abi_mutations_are_rejected(self):
+        if not self.exporter.sources_available() or not self.exporter.dependencies_available():
+            self.skipTest("pinned sources or parser dependencies are unavailable")
+        exporter = self.exporter
+        handle, blob, mappings, deps, elf, dynsym, _plt_symbols, exidx = self._real_context("object")
+        original_instruction = exporter._instruction
+
+        class WrongInstruction:
+            def __init__(self, item):
+                self._item = item
+                self.id = -1
+
+            def __getattr__(self, name):
+                return getattr(self._item, name)
+
+        try:
+            for changed_site, message in (
+                (0x843C90, "AppConfig selector input forward"),
+                (0x843C98, "AppConfig selector comparison length"),
+                (0x843CAC, "AppConfig selector input forward"),
+                (0x843CAE, "AppConfig selector comparison length"),
+            ):
+                def changed_instruction(local_blob, local_mappings, local_deps, site):
+                    item = original_instruction(local_blob, local_mappings, local_deps, site)
+                    return WrongInstruction(item) if site == changed_site else item
+
+                with self.subTest(site=changed_site), mock.patch.object(
+                    exporter, "_instruction", side_effect=changed_instruction,
+                ):
+                    with self.assertRaisesRegex(RuntimeError, message):
+                        exporter._validate_operation_38_queue_consumer_identity(
+                            elf, blob, mappings, deps, dynsym, exidx,
+                        )
+        finally:
+            handle.close()
+
     def test_queue_consumer_identity_mutations_are_rejected(self):
         if not self.exporter.sources_available() or not self.exporter.dependencies_available():
             self.skipTest("pinned sources or parser dependencies are unavailable")
@@ -794,6 +1127,7 @@ class CreativeStyleModelRequestTransportExporterTests(unittest.TestCase):
         original_target = exporter._direct_target
         original_decode = exporter._decode
         original_word = exporter._word
+        original_symbol = exporter._call_symbol
 
         class WrongInstruction:
             def __init__(self, item):
@@ -804,11 +1138,79 @@ class CreativeStyleModelRequestTransportExporterTests(unittest.TestCase):
                 return getattr(self._item, name)
 
         class RegisterClobber:
+            def __init__(self, register):
+                self.register = register
+
             def regs_access(self):
-                return [], [deps["r1"]]
+                return [], [self.register]
 
         try:
             for changed_site, message in (
+                (0x8431A6, "config selector buffer literal"),
+                (0x8431AC, "config selector buffer PC-relative add"),
+                (0x843C70, "config selector input capture"),
+                (0x843C78, "getConfig GOT base literal"),
+                (0x843C7A, "getConfig GOT base add"),
+                (0x843C8C, "AppConfig selector name literal"),
+                (0x843C90, "AppConfig selector input forward"),
+                (0x843C96, "AppConfig selector name PC-relative add"),
+                (0x843C98, "AppConfig selector comparison length"),
+                (0x843C9E, "AppConfig first nonmatch branch"),
+                (0x843CAA, "AppConfig selector name literal"),
+                (0x843CAC, "AppConfig selector input forward"),
+                (0x843CAE, "AppConfig selector comparison length"),
+                (0x843CB0, "AppConfig selector name PC-relative add"),
+                (0x843CB6, "AppConfig second nonmatch branch"),
+                (0x843CB8, "getConfig GOT offset literal"),
+                (0x843CBC, "non-AppConfig getter GOT"),
+                (0x843CBE, "getConfig GOT load"),
+                (0x843CC0, "getConfig dispatch"),
+                (0x667BF6, "non-AppConfig allocation size"),
+                (0x667BFE, "non-AppConfig allocation capture"),
+                (0x667C04, "non-AppConfig singleton store"),
+                (0x667C06, "non-AppConfig singleton store"),
+                (0x667C08, "non-AppConfig singleton store"),
+                (0x667BC0, "non-AppConfig singleton getter"),
+                (0x667BC4, "non-AppConfig singleton getter"),
+                (0x667BC6, "non-AppConfig singleton getter load"),
+                (0x667BD4, "non-AppConfig vtable header"),
+                (0x667BDC, "non-AppConfig vtable header"),
+                (0x667BDE, "non-AppConfig vtable header"),
+                (0x667BE4, "non-AppConfig vtable address point"),
+                (0x667BE6, "non-AppConfig vtable store"),
+                (0x667764, "non-AppConfig UtilityManager field load"),
+                (0x3FD8C2, "AppConfig allocation size"),
+                (0x3FD8CA, "AppConfig result capture"),
+                (0x3FD8D0, "AppConfig initialize global literal"),
+                (0x3FD8D2, "AppConfig initialize global PC-relative add"),
+                (0x3FD8D4, "AppConfig singleton store"),
+                (0x3FD784, "AppConfig getter global literal"),
+                (0x3FD788, "AppConfig getter global PC-relative add"),
+                (0x3FD78A, "AppConfig singleton load"),
+                (0x3FD798, "AppConfig vtable header base literal"),
+                (0x3FD7A0, "AppConfig vtable header offset literal"),
+                (0x3FD7A2, "AppConfig vtable header base add"),
+                (0x3FD7A8, "AppConfig vtable header load"),
+                (0x3FD7AE, "AppConfig vtable address-point add"),
+                (0x3FD7B0, "AppConfig vptr store"),
+                (0x843D14, "UtilityManager initialize AppConfig receiver load"),
+                (0x843D16, "UtilityManager initialize vptr load"),
+                (0x843D18, "UtilityManager initialize slot load"),
+                (0x843D1A, "UtilityManager initialize slot call"),
+                (0x3FDA6A, "AppConfig initialize receiver capture"),
+                (0x3FDAA0, "AppConfig UtilityManager field store"),
+                (0x3FD8EC, "AppConfig producer receiver capture"),
+                (0x843D8C, "outer wrapper allocation size"),
+                (0x843D94, "outer wrapper EventManager argument load"),
+                (0x843D9C, "outer wrapper result capture"),
+                (0x843DA4, "outer wrapper store"),
+                (0x845CA8, "wrapper this capture"),
+                (0x845CAA, "wrapper EventManager capture"),
+                (0x845CFE, "wrapper EventManager store"),
+                (0x843DAE, "handoff EventManager argument load"),
+                (0x843DB6, "handoff wrapper argument load"),
+                (0x84309A, "UtilityManager wrapper store"),
+                (0x84309E, "UtilityManager EventManager store"),
                 (0x3FD93A, "UtilityManager source load"),
                 (0x3F29DE, "producer wrapper load"),
                 (0x3F29EA, "producer global store"),
@@ -832,6 +1234,12 @@ class CreativeStyleModelRequestTransportExporterTests(unittest.TestCase):
                         )
 
             for changed_site, message in (
+                (0x843CEC, "config selector factory call"),
+                (0x843CA6, "non-AppConfig initializer call"),
+                (0x667C00, "non-AppConfig constructor call"),
+                (0x3FD8CC, "AppConfig constructor call"),
+                (0x843D9E, "outer wrapper constructor call"),
+                (0x843DBA, "UtilityManager wrapper handoff call"),
                 (0x3FD93C, "producer initializer call"),
                 (0x8431AE, "outer constructor call"),
                 (0x8431DE, "outer consumer-loop call"),
@@ -849,28 +1257,76 @@ class CreativeStyleModelRequestTransportExporterTests(unittest.TestCase):
                             elf, blob, mappings, deps, dynsym, exidx,
                         )
 
+            for changed_site, message in (
+                (0x843C9A, "AppConfig selector comparison"),
+                (0x843CB2, "AppConfig selector comparison"),
+                (0x843CA0, "AppConfig initialize call"),
+                (0x667BFA, "non-AppConfig allocation call"),
+                (0x3FD8C6, "AppConfig allocation call"),
+                (0x843D8E, "outer wrapper allocation call"),
+            ):
+                def changed_symbol(local_blob, local_mappings, local_deps, local_plt, site):
+                    if site == changed_site:
+                        return "wrong"
+                    return original_symbol(local_blob, local_mappings, local_deps, local_plt, site)
+
+                with self.subTest(site=changed_site), mock.patch.object(
+                    exporter, "_call_symbol", side_effect=changed_symbol,
+                ):
+                    with self.assertRaisesRegex(RuntimeError, message):
+                        exporter._validate_operation_38_queue_consumer_identity(
+                            elf, blob, mappings, deps, dynsym, exidx,
+                        )
+
             def changed_decode(local_blob, local_mappings, local_deps, start, end, *, complete=True):
                 items = original_decode(
                     local_blob, local_mappings, local_deps, start, end, complete=complete,
                 )
-                return [RegisterClobber(), *items] if (start, end) == (0x8440AC, 0x8440AE) else items
+                if (start, end) == changed_range:
+                    return [RegisterClobber(register), *items]
+                return items
 
-            with mock.patch.object(exporter, "_decode", side_effect=changed_decode):
-                with self.assertRaisesRegex(RuntimeError, "consumer central-dispatch Event preservation"):
-                    exporter._validate_operation_38_queue_consumer_identity(
-                        elf, blob, mappings, deps, dynsym, exidx,
-                    )
+            for changed_range, register, message in (
+                ((0x843CD8, 0x843CEC), deps["r1"], "config selector outer argument preservation"),
+                ((0x843D96, 0x843D9E), deps["r1"], "outer wrapper EventManager argument preservation"),
+                ((0x845CAC, 0x845CFE), deps["fp"], "wrapper EventManager preservation"),
+                ((0x843DAC, 0x843DBA), deps["r0"], "handoff UtilityManager result preservation"),
+                ((0x843DB0, 0x843DBA), deps["r1"], "handoff EventManager argument preservation"),
+                ((0x843DB8, 0x843DBA), deps["r3"], "handoff wrapper argument preservation"),
+                ((0x8440AC, 0x8440AE), deps["r1"], "consumer central-dispatch Event preservation"),
+            ):
+                with self.subTest(span=changed_range), mock.patch.object(
+                    exporter, "_decode", side_effect=changed_decode,
+                ):
+                    with self.assertRaisesRegex(RuntimeError, message):
+                        exporter._validate_operation_38_queue_consumer_identity(
+                            elf, blob, mappings, deps, dynsym, exidx,
+                        )
 
-            def changed_word(local_blob, local_mappings, address, **kwargs):
-                if address == 0x136EC90:
-                    return 0
-                return original_word(local_blob, local_mappings, address, **kwargs)
+            for changed_address, message in (
+                (0x136DFB0, "AppConfig vtable header relocation"),
+                (0x136E97C, "non-AppConfig getter relocation"),
+                (0x1372D78, "non-AppConfig vtable relocation"),
+                (0x134DD68, "non-AppConfig UtilityManager slot relocation"),
+                (0x134DD78, "non-AppConfig initialize slot relocation"),
+                (0x134DD7C, "non-AppConfig producer slot relocation"),
+                (0x133E438, "UtilityManager initialize slot relocation"),
+                (0x133E428, "UtilityManager accessor slot relocation"),
+                (0x133E43C, "producer initializer slot relocation"),
+                (0x136EC90, "producer global relocation target"),
+            ):
+                def changed_word(local_blob, local_mappings, address, **kwargs):
+                    if address == changed_address:
+                        return 0
+                    return original_word(local_blob, local_mappings, address, **kwargs)
 
-            with mock.patch.object(exporter, "_word", side_effect=changed_word):
-                with self.assertRaisesRegex(RuntimeError, "producer global relocation target"):
-                    exporter._validate_operation_38_queue_consumer_identity(
-                        elf, blob, mappings, deps, dynsym, exidx,
-                    )
+                with self.subTest(address=changed_address), mock.patch.object(
+                    exporter, "_word", side_effect=changed_word,
+                ):
+                    with self.assertRaisesRegex(RuntimeError, message):
+                        exporter._validate_operation_38_queue_consumer_identity(
+                            elf, blob, mappings, deps, dynsym, exidx,
+                        )
         finally:
             handle.close()
 
