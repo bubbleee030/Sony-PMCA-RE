@@ -244,6 +244,20 @@ commit, publish a menu event, reach a renderer, route touch, or reach
 `BackupManager`/durable persistence. The fail-closed record is
 `analysis/a6400-creative-style-model-cursor-boundary.json`.
 
+Cross-module consumers narrow the ownership gap without closing it. Two exact
+anonymous `.ARM.exidx` owners in `viewUnified4.so` call
+`setCursorOnItemChange()` followed by `setValueToModel()`. A third owner in
+`viewUnified7.so` calls those two helpers and then `getProcVal()`. These are
+seven direct Thumb transfers across three ordered generic UI/model sequences.
+
+The same two modules also import `cmnViewSettingNodeRootCreativeStyle`, but all
+eight relocations are data-only `.data`/`.got` publications outside every one
+of the three executable owners. None of the owners has a matching nonzero-sized
+dynamic function symbol, and no typed or path-sensitive indirect edge binds a
+Creative Style root cell back to a sequence. This is module co-containment, not
+a Creative Style-specific model or commit path. The fail-closed record is
+`analysis/a6400-creative-style-generic-model-consumers.json`.
+
 ## α6400 bounded UI-dispatch and UXC correlation
 
 Read-only Ghidra analysis of the pinned α6400 2.00 `viewUnified2.so` used four
