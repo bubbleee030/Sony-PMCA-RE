@@ -258,26 +258,31 @@ Creative Style root cell back to a sequence. This is module co-containment, not
 a Creative Style-specific model or commit path. The fail-closed record is
 `analysis/a6400-creative-style-generic-model-consumers.json`.
 
-Bounded owner provenance is now exact for the three discovered sequences. Both
-`viewUnified4.so` targets are `TBH` case tails whose selected paths preserve entry `r0` into
-utility members at `+0x180` and `+0x188`; the second target begins after a prior
-return inside a shared unwind interval and is not promoted into the preceding
-entry. `viewUnified7.so` likewise has one canonical direct predecessor: switch
-case `0x30` preserves entry `r0` into the target's `+0x14c` utility sequence.
-All three anonymous dispatchers are address-taken from `.data.rel.ro` tables;
-that layout alone is not promoted to a concrete vtable or receiver type.
+Bounded owner provenance first established three exact `TBH` tails and receiver
+paths. Its direct scan covers canonical decoded prefixes rather than every
+unwind interval to completion, so the recorded predecessors remain positive
+bounded evidence rather than exhaustive uniqueness claims. The fail-closed
+predecessor record is `analysis/a6400-generic-model-owner-provenance.json`.
 
-The VU7 module also contains a separate initializer that allocates a
-`CmnSettingNodeUtil`, stores it at `+0x14c`, stores the setting node at `+0x148`,
-and initializes both. The shared offset is structural corroboration only: no
-constructor/factory edge, concrete RTTI/derived type, Creative Style PC-literal,
-or typed root edge connects that initializer to the model sequence. The direct
-scan also covers canonical decoded prefixes rather than every unwind interval
-to completion, so its single VU7 predecessor is positive bounded evidence, not
-an exhaustive uniqueness claim. The stronger static predecessor evidence still
-stops before selected-value storage, commit, renderer, touch, or persistence.
-The fail-closed record is
-`analysis/a6400-generic-model-owner-provenance.json`.
+The surrounding Itanium RTTI and primary vtables now identify all three owners.
+`viewUnified4.so` maps slot 64 to `ViewFocusArea_C` for the `+0x180` utility
+sequence and to `ViewCustomZebra` for the `+0x188` sequence; Zebra's adjacent
+slot 65 is the prior-return-split entry at `0x17a91c`. `viewUnified7.so` maps
+slot 64 to `ViewFocusArea` and the separate utility initializer to slot 54 in
+the same typed primary vtable. `ViewFocusArea` and `ViewFocusArea_C` both expose
+`WrapperSettingUtil` as a public nonvirtual base at `+0x140`; VU7's secondary
+vtable at that offset confirms the subobject layout, while its observed
+`+0x14c` field remains structurally inside the wrapper rather than semantically
+named by the static evidence.
+
+The shared slot-64 pattern is therefore generic view behavior across Focus Area
+and Custom Zebra, not a Creative Style owner. It proves a same-class static link
+between VU7's initializer and dispatcher, but not runtime ordering or a concrete
+same-instance execution. No typed primary-vtable relocation names Creative
+Style; broader root-edge absence is not assessed by this slice. The result still
+stops before selected-value storage, final commit, renderer, touch, or
+persistence. The refined fail-closed record is
+`analysis/a6400-dispatch-table-container-provenance.json`.
 
 ## α6400 bounded UI-dispatch and UXC correlation
 
