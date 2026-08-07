@@ -62,6 +62,7 @@ def _dependencies():
             ARM_CC_EQ,
             ARM_CC_GT,
             ARM_INS_IT,
+            ARM_INS_LSL,
             ARM_INS_MVN,
             ARM_INS_SUB,
             ARM_REG_R6,
@@ -70,7 +71,7 @@ def _dependencies():
         raise RuntimeError("local Capstone and pyelftools are required") from exc
     deps.update({
         "al": ARM_CC_AL, "eq": ARM_CC_EQ, "gt": ARM_CC_GT, "it": ARM_INS_IT,
-        "mvn": ARM_INS_MVN, "sub": ARM_INS_SUB, "r6": ARM_REG_R6,
+        "lsl": ARM_INS_LSL, "mvn": ARM_INS_MVN, "sub": ARM_INS_SUB, "r6": ARM_REG_R6,
     })
     return deps
 
@@ -813,8 +814,45 @@ def _validate_getter(blob, mappings, deps, plt_symbols):
         or output.operands[1].mem.disp != 0
     ):
         raise RuntimeError("getter argument 2 output differs")
-    for site in expected["branch_dependent_backup_read_sites"]:
-        if _call_symbol(blob, mappings, deps, plt_symbols, site) != expected["backup_read_symbol"]:
+    if [item["call_site"] for item in expected["branch_dependent_reads"]] != expected["branch_dependent_backup_read_sites"]:
+        raise RuntimeError("getter branch-dependent read inventory differs")
+    for record in expected["branch_dependent_reads"]:
+        base = _instruction(blob, mappings, deps, record["buffer_base_site"])
+        _require_add_immediate(
+            base, deps, deps["r1"], deps["r7"], record["buffer_base_offset"],
+            "getter branch-dependent buffer base",
+        )
+        pointer_definition = base
+        if record["buffer_adjust_site"] is not None:
+            adjust = _instruction(blob, mappings, deps, record["buffer_adjust_site"])
+            if not (
+                adjust.id == deps["add"]
+                and len(adjust.operands) in (2, 3)
+                and adjust.operands[0].type == deps["reg"]
+                and adjust.operands[0].reg == deps["r1"]
+                and adjust.operands[-1].type == deps["imm"]
+                and adjust.operands[-1].imm == record["buffer_adjustment"]
+                and (
+                    len(adjust.operands) == 2
+                    or (
+                        adjust.operands[1].type == deps["reg"]
+                        and adjust.operands[1].reg == deps["r1"]
+                    )
+                )
+            ):
+                raise RuntimeError("getter branch-dependent buffer adjustment differs")
+            pointer_definition = adjust
+        if record["buffer_base_offset"] + record["buffer_adjustment"] != record["buffer_local_offset"]:
+            raise RuntimeError("getter branch-dependent buffer formula differs")
+        _require_register_unchanged(
+            _decode(
+                blob, mappings, deps, pointer_definition.address + pointer_definition.size,
+                record["call_site"], complete=False,
+            ),
+            deps["r1"],
+            label="getter branch-dependent buffer pointer preservation",
+        )
+        if _call_symbol(blob, mappings, deps, plt_symbols, record["call_site"]) != expected["backup_read_symbol"]:
             raise RuntimeError("getter branch-dependent backup read differs")
     return copy.deepcopy(expected)
 
@@ -825,6 +863,120 @@ def _validate_dynamic_records(blob, mappings, deps, plt_symbols):
         raise RuntimeError("other dynamic backup-write count differs")
     if EXPECTED_EXPORT["selector_record"]["backup_write_call_site"] in expected["other_backup_write_call_sites"]:
         raise RuntimeError("selector dynamic backup write is double counted")
+    if [item["backup_write_call_site"] for item in expected["writes"][1:]] != expected["other_backup_write_call_sites"]:
+        raise RuntimeError("dynamic backup-write inventory differs")
+    arg2_capture = _instruction(blob, mappings, deps, EXPECTED_EXPORT["argument_2_record"]["argument_capture_site"])
+    arg2_register = arg2_capture.operands[0].reg
+    plus_13 = _instruction(blob, mappings, deps, expected["argument_2_plus_13_site"])
+    incoming_start, incoming_end = expected["incoming_argument_2_preservation_segment"]
+    if incoming_start != arg2_capture.address + arg2_capture.size or incoming_end != plus_13.address:
+        raise RuntimeError("dynamic record incoming argument-2 preservation range differs")
+    _require_register_unchanged(
+        _decode(blob, mappings, deps, incoming_start, incoming_end, complete=False),
+        arg2_register,
+        label="dynamic record incoming argument-2 preservation",
+    )
+    if (
+        plus_13.id != deps["add"]
+        or len(plus_13.operands) != 3
+        or plus_13.operands[1].reg != arg2_register
+        or plus_13.operands[2].imm != 13
+    ):
+        raise RuntimeError("dynamic record argument-2-plus-13 transform differs")
+    plus_13_register = plus_13.operands[0].reg
+    scaled = _instruction(blob, mappings, deps, expected["argument_2_plus_13_scaled_site"])
+    if (
+        scaled.id != deps["lsl"]
+        or len(scaled.operands) != 3
+        or scaled.operands[0].reg != arg2_register
+        or scaled.operands[1].reg != plus_13_register
+        or scaled.operands[2].imm != 2
+    ):
+        raise RuntimeError("dynamic record scaled argument-2 transform differs")
+    argument_3_index_site = expected["writes"][1]["id_index_site"]
+    argument_4_index_site = expected["writes"][2]["id_index_site"]
+    argument_5_load_site = expected["writes"][3]["id_load_site"]
+    scaled_segments = expected["scaled_argument_2_preservation_segments"]
+    if scaled_segments != [
+        [scaled.address + scaled.size, argument_3_index_site],
+        [argument_3_index_site + _instruction(blob, mappings, deps, argument_3_index_site).size, argument_4_index_site],
+    ]:
+        raise RuntimeError("dynamic record scaled argument-2 preservation ranges differ")
+    for start, end in scaled_segments:
+        _require_register_unchanged(
+            _decode(blob, mappings, deps, start, end, complete=False),
+            arg2_register,
+            label="dynamic record scaled argument-2 preservation",
+        )
+    plus_13_segment = expected["argument_2_plus_13_preservation_segment"]
+    if plus_13_segment != [plus_13.address + plus_13.size, argument_5_load_site]:
+        raise RuntimeError("dynamic record argument-2-plus-13 preservation range differs")
+    _require_register_unchanged(
+        _decode(blob, mappings, deps, *plus_13_segment, complete=False),
+        plus_13_register,
+        label="dynamic record argument-2-plus-13 preservation",
+    )
+
+    for record in expected["writes"]:
+        base = _instruction(blob, mappings, deps, record["id_base_site"])
+        pointer = _instruction(blob, mappings, deps, record["value_pointer_site"])
+        load = _instruction(blob, mappings, deps, record["id_load_site"])
+        _require_add_immediate(
+            pointer, deps, deps["r1"], deps["r7"], record["value_local_offset"],
+            "dynamic backup payload pointer",
+        )
+        if record["role"] == "selector-code":
+            _require_add_immediate(base, deps, deps["r2"], deps["r7"], record["id_base_offset"], "selector record ID base")
+            index = _instruction(blob, mappings, deps, record["id_index_site"])
+            if not (
+                index.id == deps["add"]
+                and index.operands[0].reg == deps["r3"]
+                and index.operands[1].reg == deps["r2"]
+                and index.operands[2].reg == arg2_register
+                and index.operands[2].shift.value == 2
+            ):
+                raise RuntimeError("selector record ID index differs")
+            calculated_offset = record["id_base_offset"] + record["id_load_displacement"]
+        elif record["role"] in ("argument-3", "argument-4"):
+            _require_add_immediate(base, deps, deps["r2"], deps["r7"], record["id_base_offset"], "argument record ID base")
+            index = _instruction(blob, mappings, deps, record["id_index_site"])
+            if not (
+                index.id == deps["add"]
+                and index.operands[0].reg == deps["r3"]
+                and index.operands[1].reg == deps["r2"]
+                and index.operands[2].reg == arg2_register
+                and index.operands[2].shift.value == 0
+            ):
+                raise RuntimeError("argument record ID index differs")
+            calculated_offset = record["id_base_offset"] + 4 * 13 + record["id_load_displacement"]
+        elif record["role"] == "argument-5":
+            _require_add_immediate(base, deps, deps["r3"], deps["r7"], record["id_base_offset"], "argument-5 record ID base")
+            memory = load.operands[1].mem
+            if (
+                memory.base != deps["r3"]
+                or memory.index != plus_13_register
+                or load.operands[1].shift.value != 2
+            ):
+                raise RuntimeError("argument-5 record ID index differs")
+            calculated_offset = record["id_base_offset"] + 4 * 13 + record["id_load_displacement"]
+        else:
+            raise RuntimeError("dynamic backup role differs")
+        if (
+            load.id != deps["ldr"]
+            or load.operands[0].reg != deps["r0"]
+            or load.operands[1].mem.base != deps["r3"]
+            or load.operands[1].mem.disp != record["id_load_displacement"]
+            or calculated_offset != record["record_id_effective_byte_offset"]
+            or record["record_id_argument_2_scale"] != 4
+        ):
+            raise RuntimeError("dynamic backup record ID formula differs")
+        _require_register_unchanged(
+            _decode(blob, mappings, deps, pointer.address + pointer.size, record["backup_write_call_site"], complete=False),
+            deps["r1"],
+            label="dynamic backup payload pointer preservation",
+        )
+        if _call_symbol(blob, mappings, deps, plt_symbols, record["backup_write_call_site"]) != EXPECTED_EXPORT["selector_record"]["backup_write_symbol"]:
+            raise RuntimeError("dynamic backup write boundary differs")
     for site in expected["other_backup_write_call_sites"]:
         if _call_symbol(blob, mappings, deps, plt_symbols, site) != EXPECTED_EXPORT["selector_record"]["backup_write_symbol"]:
             raise RuntimeError("dynamic backup write boundary differs")

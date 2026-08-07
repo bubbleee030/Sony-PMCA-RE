@@ -84,6 +84,39 @@ class CreativeStyleSelectorCodeContractTests(unittest.TestCase):
         self.assertEqual(other["other_backup_write_count"], 3)
         self.assertNotIn(selector_site, other["other_backup_write_call_sites"])
 
+    def test_dynamic_write_geometry_is_exact_but_record_ids_stay_unresolved(self):
+        from pmca.analysis.creative_style_selector_code import EXPECTED_EXPORT
+
+        dynamic = EXPECTED_EXPORT["dynamic_records"]
+        self.assertEqual(
+            [
+                (
+                    item["role"], item["backup_write_call_site"],
+                    item["record_id_effective_byte_offset"],
+                    item["record_id_argument_2_scale"], item["value_local_offset"],
+                )
+                for item in dynamic["writes"]
+            ],
+            [
+                ("selector-code", 0x48955A, 0xF8, 4, 0x11E),
+                ("argument-3", 0x489574, 0xDC, 4, 0x4),
+                ("argument-4", 0x489588, 0x8C, 4, 0x140),
+                ("argument-5", 0x489598, 0x3C, 4, 0x144),
+            ],
+        )
+        self.assertEqual(dynamic["argument_2_plus_13_site"], 0x48955E)
+        self.assertEqual(dynamic["argument_2_plus_13_scaled_site"], 0x489562)
+        self.assertEqual(dynamic["writes"][0]["id_index_semantics"], "four-times-original-argument-2")
+        self.assertEqual(dynamic["writes"][1]["id_index_semantics"], "four-times-(argument-2-plus-13)")
+        self.assertEqual(dynamic["writes"][2]["id_index_semantics"], "four-times-(argument-2-plus-13)")
+        self.assertEqual(dynamic["writes"][3]["id_index_semantics"], "four-times-(argument-2-plus-13)")
+        self.assertFalse(dynamic["numeric_record_ids_resolved"])
+        self.assertFalse(dynamic["record_id_human_semantics_resolved"])
+        self.assertTrue(EXPECTED_EXPORT["claims"]["dynamic_record_geometry_found"])
+        self.assertTrue(EXPECTED_EXPORT["claims"]["branch_dependent_getter_buffer_geometry_found"])
+        self.assertFalse(EXPECTED_EXPORT["claims"]["dynamic_record_ids_resolved"])
+        self.assertFalse(EXPECTED_EXPORT["claims"]["dynamic_setter_getter_record_join_found"])
+
     def test_getter_fixed_record_does_not_promote_selected_menu_state(self):
         from pmca.analysis.creative_style_selector_code import EXPECTED_EXPORT
 
@@ -106,6 +139,7 @@ class CreativeStyleSelectorCodeContractTests(unittest.TestCase):
             "human_style_labels_mapped", "menu_selected_state_join_found",
             "caution_config_selected_state_join_found", "five_argument_semantics_resolved",
             "selector_code_fixed_record_found",
+            "dynamic_record_ids_resolved", "dynamic_setter_getter_record_join_found",
             "renderer_or_output_sink_found", "creative_look_equivalence_found",
             "runtime_execution_proven",
         ):
@@ -119,7 +153,7 @@ class CreativeStyleSelectorCodeContractTests(unittest.TestCase):
         from pmca.analysis.creative_style_selector_code import validate_creative_style_selector_code_report
 
         report = validate_creative_style_selector_code_report(json.loads(REPORT.read_text(encoding="utf-8")))
-        self.assertEqual(report["readiness"], "TYPED_ELEMENT_SELECTOR_MAP_AND_ARGUMENT2_RECORD")
+        self.assertEqual(report["readiness"], "TYPED_ELEMENT_SELECTOR_AND_DYNAMIC_RECORD_GEOMETRY")
         self.assertFalse(report["camera_executed"])
         self.assertFalse(report["installable"])
         self.assertFalse(report["camera_test_eligible"])
@@ -227,6 +261,7 @@ class CreativeStyleSelectorCodeExporterTests(unittest.TestCase):
                 with self.subTest(site=changed_site), mock.patch.object(exporter, "_instruction", side_effect=changed_instruction):
                     with self.assertRaisesRegex(RuntimeError, message):
                         validator(blob, mappings, deps, plt_symbols)
+
         finally:
             handle.close()
 
@@ -275,6 +310,66 @@ class CreativeStyleSelectorCodeExporterTests(unittest.TestCase):
                 with self.subTest(site=changed_site), mock.patch.object(exporter, "_instruction", side_effect=changed_instruction):
                     with self.assertRaisesRegex(RuntimeError, message):
                         validator(blob, mappings, deps, plt_symbols)
+        finally:
+            handle.close()
+
+    def test_dynamic_record_and_getter_buffer_mutations_are_rejected(self):
+        if not self.exporter.sources_available() or not self.exporter.dependencies_available():
+            self.skipTest("pinned source or parser dependencies are unavailable")
+        exporter = self.exporter
+        handle, blob, mappings, deps, plt_symbols = self._real_context()
+        original_instruction = exporter._instruction
+        original_decode = exporter._decode
+
+        class WrongInstruction:
+            def __init__(self, item):
+                self._item = item
+                self.id = -1
+
+            def __getattr__(self, name):
+                return getattr(self._item, name)
+
+        class RegisterClobber:
+            def __init__(self, register):
+                self.register = register
+
+            def regs_access(self):
+                return [], [self.register]
+
+        try:
+            for validator, changed_site, message in (
+                (exporter._validate_dynamic_records, 0x48955E, "plus-13"),
+                (exporter._validate_dynamic_records, 0x489562, "scaled argument-2"),
+                (exporter._validate_dynamic_records, 0x48956A, "record ID index"),
+                (exporter._validate_dynamic_records, 0x489580, "record ID index"),
+                (exporter._validate_dynamic_records, 0x489594, "record ID"),
+                (exporter._validate_getter, 0x48BAD2, "buffer adjustment"),
+            ):
+                def changed_instruction(local_blob, local_mappings, local_deps, site):
+                    item = original_instruction(local_blob, local_mappings, local_deps, site)
+                    return WrongInstruction(item) if site == changed_site else item
+
+                with self.subTest(site=changed_site), mock.patch.object(exporter, "_instruction", side_effect=changed_instruction):
+                    with self.assertRaisesRegex(RuntimeError, message):
+                        validator(blob, mappings, deps, plt_symbols)
+
+            argument_2_register = original_instruction(blob, mappings, deps, 0x4893BA).operands[0].reg
+            plus_13_register = original_instruction(blob, mappings, deps, 0x48955E).operands[0].reg
+            for changed_range, register, message in (
+                ((0x4893BC, 0x48955E), argument_2_register, "incoming argument-2 preservation"),
+                ((0x489566, 0x48956A), argument_2_register, "scaled argument-2 preservation"),
+                ((0x48956E, 0x489580), argument_2_register, "scaled argument-2 preservation"),
+                ((0x489562, 0x489594), plus_13_register, "argument-2-plus-13 preservation"),
+            ):
+                def changed_decode(local_blob, local_mappings, local_deps, start, end, *, complete=True):
+                    items = original_decode(local_blob, local_mappings, local_deps, start, end, complete=complete)
+                    if (start, end) == changed_range:
+                        return [RegisterClobber(register), *items]
+                    return items
+
+                with self.subTest(span=changed_range), mock.patch.object(exporter, "_decode", side_effect=changed_decode):
+                    with self.assertRaisesRegex(RuntimeError, message):
+                        exporter._validate_dynamic_records(blob, mappings, deps, plt_symbols)
         finally:
             handle.close()
 

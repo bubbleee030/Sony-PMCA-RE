@@ -274,13 +274,100 @@ GETTER_BOUNDARY = {
         0x48BADA, 0x48BAEC, 0x48BAFE, 0x48BB34, 0x48BB9E,
         0x48BBB2, 0x48BBC2, 0x48BBFC, 0x48BC10, 0x48BC20,
     ],
+    "branch_dependent_reads": [
+        {"call_site": 0x48BADA, "buffer_base_site": 0x48BAC8, "buffer_base_offset": 0x134, "buffer_adjust_site": 0x48BAD2, "buffer_adjustment": 1, "buffer_local_offset": 0x135},
+        {"call_site": 0x48BAEC, "buffer_base_site": 0x48BAE2, "buffer_base_offset": 0x134, "buffer_adjust_site": None, "buffer_adjustment": 0, "buffer_local_offset": 0x134},
+        {"call_site": 0x48BAFE, "buffer_base_site": 0x48BAF4, "buffer_base_offset": 0x134, "buffer_adjust_site": 0x48BAF8, "buffer_adjustment": 3, "buffer_local_offset": 0x137},
+        {"call_site": 0x48BB34, "buffer_base_site": 0x48BB2A, "buffer_base_offset": 0x134, "buffer_adjust_site": 0x48BB32, "buffer_adjustment": 3, "buffer_local_offset": 0x137},
+        {"call_site": 0x48BB9E, "buffer_base_site": 0x48BB92, "buffer_base_offset": 0x134, "buffer_adjust_site": None, "buffer_adjustment": 0, "buffer_local_offset": 0x134},
+        {"call_site": 0x48BBB2, "buffer_base_site": 0x48BBA6, "buffer_base_offset": 0x134, "buffer_adjust_site": 0x48BBAC, "buffer_adjustment": 1, "buffer_local_offset": 0x135},
+        {"call_site": 0x48BBC2, "buffer_base_site": 0x48BBBA, "buffer_base_offset": 0x136, "buffer_adjust_site": None, "buffer_adjustment": 0, "buffer_local_offset": 0x136},
+        {"call_site": 0x48BBFC, "buffer_base_site": 0x48BBF0, "buffer_base_offset": 0x136, "buffer_adjust_site": None, "buffer_adjustment": 0, "buffer_local_offset": 0x136},
+        {"call_site": 0x48BC10, "buffer_base_site": 0x48BC04, "buffer_base_offset": 0x134, "buffer_adjust_site": 0x48BC0A, "buffer_adjustment": 1, "buffer_local_offset": 0x135},
+        {"call_site": 0x48BC20, "buffer_base_site": 0x48BC18, "buffer_base_offset": 0x134, "buffer_adjust_site": None, "buffer_adjustment": 0, "buffer_local_offset": 0x134},
+    ],
     "branch_dependent_backup_read_count": 10,
+    "branch_dependent_record_ids_resolved": False,
+    "branch_dependent_setter_record_join_found": False,
     "manager_or_view_output_position_proven": False,
 }
 
 DYNAMIC_RECORDS = {
     "other_backup_write_call_sites": [0x489574, 0x489588, 0x489598],
     "other_backup_write_count": 3,
+    "argument_2_plus_13_site": 0x48955E,
+    "argument_2_plus_13_scaled_site": 0x489562,
+    "incoming_argument_2_preservation_segment": [0x4893BC, 0x48955E],
+    "scaled_argument_2_preservation_segments": [
+        [0x489566, 0x48956A],
+        [0x48956E, 0x489580],
+    ],
+    "argument_2_plus_13_preservation_segment": [0x489562, 0x489594],
+    "writes": [
+        {
+            "role": "selector-code",
+            "condition": "argument-2-nonzero",
+            "id_base_site": 0x48954A,
+            "id_base_offset": 0x120,
+            "id_index_site": 0x489552,
+            "id_index_semantics": "four-times-original-argument-2",
+            "id_load_site": 0x489556,
+            "id_load_displacement": -0x28,
+            "record_id_effective_byte_offset": 0xF8,
+            "record_id_argument_2_scale": 4,
+            "value_pointer_site": 0x48954E,
+            "value_local_offset": 0x11E,
+            "backup_write_call_site": 0x48955A,
+        },
+        {
+            "role": "argument-3",
+            "condition": "always-after-selector-branch",
+            "id_base_site": 0x489566,
+            "id_base_offset": 0x120,
+            "id_index_site": 0x48956A,
+            "id_index_semantics": "four-times-(argument-2-plus-13)",
+            "id_load_site": 0x489570,
+            "id_load_displacement": -0x78,
+            "record_id_effective_byte_offset": 0xDC,
+            "record_id_argument_2_scale": 4,
+            "value_pointer_site": 0x48956E,
+            "value_local_offset": 0x4,
+            "backup_write_call_site": 0x489574,
+        },
+        {
+            "role": "argument-4",
+            "condition": "always-after-selector-branch",
+            "id_base_site": 0x489578,
+            "id_base_offset": 0x120,
+            "id_index_site": 0x489580,
+            "id_index_semantics": "four-times-(argument-2-plus-13)",
+            "id_load_site": 0x489584,
+            "id_load_displacement": -0xC8,
+            "record_id_effective_byte_offset": 0x8C,
+            "record_id_argument_2_scale": 4,
+            "value_pointer_site": 0x48957C,
+            "value_local_offset": 0x140,
+            "backup_write_call_site": 0x489588,
+        },
+        {
+            "role": "argument-5",
+            "condition": "always-after-selector-branch",
+            "id_base_site": 0x48958C,
+            "id_base_offset": 0x8,
+            "id_index_site": 0x489594,
+            "id_index_semantics": "four-times-(argument-2-plus-13)",
+            "id_load_site": 0x489594,
+            "id_load_displacement": 0,
+            "record_id_effective_byte_offset": 0x3C,
+            "record_id_argument_2_scale": 4,
+            "value_pointer_site": 0x489590,
+            "value_local_offset": 0x144,
+            "backup_write_call_site": 0x489598,
+        },
+    ],
+    "numeric_record_ids_resolved": False,
+    "record_id_source_initialization_resolved": False,
+    "record_id_human_semantics_resolved": False,
     "record_id_semantics_resolved": False,
     "human_field_semantics_resolved": False,
 }
@@ -288,10 +375,14 @@ DYNAMIC_RECORDS = {
 CLAIMS = {
     "typed_element_selector_code_mapping_found": True,
     "selector_code_dynamic_record_boundary_found": True,
+    "dynamic_record_geometry_found": True,
+    "branch_dependent_getter_buffer_geometry_found": True,
     "argument_2_fixed_record_encode_decode_found": True,
     "getter_argument_2_record_boundary_found": True,
     "request_parameter_keys_found": True,
     "selector_code_fixed_record_found": False,
+    "dynamic_record_ids_resolved": False,
+    "dynamic_setter_getter_record_join_found": False,
     "human_style_labels_mapped": False,
     "menu_selected_state_join_found": False,
     "caution_config_selected_state_join_found": False,
@@ -336,7 +427,7 @@ EXPECTED_EXPORT = {
     "truncated": False,
 }
 
-READINESS = "TYPED_ELEMENT_SELECTOR_MAP_AND_ARGUMENT2_RECORD"
+READINESS = "TYPED_ELEMENT_SELECTOR_AND_DYNAMIC_RECORD_GEOMETRY"
 CONCLUSION = (
     "The typed CustomCreativeStyle setter has a bounded selector-to-persisted-code table: inputs "
     "0..13 reject 12 and map the other thirteen values to exact codes. That code reaches an adjacent "
@@ -344,8 +435,10 @@ CONCLUSION = (
     "unresolved. Fixed backup item 0x01070762 instead carries a low-byte argument-2 encoding into the "
     "getter's second direct output reference: nonpositive input writes 0xff, positive n writes the low "
     "byte of n-1, signed -1 leaves the preinitialized output zero, and other signed bytes are incremented. "
-    "No admissible input range is proven, so a universal round trip is not claimed; ten other reads remain "
-    "branch-dependent. Five ParamList "
+    "No admissible input range is proven, so a universal round trip is not claimed. The four dynamic "
+    "setter writes now have exact frame-relative record-source and value-pointer formulas, and the ten "
+    "branch-dependent getter reads have exact scratch-buffer pointers. Their numeric record IDs and any "
+    "setter/getter dynamic-record join remain unresolved. Five ParamList "
     "keys are exact, but named preset labels, menu-selected-state identity, full five-field semantics, "
     "renderer/output effects, Creative Look equivalence, runtime behavior, and installability remain unproven."
 )
@@ -391,6 +484,7 @@ def normalize_creative_style_selector_code_export(document):
         "human_style_labels_mapped", "menu_selected_state_join_found",
         "caution_config_selected_state_join_found", "five_argument_semantics_resolved",
         "selector_code_fixed_record_found",
+        "dynamic_record_ids_resolved", "dynamic_setter_getter_record_join_found",
         "renderer_or_output_sink_found", "creative_look_equivalence_found",
         "runtime_execution_proven",
     )
@@ -407,8 +501,10 @@ def summarize_creative_style_selector_code_export(document):
         "accepted_selector_count": len(export["setter_selector"]["selector_to_persisted_code"]),
         "rejected_selector_count": len(export["setter_selector"]["rejected_indices"]),
         "fixed_argument_2_record_count": 1,
+        "dynamic_setter_write_count": len(export["dynamic_records"]["writes"]),
         "request_param_count": len(export["request_boundary"]["param_keys"]),
         "branch_dependent_getter_read_count": export["getter_boundary"]["branch_dependent_backup_read_count"],
+        "branch_dependent_getter_buffer_count": len(export["getter_boundary"]["branch_dependent_reads"]),
     }
 
 

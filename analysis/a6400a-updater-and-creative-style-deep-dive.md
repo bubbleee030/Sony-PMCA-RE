@@ -333,6 +333,17 @@ typed setter/getter encode/decode boundary, but no admissible input range is
 proven and a universal round trip is not claimed. It also does not prove that
 the manager or view exposes that reference as selected style.
 
+The four dynamic setter writes now have exact frame-relative geometry without
+assigning numeric record IDs or human meanings. The selector code uses the
+record word at `r7 + 0xf8 + 4*argument-2` and the byte at `r7 + 0x11e`.
+Arguments 3 and 4 use record words at `r7 + 0xdc + 4*argument-2` and
+`r7 + 0x8c + 4*argument-2`, with values at `r7 + 0x4` and `r7 + 0x140`.
+Argument 5 uses the record word at `r7 + 0x3c + 4*argument-2` and the value at
+`r7 + 0x144`. Ten branch-dependent getter reads likewise resolve only their
+scratch-buffer pointers: three at `r7 + 0x134`, three at `r7 + 0x135`, two at
+`r7 + 0x136`, and two at `r7 + 0x137`. Static evidence does not yet join any
+of those getter reads to a dynamic setter record.
+
 The five request additions use exact keys `[383, 386, 389, 392, 383]` and
 holder roles `[selector-code, argument-3, argument-4-or-branch-default,
 argument-5, selector-code]`. Argument 3 is captured directly, argument 4 comes
@@ -343,6 +354,28 @@ labels, the menu-selected-state join, the meanings of the three other dynamic
 backup writes, and all renderer/live-view/JPEG/movie effects remain unresolved.
 The fail-closed record is
 `analysis/a6400-creative-style-selector-code.json`.
+
+The negative label/state result is now bounded more tightly. The nineteen-step
+case-0 scaffold contains no typed Creative Style process call, while case 16
+uses process-data ID 42 through a separate path. Generic CautionConfig selected
+state exists at object offset `+0x24`, but no root, menu-event, or process-data
+edge joins it to this view. English resources contain Creative Style words,
+but no table or resource-ID mapping binds those strings to the thirteen accepted
+selector indices. The indices therefore cannot yet be named or treated as the
+currently selected menu item.
+
+The request transport is also bounded past the typed setter, but not end to
+end. Its local wrapper gets `CmnMRUtil` and tail-branches through a small helper
+into a bounded dispatcher. That dispatcher contains exactly one named
+`viewManagerIf::requestModelExecute` edge, but no static branch proof shows that
+the `@M00B` operation-38 input takes it. Independently, the shared `libObj.so`
+request API gets an ID and calls `createRequestModelExecuteEvent`; that builder
+constructs an `Event`, attaches the `ParamList`, and adds two scalar parameters.
+A separate `EventManager::push` owner contains three indirect calls, but the
+shared request-to-queue join and consumer dispatch remain unresolved. This does
+not establish an operation-38 handler or a renderer, live-view, still-JPEG, or
+movie sink. The fail-closed record is
+`analysis/a6400-creative-style-model-request-transport.json`.
 
 A separate controller field at object offset `0x15c` takes observed values
 0 through 4 and is backed by item `0x01070763`. Slot 57 resets the field to zero
@@ -510,17 +543,19 @@ and derives no recovery promotion from it.
 
 ## Next safe experiments
 
-1. Resolve the table-selected selector-record IDs, the human meanings of setter
-   arguments 2 through 5, and the three remaining dynamic backup writes. Join
-   the thirteen accepted selector indices to exact menu labels/state, then
-   follow `@M00B` operation 38 to renderer/live-view/JPEG/movie consumers; do
-   not label an argument or output without an exact dataflow edge.
+1. Resolve the numeric dynamic-record IDs and join each setter write to its
+   branch-dependent getter read. Resolve the dispatcher branch taken by the
+   exact `@M00B` operation-38 input, then join the shared request event to its
+   queue and named consumer before following any renderer/live-view/JPEG/movie
+   path. Do not label an argument or output without an exact dataflow edge.
 2. Compare that verified five-value ABI with the first-class Creative Look
    contract, then locate independent storage and processing boundaries for the
    three missing axes before changing any layer or axis from `UNESTABLISHED`.
-3. Continue the settings-menu touch trace from real widget/event owners to a
-   coordinate transform, hit test, and selection dispatcher. Existing wheel,
-   repeat-key, cursor, and widget behavior is not evidence of touch navigation.
+3. Join the thirteen accepted selector indices to exact resource IDs and
+   selected-state storage. Continue the settings-menu touch trace from real
+   widget/event owners to a coordinate transform, hit test, and selection
+   dispatcher. Existing wheel, repeat-key, cursor, widget, and touchability-flag
+   behavior is not evidence of touch navigation.
 4. Use α6700 for Creative Look/menu behavior and α7 V for vertical-display
    behavior, without assuming donor code or hardware-dependent processing is
    portable to α6400.

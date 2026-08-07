@@ -5,8 +5,12 @@
   "camera_test_eligible": false,
   "claims": {
     "argument_2_fixed_record_encode_decode_found": true,
+    "branch_dependent_getter_buffer_geometry_found": true,
     "caution_config_selected_state_join_found": false,
     "creative_look_equivalence_found": false,
+    "dynamic_record_geometry_found": true,
+    "dynamic_record_ids_resolved": false,
+    "dynamic_setter_getter_record_join_found": false,
     "five_argument_semantics_resolved": false,
     "getter_argument_2_record_boundary_found": true,
     "human_style_labels_mapped": false,
@@ -18,10 +22,10 @@
     "selector_code_fixed_record_found": false,
     "typed_element_selector_code_mapping_found": true
   },
-  "conclusion": "The typed CustomCreativeStyle setter has a bounded selector-to-persisted-code table: inputs 0..13 reject 12 and map the other thirteen values to exact codes. That code reaches an adjacent dynamic backup-record boundary on the argument-2-nonzero path; its record-ID semantics remain unresolved. Fixed backup item 0x01070762 instead carries a low-byte argument-2 encoding into the getter's second direct output reference: nonpositive input writes 0xff, positive n writes the low byte of n-1, signed -1 leaves the preinitialized output zero, and other signed bytes are incremented. No admissible input range is proven, so a universal round trip is not claimed; ten other reads remain branch-dependent. Five ParamList keys are exact, but named preset labels, menu-selected-state identity, full five-field semantics, renderer/output effects, Creative Look equivalence, runtime behavior, and installability remain unproven.",
-  "evidence_digest": "d7d1c8ec4f248cdca1a030bfef1691ad727e6a5b5fb59b718e111a02d61fee32",
+  "conclusion": "The typed CustomCreativeStyle setter has a bounded selector-to-persisted-code table: inputs 0..13 reject 12 and map the other thirteen values to exact codes. That code reaches an adjacent dynamic backup-record boundary on the argument-2-nonzero path; its record-ID semantics remain unresolved. Fixed backup item 0x01070762 instead carries a low-byte argument-2 encoding into the getter's second direct output reference: nonpositive input writes 0xff, positive n writes the low byte of n-1, signed -1 leaves the preinitialized output zero, and other signed bytes are incremented. No admissible input range is proven, so a universal round trip is not claimed. The four dynamic setter writes now have exact frame-relative record-source and value-pointer formulas, and the ten branch-dependent getter reads have exact scratch-buffer pointers. Their numeric record IDs and any setter/getter dynamic-record join remain unresolved. Five ParamList keys are exact, but named preset labels, menu-selected-state identity, full five-field semantics, renderer/output effects, Creative Look equivalence, runtime behavior, and installability remain unproven.",
+  "evidence_digest": "6136e58d97b35307d5641c0814644ae62da4bef7bc96567d8b787fa546d8936a",
   "installable": false,
-  "readiness": "TYPED_ELEMENT_SELECTOR_MAP_AND_ARGUMENT2_RECORD",
+  "readiness": "TYPED_ELEMENT_SELECTOR_AND_DYNAMIC_RECORD_GEOMETRY",
   "schema_version": 1,
   "source": {
     "module": "lib/viewUnified2.so",
@@ -30,8 +34,10 @@
   },
   "summary": {
     "accepted_selector_count": 13,
+    "branch_dependent_getter_buffer_count": 10,
     "branch_dependent_getter_read_count": 10,
-    "canonical_export_sha256": "2a6d6173933e473ff652c356c77fb2f8870e9e34045efc7652e7173cc6ecae1c",
+    "canonical_export_sha256": "a14b23a7f8a89685dd4bcd9f85d365614062ad28986b64b0ceb4978f51d9127d",
+    "dynamic_setter_write_count": 4,
     "fixed_argument_2_record_count": 1,
     "rejected_selector_count": 1,
     "request_param_count": 5,

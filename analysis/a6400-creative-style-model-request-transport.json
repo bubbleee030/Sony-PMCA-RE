@@ -1,0 +1,48 @@
+{
+  "analysis_scope": "offline-static-creative-style-model-request-transport",
+  "camera_executed": false,
+  "camera_policy": "physically-disconnected",
+  "camera_test_eligible": false,
+  "claims": {
+    "candidate_cross_module_request_edge_found": true,
+    "creative_look_equivalence_found": false,
+    "end_to_end_operation_38_event_queue_join_found": false,
+    "event_queue_indirect_boundary_found": true,
+    "movie_sink_found": false,
+    "named_model_handler_found": false,
+    "operation_38_candidate_branch_proven": false,
+    "renderer_or_live_view_sink_found": false,
+    "runtime_execution_proven": false,
+    "shared_event_construction_boundary_found": true,
+    "shared_request_to_event_queue_join_found": false,
+    "still_jpeg_sink_found": false,
+    "typed_custom_creative_style_request_found": true,
+    "view_wrapper_transport_found": true
+  },
+  "conclusion": "The typed CustomCreativeStyle setter emits an exact @M00B operation-38 request with five parameters. Its local wrapper reaches a bounded branchy dispatcher that contains one named cross-module request edge, but no static path proves that the @M00B/38 input takes that edge. Independently, the shared libObj request API constructs an Event; a separate EventManager queue boundary has three indirect calls, but the shared request-to-queue join and consumer dispatch remain unresolved. No end-to-end operation-38 queue join, named model handler, renderer/live-view, still-JPEG, movie, Creative Look equivalence, runtime behavior, or installability is proven.",
+  "evidence_digest": "69bb45adc01eb07103027194a4e7dc98716e43b3d022be6680645219b0343903",
+  "installable": false,
+  "readiness": "REQUEST_WRAPPER_AND_CANDIDATE_EVENT_TRANSPORT_ONLY",
+  "schema_version": 1,
+  "sources": {
+    "object": {
+      "module": "lib/libObj.so",
+      "sha256": "60ffd2b0f31f4bc139a7c13a4f62c25cdeb6a531ad5ef35df48471e6e36e88b1",
+      "size": 20860436
+    },
+    "view": {
+      "module": "lib/viewUnified2.so",
+      "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+      "size": 11530552
+    }
+  },
+  "summary": {
+    "candidate_cross_module_edge_count": 1,
+    "canonical_export_sha256": "89335b77ab9c4115f4a19d3f9baf754949429a4e75737217b4f848dcd1a24093",
+    "indirect_queue_call_count": 3,
+    "resolved_model_handler_count": 0,
+    "resolved_pipeline_sink_count": 0,
+    "shared_event_builder_count": 1,
+    "typed_request_count": 1
+  }
+}
