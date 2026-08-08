@@ -169,6 +169,7 @@ The raw export contains exactly:
 - `libobj_publication_scan`;
 - `queue_processor`;
 - `first_unresolved_boundary`;
+- `readiness`;
 - `claims`; and
 - `truncated`.
 
