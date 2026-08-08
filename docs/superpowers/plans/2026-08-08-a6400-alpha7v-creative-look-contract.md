@@ -61,7 +61,7 @@
 - Consumes: the approved contract design and the existing bounded target evidence records.
 - Produces: `validate_creative_look_stack(document: dict) -> dict`, `derive_presentation_availability(document: dict) -> dict`, `BUILT_IN_LOOK_IDS`, `CUSTOM_LOOK_IDS`, `AXIS_DEFINITIONS`, `WORKFLOW_IDS`, `RESTRICTION_IDS`, and `REASON_CODES`.
 
-- [ ] **Step 1: Write failing exact-reference tests**
+- [x] **Step 1: Write failing exact-reference tests**
 
 Add constants and assertions equivalent to:
 
@@ -99,7 +99,7 @@ RESTRICTION_IDS = (
 
 Tests must reject the old ten-look sequence, any reorder or duplicate, `copy_select`, missing Custom slots, a Sharpness minimum below `0`, Sharpness Range minimum below `1`, and Clarity minimum below `0`.
 
-- [ ] **Step 2: Run the focused tests and verify schema-v1 failure**
+- [x] **Step 2: Run the focused tests and verify schema-v1 failure**
 
 Run:
 
@@ -109,7 +109,7 @@ python -m unittest tests.analysis.test_creative_look_stack -v
 
 Expected: failures showing the committed schema version, look membership, workflows, ranges, and presentation fields are stale.
 
-- [ ] **Step 3: Implement exact reference and capability validation**
+- [x] **Step 3: Implement exact reference and capability validation**
 
 Set the document fields to:
 
@@ -156,7 +156,7 @@ PRESENTATION_FIELDS = {"visibility", "availability", "reasons"}
 
 The reference catalog contains the exact source URL, ordered built-ins, ordered Custom slots, ordered axis definitions with `default: null`, ordered workflows, and five exact reference restriction records. Reference membership cannot be used as target evidence.
 
-- [ ] **Step 4: Derive availability and stable reason codes**
+- [x] **Step 4: Derive availability and stable reason codes**
 
 Implement `derive_presentation_availability()` as a pure function. Every record emits `visibility="VISIBLE"`. Emit `availability="ENABLED_OFFLINE"` only when all dependencies for that item are established; otherwise emit `DISABLED_UNPROVEN` and a deterministic ordered subset of:
 
@@ -178,7 +178,7 @@ REASON_CODES = (
 
 Reject authored presentation data unless it equals the derived result exactly. Add mutations proving that partial axis evidence, fallback coverage, or visibility alone cannot enable an item.
 
-- [ ] **Step 5: Pin fallback and recovery separation in the stack**
+- [x] **Step 5: Pin fallback and recovery separation in the stack**
 
 Require fallback fields:
 
@@ -198,7 +198,7 @@ Require fallback fields:
 
 Require the safety snapshot to name `analysis/a6400-stock-200-recovery.json`, carry a 64-hex report digest, and retain `BLOCKED_STATIC_EVIDENCE`, `recovery_validated=false`, `camera_test_eligible=false`, and `installable=false`. The stack validator checks the fail-closed snapshot shape; Task 3 performs the cross-report digest and value join without introducing a circular import through `target_features`.
 
-- [ ] **Step 6: Migrate the committed stack and pass focused tests**
+- [x] **Step 6: Migrate the committed stack and pass focused tests**
 
 Populate all new target records as `UNESTABLISHED` with false boundaries, empty evidence, and nonempty blockers. Derive presentation so all 12 built-ins, six Custom slots, eight axes, and five workflows are visible and disabled. Run:
 
@@ -209,7 +209,7 @@ python -c "import json; from pathlib import Path; from pmca.analysis.creative_lo
 
 Expected: all focused tests pass and `creative-look-stack-v2-valid` prints.
 
-- [ ] **Step 7: Commit the stack migration**
+- [x] **Step 7: Commit the stack migration**
 
 ```powershell
 git add pmca/analysis/creative_look_stack.py tests/analysis/test_creative_look_stack.py analysis/a6400-creative-look-stack.json
