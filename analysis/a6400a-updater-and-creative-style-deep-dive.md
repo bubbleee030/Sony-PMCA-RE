@@ -556,6 +556,18 @@ move/press/release handlers that call the per-mouse hit updater at `0x5f1bb0`.
 This proves a static post-API-to-hit-delivery pipeline, not the raw input source
 that invokes those APIs or an actual runtime input occurrence. That upstream
 producer remains unresolved.
+
+A separate firmware-universe scan now bounds that producer edge. Across 799
+regular files and 324 ELF files, the three exact public symbols and short names
+occur only in `lib/libObj.so`. The libObj scan covers 59,614 exception-index owners:
+56,271 fully decoded and 3,343 incomplete. Within the named direct-branch,
+dynamic-relocation, allocated-pointer, ADR/PC-relative, literal-add, and
+MOVW/MOVT methods, it found no decoded direct caller or static publication for
+the three APIs or queue processor. That bounded negative does not prove that no runtime or computed producer exists;
+arbitrary indirect, computed, external,
+opaque, and incompletely decoded paths remain outside the conclusion. The
+fail-closed record is `analysis/a6400-mouse-post-producer-boundary.json`.
+
 It is therefore a conditional generic PAS belt mechanism, not a Creative
 Style touch or selection route.
 

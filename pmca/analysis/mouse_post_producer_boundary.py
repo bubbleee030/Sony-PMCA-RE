@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
+import re
 
 
 class MousePostProducerBoundaryError(ValueError):
@@ -140,6 +143,17 @@ CLAIMS = {
     "creative_look_touch_route_found": False,
     "runtime_execution_proven": False,
 }
+CONCLUSION = (
+    "The authenticated target defines three public WidgetSystem mouse-post APIs, and the "
+    "pinned interaction dependency proves their static queue-to-widget delivery path. A "
+    "bounded scan of 59,614 exception-index owners, including 56,271 fully decoded and "
+    "3,343 incomplete owners, found no decoded direct caller or static publication for "
+    "the APIs or queue processor. Incomplete decode coverage and arbitrary computed, "
+    "runtime, external, or opaque paths were not exhausted, so this does not prove that "
+    "no runtime or computed producer exists. Raw input delivery, Creative Style touch, "
+    "Creative Look behavior, runtime execution, installability, recovery, and camera-test "
+    "eligibility remain unestablished."
+)
 
 EXPECTED_EXPORT = {
     "schema_version": 1,
@@ -213,4 +227,106 @@ def normalize_mouse_post_producer_boundary_export(document: dict) -> dict:
         raise MousePostProducerBoundaryError(
             "producer-boundary export differs from the pinned bounded result"
         )
+    return copy.deepcopy(document)
+
+
+def canonical_digest(document: dict) -> str:
+    encoded = (
+        json.dumps(document, sort_keys=True, separators=(",", ":")) + "\n"
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _candidate_count(export, roles):
+    scan = export["libobj_publication_scan"]
+    return sum(
+        len(scan[field][role])
+        for field in (
+            "direct_inbound_calls",
+            "relocation_publications",
+            "aligned_pointer_publications",
+            "address_materializations",
+        )
+        for role in roles
+    )
+
+
+def summarize_mouse_post_producer_boundary_export(document: dict) -> dict:
+    export = normalize_mouse_post_producer_boundary_export(document)
+    return {
+        "canonical_export_sha256": canonical_digest(export),
+        "firmware_file_count": export["firmware_inventory"]["regular_file_count"],
+        "elf_file_count": export["firmware_inventory"]["elf_file_count"],
+        "public_api_count": len(export["public_apis"]),
+        "owner_count": export["libobj_publication_scan"]["owner_count"],
+        "complete_owner_count": export["libobj_publication_scan"][
+            "complete_owner_count"
+        ],
+        "incomplete_owner_count": export["libobj_publication_scan"][
+            "incomplete_owner_count"
+        ],
+        "external_symbol_consumer_count": len(
+            export["symbol_universe"]["external_definitions"]
+        )
+        + len(export["symbol_universe"]["external_imports"]),
+        "publication_candidate_count": _candidate_count(
+            export,
+            ("move", "press", "release"),
+        ),
+        "queue_processor_candidate_count": _candidate_count(
+            export,
+            ("queue_processor",),
+        )
+        + len(export["queue_processor"]["dynamic_symbol_definitions"]),
+    }
+
+
+def build_mouse_post_producer_boundary_report(document: dict) -> dict:
+    export = normalize_mouse_post_producer_boundary_export(document)
+    return {
+        "schema_version": 1,
+        "analysis_scope": "offline-static-mouse-post-producer-boundary",
+        "camera_policy": "physically-disconnected",
+        "camera_executed": False,
+        "installable": False,
+        "camera_test_eligible": False,
+        "source": copy.deepcopy(export["source"]),
+        "interaction_dependency": copy.deepcopy(export["interaction_dependency"]),
+        "summary": summarize_mouse_post_producer_boundary_export(export),
+        "claims": copy.deepcopy(export["claims"]),
+        "readiness": READINESS,
+        "first_unresolved_boundary": FIRST_UNRESOLVED_BOUNDARY,
+        "conclusion": CONCLUSION,
+    }
+
+
+_REPORT_FIELDS = {
+    "schema_version",
+    "analysis_scope",
+    "camera_policy",
+    "camera_executed",
+    "installable",
+    "camera_test_eligible",
+    "source",
+    "interaction_dependency",
+    "summary",
+    "claims",
+    "readiness",
+    "first_unresolved_boundary",
+    "conclusion",
+}
+_SHA256 = re.compile(r"[0-9a-f]{64}\Z")
+
+
+def validate_mouse_post_producer_boundary_report(document: dict) -> dict:
+    _forbid_reconstructive_fields(document)
+    if not isinstance(document, dict) or set(document) != _REPORT_FIELDS:
+        raise MousePostProducerBoundaryError("producer-boundary report fields differ")
+    expected = build_mouse_post_producer_boundary_report(EXPECTED_EXPORT)
+    if document != expected:
+        raise MousePostProducerBoundaryError(
+            "producer-boundary report differs from the fail-closed result"
+        )
+    if _SHA256.fullmatch(document["summary"]["canonical_export_sha256"]) is None:
+        raise MousePostProducerBoundaryError("producer-boundary report digest is invalid")
     return copy.deepcopy(document)

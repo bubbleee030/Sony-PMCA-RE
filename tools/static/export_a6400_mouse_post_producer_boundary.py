@@ -5,7 +5,9 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -22,7 +24,9 @@ from pmca.analysis.mouse_post_producer_boundary import (
     QUEUE_PROCESSOR,
     SOURCE,
     SYMBOL_UNIVERSE,
+    build_mouse_post_producer_boundary_report,
     normalize_mouse_post_producer_boundary_export,
+    validate_mouse_post_producer_boundary_report,
 )
 from tools.static.export_a6400_creative_style_registry_consumers import (
     FIRMWARE_ROOT,
@@ -37,6 +41,15 @@ from tools.static.export_a6400_generic_model_owner_provenance import (
 
 SOURCE_PATH = FIRMWARE_ROOT / SOURCE["module"]
 INTERACTION_REPORT = ROOT / INTERACTION_DEPENDENCY["report"]
+RAW_OUTPUT_ROOT = (
+    ROOT
+    / ".artifacts"
+    / "mouse-post-producer-boundary"
+    / "a6400-v2.00"
+)
+RAW_OUTPUT_PATH = RAW_OUTPUT_ROOT / "raw-mouse-post-producer-boundary.json"
+REPORT_OUTPUT_ROOT = ROOT / "analysis"
+REPORT_PATH = REPORT_OUTPUT_ROOT / "a6400-mouse-post-producer-boundary.json"
 QUEUE_PROCESSOR_ENTRY = QUEUE_PROCESSOR["owner"]["start"]
 TARGETS = {
     **{api["role"]: api["normalized_entry"] for api in PUBLIC_APIS},
@@ -589,8 +602,92 @@ def build_raw_export(adapter=None) -> dict:
         raise RuntimeError("mouse-post producer boundary differs") from error
 
 
+def build_outputs(adapter=None) -> dict[Path, dict]:
+    raw = build_raw_export(adapter)
+    report = build_mouse_post_producer_boundary_report(raw)
+    normalize_mouse_post_producer_boundary_export(raw)
+    validate_mouse_post_producer_boundary_report(report)
+    return {
+        RAW_OUTPUT_PATH: raw,
+        REPORT_PATH: report,
+    }
+
+
+def _encoded(document):
+    return (
+        json.dumps(document, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+    ).encode("utf-8")
+
+
+def _require_output_path(path, root, expected):
+    path = Path(path).resolve(strict=False)
+    root = Path(root).resolve(strict=False)
+    expected = Path(expected).resolve(strict=False)
+    if path != expected or path.parent != root:
+        raise RuntimeError("producer-boundary output path escapes its fixed root")
+    if root.exists() and (root.is_symlink() or not root.is_dir()):
+        raise RuntimeError("producer-boundary output root is not a regular directory")
+    if path.exists() and (path.is_symlink() or not path.is_file()):
+        raise RuntimeError("producer-boundary output is not a regular file")
+    return path, root
+
+
+def write_outputs_atomic(outputs: dict[Path, dict]) -> None:
+    expected_paths = {Path(RAW_OUTPUT_PATH), Path(REPORT_PATH)}
+    if set(map(Path, outputs)) != expected_paths:
+        raise RuntimeError("producer-boundary output transaction is incomplete")
+    normalize_mouse_post_producer_boundary_export(outputs[RAW_OUTPUT_PATH])
+    validate_mouse_post_producer_boundary_report(outputs[REPORT_PATH])
+
+    checked = []
+    for path, root, expected in (
+        (RAW_OUTPUT_PATH, RAW_OUTPUT_ROOT, RAW_OUTPUT_PATH),
+        (REPORT_PATH, REPORT_OUTPUT_ROOT, REPORT_PATH),
+    ):
+        checked.append(_require_output_path(path, root, expected))
+    for _path, root in checked:
+        root.mkdir(parents=True, exist_ok=True)
+        if root.is_symlink() or not root.is_dir():
+            raise RuntimeError("producer-boundary output root changed during setup")
+
+    staged = []
+    try:
+        for (path, root), document in zip(
+            checked,
+            (outputs[RAW_OUTPUT_PATH], outputs[REPORT_PATH]),
+        ):
+            handle = tempfile.NamedTemporaryFile(
+                mode="wb",
+                prefix=f".{path.name}.",
+                suffix=".tmp",
+                dir=root,
+                delete=False,
+            )
+            temporary = Path(handle.name)
+            try:
+                handle.write(_encoded(document))
+                handle.flush()
+                os.fsync(handle.fileno())
+            finally:
+                handle.close()
+            staged.append((temporary, path))
+        for temporary, path in staged:
+            os.replace(temporary, path)
+    finally:
+        for temporary, _path in staged:
+            if temporary.exists():
+                temporary.unlink()
+
+
+def publish_outputs(adapter=None) -> dict[Path, dict]:
+    outputs = build_outputs(adapter)
+    write_outputs_atomic(outputs)
+    return outputs
+
+
 if __name__ == "__main__":
-    document = build_raw_export()
+    outputs = publish_outputs()
+    document = outputs[RAW_OUTPUT_PATH]
     print(
         "A6400_MOUSE_POST_PRODUCER_BOUNDARY"
         f"|apis={len(document['public_apis'])}"
