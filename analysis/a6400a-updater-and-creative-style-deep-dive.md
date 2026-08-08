@@ -544,9 +544,18 @@ substrate: it inserts the PAS root into the WidgetSystem layer list at
 child lists traversed by recursive hit testing; and the hit receiver is passed
 to the slot-26/27 mouse dispatcher. This remains conditional on the unresolved
 `viewUnified2.so`-to-`libObj.so` provider binding. Static evidence also does not
-prove actual input delivery, invocation of the callback-registration method,
-the later enable state, identity with `ViewCreativeStyle+0x14c`, or the case-16
-selector source.
+prove invocation of the callback-registration method, the later enable state,
+identity with `ViewCreativeStyle+0x14c`, or the case-16 selector source.
+
+The upstream generic post pipeline is now bounded as well. The exported
+`WidgetSystem::postMouseMove`, `postMousePress`, and `postMouseRelease` entries
+construct fixed `0x20`-byte records with event types 0, 1, and 2. They enqueue
+through relocated BSS queue `0x13ef6f4`; `0x5f2904` transfers records to the
+second queue at `0x13ef700`; and the member table at `0x134a480` selects the
+move/press/release handlers that call the per-mouse hit updater at `0x5f1bb0`.
+This proves a static post-API-to-hit-delivery pipeline, not the raw input source
+that invokes those APIs or an actual runtime input occurrence. That upstream
+producer remains unresolved.
 It is therefore a conditional generic PAS belt mechanism, not a Creative
 Style touch or selection route.
 

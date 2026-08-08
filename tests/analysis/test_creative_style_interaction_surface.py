@@ -261,14 +261,36 @@ class CreativeStyleInteractionSurfaceContractTests(unittest.TestCase):
         self.assertEqual(delivery["parent_chain"]["base_to_grid_call_site"], 0x59DE46)
         self.assertEqual(delivery["hit_delivery"]["recursive_hit_call_site"], 0x5F1B80)
         self.assertEqual(delivery["hit_delivery"]["hook_dispatch_call_site"], 0x5F11CA)
+        self.assertIn("static_mouse_post_pipeline", delivery)
+        pipeline = delivery["static_mouse_post_pipeline"]
+        self.assertEqual(
+            pipeline["status"],
+            "STATIC_POST_API_TO_WIDGET_DELIVERY_PROVEN__UPSTREAM_PRODUCER_UNRESOLVED",
+        )
+        self.assertEqual(
+            [(item["role"], item["entry"], item["event_type"]) for item in pipeline["public_entries"]],
+            [("move", 0x5F2151, 0), ("press", 0x5F21E1, 1), ("release", 0x5F2249, 2)],
+        )
+        self.assertEqual(pipeline["posted_queue"]["got_cell"], 0x1373468)
+        self.assertEqual(pipeline["posted_queue"]["queue_object"], 0x13EF6F4)
+        self.assertEqual(pipeline["transfer"]["secondary_queue_object"], 0x13EF700)
+        self.assertEqual(pipeline["transfer"]["initial_record_eligible_branch_target"], 0x5F2926)
+        self.assertEqual(pipeline["transfer"]["loop_record_eligible_branch_target"], 0x5F2924)
+        self.assertEqual(pipeline["member_dispatch"]["table_address"], 0x134A480)
+        self.assertEqual(
+            [(item["event_type"], item["target"], item["hit_update_call_site"]) for item in pipeline["member_dispatch"]["entries"]],
+            [(0, 0x5F1F88, 0x5F1FB2), (1, 0x5F1ECC, 0x5F1F02), (2, 0x5F1DC0, 0x5F1DF8)],
+        )
         self.assertTrue(chain["findings"]["candidate_provider_layer_attachment_path_proven"])
         self.assertTrue(chain["findings"]["candidate_provider_parent_chain_to_embedded_grid_proven"])
         self.assertTrue(chain["findings"]["candidate_provider_widget_system_hit_delivery_path_proven"])
+        self.assertTrue(chain["findings"]["static_public_mouse_post_to_hit_delivery_pipeline_proven"])
         for key in (
             "runtime_provider_binding_proven",
             "registration_method_invocation_proven",
             "runtime_widget_system_delivery_to_embedded_grid_proven",
             "runtime_registered_root_attachment_proven",
+            "raw_mouse_input_producer_proven",
             "viewcreative_style_field_0x14c_instance_join_proven",
             "viewcreative_style_case16_selector_proven",
         ):
@@ -370,7 +392,8 @@ class CreativeStyleInteractionSurfaceExporterTests(unittest.TestCase):
 
         for changed_site in (
             0x3E9C04, 0x3EA6B2, 0x3E8C70, 0x59E844, 0x56EDFE, 0x5ED766,
-            0x5F11CA,
+            0x5F11CA, 0x5F21C8, 0x5F2234, 0x5F291C, 0x5F2920, 0x5F2924,
+            0x5F292E, 0x5F293E, 0x5F2A22, 0x5F1116,
         ):
             def changed_instruction(blob, mappings, local_deps, site, *, changed_site=changed_site):
                 item = original_instruction(blob, mappings, local_deps, site)

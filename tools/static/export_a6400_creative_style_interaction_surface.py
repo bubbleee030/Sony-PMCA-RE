@@ -796,16 +796,20 @@ def _require_move_register(item, deps, destination, source, label):
     _require_register_operand(item, deps, 1, source, label)
 
 
-def _require_indexed_memory_instruction(item, deps, instruction_id, destination, base, index, label):
+def _require_indexed_memory_instruction(
+    item, deps, instruction_id, destination, base, index, label, *, shift=0
+):
     if item.id != instruction_id or len(item.operands) != 2:
         raise RuntimeError(label + " differs")
     _require_register_operand(item, deps, 0, destination, label)
     memory = item.operands[1]
+    actual_shift = memory.shift.value if memory.shift.type else memory.mem.lshift
     if (
         memory.type != deps["mem"]
         or _register_name(item, memory.mem.base) != base
         or _register_name(item, memory.mem.index) != index
         or memory.mem.disp != 0
+        or actual_shift != shift
     ):
         raise RuntimeError(label + " differs")
 
@@ -819,6 +823,466 @@ def _require_indirect_call(item, deps, register, label):
 def _require_direct_call(item, deps, target, label):
     if not item.group(deps["call_group"]) or _direct_target(item, deps) != target:
         raise RuntimeError(label + " differs")
+
+
+def _require_direct_jump(item, deps, target, label):
+    if (
+        item.group(deps["call_group"])
+        or not item.group(deps["jump_group"])
+        or _direct_target(item, deps) != target
+    ):
+        raise RuntimeError(label + " differs")
+
+
+def _validate_pic_got_load(
+    blob,
+    mappings,
+    deps,
+    evidence,
+    *,
+    prefix,
+    base_register,
+    offset_register,
+    destination_register,
+    expected_cell,
+    label,
+):
+    base_load = _instruction(blob, mappings, deps, evidence[prefix + "base_literal_load_site"])
+    offset_load = _instruction(blob, mappings, deps, evidence[prefix + "offset_literal_load_site"])
+    base_add = _instruction(blob, mappings, deps, evidence[prefix + "base_add_site"])
+    if (
+        _literal_site(base_load, deps) != evidence[prefix + "base_literal_site"]
+        or _literal_site(offset_load, deps) != evidence[prefix + "offset_literal_site"]
+    ):
+        raise RuntimeError(label + " literal provenance differs")
+    _require_register_operand(base_load, deps, 0, base_register, label + " base load")
+    _require_register_operand(offset_load, deps, 0, offset_register, label + " offset load")
+    if base_add.id != deps["add"] or len(base_add.operands) != 2:
+        raise RuntimeError(label + " base add differs")
+    _require_register_operand(base_add, deps, 0, base_register, label + " base add")
+    _require_register_operand(base_add, deps, 1, "pc", label + " base add")
+    _require_indexed_memory_instruction(
+        _instruction(blob, mappings, deps, evidence[prefix + "indexed_load_site"]),
+        deps,
+        deps["ldr"],
+        destination_register,
+        base_register,
+        offset_register,
+        label + " indexed load",
+    )
+    cell = (
+        evidence[prefix + "base_add_site"]
+        + 4
+        + _word(blob, mappings, evidence[prefix + "base_literal_site"])
+        + _word(blob, mappings, evidence[prefix + "offset_literal_site"])
+    ) & 0xFFFFFFFF
+    if cell != expected_cell:
+        raise RuntimeError(label + " GOT cell differs")
+
+
+def _validate_static_mouse_post_pipeline(
+    expected,
+    blob,
+    mappings,
+    deps,
+    rels,
+    by_site,
+    dynsym,
+    exidx,
+):
+    pipeline = expected["candidate_widget_system_delivery"]["static_mouse_post_pipeline"]
+    if pipeline["status"] != "STATIC_POST_API_TO_WIDGET_DELIVERY_PROVEN__UPSTREAM_PRODUCER_UNRESOLVED":
+        raise RuntimeError("static mouse-post pipeline status differs")
+
+    for entry in pipeline["public_entries"]:
+        symbol = dynsym.get_symbol(entry["dynsym_index"])
+        start = entry["entry"] & ~1
+        if (
+            symbol.name != entry["symbol"]
+            or symbol["st_shndx"] == "SHN_UNDEF"
+            or symbol["st_value"] != entry["entry"]
+            or symbol["st_size"] != entry["size"]
+            or entry["symbol_range"] != {"start": start, "end": start + entry["size"]}
+        ):
+            raise RuntimeError(entry["role"] + " public mouse-post symbol differs")
+        _require_mov_immediate(
+            _instruction(blob, mappings, deps, entry["allocation_size_site"]),
+            deps,
+            deps["r1"],
+            pipeline["record_allocation_size"],
+            entry["role"] + " mouse-record allocation size",
+        )
+        _require_direct_call(
+            _instruction(blob, mappings, deps, entry["allocation_call_site"]),
+            deps,
+            pipeline["record_allocation_target"],
+            entry["role"] + " mouse-record allocation",
+        )
+        record_capture = _instruction(blob, mappings, deps, entry["record_capture_site"])
+        _require_move_register(
+            record_capture,
+            deps,
+            "r6",
+            "r0",
+            entry["role"] + " mouse-record capture",
+        )
+        _require_mov_immediate(
+            _instruction(blob, mappings, deps, entry["event_type_source_site"]),
+            deps,
+            deps["r3"],
+            entry["event_type"],
+            entry["role"] + " event type",
+        )
+        _require_memory_instruction(
+            _instruction(blob, mappings, deps, entry["event_type_store_site"]),
+            deps,
+            deps["str"],
+            "r3",
+            "r0",
+            pipeline["event_type_offset"],
+            entry["role"] + " event-type store",
+        )
+        _require_direct_call(
+            _instruction(blob, mappings, deps, entry["enqueue_call_site"]),
+            deps,
+            pipeline["enqueue_target"],
+            entry["role"] + " posted-queue enqueue",
+        )
+        _require_move_register(
+            _instruction(blob, mappings, deps, entry["enqueue_receiver_site"]),
+            deps,
+            "r0",
+            "r6",
+            entry["role"] + " posted-record enqueue receiver",
+        )
+        _require_register_unchanged(
+            _decode(
+                blob,
+                mappings,
+                deps,
+                record_capture.address + record_capture.size,
+                entry["enqueue_receiver_site"],
+                complete=False,
+            ),
+            record_capture.operands[0].reg,
+            label=entry["role"] + " posted-record preservation",
+        )
+
+    posted = pipeline["posted_queue"]
+    if _owner(exidx, posted["helper_owner"]["start"]) != (
+        posted["helper_owner"]["start"], posted["helper_owner"]["end"]
+    ):
+        raise RuntimeError("posted mouse-queue helper owner differs")
+    _validate_pic_got_load(
+        blob,
+        mappings,
+        deps,
+        posted,
+        prefix="",
+        base_register="r3",
+        offset_register="r2",
+        destination_register="r0",
+        expected_cell=posted["got_cell"],
+        label="posted mouse queue",
+    )
+    _validate_relative(
+        rels,
+        by_site,
+        blob,
+        mappings,
+        index=posted["relocation_index"],
+        site=posted["got_cell"],
+        target=posted["queue_object"],
+    )
+    _require_move_register(
+        _instruction(blob, mappings, deps, posted["record_forward_site"]),
+        deps,
+        "r1",
+        "r0",
+        "posted mouse-record forwarding",
+    )
+    _require_direct_call(
+        _instruction(blob, mappings, deps, posted["append_call_site"]),
+        deps,
+        posted["append_target"],
+        "posted mouse-queue append call",
+    )
+    _require_direct_jump(
+        _instruction(blob, mappings, deps, posted["append_tail_site"]),
+        deps,
+        posted["append_tail_target"],
+        "posted mouse-queue append tail",
+    )
+
+    transfer = pipeline["transfer"]
+    for owner_name in ("source_pop_owner", "owner"):
+        owner = transfer[owner_name]
+        if _owner(exidx, owner["start"]) != (owner["start"], owner["end"]):
+            raise RuntimeError(owner_name.replace("_", " ") + " differs")
+    _validate_pic_got_load(
+        blob,
+        mappings,
+        deps,
+        transfer,
+        prefix="source_",
+        base_register="r3",
+        offset_register="r2",
+        destination_register="r0",
+        expected_cell=posted["got_cell"],
+        label="posted mouse-queue pop",
+    )
+    _require_direct_call(
+        _instruction(blob, mappings, deps, transfer["source_pop_call_site"]),
+        deps,
+        transfer["source_pop_target"],
+        "posted mouse-queue pop call",
+    )
+    _require_direct_jump(
+        _instruction(blob, mappings, deps, transfer["source_pop_tail_site"]),
+        deps,
+        transfer["source_pop_tail_target"],
+        "posted mouse-queue pop tail",
+    )
+    _require_direct_call(
+        _instruction(blob, mappings, deps, transfer["posted_queue_pop_call_site"]),
+        deps,
+        transfer["posted_queue_pop_target"],
+        "posted-to-secondary transfer pop",
+    )
+    posted_record_capture = _instruction(blob, mappings, deps, transfer["posted_record_capture_site"])
+    _require_move_register(
+        posted_record_capture,
+        deps,
+        "r6",
+        "r0",
+        "posted mouse-record capture",
+    )
+    _require_register_unchanged(
+        _decode(
+            blob,
+            mappings,
+            deps,
+            posted_record_capture.address + posted_record_capture.size,
+            transfer["initial_record_null_branch_site"],
+            complete=False,
+        ),
+        posted_record_capture.operands[0].reg,
+        label="initial posted-record preservation",
+    )
+    initial_null_branch = _instruction(blob, mappings, deps, transfer["initial_record_null_branch_site"])
+    if (
+        initial_null_branch.mnemonic != "cbz"
+        or _direct_target(initial_null_branch, deps) != transfer["initial_record_null_branch_target"]
+    ):
+        raise RuntimeError("initial posted-record null branch differs")
+    _require_register_operand(initial_null_branch, deps, 0, "r6", "initial posted-record null branch")
+    _require_memory_instruction(
+        _instruction(blob, mappings, deps, transfer["initial_record_eligibility_load_site"]),
+        deps,
+        deps["ldr"],
+        "r3",
+        "r6",
+        transfer["initial_record_eligibility_offset"],
+        "initial posted-record eligibility load",
+    )
+    initial_eligible_branch = _instruction(blob, mappings, deps, transfer["initial_record_eligible_branch_site"])
+    if (
+        initial_eligible_branch.mnemonic != "cbz"
+        or _direct_target(initial_eligible_branch, deps) != transfer["initial_record_eligible_branch_target"]
+    ):
+        raise RuntimeError("initial posted-record eligible branch differs")
+    _require_register_operand(initial_eligible_branch, deps, 0, "r3", "initial posted-record eligible branch")
+    _require_direct_jump(
+        _instruction(blob, mappings, deps, transfer["initial_record_reject_branch_site"]),
+        deps,
+        transfer["initial_record_reject_branch_target"],
+        "initial posted-record reject branch",
+    )
+    _require_move_register(
+        _instruction(blob, mappings, deps, transfer["loop_record_capture_site"]),
+        deps,
+        "r6",
+        "r1",
+        "loop posted-record capture",
+    )
+    _validate_pic_got_load(
+        blob,
+        mappings,
+        deps,
+        transfer,
+        prefix="secondary_",
+        base_register="r4",
+        offset_register="r3",
+        destination_register="r5",
+        expected_cell=transfer["secondary_queue_got_cell"],
+        label="secondary mouse queue",
+    )
+    _validate_relative(
+        rels,
+        by_site,
+        blob,
+        mappings,
+        index=transfer["secondary_queue_relocation_index"],
+        site=transfer["secondary_queue_got_cell"],
+        target=transfer["secondary_queue_object"],
+    )
+    for site, destination, source, label in (
+        (transfer["secondary_append_record_site"], "r1", "r6", "secondary queue append record"),
+        (transfer["secondary_append_receiver_site"], "r0", "r5", "secondary queue append receiver"),
+        (transfer["secondary_pop_receiver_site"], "r0", "r5", "secondary queue pop receiver"),
+    ):
+        _require_move_register(_instruction(blob, mappings, deps, site), deps, destination, source, label)
+    _require_direct_call(
+        _instruction(blob, mappings, deps, transfer["secondary_append_call_site"]),
+        deps,
+        transfer["secondary_append_target"],
+        "secondary mouse-queue append",
+    )
+    _require_direct_call(
+        _instruction(blob, mappings, deps, transfer["loop_pop_call_site"]),
+        deps,
+        transfer["loop_pop_target"],
+        "loop posted mouse-queue pop",
+    )
+    _require_move_register(
+        _instruction(blob, mappings, deps, transfer["loop_record_forward_site"]),
+        deps,
+        "r1",
+        "r0",
+        "loop posted-record forwarding",
+    )
+    loop_null_branch = _instruction(blob, mappings, deps, transfer["loop_record_null_branch_site"])
+    if (
+        loop_null_branch.mnemonic != "cbz"
+        or _direct_target(loop_null_branch, deps) != transfer["loop_record_null_branch_target"]
+    ):
+        raise RuntimeError("loop posted-record null branch differs")
+    _require_register_operand(loop_null_branch, deps, 0, "r0", "loop posted-record null branch")
+    _require_memory_instruction(
+        _instruction(blob, mappings, deps, transfer["loop_record_eligibility_load_site"]),
+        deps,
+        deps["ldr"],
+        "r3",
+        "r0",
+        transfer["initial_record_eligibility_offset"],
+        "loop posted-record eligibility load",
+    )
+    loop_compare = _instruction(blob, mappings, deps, transfer["loop_record_eligibility_compare_site"])
+    if (
+        loop_compare.id != deps["cmp"]
+        or len(loop_compare.operands) != 2
+        or loop_compare.operands[1].type != deps["imm"]
+        or loop_compare.operands[1].imm != 0
+    ):
+        raise RuntimeError("loop posted-record eligibility compare differs")
+    _require_register_operand(loop_compare, deps, 0, "r3", "loop posted-record eligibility compare")
+    loop_eligible_branch = _instruction(blob, mappings, deps, transfer["loop_record_eligible_branch_site"])
+    if (
+        loop_eligible_branch.mnemonic != "beq"
+        or _direct_target(loop_eligible_branch, deps) != transfer["loop_record_eligible_branch_target"]
+    ):
+        raise RuntimeError("loop posted-record eligible branch differs")
+    _require_direct_jump(
+        _instruction(blob, mappings, deps, transfer["secondary_pop_tail_site"]),
+        deps,
+        transfer["secondary_pop_target"],
+        "secondary mouse-queue pop",
+    )
+
+    dispatch = pipeline["member_dispatch"]
+    for owner_name in ("processor_owner", "owner"):
+        owner = dispatch[owner_name]
+        if _owner(exidx, owner["start"]) != (owner["start"], owner["end"]):
+            raise RuntimeError("mouse " + owner_name.replace("_", " ") + " differs")
+    _require_direct_call(
+        _instruction(blob, mappings, deps, dispatch["transfer_call_site"]),
+        deps,
+        dispatch["transfer_target"],
+        "mouse-queue transfer/next-record call",
+    )
+    for site, destination, source, label in (
+        (dispatch["record_capture_site"], "r4", "r0", "mouse record capture"),
+        (dispatch["dispatch_receiver_site"], "r0", "r6", "mouse dispatch receiver"),
+        (dispatch["dispatch_record_site"], "r1", "r4", "mouse dispatch record"),
+    ):
+        _require_move_register(_instruction(blob, mappings, deps, site), deps, destination, source, label)
+    record_branch = _instruction(blob, mappings, deps, dispatch["record_nonzero_branch_site"])
+    if (
+        record_branch.mnemonic != "bne"
+        or _direct_target(record_branch, deps) != dispatch["record_nonzero_branch_target"]
+        or dispatch["record_nonzero_branch_target"] != dispatch["dispatch_record_site"]
+    ):
+        raise RuntimeError("mouse-record processing loop branch differs")
+    _require_direct_call(
+        _instruction(blob, mappings, deps, dispatch["dispatch_call_site"]),
+        deps,
+        dispatch["dispatch_target"],
+        "mouse member-table dispatch call",
+    )
+    _require_memory_instruction(
+        _instruction(blob, mappings, deps, dispatch["event_type_load_site"]),
+        deps,
+        deps["ldr"],
+        "r4",
+        "r1",
+        pipeline["event_type_offset"],
+        "mouse dispatch event-type load",
+    )
+    table_load = _instruction(blob, mappings, deps, dispatch["table_literal_load_site"])
+    table_add = _instruction(blob, mappings, deps, dispatch["table_add_site"])
+    if (
+        _literal_site(table_load, deps) != dispatch["table_literal_site"]
+        or table_add.id != deps["add"]
+        or len(table_add.operands) != 2
+    ):
+        raise RuntimeError("mouse member-table address differs")
+    _require_register_operand(table_load, deps, 0, "r3", "mouse member-table literal")
+    _require_register_operand(table_add, deps, 0, "r3", "mouse member-table add")
+    _require_register_operand(table_add, deps, 1, "pc", "mouse member-table add")
+    table_address = (
+        dispatch["table_add_site"]
+        + 4
+        + _word(blob, mappings, dispatch["table_literal_site"])
+    ) & 0xFFFFFFFF
+    if table_address != dispatch["table_address"] or dispatch["entry_stride"] != 8:
+        raise RuntimeError("mouse member-table base/stride differs")
+    _require_indexed_memory_instruction(
+        _instruction(blob, mappings, deps, dispatch["function_pointer_load_site"]),
+        deps,
+        deps["ldr"],
+        "r3",
+        "r3",
+        "r4",
+        "mouse member-function load",
+        shift=3,
+    )
+    _require_indirect_call(
+        _instruction(blob, mappings, deps, dispatch["indirect_call_site"]),
+        deps,
+        "r3",
+        "mouse member-function call",
+    )
+    for entry in dispatch["entries"]:
+        if (
+            entry["cell"] != dispatch["table_address"] + entry["event_type"] * dispatch["entry_stride"]
+            or _word(blob, mappings, entry["cell"] + 4) != 0
+        ):
+            raise RuntimeError("mouse member-table entry relation differs")
+        _validate_relative(
+            rels,
+            by_site,
+            blob,
+            mappings,
+            index=entry["relocation_index"],
+            site=entry["cell"],
+            target=entry["target"],
+        )
+        _require_direct_call(
+            _instruction(blob, mappings, deps, entry["hit_update_call_site"]),
+            deps,
+            dispatch["hit_update_target"],
+            "mouse event hit-update call",
+        )
 
 
 def _validate_candidate_widget_system_delivery(
@@ -1099,6 +1563,16 @@ def _validate_candidate_widget_system_delivery(
             _instruction(candidate_blob, candidate_mappings, deps, call_site),
             deps, "r3", "mouse receiver dispatch",
         )
+    _validate_static_mouse_post_pipeline(
+        expected,
+        candidate_blob,
+        candidate_mappings,
+        deps,
+        candidate_rels,
+        candidate_by_site,
+        candidate_dynsym,
+        candidate_exidx,
+    )
 
 
 def _validate_generic_belt_input_chain(
@@ -1496,6 +1970,7 @@ def _validate_generic_belt_input_chain(
         "candidate_provider_layer_attachment_path_proven": True,
         "candidate_provider_parent_chain_to_embedded_grid_proven": True,
         "candidate_provider_widget_system_hit_delivery_path_proven": True,
+        "static_public_mouse_post_to_hit_delivery_pipeline_proven": True,
         "bounded_absent_vtable_offsets": [0x8C, 0x90],
         "bounded_absent_direct_targets": [0x606676, 0x5ED0F8],
         "bounded_absent_plt_symbols": [
