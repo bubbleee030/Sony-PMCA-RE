@@ -476,14 +476,31 @@ the selected Creative Style value. `WrapperCreativeStyle` RTTI/vtable is
 present, but no exact instantiation or view edge was found; the verified setter
 uses the generic `WrapperSettingUtil` service instead.
 
-The `viewCreativeStyle.so` and `ViewCreativeStyleToInstance` strings remain
-unjoined to a static registration table. The bounded direct scan is incomplete,
-and no `.rel.dyn`/`.rel.plt` relocation or `.init_array` target establishes the
-route; no decoded direct call was found in the incomplete global scan. No exact
-static edge therefore establishes the
-external loader route. No touch-coordinate, hit-test, menu-selection, or
-Creative Look eight-axis edge appears in this binding. The fail-closed record is
-`analysis/a6400-creative-style-view-model-binding.json`.
+The follow-on view-lifecycle slice closes part of that older registration gap
+without promoting runtime execution. The typed process-element slot 25 is the
+inherited `execProcWithCondition(int)` surface; its Creative Style override
+passes the caller's condition unchanged to
+`openView("view/CREATIVE_STYLE", condition)`. A backup-controlled registration
+owner publishes two mutually exclusive registration rows for that alias: branch
+1 uses `viewCreativeStyle.so` / `ViewCreativeStyleToInstance`, while branch 2
+uses `viewUnified2.so` / the same factory name. The runtime backup value and
+therefore the active row remain unresolved.
+
+On the conditional AppConfig route, the ViewConfig `+0x14` table getter and the
+loader wrapper `+0x08` store imply the same ViewIdSoTable pointer
+only under the AppConfig selector and pinned provider bindings. This implication
+uses corrected singleton storage `0x14250D4`; the selector buffer is runtime BSS, and
+`viewUnified2.so` does not directly declare `libObj.so` as a dependency. The
+candidate `openView` provider builds Event `0x11012001` for destination 4 with
+the resolved alias ID at key 6 and caller condition at key 26, and the bounded
+handler reaches a generic record-loader ABI with `dlopen(component, 0x101)`,
+`dlsym(factory)`, and an indirect factory call. These are conditional substrate
+facts: they do not select a registration row, prove event delivery, or prove
+the returned object's type. The local `ViewCreativeStyleToInstance` function
+remains available, but this evidence does not prove runtime factory invocation,
+menu activation, Creative Look equivalence, installability, recovery, or camera
+readiness. The fail-closed record is
+`analysis/a6400-creative-style-view-lifecycle-boundary.json`.
 
 ### Target-native Creative Style interaction surface
 
