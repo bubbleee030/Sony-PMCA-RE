@@ -330,7 +330,9 @@ def _require_fields(value: object, fields: set[str], label: str) -> dict:
 
 
 def build_target_feature_report(
-    source_document: dict, ui_dispatch_report: dict | None = None
+    source_document: dict,
+    ui_dispatch_report: dict | None = None,
+    creative_reports: dict[str, dict] | None = None,
 ) -> dict:
     """Migrate pinned target evidence to the corrected UI dispatch contract."""
 
@@ -351,10 +353,20 @@ def build_target_feature_report(
     if ui_dispatch_report is None:
         ui_dispatch_report = build_ui_dispatch_report(document["ui_indirect_trace"])
     document["ui_indirect_trace"] = copy.deepcopy(ui_dispatch_report)
+    document["schema_version"] = 5
+    if creative_reports is not None and set(creative_reports) != set(
+        _NESTED_CREATIVE_REPORTS
+    ):
+        raise TargetFeatureError("Creative report injection fields are invalid")
     for field, filename in _NESTED_CREATIVE_REPORTS.items():
-        with (_ANALYSIS_DIRECTORY / filename).open("r", encoding="utf-8") as stream:
-            document[field] = json.load(stream)
-    return validate_target_feature_report(document)
+        if creative_reports is None:
+            with (_ANALYSIS_DIRECTORY / filename).open(
+                "r", encoding="utf-8"
+            ) as stream:
+                document[field] = json.load(stream)
+        else:
+            document[field] = copy.deepcopy(creative_reports[field])
+    return validate_target_feature_report(document, creative_reports=creative_reports)
 
 
 def _bounded_text(value: object, label: str, maximum: int = 1000) -> str:
@@ -407,11 +419,13 @@ def _load_committed_report(filename: str) -> dict:
     return value
 
 
-def validate_target_feature_report(document: object) -> dict:
+def validate_target_feature_report(
+    document: object, creative_reports: dict[str, dict] | None = None
+) -> dict:
     """Validate target-only metadata without claiming a portable or installable patch."""
     _require_fields(document, _TOP_FIELDS, "Target feature report")
     _reject_reconstructive_fields(document)
-    if document["schema_version"] != 4:
+    if document["schema_version"] != 5:
         raise TargetFeatureError("Target feature schema is unsupported")
     if document["subject"] != "ILCE-6400 Taiwan 2.00 target feature boundaries":
         raise TargetFeatureError("Target feature subject is invalid")
@@ -774,10 +788,19 @@ def validate_target_feature_report(document: object) -> dict:
         "creative_look_sources": creative_sources,
         "creative_look_boundary": creative_boundary,
     }
+    if creative_reports is not None and set(creative_reports) != set(
+        _CREATIVE_LOOK_REPORTS
+    ):
+        raise TargetFeatureError("Creative report validation fields are invalid")
     for field, filename in _CREATIVE_LOOK_REPORTS.items():
-        if nested_reports[field] != _load_committed_report(filename):
+        expected_report = (
+            _load_committed_report(filename)
+            if creative_reports is None
+            else creative_reports[field]
+        )
+        if nested_reports[field] != expected_report:
             raise TargetFeatureError(
-                "Nested Creative Look evidence does not match its committed report"
+                "Nested Creative Look evidence does not match its expected report"
             )
 
     boundary_native = (

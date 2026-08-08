@@ -331,7 +331,7 @@ git commit -m "analysis: separate Creative Style fallback catalog"
 - Consumes: Task 1 stack, Task 2 fallback catalog/guide, and validated `analysis/a6400-stock-200-recovery.json`.
 - Produces: `derive_creative_look_capabilities(stack: dict, recipes: dict) -> tuple[dict, dict]`, target-feature schema version 5, and `build_reports() -> dict[Path, str | dict]` for atomic regeneration.
 
-- [ ] **Step 1: Write failing derived-decision tests**
+- [x] **Step 1: Write failing derived-decision tests**
 
 Add `derive_creative_look_capabilities()` returning the `creative-look-discovery` and `creative-look-emulation` records. Tests must require:
 
@@ -349,7 +349,7 @@ emulation["status"] == "PARTIAL"
 
 Require the new α7 V URL in `_APPROVED_SOURCES` and reject the old ILCE-6700 URL as the authoritative discovery source. `validate_evidence()` must reject hand-edited Creative Look capability records that differ from the derived values.
 
-- [ ] **Step 2: Write failing target-feature migration tests**
+- [x] **Step 2: Write failing target-feature migration tests**
 
 Change expected target-feature schema to version 5. Require embedded equality with the committed schema-v2 stack, all 26 presentation records visible and disabled (`12 + 6 + 8`), all five workflow actions disabled, fallback represented/unrepresented sets exact, and nested safety false. Mutations that set any of these must fail:
 
@@ -360,7 +360,7 @@ candidate["creative_rendering"]["native_creative_look_established"] = True
 candidate["installable"] = True
 ```
 
-- [ ] **Step 3: Implement pure downstream builders**
+- [x] **Step 3: Implement pure downstream builders**
 
 Implement `derive_creative_look_capabilities()` from validated inputs. Extend `build_target_feature_report()` with an optional `creative_reports` mapping so the regenerator can inject the newly built stack rather than rereading a stale checked-in file. Keep the default path for existing callers.
 
@@ -376,7 +376,7 @@ assert stack["safety"]["installable"] is recovery["installable"]
 
 Compute the safety digest from canonical UTF-8 JSON with sorted keys and compact separators, then require exact equality in the stack.
 
-- [ ] **Step 4: Implement all-results-before-write regeneration**
+- [x] **Step 4: Implement all-results-before-write regeneration**
 
 `build_reports()` must build and validate, in memory, these outputs:
 
@@ -390,7 +390,7 @@ Preserve the feasibility report suffix beginning at `# Integrated Offline Resear
 
 Add tests that patch the final recovery or target validation to raise and assert byte-for-byte that none of the five outputs changed. Add a second test that runs `build_reports()` twice and compares canonical bytes.
 
-- [ ] **Step 5: Correct human-readable Creative Look narratives**
+- [x] **Step 5: Correct human-readable Creative Look narratives**
 
 Update the deep dive and integrated feasibility text to say:
 
@@ -405,7 +405,7 @@ Update the deep dive and integrated feasibility text to say:
 
 Remove stale wording for ten first-class looks, eight old workflow actions, `copy_select`, Sharpness `-9..9`, Sharpness Range `0..5`, and Clarity `-9..9`.
 
-- [ ] **Step 6: Regenerate and run focused integration tests**
+- [x] **Step 6: Regenerate and run focused integration tests**
 
 ```powershell
 python tools/static/regenerate_a6400_creative_look_contract_reports.py
@@ -414,7 +414,7 @@ python -m unittest tests.analysis.test_creative_look_contract_regenerator tests.
 
 Expected: the regenerator reports five outputs, camera access `0`, binary execution `0`; all tests pass.
 
-- [ ] **Step 7: Commit downstream reconciliation**
+- [x] **Step 7: Commit downstream reconciliation**
 
 ```powershell
 git add pmca/analysis/decisions.py tests/analysis/test_decisions.py pmca/analysis/target_features.py tests/analysis/test_target_features.py tools/static/regenerate_a6400_creative_look_contract_reports.py tests/analysis/test_creative_look_contract_regenerator.py analysis/feature-evidence.json analysis/a6400-target-features.json analysis/a6400-feasibility-report.md analysis/a6400a-updater-and-creative-style-deep-dive.md

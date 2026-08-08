@@ -3,79 +3,69 @@
   "capabilities": [
     {
       "id": "creative-look-discovery",
-      "status": "PARTIAL",
-      "summary": "The first-class ten-look/eight-axis contract and target Creative Style boundary are now pinned, but all five Creative Look layers, eight axes, and three output bindings remain unestablished.",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "summary": "The authoritative \u03b17 V contract records 12 built-in looks and six Custom slots; all 26 look, Custom, and axis items are visible in the offline contract but disabled because target UI, state, range/default, processing, and output joins remain unestablished.",
       "evidence": [
         {
           "kind": "OBSERVATION",
-          "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
-          "claim": "Sony documents ten Creative Look bases, six Custom Look slots, and eight adjustment axes on ILCE-6700."
-        },
-        {
-          "kind": "OBSERVATION",
-          "source": "analysis/creative-look-recipes.json",
-          "claim": "The committed translation catalog records six direct semantic mappings and four explicitly inferred Style Box approximations for ILCE-6400."
-        },
-        {
-          "kind": "OBSERVATION",
-          "source": "analysis/a6400-creative-look-boundary.json",
-          "claim": "A digest-pinned bounded target trace resolves ten Creative Style functions, one selector-to-graph reference, and nine direct calls; it finds no first-class interface, state, base-table, axis, or output-sink path."
+          "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
+          "claim": "Sony documents 12 built-in Creative Looks, six Custom slots, eight adjustment axes, five workflows, and five mode-dependent restrictions for the \u03b17 V reference behavior."
         },
         {
           "kind": "OBSERVATION",
           "source": "analysis/a6400-creative-look-stack.json",
-          "claim": "Every first-class layer, workflow action, axis, and output remains `UNESTABLISHED`; Creative Style is explicitly `APPROXIMATION_ONLY` and `LAST_RESORT_ONLY`."
+          "claim": "The validated offline contract keeps every built-in look, Custom slot, axis, workflow, restriction, and output binding visible while marking each unavailable target path disabled or unestablished."
         },
         {
           "kind": "OBSERVATION",
-          "source": "analysis/feature-compatibility.json",
-          "claim": "The authenticated bounded marker scan found no plaintext feature locator in the α6400 overlay or either donor FDAT and labels absence from encrypted data as no result."
+          "source": "analysis/a6400-creative-look-boundary.json",
+          "claim": "Bounded target evidence does not establish a first-class Creative Look interface, state model, base-look table, adjustment pipeline, or live-view, still-JPEG, and movie output bindings."
         },
         {
           "kind": "INFERENCE",
-          "source": "analysis/feature-compatibility.json",
-          "claim": "The visible behavior and target-side approximation boundary are known, but no authenticated firmware table, loader, or image-pipeline integration point has been located."
+          "source": "analysis/a6400-creative-look-stack.json",
+          "claim": "A complete behavioral contract is suitable for continued offline research but cannot authorize implementation or camera testing while every required target chain remains disabled."
         }
       ],
-      "next_action": "Trace independent target settings-node, preset-storage, base-table-loader, and live-view/still/movie roots beyond the bounded Creative Style graph; keep every unsupported layer and axis visible."
+      "next_action": "Trace independent target UI, state, range/default, workflow, restriction, and live-view/still-JPEG/movie processing paths; keep every unsupported contract item visible and disabled."
     },
     {
       "id": "creative-look-emulation",
       "status": "PARTIAL",
-      "summary": "A reversible no-firmware Creative Style approximation exists for all ten names, but it is fallback-only and does not reproduce the first-class interface, persistence, eight-axis model, authenticated base tables, or output bindings.",
+      "summary": "A separate Creative Style fallback represents 10 of the 12 reference looks as approximations; FL2 and FL3 have no fallback representation, and the catalog does not establish native Creative Look behavior.",
       "evidence": [
         {
           "kind": "OBSERVATION",
           "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html",
-          "claim": "ILCE-6400 Creative Style provides Standard, Portrait, Neutral, Vivid, B/W, Sepia, six Style Boxes, and contrast, saturation, and sharpness adjustments."
+          "claim": "ILCE-6400 Creative Style exposes the target-native styles, six Style Boxes, and three adjustment controls used by the fallback catalog."
         },
         {
           "kind": "OBSERVATION",
           "source": "analysis/creative-look-recipes.json",
-          "claim": "The catalog maps ST, PT, NT, VV, BW, and SE directly and supplies bounded inferred recipes for VV2, FL, IN, and SH without modifying firmware."
+          "claim": "The schema-v2 fallback catalog represents ST, PT, NT, VV, VV2, FL, IN, SH, BW, and SE while explicitly leaving FL2 and FL3 unrepresented."
         },
         {
           "kind": "OBSERVATION",
           "source": "analysis/a6400-creative-look-guide.md",
-          "claim": "The deterministic guide preserves white-balance instructions, clamps target values to the documented α6400 range, and calls out every donor axis that cannot be represented."
+          "claim": "The deterministic guide labels every recipe APPROXIMATION_ONLY and LAST_RESORT_ONLY and rejects native, colorimetric, installation, recovery, and camera-test claims."
         },
         {
           "kind": "INFERENCE",
           "source": "analysis/creative-look-recipes.json",
-          "claim": "This is a practical approximation candidate, not a native Creative Look port or proof of a Sony-exact visual match."
+          "claim": "Creative Style remains a reversible fallback candidate rather than a first-class Creative Look implementation or proof of Sony-exact output."
         }
       ],
-      "next_action": "Keep the recipes as a reversible fallback and prioritize static research of a first-class Creative Look control surface and persistence model; do not flash the camera."
+      "next_action": "Retain the ten fallback recipes for offline comparison only; prioritize the separate first-class contract and do not fabricate FL2 or FL3 mappings."
     },
     {
       "id": "touch-menu",
       "status": "PARTIAL",
-      "summary": "The α6400 has shooting touch plus pinned settings-menu status/configuration paths, but no menu coordinate consumer, hit test, selection dispatcher, or safe extension point is established.",
+      "summary": "The \u03b16400 has shooting touch plus pinned settings-menu status/configuration paths, but no menu coordinate consumer, hit test, selection dispatcher, or safe extension point is established.",
       "evidence": [
         {
           "kind": "OBSERVATION",
           "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002280339.html",
-          "claim": "Sony documents that touching a subject on the α6400 monitor starts Touch Tracking, confirming target touch coordinates reach a shooting subsystem."
+          "claim": "Sony documents that touching a subject on the \u03b16400 monitor starts Touch Tracking, confirming target touch coordinates reach a shooting subsystem."
         },
         {
           "kind": "OBSERVATION",
@@ -90,7 +80,7 @@
         {
           "kind": "INFERENCE",
           "source": "analysis/feature-compatibility.json",
-          "claim": "An α6400-specific subsystem extension is more plausible than donor reuse, but the requested full touch menu is not currently implementable from authenticated evidence."
+          "claim": "An \u03b16400-specific subsystem extension is more plausible than donor reuse, but the requested full touch menu is not currently implementable from authenticated evidence."
         }
       ],
       "next_action": "Resolve selected terminal indirect calls and the cross-module layout/resource boundary using read-only metadata; retain the no-camera gate."
@@ -98,17 +88,17 @@
     {
       "id": "vertical-ui",
       "status": "PARTIAL",
-      "summary": "The α6400 exposes three-way orientation state and five pinned vertical-layout class IDs, but orientation-based selection, verified portrait geometry, rendering, and input transforms remain unestablished.",
+      "summary": "The \u03b16400 exposes three-way orientation state and five pinned vertical-layout class IDs, but orientation-based selection, verified portrait geometry, rendering, and input transforms remain unestablished.",
       "evidence": [
         {
           "kind": "OBSERVATION",
           "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002278024.html",
-          "claim": "Sony documents horizontal, vertical shutter-up, and vertical shutter-down orientation detection for α6400 Switch V/H AF Area."
+          "claim": "Sony documents horizontal, vertical shutter-up, and vertical shutter-down orientation detection for \u03b16400 Switch V/H AF Area."
         },
         {
           "kind": "OBSERVATION",
           "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/251h_vertical_ui_display.html",
-          "claim": "Sony documents α7 V Vertical Display rotating shooting information, control-wheel directions, and touch operations to match monitor orientation."
+          "claim": "Sony documents \u03b17 V Vertical Display rotating shooting information, control-wheel directions, and touch operations to match monitor orientation."
         },
         {
           "kind": "OBSERVATION",
@@ -118,7 +108,7 @@
         {
           "kind": "INFERENCE",
           "source": "analysis/feature-compatibility.json",
-          "claim": "Orientation sensing and target layout identities can be reused conceptually, but neither donor transplantation nor an α6400-specific implementation has a complete executable path or safe patch boundary."
+          "claim": "Orientation sensing and target layout identities can be reused conceptually, but neither donor transplantation nor an \u03b16400-specific implementation has a complete executable path or safe patch boundary."
         }
       ],
       "next_action": "Resolve the target orientation-to-layout and layout-to-render/input paths before implementation; later require verified signing and independent external recovery."
@@ -131,12 +121,12 @@
         {
           "kind": "OBSERVATION",
           "source": "analysis/structures/a6400-tw-v2.00.json",
-          "claim": "The α6400 updater is a PE32 wrapper with a 313,778,104-byte overlay and a 10,024-byte certificate table; Authenticode exclusions are structurally identifiable."
+          "claim": "The \u03b16400 updater is a PE32 wrapper with a 313,778,104-byte overlay and a 10,024-byte certificate table; Authenticode exclusions are structurally identifiable."
         },
         {
           "kind": "OBSERVATION",
           "source": "analysis/signature-experiments.json",
-          "claim": "Digest-pinned one-byte mutations distinguish host-signed overlay bytes from excluded certificate bytes, while the pinned tool still stops at wrapper parsing for both α6400 variants."
+          "claim": "Digest-pinned one-byte mutations distinguish host-signed overlay bytes from excluded certificate bytes, while the pinned tool still stops at wrapper parsing for both \u03b16400 variants."
         },
         {
           "kind": "OBSERVATION",
@@ -159,12 +149,12 @@
         {
           "kind": "OBSERVATION",
           "source": "analysis/feature-compatibility.json",
-          "claim": "The matrix confirms α6400 orientation consumers, touch tracking, six Style Boxes, and three adjustable Creative Style axes."
+          "claim": "The matrix confirms \u03b16400 orientation consumers, touch tracking, six Style Boxes, and three adjustable Creative Style axes."
         },
         {
           "kind": "OBSERVATION",
           "source": "analysis/structures/a6700-tw-v2.00.json",
-          "claim": "The α6700 donor is a fully bounded Sony DAT container whose FDAT payload remains opaque at the unsupported decrypter boundary."
+          "claim": "The \u03b16700 donor is a fully bounded Sony DAT container whose FDAT payload remains opaque at the unsupported decrypter boundary."
         },
         {
           "kind": "OBSERVATION",
@@ -174,7 +164,7 @@
         {
           "kind": "INFERENCE",
           "source": "analysis/feature-compatibility.json",
-          "claim": "Existing target peripherals make an α6400-specific design conceivable, but they do not prove compatible UI frameworks, firmware ABI, resource formats, memory budgets, or image-processing tables."
+          "claim": "Existing target peripherals make an \u03b16400-specific design conceivable, but they do not prove compatible UI frameworks, firmware ABI, resource formats, memory budgets, or image-processing tables."
         }
       ],
       "next_action": "Treat every unverified ABI, memory, resource, and controller boundary as unresolved until authenticated target internals are available."
@@ -182,7 +172,7 @@
     {
       "id": "recovery",
       "status": "BLOCKED",
-      "summary": "The exact Taiwan/region-0 α6400 2.00 stock source is authenticated, but all three external restore candidates and all six mandatory failure scenarios remain unestablished; recovery and camera testing are unvalidated.",
+      "summary": "The exact Taiwan/region-0 \u03b16400 2.00 stock source is authenticated, but all three external restore candidates and all six mandatory failure scenarios remain unestablished; recovery and camera testing are unvalidated.",
       "evidence": [
         {
           "kind": "OBSERVATION",

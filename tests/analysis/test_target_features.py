@@ -35,7 +35,7 @@ class TargetFeatureTests(unittest.TestCase):
         validated = validate_target_feature_report(self.document)
 
         self.assertEqual(validated, self.document)
-        self.assertEqual(validated["schema_version"], 4)
+        self.assertEqual(validated["schema_version"], 5)
         self.assertFalse(validated["camera_connected"])
         self.assertFalse(validated["camera_executed"])
         self.assertFalse(validated["bypass_established"])
@@ -83,6 +83,26 @@ class TargetFeatureTests(unittest.TestCase):
         )
         self.assertEqual(validate_target_feature_report(built), built)
 
+    def test_builder_accepts_in_memory_creative_reports_for_atomic_regeneration(self):
+        reports = {
+            "creative_look_stack": json.loads(
+                CREATIVE_LOOK_STACK_PATH.read_text(encoding="utf-8")
+            ),
+            "creative_look_sources": json.loads(
+                CREATIVE_LOOK_SOURCES_PATH.read_text(encoding="utf-8")
+            ),
+            "creative_look_boundary": json.loads(
+                CREATIVE_LOOK_BOUNDARY_PATH.read_text(encoding="utf-8")
+            ),
+        }
+
+        built = build_target_feature_report(
+            copy.deepcopy(self.document), creative_reports=reports
+        )
+
+        self.assertEqual(built["creative_look_stack"], reports["creative_look_stack"])
+        self.assertEqual(validate_target_feature_report(built), built)
+
     def test_creative_look_evidence_matches_all_standalone_reports(self):
         validated = validate_target_feature_report(self.document)
 
@@ -101,6 +121,64 @@ class TargetFeatureTests(unittest.TestCase):
         self.assertFalse(
             validated["creative_rendering"]["native_creative_look_established"]
         )
+
+    def test_creative_look_presentation_and_safety_are_exactly_fail_closed(self):
+        stack = validate_target_feature_report(self.document)["creative_look_stack"]
+        presentation = stack["presentation"]
+
+        self.assertEqual(len(presentation["looks"]), 12)
+        self.assertEqual(len(presentation["custom_slots"]), 6)
+        self.assertEqual(len(presentation["axes"]), 8)
+        for section in ("looks", "custom_slots", "axes"):
+            for item in presentation[section].values():
+                self.assertEqual(item["visibility"], "VISIBLE")
+                self.assertEqual(item["availability"], "DISABLED_UNPROVEN")
+        self.assertEqual(len(presentation["workflow_actions"]), 5)
+        self.assertTrue(
+            all(
+                item["availability"] == "DISABLED_UNPROVEN"
+                for item in presentation["workflow_actions"].values()
+            )
+        )
+        self.assertEqual(
+            stack["fallback"]["represented_reference_looks"],
+            ["ST", "PT", "NT", "VV", "VV2", "FL", "IN", "SH", "BW", "SE"],
+        )
+        self.assertEqual(
+            stack["fallback"]["unrepresented_reference_looks"], ["FL2", "FL3"]
+        )
+        self.assertFalse(stack["fallback"]["native_claim_basis"])
+        self.assertEqual(stack["safety"]["readiness"], "BLOCKED_STATIC_EVIDENCE")
+        self.assertFalse(stack["safety"]["recovery_validated"])
+        self.assertFalse(stack["safety"]["camera_test_eligible"])
+        self.assertFalse(stack["safety"]["installable"])
+
+    def test_creative_look_or_installability_promotions_are_rejected(self):
+        candidates = []
+
+        candidate = copy.deepcopy(self.document)
+        candidate["creative_look_stack"]["presentation"]["looks"]["ST"][
+            "availability"
+        ] = "ENABLED_OFFLINE"
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["creative_look_stack"]["fallback"]["native_claim_basis"] = True
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["creative_rendering"]["native_creative_look_established"] = True
+        candidates.append(candidate)
+
+        candidate = copy.deepcopy(self.document)
+        candidate["installable"] = True
+        candidates.append(candidate)
+
+        for candidate in candidates:
+            with self.subTest(candidate=candidate), self.assertRaises(
+                TargetFeatureError
+            ):
+                validate_target_feature_report(candidate)
 
     def test_nested_ui_evidence_is_fail_closed_and_digest_pinned(self):
         candidates = []
@@ -158,7 +236,7 @@ class TargetFeatureTests(unittest.TestCase):
             ):
                 validate_target_feature_report(candidate)
 
-    def test_schema_four_requires_both_nested_ui_reports_exactly(self):
+    def test_schema_five_requires_both_nested_ui_reports_exactly(self):
         for field in ("ui_indirect_trace", "modern_ui_contract"):
             candidate = copy.deepcopy(self.document)
             del candidate[field]
@@ -170,7 +248,7 @@ class TargetFeatureTests(unittest.TestCase):
         with self.assertRaises(TargetFeatureError):
             validate_target_feature_report(candidate)
 
-    def test_schema_four_requires_all_nested_creative_look_reports_exactly(self):
+    def test_schema_five_requires_all_nested_creative_look_reports_exactly(self):
         for field in (
             "creative_look_stack",
             "creative_look_sources",
@@ -350,7 +428,7 @@ class TargetFeatureTests(unittest.TestCase):
         validated = validate_target_feature_report(self.document)
         trace = validated["ui_static_trace"]
 
-        self.assertEqual(validated["schema_version"], 4)
+        self.assertEqual(validated["schema_version"], 5)
         self.assertEqual(trace["analysis_scope"], "offline-static-target-filesystem")
         self.assertEqual(trace["module"], "lib/viewUnified2.so")
         self.assertEqual(

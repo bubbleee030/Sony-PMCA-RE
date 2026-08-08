@@ -632,103 +632,375 @@
     "claim_boundary": "Opaque FDAT sources provide container and format evidence only; they do not provide donor functions, offsets, tables, decryption, or processing behavior."
   },
   "creative_look_stack": {
-    "schema_version": 1,
+    "schema_version": 2,
     "target": "ILCE-6400",
     "reference": "ILCE-7M5-creative-look-behavior",
-    "looks": [
-      "ST",
-      "PT",
-      "NT",
-      "VV",
-      "VV2",
-      "FL",
-      "IN",
-      "SH",
-      "BW",
-      "SE"
-    ],
-    "axes": [
-      "contrast",
-      "highlights",
-      "shadows",
-      "fade",
-      "saturation",
-      "sharpness",
-      "sharpness_range",
-      "clarity"
-    ],
+    "reference_catalog": {
+      "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
+      "built_in_looks": [
+        "ST",
+        "PT",
+        "NT",
+        "VV",
+        "VV2",
+        "FL",
+        "FL2",
+        "FL3",
+        "IN",
+        "SH",
+        "BW",
+        "SE"
+      ],
+      "custom_slots": [
+        "Custom1",
+        "Custom2",
+        "Custom3",
+        "Custom4",
+        "Custom5",
+        "Custom6"
+      ],
+      "axes": {
+        "contrast": {
+          "minimum": -9,
+          "maximum": 9,
+          "default": null
+        },
+        "highlights": {
+          "minimum": -9,
+          "maximum": 9,
+          "default": null
+        },
+        "shadows": {
+          "minimum": -9,
+          "maximum": 9,
+          "default": null
+        },
+        "fade": {
+          "minimum": 0,
+          "maximum": 9,
+          "default": null
+        },
+        "saturation": {
+          "minimum": -9,
+          "maximum": 9,
+          "default": null
+        },
+        "sharpness": {
+          "minimum": 0,
+          "maximum": 9,
+          "default": null
+        },
+        "sharpness_range": {
+          "minimum": 1,
+          "maximum": 5,
+          "default": null
+        },
+        "clarity": {
+          "minimum": 0,
+          "maximum": 9,
+          "default": null
+        }
+      },
+      "workflow_actions": [
+        "select_look",
+        "edit_axes",
+        "modified_marker",
+        "reset_one_look",
+        "select_custom_base"
+      ],
+      "restrictions": {
+        "intelligent_auto": {
+          "condition": "INTELLIGENT_AUTO",
+          "scope": "creative_look",
+          "effect": "UNAVAILABLE"
+        },
+        "picture_profile_not_off": {
+          "condition": "PICTURE_PROFILE_NOT_OFF",
+          "scope": "creative_look",
+          "effect": "UNAVAILABLE"
+        },
+        "flexible_iso_log": {
+          "condition": "FLEXIBLE_ISO_LOG",
+          "scope": "creative_look",
+          "effect": "UNAVAILABLE"
+        },
+        "bw_se_saturation": {
+          "condition": "LOOK_IS_BW_OR_SE",
+          "scope": "saturation",
+          "effect": "UNAVAILABLE"
+        },
+        "movie_sharpness_range": {
+          "condition": "MOVIE_MODE",
+          "scope": "sharpness_range",
+          "effect": "UNAVAILABLE"
+        }
+      }
+    },
     "layers": {
       "interface": {
         "status": "UNESTABLISHED",
         "evidence": [],
-        "blocker": "No resolved target path currently establishes a first-class Creative Look entry, preset browser, edit screen, reset, copy, and selection workflow.",
-        "acceptance": "A dedicated Creative Look workflow exposes ten looks and their supported controls without relabeling the Creative Style menu."
+        "blocker": "No resolved target path establishes the dedicated \u03b17 V Creative Look browser, editor, marker, reset, and Custom-base workflow.",
+        "acceptance": "A dedicated workflow presents all twelve built-ins and six Custom slots without relabeling Creative Style."
       },
       "state": {
         "status": "UNESTABLISHED",
         "evidence": [],
-        "blocker": "No target state model is yet proven for Creative Look identifiers, defaults, per-look adjustments, validation, reset, copy, and persistence.",
-        "acceptance": "Validated per-look records persist exact supported values across documented mode and power transitions."
+        "blocker": "No target state model is proven for twelve built-ins, six Custom slots, per-look adjustments, defaults, reset, and persistence.",
+        "acceptance": "Validated per-look and per-Custom records preserve exact supported values across documented transitions."
       },
       "base_looks": {
         "status": "UNESTABLISHED",
         "evidence": [],
-        "blocker": "No authenticated Creative Look base tables or evidence-backed target-native representation has been located.",
-        "acceptance": "All ten named looks have authenticated or independently validated processing representations with explicit provenance."
+        "blocker": "No authenticated Creative Look base table or evidence-backed target-native representation is established.",
+        "acceptance": "All twelve built-ins have authenticated or independently validated processing representations with explicit provenance."
       },
       "adjustment_axes": {
         "status": "UNESTABLISHED",
         "evidence": [],
-        "blocker": "The eight Creative Look axes have not been independently connected to target UI, state, and processing boundaries.",
-        "acceptance": "Every axis has separately proven UI handling, state/default/range semantics, and a target processing path or an explicit blocker."
+        "blocker": "The eight axes are not independently connected to target UI, state, range, default, and processing boundaries.",
+        "acceptance": "Every axis has proven UI handling, state, exact range, default semantics, and a target processing path."
       },
       "pipeline_binding": {
         "status": "UNESTABLISHED",
         "evidence": [],
-        "blocker": "No Creative Look processing path is yet bound to live view, still JPEG, or movie output on the target.",
-        "acceptance": "Each supported output uses the selected look and adjustments consistently, with unsupported modes reported explicitly."
+        "blocker": "No Creative Look path is bound to live view, still JPEG, or movie output on the target.",
+        "acceptance": "Each supported output uses the selected look and adjustments consistently."
+      }
+    },
+    "look_records": {
+      "ST": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native ST representation, state, and output binding is established."
+      },
+      "PT": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native PT representation, state, and output binding is established."
+      },
+      "NT": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native NT representation, state, and output binding is established."
+      },
+      "VV": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native VV representation, state, and output binding is established."
+      },
+      "VV2": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native VV2 representation, state, and output binding is established."
+      },
+      "FL": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native FL representation, state, and output binding is established."
+      },
+      "FL2": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No target-native FL2 representation, state, output binding, or honest fallback representation is established."
+      },
+      "FL3": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No target-native FL3 representation, state, output binding, or honest fallback representation is established."
+      },
+      "IN": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native IN representation, state, and output binding is established."
+      },
+      "SH": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native SH representation, state, and output binding is established."
+      },
+      "BW": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native BW representation, state, and output binding is established."
+      },
+      "SE": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native SE representation, state, and output binding is established."
+      }
+    },
+    "custom_records": {
+      "Custom1": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom1 base selection, state, adjustment, reset, and persistence path is established."
+      },
+      "Custom2": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom2 base selection, state, adjustment, reset, and persistence path is established."
+      },
+      "Custom3": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom3 base selection, state, adjustment, reset, and persistence path is established."
+      },
+      "Custom4": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom4 base selection, state, adjustment, reset, and persistence path is established."
+      },
+      "Custom5": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom5 base selection, state, adjustment, reset, and persistence path is established."
+      },
+      "Custom6": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom6 base selection, state, adjustment, reset, and persistence path is established."
       }
     },
     "workflow_records": {
-      "menu_entry": {
+      "select_look": {
         "status": "UNESTABLISHED",
         "evidence": [],
-        "blocker": "No dedicated Creative Look menu entry or production selection dispatcher is established on the target."
+        "blocker": "No production dispatcher selects a first-class built-in or Custom Look."
       },
-      "ten_preset_browser": {
+      "edit_axes": {
         "status": "UNESTABLISHED",
         "evidence": [],
-        "blocker": "No target-native browser presenting the exact ten Creative Look presets is established."
+        "blocker": "No first-class editor is wired to eight independently validated axes."
       },
-      "edit_screen": {
+      "modified_marker": {
         "status": "UNESTABLISHED",
         "evidence": [],
-        "blocker": "No Creative Look edit screen wired to eight independent adjustment records is established."
+        "blocker": "No target state-to-UI path establishes the per-look modified marker."
       },
-      "reset_to_default": {
+      "reset_one_look": {
         "status": "UNESTABLISHED",
         "evidence": [],
-        "blocker": "No per-look reset-to-default state transition is established."
+        "blocker": "No per-look reset transition with validated defaults is established."
       },
-      "copy_select": {
+      "select_custom_base": {
         "status": "UNESTABLISHED",
         "evidence": [],
-        "blocker": "No Creative Look copy and selection behavior is established independently of Creative Style."
-      },
-      "range_display": {
-        "status": "UNESTABLISHED",
-        "evidence": [],
-        "blocker": "No UI path displaying authenticated ranges for all eight axes is established."
-      },
-      "persistence": {
-        "status": "UNESTABLISHED",
-        "evidence": [],
-        "blocker": "No Creative Look record persistence across documented mode and power transitions is established."
-      },
-      "mode_restrictions": {
-        "status": "UNESTABLISHED",
-        "evidence": [],
-        "blocker": "No verified availability matrix identifies Creative Look restrictions for live view, still JPEG, and movie modes."
+        "blocker": "No Custom-slot base-look selection and persistence path is established."
       }
     },
     "axis_records": {
@@ -736,65 +1008,113 @@
         "status": "UNESTABLISHED",
         "ui": false,
         "state": false,
+        "range": false,
+        "default": false,
         "pipeline": false,
         "evidence": [],
-        "blocker": "Creative Style contrast is fallback evidence only; matching Creative Look UI, state, and processing semantics remain unproven."
+        "blocker": "Creative Style contrast is fallback evidence only; matching Creative Look boundaries remain unproven."
       },
       "highlights": {
         "status": "UNESTABLISHED",
         "ui": false,
         "state": false,
+        "range": false,
+        "default": false,
         "pipeline": false,
         "evidence": [],
-        "blocker": "No independent highlights control path is established on the target."
+        "blocker": "No independent Highlights UI, state, range, default, and processing path is established."
       },
       "shadows": {
         "status": "UNESTABLISHED",
         "ui": false,
         "state": false,
+        "range": false,
+        "default": false,
         "pipeline": false,
         "evidence": [],
-        "blocker": "No independent shadows control path is established on the target."
+        "blocker": "No independent Shadows UI, state, range, default, and processing path is established."
       },
       "fade": {
         "status": "UNESTABLISHED",
         "ui": false,
         "state": false,
+        "range": false,
+        "default": false,
         "pipeline": false,
         "evidence": [],
-        "blocker": "No independent fade control path is established on the target."
+        "blocker": "No independent Fade UI, state, range, default, and processing path is established."
       },
       "saturation": {
         "status": "UNESTABLISHED",
         "ui": false,
         "state": false,
+        "range": false,
+        "default": false,
         "pipeline": false,
         "evidence": [],
-        "blocker": "Creative Style saturation is fallback evidence only; matching Creative Look UI, state, and processing semantics remain unproven."
+        "blocker": "Creative Style saturation is fallback evidence only; matching Creative Look boundaries remain unproven."
       },
       "sharpness": {
         "status": "UNESTABLISHED",
         "ui": false,
         "state": false,
+        "range": false,
+        "default": false,
         "pipeline": false,
         "evidence": [],
-        "blocker": "Creative Style sharpness is fallback evidence only; matching Creative Look UI, state, and processing semantics remain unproven."
+        "blocker": "Creative Style sharpness is fallback evidence only; matching nonnegative Creative Look semantics remain unproven."
       },
       "sharpness_range": {
         "status": "UNESTABLISHED",
         "ui": false,
         "state": false,
+        "range": false,
+        "default": false,
         "pipeline": false,
         "evidence": [],
-        "blocker": "No sharpness-range control distinct from sharpness is established on the target."
+        "blocker": "No Sharpness Range control distinct from Sharpness is established."
       },
       "clarity": {
         "status": "UNESTABLISHED",
         "ui": false,
         "state": false,
+        "range": false,
+        "default": false,
         "pipeline": false,
         "evidence": [],
-        "blocker": "No clarity control distinct from sharpening is established on the target."
+        "blocker": "No Clarity control distinct from sharpening is established."
+      }
+    },
+    "restriction_records": {
+      "intelligent_auto": {
+        "status": "UNESTABLISHED",
+        "implemented": false,
+        "evidence": [],
+        "blocker": "The \u03b17 V Intelligent Auto restriction is reference behavior only; no \u03b16400 Creative Look mode join is established."
+      },
+      "picture_profile_not_off": {
+        "status": "UNESTABLISHED",
+        "implemented": false,
+        "evidence": [],
+        "blocker": "The \u03b17 V Picture Profile restriction is reference behavior only; no \u03b16400 Creative Look mode join is established."
+      },
+      "flexible_iso_log": {
+        "status": "UNESTABLISHED",
+        "implemented": false,
+        "evidence": [],
+        "blocker": "The \u03b17 V Flexible ISO Log restriction is reference behavior only; no \u03b16400 Creative Look mode join is established."
+      },
+      "bw_se_saturation": {
+        "status": "UNESTABLISHED",
+        "implemented": false,
+        "evidence": [],
+        "blocker": "The \u03b17 V BW/SE Saturation restriction is reference behavior only; no target implementation is established."
+      },
+      "movie_sharpness_range": {
+        "status": "UNESTABLISHED",
+        "implemented": false,
+        "evidence": [],
+        "blocker": "The \u03b17 V movie Sharpness Range restriction is reference behavior only; no target implementation is established."
       }
     },
     "pipeline_outputs": {
@@ -814,12 +1134,393 @@
         "blocker": "No movie Creative Look sink is resolved."
       }
     },
+    "presentation": {
+      "looks": {
+        "ST": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "PT": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "NT": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "VV": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "VV2": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "FL": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "FL2": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "FL3": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "IN": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "SH": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "BW": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "SE": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        }
+      },
+      "custom_slots": {
+        "Custom1": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        },
+        "Custom2": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        },
+        "Custom3": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        },
+        "Custom4": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        },
+        "Custom5": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        },
+        "Custom6": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        }
+      },
+      "axes": {
+        "contrast": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "highlights": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "shadows": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "fade": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "saturation": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "sharpness": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "sharpness_range": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "clarity": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        }
+      },
+      "workflow_actions": {
+        "select_look": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "WORKFLOW_DISPATCH_UNPROVEN"
+          ]
+        },
+        "edit_axes": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "WORKFLOW_DISPATCH_UNPROVEN"
+          ]
+        },
+        "modified_marker": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "WORKFLOW_DISPATCH_UNPROVEN"
+          ]
+        },
+        "reset_one_look": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "WORKFLOW_DISPATCH_UNPROVEN"
+          ]
+        },
+        "select_custom_base": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "WORKFLOW_DISPATCH_UNPROVEN"
+          ]
+        }
+      },
+      "restriction_rules": {
+        "intelligent_auto": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MODE_MATRIX_UNPROVEN"
+          ]
+        },
+        "picture_profile_not_off": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MODE_MATRIX_UNPROVEN"
+          ]
+        },
+        "flexible_iso_log": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MODE_MATRIX_UNPROVEN"
+          ]
+        },
+        "bw_se_saturation": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MODE_MATRIX_UNPROVEN"
+          ]
+        },
+        "movie_sharpness_range": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MODE_MATRIX_UNPROVEN"
+          ]
+        }
+      },
+      "output_bindings": {
+        "live_view": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "LIVE_VIEW_BINDING_UNPROVEN"
+          ]
+        },
+        "still_jpeg": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "STILL_JPEG_BINDING_UNPROVEN"
+          ]
+        },
+        "movie": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        }
+      }
+    },
     "fallback": {
       "creative_style_available": true,
       "status": "APPROXIMATION_ONLY",
       "policy": "LAST_RESORT_ONLY",
-      "source": "analysis/a6400-creative-look-guide.md",
+      "source": "analysis/creative-look-recipes.json",
+      "represented_reference_looks": [
+        "ST",
+        "PT",
+        "NT",
+        "VV",
+        "VV2",
+        "FL",
+        "IN",
+        "SH",
+        "BW",
+        "SE"
+      ],
+      "unrepresented_reference_looks": [
+        "FL2",
+        "FL3"
+      ],
       "native_claim_basis": false
+    },
+    "safety": {
+      "reference": "analysis/a6400-stock-200-recovery.json",
+      "canonical_report_sha256": "008b850abd51e75b76adf56640ef5168dde9498473097b84e3a7bfce175fcd2b",
+      "readiness": "BLOCKED_STATIC_EVIDENCE",
+      "recovery_validated": false,
+      "camera_test_eligible": false,
+      "installable": false
     },
     "native_creative_look_established": false
   },
@@ -1074,7 +1775,7 @@
       "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html"
     }
   ],
-  "schema_version": 4,
+  "schema_version": 5,
   "subject": "ILCE-6400 Taiwan 2.00 target feature boundaries",
   "target": {
     "architecture": "CXD90045",

@@ -142,10 +142,14 @@ emulation remains the final fallback only if native Creative Look behavior
 cannot be established.
 
 The first-class investigation is now defined and traced independently of the
-Creative Style fallback. Its exact contract contains the ten bases `ST`, `PT`,
-`NT`, `VV`, `VV2`, `FL`, `IN`, `SH`, `BW`, and `SE`; eight separate axes; five
-stack layers; eight workflow actions; and live-view, still-JPEG, and movie
-outputs.
+Creative Style fallback. Its authoritative α7 V-like contract contains 12
+built-ins—`ST`, `PT`, `NT`, `VV`, `VV2`, `FL`, `FL2`, `FL3`, `IN`, `SH`, `BW`,
+and `SE`—plus `Custom1` through `Custom6`; eight separate axes; five stack
+layers; five workflow actions; five reference restrictions; and live-view,
+still-JPEG, and movie outputs. All 26 look, Custom, and axis items are visible
+in the offline presentation contract but disabled because their target chains
+remain unproven. The workflow and restriction records are likewise visible and
+disabled; they document the intended behavior without claiming implementation.
 
 Read-only Ghidra analysis used the digest-pinned original α6400 2.00
 `CautionConfig.so`. Correcting the ELF virtual-address mapping to Ghidra's
@@ -158,8 +162,11 @@ a first-class Creative Look interface, state model, base-look table load, axis
 processing path, or output sink.
 
 Accordingly, all five Creative Look layers remain `UNESTABLISHED`; all eight
-axes remain independently `UNESTABLISHED`; and live view, still JPEG, and movie
-remain unsupported by positive pipeline evidence. The classifications are not
+axes remain independently `UNESTABLISHED`, and every axis still lacks a
+complete UI, state, range, default, and processing chain; and
+live view, still JPEG, and movie remain unsupported by positive pipeline
+evidence. Touch delivery and runtime factory invocation are also unresolved.
+The classifications are not
 `HARDWARE_BLOCKED`: current evidence does not prove impossibility, but it also
 does not support a target-native, target-reimplementation, or donor-compatible
 claim. The α6700 and α7 V sources remain authenticated but opaque, so they
@@ -169,6 +176,10 @@ The normalized evidence is recorded in
 `analysis/a6400-creative-look-boundary.json`, while the layer and workflow
 contract is in `analysis/a6400-creative-look-stack.json`. Creative Style below
 remains a last-resort approximation and cannot satisfy this acceptance gate.
+That separate catalog represents only ten reference looks; `FL2` and `FL3`
+have no fallback representation. Exact stock recovery remains
+`BLOCKED_STATIC_EVIDENCE`, so installability and camera-test eligibility remain
+false.
 
 ## Native α6400 Creative Style selector
 

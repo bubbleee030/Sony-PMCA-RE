@@ -4,33 +4,31 @@ Generated decision section source: validated evidence document (schema version 1
 
 ## creative-look-discovery
 
-Status: `PARTIAL`
+Status: `INSUFFICIENT_EVIDENCE`
 
-Summary: The first-class ten-look/eight-axis contract and target Creative Style boundary are now pinned, but all five Creative Look layers, eight axes, and three output bindings remain unestablished.
+Summary: The authoritative α7 V contract records 12 built-in looks and six Custom slots; all 26 look, Custom, and axis items are visible in the offline contract but disabled because target UI, state, range/default, processing, and output joins remain unestablished.
 
 Evidence:
-- **OBSERVATION** — `https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html`: Sony documents ten Creative Look bases, six Custom Look slots, and eight adjustment axes on ILCE-6700.
-- **OBSERVATION** — `analysis/creative-look-recipes.json`: The committed translation catalog records six direct semantic mappings and four explicitly inferred Style Box approximations for ILCE-6400.
-- **OBSERVATION** — `analysis/a6400-creative-look-boundary.json`: A digest-pinned bounded target trace resolves ten Creative Style functions, one selector-to-graph reference, and nine direct calls; it finds no first-class interface, state, base-table, axis, or output-sink path.
-- **OBSERVATION** — `analysis/a6400-creative-look-stack.json`: Every first-class layer, workflow action, axis, and output remains `UNESTABLISHED`; Creative Style is explicitly `APPROXIMATION_ONLY` and `LAST_RESORT_ONLY`.
-- **OBSERVATION** — `analysis/feature-compatibility.json`: The authenticated bounded marker scan found no plaintext feature locator in the α6400 overlay or either donor FDAT and labels absence from encrypted data as no result.
-- **INFERENCE** — `analysis/feature-compatibility.json`: The visible behavior and target-side approximation boundary are known, but no authenticated firmware table, loader, or image-pipeline integration point has been located.
+- **OBSERVATION** — `https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html`: Sony documents 12 built-in Creative Looks, six Custom slots, eight adjustment axes, five workflows, and five mode-dependent restrictions for the α7 V reference behavior.
+- **OBSERVATION** — `analysis/a6400-creative-look-stack.json`: The validated offline contract keeps every built-in look, Custom slot, axis, workflow, restriction, and output binding visible while marking each unavailable target path disabled or unestablished.
+- **OBSERVATION** — `analysis/a6400-creative-look-boundary.json`: Bounded target evidence does not establish a first-class Creative Look interface, state model, base-look table, adjustment pipeline, or live-view, still-JPEG, and movie output bindings.
+- **INFERENCE** — `analysis/a6400-creative-look-stack.json`: A complete behavioral contract is suitable for continued offline research but cannot authorize implementation or camera testing while every required target chain remains disabled.
 
-Next permitted action: Trace independent target settings-node, preset-storage, base-table-loader, and live-view/still/movie roots beyond the bounded Creative Style graph; keep every unsupported layer and axis visible.
+Next permitted action: Trace independent target UI, state, range/default, workflow, restriction, and live-view/still-JPEG/movie processing paths; keep every unsupported contract item visible and disabled.
 
 ## creative-look-emulation
 
 Status: `PARTIAL`
 
-Summary: A reversible no-firmware Creative Style approximation exists for all ten names, but it is fallback-only and does not reproduce the first-class interface, persistence, eight-axis model, authenticated base tables, or output bindings.
+Summary: A separate Creative Style fallback represents 10 of the 12 reference looks as approximations; FL2 and FL3 have no fallback representation, and the catalog does not establish native Creative Look behavior.
 
 Evidence:
-- **OBSERVATION** — `https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html`: ILCE-6400 Creative Style provides Standard, Portrait, Neutral, Vivid, B/W, Sepia, six Style Boxes, and contrast, saturation, and sharpness adjustments.
-- **OBSERVATION** — `analysis/creative-look-recipes.json`: The catalog maps ST, PT, NT, VV, BW, and SE directly and supplies bounded inferred recipes for VV2, FL, IN, and SH without modifying firmware.
-- **OBSERVATION** — `analysis/a6400-creative-look-guide.md`: The deterministic guide preserves white-balance instructions, clamps target values to the documented α6400 range, and calls out every donor axis that cannot be represented.
-- **INFERENCE** — `analysis/creative-look-recipes.json`: This is a practical approximation candidate, not a native Creative Look port or proof of a Sony-exact visual match.
+- **OBSERVATION** — `https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html`: ILCE-6400 Creative Style exposes the target-native styles, six Style Boxes, and three adjustment controls used by the fallback catalog.
+- **OBSERVATION** — `analysis/creative-look-recipes.json`: The schema-v2 fallback catalog represents ST, PT, NT, VV, VV2, FL, IN, SH, BW, and SE while explicitly leaving FL2 and FL3 unrepresented.
+- **OBSERVATION** — `analysis/a6400-creative-look-guide.md`: The deterministic guide labels every recipe APPROXIMATION_ONLY and LAST_RESORT_ONLY and rejects native, colorimetric, installation, recovery, and camera-test claims.
+- **INFERENCE** — `analysis/creative-look-recipes.json`: Creative Style remains a reversible fallback candidate rather than a first-class Creative Look implementation or proof of Sony-exact output.
 
-Next permitted action: Keep the recipes as a reversible fallback and prioritize static research of a first-class Creative Look control surface and persistence model; do not flash the camera.
+Next permitted action: Retain the ten fallback recipes for offline comparison only; prioritize the separate first-class contract and do not fabricate FL2 or FL3 mappings.
 
 ## touch-menu
 
@@ -109,7 +107,7 @@ Next permitted action: Continue static work on the missing pre-normal-runtime up
 
 - Native donor port candidate: **no**. No authenticated donor executable, resource range, relocation boundary, or compatible firmware ABI was recovered.
 - α6400-specific reimplementation candidate: **conceptually partial, not build-ready**. Target orientation, five vertical-layout class identities, UXC references, and two bounded settings-menu paths are confirmed, but selector, geometry, rendering, coordinate, hit-test, selection, widget, and image-processing integration paths remain incomplete.
-- Practical Creative Look approximation: **available only as the final fallback**. Six direct Creative Style mappings and four clearly inferred Style Box recipes cover all ten named Creative Looks without firmware modification; the primary goal remains a first-class Creative Look interface and usage model.
+- Practical Creative Look approximation: **available only as the final fallback**. Six direct Creative Style mappings and four clearly inferred Style Box recipes represent ten of the 12 reference looks without firmware modification; `FL2` and `FL3` have no fallback representation. The primary goal remains a first-class Creative Look interface and usage model.
 - Camera execution: **blocked**. No candidate image was built, no output is installable, and neither camera was accessed.
 
 Creative Look remains the product goal. Creative Style is the target-native
@@ -119,7 +117,14 @@ requested Creative Look interface or usage pattern.
 
 ## Donor correction
 
-ILCE-6700 firmware remains the behavioral donor for Creative Look and newer touch controls. It is not evidence for the requested full vertical shooting display. The actual official vertical-display donor used here is ILCE-7M5 (α7 V), whose Help Guide states that shooting information, control-wheel directions, and touch operations rotate with monitor orientation. This correction prevents flipped touch-icon placement from being mistaken for a portrait UI.
+ILCE-7M5 (α7 V) is the authoritative behavior reference for the 12-look,
+six-Custom Creative Look contract and for the vertical-display behavior used
+here. ILCE-6700 remains a secondary reference for newer menu touch controls,
+not the source of the first-class Creative Look catalog and not evidence for
+the requested full vertical shooting display. The α7 V Help Guide states that
+shooting information, control-wheel directions, and touch operations rotate
+with monitor orientation; this prevents flipped touch-icon placement from
+being mistaken for a portrait UI.
 
 ## Pinned historical-tool baselines
 
@@ -186,14 +191,19 @@ This is deliberately not a model-mismatch bypass. Unknown containers, unavailabl
 
 ## Creative Look result
 
-The first-class result is currently `UNESTABLISHED` at every required layer:
-interface, state, base looks, adjustment axes, and pipeline binding. The eight
-workflow actions and all eight axes remain independently unestablished, and no
-positive binding exists for live view, still JPEG, or movie. The bounded target
-trace proves only the existing Creative Style selector-to-menu-graph path; it
-does not prove Creative Look processing. Authenticated α6700 and α7 V donor
-payloads remain opaque and cannot supply tables, functions, offsets, or ABI
-evidence.
+The authoritative first-class contract contains 12 built-in looks and six
+Custom slots. Those 18 items and all eight axes are visible in the offline
+presentation but disabled. The result is currently `UNESTABLISHED` at every
+required layer: interface, state, base looks, adjustment axes, and pipeline
+binding. Five workflows and five reference restrictions are recorded as
+visible, disabled behavior requirements without target implementation claims.
+Every axis still lacks a complete UI, state, range, default, and processing
+chain, and no positive binding exists for live view, still JPEG, or movie.
+Touch delivery and runtime factory invocation remain unresolved. The bounded
+target trace proves only the existing Creative Style selector-to-menu-graph
+path; it does not prove Creative Look processing. Authenticated α6700 and α7 V
+donor payloads remain opaque and cannot supply tables, functions, offsets, or
+ABI evidence.
 
 The target-native substrate is materially clearer without becoming a Creative
 Look implementation. A five-value Creative Style setter/getter, persistence
@@ -205,7 +215,7 @@ bindings remain unresolved. A manifest, factory export, RTTI, or matching
 entry is candidate evidence only: static table equality does not prove a
 runtime transaction.
 
-The fallback-only practical guide is [`a6400-creative-look-guide.md`](a6400-creative-look-guide.md). Direct semantic mappings are ST→Standard, PT→Portrait, NT→Neutral, VV→Vivid, BW→B/W, and SE→Sepia. Bounded Style Box approximations are VV2→Clear `(0,+1,0)`, FL→Deep `(-1,0,0)`, IN→Neutral `(-2,-2,-1)`, and SH→Light `(-1,-1,-1)`, expressed as α6400 contrast/saturation/sharpness values.
+The fallback-only practical guide is [`a6400-creative-look-guide.md`](a6400-creative-look-guide.md). Direct semantic mappings are ST→Standard, PT→Portrait, NT→Neutral, VV→Vivid, BW→B/W, and SE→Sepia. Bounded Style Box approximations are VV2→Clear `(0,+1,0)`, FL→Deep `(-1,0,0)`, IN→Neutral `(-2,-2,-1)`, and SH→Light `(-1,-1,-1)`, expressed as α6400 contrast/saturation/sharpness values. This separate fallback represents only those ten looks; `FL2` and `FL3` have no fallback representation.
 
 These recipes do not claim Sony-exact colorimetry. ILCE-6700 exposes eight adjustment axes while α6400 Creative Style exposes three; highlights, shadows, fade, sharpness range, and clarity cannot be represented directly. The guide preserves those gaps and supplies a fixed comparison protocol rather than hiding them.
 
