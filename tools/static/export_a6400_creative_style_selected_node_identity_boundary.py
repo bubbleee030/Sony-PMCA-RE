@@ -835,3 +835,62 @@ def build_report(adapter=None):
     return validate_creative_style_selected_node_identity_boundary_report(
         build_creative_style_selected_node_identity_boundary_report(raw)
     )
+
+
+def _encoded(document):
+    return (
+        json.dumps(document, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+    ).encode("utf-8")
+
+
+def _validate_output_path():
+    if REPORT_PATH.is_symlink():
+        raise RuntimeError("selected-node report target may not be a symlink")
+    current = REPORT_PATH.parent
+    while current != ROOT.parent:
+        if current.exists() and current.is_symlink():
+            raise RuntimeError("selected-node report ancestor may not be a symlink")
+        if current == ROOT:
+            return
+        current = current.parent
+    raise RuntimeError("selected-node report target escapes the repository")
+
+
+def write_report(report):
+    """Validate then atomically replace only the checked selected-node report."""
+    validated = validate_creative_style_selected_node_identity_boundary_report(
+        report
+    )
+    _validate_output_path()
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(
+        prefix=REPORT_PATH.name + ".", suffix=".tmp", dir=REPORT_PATH.parent
+    )
+    temporary_path = Path(temporary)
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(_encoded(validated))
+            stream.flush()
+            os.fsync(stream.fileno())
+        serialized = json.loads(temporary_path.read_text(encoding="utf-8"))
+        validate_creative_style_selected_node_identity_boundary_report(serialized)
+        os.replace(temporary_path, REPORT_PATH)
+    finally:
+        try:
+            temporary_path.unlink()
+        except FileNotFoundError:
+            pass
+    return copy.deepcopy(validated)
+
+
+def main():
+    report = write_report(build_report())
+    print(
+        "CREATIVE_STYLE_SELECTED_NODE_IDENTITY_BOUNDARY|"
+        f"static_path={report['static_path']['zero_based_indices']}|"
+        "runtime_selection=0|creative_look=0|installable=0|camera=0"
+    )
+
+
+if __name__ == "__main__":
+    main()

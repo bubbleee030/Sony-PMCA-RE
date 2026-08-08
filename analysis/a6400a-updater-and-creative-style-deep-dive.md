@@ -530,6 +530,33 @@ invocation, returned `ViewCreativeStyle` identity, or any first-class Creative
 Look/output behavior. The fail-closed record is
 `analysis/a6400-creative-style-activation-caller-boundary.json`.
 
+The selected-node identity follow-up narrows that remaining pointer boundary
+without converting it into runtime proof. The product-root selector reads
+backup record `0x01070316`; its 75-entry table has 49 distinct return values,
+and the default product root is `0xB09B5C`. The typed `ViewSettingMenu` slot-54
+owner stores that exact helper result at the same receiver's `+0x1a0` field.
+A control-flow-aware traversal of the oversized constructor owner
+`[0x213b8c,0x228ba4)` reaches 23,355 instructions and 1,748 direct generic
+node-constructor calls while skipping embedded literal pools.
+
+Within that graph, three constructor-bounded lists and exact relocations form
+one static path from the default product root to the Creative Style root:
+zero-based child indices `0 -> 4 -> 1`. The candidate base
+`CmnViewSettingNode::getSelectedItem` implementation uses a one-based selected
+ordinal from `this+0x18`, clamps it to the child count, subtracts one, and
+returns the indexed child. Under that candidate provider, the static path
+would therefore require runtime ordinals `1 -> 5 -> 2`.
+
+No static event, selected-state writer, or caller provenance proves those
+three ordinal values are live when the selector-10 menu action executes.
+Runtime provider binding and selected-node pointer identity also remain
+unproven. Consequently process ID 42 activation, `ViewCreativeStyle` factory
+invocation, first-class Creative Look, processing/output behavior,
+installability, recovery, and camera-test eligibility remain false. The next
+safe experiment is selected-ordinal writer and action-caller provenance, not a
+firmware modification. The fail-closed record is
+`analysis/a6400-creative-style-selected-node-identity-boundary.json`.
+
 ### Target-native Creative Style interaction surface
 
 The concrete view also owns a target-native interaction scaffold rather than

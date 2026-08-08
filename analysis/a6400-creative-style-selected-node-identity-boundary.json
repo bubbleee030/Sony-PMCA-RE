@@ -1,0 +1,286 @@
+{
+  "analysis_scope": "offline-static-creative-style-selected-node-identity-boundary",
+  "camera_executed": false,
+  "camera_policy": "physically-disconnected",
+  "camera_test_eligible": false,
+  "claims": {
+    "camera_test_eligible": false,
+    "candidate_get_selected_item_semantics_found": true,
+    "creative_style_static_selected_child_path_0_4_1_found": true,
+    "default_product_root_constructor_found": true,
+    "first_class_creative_look_proven": false,
+    "installable": false,
+    "process_id_42_activation_accepted": false,
+    "processing_or_output_binding_proven": false,
+    "product_root_selector_found": true,
+    "recovery_validated": false,
+    "runtime_constructor_provider_binding_proven": false,
+    "runtime_selected_node_is_creative_style_root_proven": false,
+    "runtime_selected_ordinal_triplet_1_5_2_proven": false,
+    "viewcreative_style_factory_invocation_proven": false
+  },
+  "conclusion": "The authenticated viewUnified2 source proves a default product-root constructor graph whose relocation-backed child indices 0, 4, and 1 end at the Creative Style root symbol. Candidate CautionConfig base semantics would select those entries with one-based ordinals 1, 5, and 2, but the runtime ordinals, provider bindings, selected-node identity, process-ID 42 activation, ViewCreativeStyle factory invocation, first-class Creative Look, processing/output binding, installation, recovery, and camera eligibility remain unproven.",
+  "constructor_graph": {
+    "generic_constructor_call_count": 1748,
+    "generic_constructor_plt": 1392676,
+    "generic_constructor_symbol": "_ZN18CmnViewSettingNodeC1EPPS_iPK24CmnViewSettingProperties",
+    "owner": {
+      "complete": true,
+      "end": 2263972,
+      "start": 2177932
+    },
+    "path_constructors": [
+      {
+        "call_site": 2223742,
+        "child_count": 5,
+        "child_list": 9796736,
+        "node": 11574108,
+        "properties": 11641708
+      },
+      {
+        "call_site": 2223562,
+        "child_count": 8,
+        "child_list": 9792376,
+        "node": 11621032,
+        "properties": 11641812
+      },
+      {
+        "call_site": 2222842,
+        "child_count": 6,
+        "child_list": 9783484,
+        "node": 11608932,
+        "properties": 11641748
+      }
+    ],
+    "reachable_instruction_count": 23355,
+    "runtime_provider_binding_proven": false
+  },
+  "dependencies": [
+    {
+      "digest": "5ba9e6edacdf1d1bfa4472de2eaa88381359a7cbdc0ed62aac1f8493b59812a4",
+      "digest_field": "evidence_digest",
+      "report": "analysis/a6400-creative-style-activation-caller-boundary.json"
+    },
+    {
+      "digest": "febc2ce84490fcbf4072ce77b5323df8584a5c68dd41293a3bfa8e1a6587343a",
+      "digest_field": "artifact_sha256",
+      "report": "analysis/a6400-creative-style-definition-registration.json"
+    },
+    {
+      "digest": "43ce4740fe9d195505a35823722112543d2d2e29e7c1fc91b565ea7c85dd0e8d",
+      "digest_field": "summary.canonical_export_sha256",
+      "report": "analysis/a6400-creative-style-menu-list-construction.json"
+    }
+  ],
+  "first_unresolved_boundary": "viewsettingmenu-runtime-selected-ordinal-triplet-1-5-2-and-action-provenance",
+  "installable": false,
+  "narrative_sha256": "2e79baa205cce0ea6d48bda1a426298fd139d0af5f44111a24cf7f85a281b3a5",
+  "product_root_selection": {
+    "backup_read_call_site": 2131546,
+    "backup_record_id": 17236758,
+    "backup_record_id_literal_cell": 2132012,
+    "default_root": 11574108,
+    "default_root_selector_values": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      22,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      50,
+      54,
+      66
+    ],
+    "null_selector_values": [
+      32
+    ],
+    "product_root_field_offset": 416,
+    "same_receiver_and_return_value_proven": true,
+    "selector_owner": {
+      "complete": true,
+      "end": 2132208,
+      "start": 2131528
+    },
+    "selector_return_map_digest": "6bcc43b350783cf9e085c644f9e7ca6ece162c59408247bbe8033041bfce7aef",
+    "selector_value_count": 75,
+    "slot_54_call_site": 2165126,
+    "slot_54_owner": {
+      "complete": true,
+      "end": 2166048,
+      "start": 2164912
+    },
+    "slot_54_receiver_register": "r5",
+    "slot_54_store_site": 2165132,
+    "table_branch_site": 2131560,
+    "unique_return_count": 49,
+    "unique_returns": [
+      0,
+      11573820,
+      11574108,
+      11574788,
+      11579736,
+      11581696,
+      11582816,
+      11585568,
+      11588192,
+      11588552,
+      11588720,
+      11588920,
+      11590240,
+      11593060,
+      11598044,
+      11598364,
+      11598724,
+      11599084,
+      11600612,
+      11601580,
+      11602964,
+      11603644,
+      11605356,
+      11605436,
+      11605796,
+      11606076,
+      11612668,
+      11613148,
+      11613428,
+      11613468,
+      11613516,
+      11617068,
+      11619912,
+      11621592,
+      11623724,
+      11623764,
+      11624364,
+      11626124,
+      11626340,
+      11626660,
+      11627100,
+      11628196,
+      11629076,
+      11630356,
+      11634808,
+      11634928,
+      11635952,
+      11638256,
+      11638976
+    ]
+  },
+  "readiness": "STATIC_CREATIVE_STYLE_SELECTED_CHILD_PATH_ONLY",
+  "recovery_validated": false,
+  "runtime_selection": {
+    "candidate_get_selected_item": {
+      "cell": 11244584,
+      "owner": {
+        "complete": true,
+        "end": 8154134,
+        "start": 8154066
+      },
+      "positive_clamp_and_subtract_one_proven": true,
+      "relocation_index": 15680,
+      "runtime_provider_binding_proven": false,
+      "selected_ordinal_offset": 24,
+      "slot": 10,
+      "symbol": "_ZN18CmnViewSettingNode15getSelectedItemEPPS_",
+      "vtable_address_point": 11244544
+    },
+    "candidate_get_sub_node": {
+      "cell": 11244784,
+      "child_count_offset": 8,
+      "child_list_offset": 4,
+      "relocation_index": 73942,
+      "runtime_provider_binding_proven": false,
+      "slot": 60,
+      "symbol": "_ZN18CmnViewSettingNode10getSubNodeEPPPS_Ri",
+      "symbol_range": {
+        "end": 8155882,
+        "start": 8155852
+      },
+      "vtable_address_point": 11244544
+    },
+    "required_one_based_ordinals": [
+      1,
+      5,
+      2
+    ]
+  },
+  "schema_version": 1,
+  "selected_child_mechanism": {
+    "chained_call_count": 3,
+    "final_child_returned_proven": true,
+    "owner": {
+      "complete": true,
+      "end": 2129036,
+      "start": 2128970
+    },
+    "root_field_offset": 416,
+    "same_result_to_next_receiver_proven": true,
+    "virtual_slot_offset": 40
+  },
+  "source": {
+    "module": "lib/viewUnified2.so",
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+    "size": 11530552
+  },
+  "static_path": {
+    "edges": [
+      {
+        "cell": 9796736,
+        "index": 0,
+        "relocation_index": 64482,
+        "relocation_type": 23,
+        "symbol_index": 0,
+        "target": 11621032
+      },
+      {
+        "cell": 9792392,
+        "index": 4,
+        "relocation_index": 64238,
+        "relocation_type": 23,
+        "symbol_index": 0,
+        "target": 11608932
+      },
+      {
+        "cell": 9783488,
+        "index": 1,
+        "relocation_index": 130947,
+        "relocation_type": 2,
+        "symbol_index": 901,
+        "target": 0
+      }
+    ],
+    "final_symbol": "cmnViewSettingNodeRootCreativeStyle",
+    "final_symbol_runtime_provider_proven": false,
+    "start_root": 11574108,
+    "zero_based_indices": [
+      0,
+      4,
+      1
+    ]
+  },
+  "summary": {
+    "canonical_export_sha256": "fa808ab95a8e6c2de0e9f0f6053f4ce565e4ba01790dc68d46b99851d49cc6fc"
+  },
+  "supporting_source": {
+    "module": "lib/CautionConfig.so",
+    "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7",
+    "size": 12070800
+  }
+}

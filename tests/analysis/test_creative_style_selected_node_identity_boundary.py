@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 from pathlib import Path
 import tempfile
@@ -304,6 +305,39 @@ class CreativeStyleSelectedNodeIdentityBoundaryExporterTests(unittest.TestCase):
             mutated = self._mutated_blob_context(caution, site)
             with self.subTest(site=f"{site:#x}"), self.assertRaises(RuntimeError):
                 _validate_runtime_selection(mutated, deps)
+
+    def test_checked_report_matches_fresh_deterministic_export(self):
+        """Break caught: the checked report may not drift from authenticated sources."""
+        from tools.static.export_a6400_creative_style_selected_node_identity_boundary import (
+            REPORT_PATH,
+            build_report,
+            sources_available,
+        )
+
+        if not sources_available():
+            self.skipTest("authenticated α6400 sources are unavailable")
+        self.assertTrue(REPORT_PATH.is_file(), "checked report is missing")
+        first = build_report()
+        second = build_report()
+        self.assertEqual(first, second)
+        self.assertEqual(
+            json.loads(REPORT_PATH.read_text(encoding="utf-8")),
+            first,
+        )
+
+    def test_validation_failure_does_not_write_the_checked_report(self):
+        """Break caught: invalid evidence may not partially replace the report."""
+        from tools.static.export_a6400_creative_style_selected_node_identity_boundary import (
+            REPORT_PATH,
+            write_report,
+        )
+
+        before = REPORT_PATH.read_bytes()
+        invalid = json.loads(before.decode("utf-8"))
+        invalid["claims"]["runtime_selected_node_is_creative_style_root_proven"] = True
+        with self.assertRaises(ValueError):
+            write_report(invalid)
+        self.assertEqual(REPORT_PATH.read_bytes(), before)
 
 
 if __name__ == "__main__":
