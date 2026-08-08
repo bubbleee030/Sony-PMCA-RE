@@ -73,7 +73,8 @@ def _render(args: argparse.Namespace) -> None:
     document = _load(args.recipes)
     _write(args.output, render_recipe_guide(document))
     print(
-        f"looks={len(document['defaults'])} "
+        f"represented={len(document['represented_reference_looks'])} "
+        f"unrepresented={len(document['unrepresented_reference_looks'])} "
         f"community={len(document['community_experiments'])}"
     )
 

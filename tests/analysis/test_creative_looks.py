@@ -1,6 +1,8 @@
+import copy
 import unittest
 from pathlib import Path
 
+from pmca.analysis.creative_look_stack import BUILT_IN_LOOK_IDS
 from pmca.analysis.creative_looks import (
     DIRECT_STYLE_MAP,
     INFERRED_STYLE_MAP,
@@ -26,7 +28,7 @@ def _look(code, **changes):
         "fade": 0,
         "saturation": 0,
         "sharpness": 0,
-        "sharpness_range": 0,
+        "sharpness_range": 1,
         "clarity": 0,
         "wb_kelvin": None,
         "wb_shift_ab": 0,
@@ -44,7 +46,7 @@ def synthetic_document():
         recipe = translate_to_a6400(modern)
         defaults.append(
             {
-                "source_kind": "official-definition-plus-analysis-translation",
+                "source_kind": "creative-style-fallback-approximation",
                 "modern": modern.__dict__ if hasattr(modern, "__dict__") else {
                     field: getattr(modern, field) for field in modern.__dataclass_fields__
                 },
@@ -58,11 +60,13 @@ def synthetic_document():
             }
         )
     return {
-        "schema_version": 1,
-        "official_sources": {
-            "creative_look": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
-            "creative_style": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html",
-        },
+        "schema_version": 2,
+        "artifact_role": "CREATIVE_STYLE_FALLBACK",
+        "native_claim_basis": False,
+        "reference_source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
+        "creative_style_source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html",
+        "represented_reference_looks": list(LOOK_CODES),
+        "unrepresented_reference_looks": ["FL2", "FL3"],
         "defaults": defaults,
         "community_experiments": [],
         "disclaimer": "These are starting points, not exact Sony colorimetric matches.",
@@ -109,7 +113,7 @@ class CreativeLookTranslationTests(unittest.TestCase):
                 shadows=3,
                 fade=1,
                 saturation=7,
-                sharpness=-7,
+                sharpness=7,
                 sharpness_range=2,
                 clarity=4,
                 wb_kelvin=5600,
@@ -119,7 +123,7 @@ class CreativeLookTranslationTests(unittest.TestCase):
         )
 
         self.assertEqual(recipe.creative_style, "Deep")
-        self.assertEqual((recipe.contrast, recipe.saturation, recipe.sharpness), (-3, 3, -3))
+        self.assertEqual((recipe.contrast, recipe.saturation, recipe.sharpness), (-3, 3, 3))
         self.assertEqual(recipe.wb_kelvin, 5600)
         self.assertEqual((recipe.wb_shift_ab, recipe.wb_shift_gm), (2, -1))
         self.assertEqual(recipe.confidence, "INFERRED")
@@ -138,6 +142,17 @@ class CreativeLookTranslationTests(unittest.TestCase):
     def test_catalog_requires_all_ten_unique_valid_entries(self):
         validated = validate_recipe_document(synthetic_document())
         self.assertEqual(tuple(item["modern"]["code"] for item in validated["defaults"]), LOOK_CODES)
+        self.assertEqual(
+            tuple(validated["represented_reference_looks"]), LOOK_CODES
+        )
+        self.assertEqual(
+            validated["unrepresented_reference_looks"], ["FL2", "FL3"]
+        )
+        self.assertEqual(
+            set(validated["represented_reference_looks"])
+            | set(validated["unrepresented_reference_looks"]),
+            set(BUILT_IN_LOOK_IDS),
+        )
 
         invalid = synthetic_document()
         invalid["defaults"][0]["modern"]["code"] = "BAD"
@@ -161,6 +176,15 @@ class CreativeLookTranslationTests(unittest.TestCase):
         dropped_axis = synthetic_document()
         dropped_axis["defaults"][0]["modern"]["highlights"] = 1
         cases.append(dropped_axis)
+        stale_sharpness = synthetic_document()
+        stale_sharpness["defaults"][0]["modern"]["sharpness"] = -1
+        cases.append(stale_sharpness)
+        stale_range = synthetic_document()
+        stale_range["defaults"][0]["modern"]["sharpness_range"] = 0
+        cases.append(stale_range)
+        stale_clarity = synthetic_document()
+        stale_clarity["defaults"][0]["modern"]["clarity"] = -1
+        cases.append(stale_clarity)
         for document in cases:
             with self.subTest(document=document):
                 with self.assertRaises(CreativeLookError):
@@ -174,6 +198,33 @@ class CreativeLookTranslationTests(unittest.TestCase):
             self.assertIn(condition, guide)
         self.assertIn("not exact Sony colorimetric matches", guide)
         self.assertIn("four Style Boxes", guide)
+        self.assertIn("FL2 and FL3 have no fallback representation", guide)
+        self.assertNotIn("| FL2 |", guide)
+        self.assertNotIn("| FL3 |", guide)
+
+    def test_fallback_role_native_claim_and_fabricated_recipes_are_rejected(self):
+        candidates = []
+
+        candidate = synthetic_document()
+        candidate["artifact_role"] = "NATIVE_CREATIVE_LOOK"
+        candidates.append(candidate)
+
+        candidate = synthetic_document()
+        candidate["native_claim_basis"] = True
+        candidates.append(candidate)
+
+        candidate = synthetic_document()
+        candidate["defaults"].append(copy.deepcopy(candidate["defaults"][0]))
+        candidate["defaults"][-1]["modern"]["code"] = "FL2"
+        candidate["defaults"][-1]["modern"]["base"] = "FL2"
+        candidate["defaults"][-1]["a6400"]["code"] = "FL2"
+        candidates.append(candidate)
+
+        for candidate in candidates:
+            with self.subTest(candidate=candidate), self.assertRaises(
+                CreativeLookError
+            ):
+                validate_recipe_document(candidate)
 
     def test_committed_guide_is_prominently_fallback_only(self):
         guide = (

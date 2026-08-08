@@ -1,11 +1,17 @@
-"""Conservative Creative Look translations for α6400 Creative Style controls."""
+"""Conservative, fallback-only Creative Style recipes for ILCE-6400."""
 
 from copy import deepcopy
 from dataclasses import asdict, dataclass
 from urllib.parse import urlsplit
 
+from .creative_look_stack import BUILT_IN_LOOK_IDS, REFERENCE_SOURCE
+
 
 LOOK_CODES = ("ST", "PT", "NT", "VV", "VV2", "FL", "IN", "SH", "BW", "SE")
+UNREPRESENTED_LOOK_CODES = ("FL2", "FL3")
+CREATIVE_STYLE_SOURCE = (
+    "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html"
+)
 DIRECT_STYLE_MAP = {
     "ST": "Standard",
     "PT": "Portrait",
@@ -38,13 +44,17 @@ VALIDATION_PROTOCOL = (
 )
 _TOP_FIELDS = {
     "schema_version",
-    "official_sources",
+    "artifact_role",
+    "native_claim_basis",
+    "reference_source",
+    "creative_style_source",
+    "represented_reference_looks",
+    "unrepresented_reference_looks",
     "defaults",
     "community_experiments",
     "disclaimer",
     "validation_protocol",
 }
-_SOURCE_FIELDS = {"creative_look", "creative_style"}
 _DEFAULT_FIELDS = {"source_kind", "modern", "a6400", "note"}
 _COMMUNITY_FIELDS = {"title", "source_kind", "modern", "a6400", "note"}
 _MODERN_FIELDS = {
@@ -76,24 +86,34 @@ _RECIPE_FIELDS = {
     "unrepresented_axes",
 }
 _VALID_STYLES = set(DIRECT_STYLE_MAP.values()) | set(INFERRED_STYLE_MAP.values())
+_AXIS_RANGES = {
+    "contrast": (-9, 9),
+    "highlights": (-9, 9),
+    "shadows": (-9, 9),
+    "fade": (0, 9),
+    "saturation": (-9, 9),
+    "sharpness": (0, 9),
+    "sharpness_range": (1, 5),
+    "clarity": (0, 9),
+}
 
 
 class CreativeLookError(ValueError):
-    """Raised when a look or α6400 translation violates the fixed contract."""
+    """Raised when fallback metadata violates the fixed contract."""
 
 
 @dataclass(frozen=True, slots=True)
 class ModernLook:
     code: str
     base: str
-    contrast: int
-    highlights: int
-    shadows: int
-    fade: int
-    saturation: int
-    sharpness: int
-    sharpness_range: int
-    clarity: int
+    contrast: int | None
+    highlights: int | None
+    shadows: int | None
+    fade: int | None
+    saturation: int | None
+    sharpness: int | None
+    sharpness_range: int | None
+    clarity: int | None
     wb_kelvin: int | None
     wb_shift_ab: int
     wb_shift_gm: int
@@ -146,6 +166,14 @@ def _integer(value: object, minimum: int, maximum: int, name: str) -> int:
     return value
 
 
+def _optional_integer(
+    value: object, minimum: int, maximum: int, name: str
+) -> int | None:
+    if value is None:
+        return None
+    return _integer(value, minimum, maximum, name)
+
+
 def _validate_wb(kelvin: object, ab: object, gm: object) -> None:
     if kelvin is not None:
         _integer(kelvin, 2500, 9900, "White-balance Kelvin")
@@ -159,22 +187,15 @@ def _modern(value: object) -> ModernLook:
     elif isinstance(value, dict) and set(value) == _MODERN_FIELDS:
         look = ModernLook(**value)
     else:
-        raise CreativeLookError("Modern Look fields do not match schema version 1")
-    if look.code not in LOOK_CODES or look.base not in LOOK_CODES:
-        raise CreativeLookError("Modern Look code or base is unknown")
-    for field in (
-        "contrast",
-        "highlights",
-        "shadows",
-        "saturation",
-        "sharpness",
-        "clarity",
-    ):
-        _integer(getattr(look, field), -9, 9, f"Modern Look {field}")
-    _integer(look.fade, 0, 9, "Modern Look fade")
-    _integer(look.sharpness_range, 0, 5, "Modern Look sharpness range")
+        raise CreativeLookError("Reference adjustment fields do not match schema version 2")
+    if look.code not in LOOK_CODES or look.base not in BUILT_IN_LOOK_IDS:
+        raise CreativeLookError("Reference look code or base is unknown")
+    for field, (minimum, maximum) in _AXIS_RANGES.items():
+        _optional_integer(
+            getattr(look, field), minimum, maximum, f"Reference Look {field}"
+        )
     _validate_wb(look.wb_kelvin, look.wb_shift_ab, look.wb_shift_gm)
-    _https_url(look.source, "Modern Look source")
+    _https_url(look.source, "Reference Look source")
     return look
 
 
@@ -190,9 +211,14 @@ def _recipe(value: object) -> A6400Recipe:
             unrepresented_axes=tuple(axes),
         )
     else:
-        raise CreativeLookError("α6400 recipe fields do not match schema version 1")
+        raise CreativeLookError("α6400 recipe fields do not match schema version 2")
     if recipe.code not in LOOK_CODES or recipe.creative_style not in _VALID_STYLES:
         raise CreativeLookError("α6400 recipe code or Creative Style is unknown")
+    expected_style = DIRECT_STYLE_MAP.get(
+        recipe.code, INFERRED_STYLE_MAP.get(recipe.code)
+    )
+    if recipe.creative_style != expected_style:
+        raise CreativeLookError("α6400 recipe Creative Style does not match its code")
     for field in ("contrast", "saturation", "sharpness"):
         _integer(getattr(recipe, field), -3, 3, f"α6400 {field}")
     _validate_wb(recipe.wb_kelvin, recipe.wb_shift_ab, recipe.wb_shift_gm)
@@ -208,14 +234,18 @@ def _recipe(value: object) -> A6400Recipe:
 
 
 def translate_to_a6400(look: ModernLook) -> A6400Recipe:
-    """Carry representable controls, clamp them, and name every dropped nonzero axis."""
+    """Translate a concrete reference experiment into bounded α6400 controls."""
+
     look = _modern(look)
-    direct = look.code in DIRECT_STYLE_MAP
+    if any(getattr(look, field) is None for field in ("contrast", "saturation", "sharpness")):
+        raise CreativeLookError("Translation requires concrete representable axes")
     style = DIRECT_STYLE_MAP.get(look.code, INFERRED_STYLE_MAP.get(look.code))
     if style is None:
         raise CreativeLookError("No α6400 base mapping exists")
     missing = tuple(
-        axis for axis in UNREPRESENTED_AXES if getattr(look, axis) != 0
+        axis
+        for axis in UNREPRESENTED_AXES
+        if getattr(look, axis) not in (None, 0)
     )
     return A6400Recipe(
         code=look.code,
@@ -226,7 +256,7 @@ def translate_to_a6400(look: ModernLook) -> A6400Recipe:
         wb_kelvin=look.wb_kelvin,
         wb_shift_ab=look.wb_shift_ab,
         wb_shift_gm=look.wb_shift_gm,
-        confidence="PARTIAL" if direct else "INFERRED",
+        confidence="PARTIAL" if look.code in DIRECT_STYLE_MAP else "INFERRED",
         unrepresented_axes=missing,
     )
 
@@ -240,11 +270,11 @@ def _serialized_recipe(recipe: A6400Recipe) -> dict:
 def _validate_entry(value: object, community: bool) -> tuple[ModernLook, A6400Recipe]:
     fields = _COMMUNITY_FIELDS if community else _DEFAULT_FIELDS
     if not isinstance(value, dict) or set(value) != fields:
-        raise CreativeLookError("Recipe entry fields do not match schema version 1")
+        raise CreativeLookError("Recipe entry fields do not match schema version 2")
     expected_kind = (
         "community-experiment"
         if community
-        else "official-definition-plus-analysis-translation"
+        else "creative-style-fallback-approximation"
     )
     if value["source_kind"] != expected_kind:
         raise CreativeLookError("Recipe source kind is incorrect")
@@ -253,26 +283,47 @@ def _validate_entry(value: object, community: bool) -> tuple[ModernLook, A6400Re
     _bounded_text(value["note"], "Recipe note")
     modern = _modern(value["modern"])
     recipe = _recipe(value["a6400"])
-    expected = translate_to_a6400(modern)
-    if recipe != expected:
-        raise CreativeLookError("α6400 translation does not match the modern settings")
+    if modern.code != recipe.code:
+        raise CreativeLookError("Reference and α6400 recipe codes differ")
+    if community or all(
+        getattr(modern, field) is not None
+        for field in ("contrast", "saturation", "sharpness")
+    ):
+        expected = translate_to_a6400(modern)
+        if recipe != expected:
+            raise CreativeLookError("α6400 translation does not match the source settings")
     return modern, recipe
 
 
 def validate_recipe_document(document: object) -> dict:
-    """Validate and normalize the complete ten-look recipe catalog."""
+    """Validate and normalize the separate Creative Style fallback catalog."""
+
     if not isinstance(document, dict) or set(document) != _TOP_FIELDS:
-        raise CreativeLookError("Recipe document fields do not match schema version 1")
-    if document["schema_version"] != 1 or type(document["schema_version"]) is not int:
+        raise CreativeLookError("Recipe document fields do not match schema version 2")
+    if document["schema_version"] != 2 or type(document["schema_version"]) is not int:
         raise CreativeLookError("Unsupported recipe schema version")
-    sources = document["official_sources"]
-    if not isinstance(sources, dict) or set(sources) != _SOURCE_FIELDS:
-        raise CreativeLookError("Official source fields do not match schema version 1")
-    for name, source in sources.items():
-        _https_url(source, f"Official {name} source")
+    if document["artifact_role"] != "CREATIVE_STYLE_FALLBACK":
+        raise CreativeLookError("Recipe artifact role is invalid")
+    if document["native_claim_basis"] is not False:
+        raise CreativeLookError("Fallback recipes cannot establish a native claim")
+    if document["reference_source"] != REFERENCE_SOURCE:
+        raise CreativeLookError("Creative Look reference source is invalid")
+    if document["creative_style_source"] != CREATIVE_STYLE_SOURCE:
+        raise CreativeLookError("Creative Style source is invalid")
+    represented = document["represented_reference_looks"]
+    unrepresented = document["unrepresented_reference_looks"]
+    if represented != list(LOOK_CODES) or unrepresented != list(
+        UNREPRESENTED_LOOK_CODES
+    ):
+        raise CreativeLookError("Fallback coverage membership or order is invalid")
+    if set(represented) & set(unrepresented) or set(represented + unrepresented) != set(
+        BUILT_IN_LOOK_IDS
+    ):
+        raise CreativeLookError("Fallback coverage overlaps or omits reference looks")
+
     defaults = document["defaults"]
     if not isinstance(defaults, list) or len(defaults) != len(LOOK_CODES):
-        raise CreativeLookError("Recipe defaults must contain all ten looks")
+        raise CreativeLookError("Recipe defaults must contain ten represented looks")
     by_code = {}
     for value in defaults:
         modern, _ = _validate_entry(value, community=False)
@@ -281,6 +332,7 @@ def validate_recipe_document(document: object) -> dict:
         by_code[modern.code] = deepcopy(value)
     if set(by_code) != set(LOOK_CODES):
         raise CreativeLookError("Default look code set is not exact")
+
     community = document["community_experiments"]
     if not isinstance(community, list) or len(community) > 50:
         raise CreativeLookError("Community recipe list is invalid")
@@ -300,18 +352,23 @@ def _wb_text(recipe: A6400Recipe) -> str:
 
 
 def render_recipe_guide(document: dict) -> str:
-    """Render deterministic, on-camera instructions for all ten translations."""
+    """Render deterministic fallback-only instructions for represented mappings."""
+
     document = validate_recipe_document(document)
     lines = [
         "# α6400 Creative Look Translation Guide",
         "",
-        "These settings are practical starting points, not exact Sony colorimetric matches. Six looks use existing α6400 Creative Styles; VV2, FL, IN, and SH use four Style Boxes.",
+        "## Fallback-only status",
+        "",
+        "The authoritative α7 V-like contract contains 12 built-in looks, six Custom slots, and an eight-axis adjustment model. This separate Creative Style artifact represents only ten looks as APPROXIMATION_ONLY / LAST_RESORT_ONLY; it does not reproduce the Creative Look interface, and FL2 and FL3 have no fallback representation.",
+        "",
+        "These settings are practical starting points, not exact Sony colorimetric matches; no Sony-exact colorimetry or authenticated base-look tables are established. Six mappings use existing α6400 Creative Styles; VV2, FL, IN, and SH use four Style Boxes. Nothing in this guide establishes native Creative Look support, runtime processing, installability, recovery, or camera-test eligibility.",
         "",
         "## On-camera setup",
         "",
         "Open MENU → Camera Settings1 → Creative Style. Select the named style directly for ST, PT, NT, VV, BW, and SE. For VV2, FL, IN, and SH, assign the listed style and values to Style Box 1, 2, 3, and 4 respectively.",
         "",
-        "| Look | α6400 Creative Style | Contrast | Saturation | Sharpness | White balance | Confidence | Nonzero modern axes unavailable on α6400 |",
+        "| Look | α6400 Creative Style | Contrast | Saturation | Sharpness | White balance | Confidence | Unavailable nonzero reference axes |",
         "|---|---|---:|---:|---:|---|---|---|",
     ]
     for value in document["defaults"]:
@@ -329,8 +386,8 @@ def render_recipe_guide(document: dict) -> str:
             "",
             "## Sources",
             "",
-            f"- Sony Creative Look definitions: {document['official_sources']['creative_look']}",
-            f"- Sony α6400 Creative Style definitions: {document['official_sources']['creative_style']}",
+            f"- α7 V Creative Look reference: {document['reference_source']}",
+            f"- α6400 Creative Style reference: {document['creative_style_source']}",
         ]
     )
     if document["community_experiments"]:
@@ -359,7 +416,7 @@ def render_recipe_guide(document: dict) -> str:
             "",
             "## Future controlled validation",
             "",
-            "Compare α6400 and a supported Creative Look camera using all of these fixed conditions:",
+            "Compare α6400 and a supported Creative Look camera using all fixed conditions:",
             "",
         ]
     )

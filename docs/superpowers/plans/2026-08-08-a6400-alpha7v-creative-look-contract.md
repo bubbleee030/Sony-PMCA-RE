@@ -231,7 +231,7 @@ git commit -m "analysis: migrate alpha7v Creative Look contract"
 - Consumes: Task 1 `BUILT_IN_LOOK_IDS` and the existing ten representable α6400 Creative Style recipes.
 - Produces: `validate_recipe_document(document: object) -> dict`, `render_recipe_guide(document: dict) -> str`, and an explicit fallback coverage record.
 
-- [ ] **Step 1: Write failing fallback-boundary tests**
+- [x] **Step 1: Write failing fallback-boundary tests**
 
 Require schema version 2 and top-level fields:
 
@@ -253,7 +253,7 @@ _TOP_FIELDS = {
 
 Tests must require `artifact_role="CREATIVE_STYLE_FALLBACK"`, `native_claim_basis=false`, represented order equal to the ten existing mappings, unrepresented order `FL2, FL3`, and no default entry for FL2 or FL3. Mutations that add an FL2/FL3 recipe, claim native coverage, or change the reference source back to the ILCE-6700 guide must fail.
 
-- [ ] **Step 2: Add range and unknown-default regression tests**
+- [x] **Step 2: Add range and unknown-default regression tests**
 
 Represent unknown first-class values as JSON `null`. Reject:
 
@@ -265,7 +265,7 @@ Represent unknown first-class values as JSON `null`. Reject:
 
 when those fields claim α7 V values. Keep α6400 Creative Style output controls validated independently at `-3..3`. Existing legacy approximations for IN/SH remain target recipe values, not asserted α7 V Sharpness defaults.
 
-- [ ] **Step 3: Run focused tests and observe the schema-v1 failures**
+- [x] **Step 3: Run focused tests and observe the schema-v1 failures**
 
 ```powershell
 python -m unittest tests.analysis.test_creative_looks tests.analysis.test_real_creative_look_recipes tests.analysis.test_creative_look_cli -v
@@ -273,13 +273,13 @@ python -m unittest tests.analysis.test_creative_looks tests.analysis.test_real_c
 
 Expected: failures for schema version, source, fallback role, FL2/FL3 coverage, and stale `0` Sharpness Range defaults.
 
-- [ ] **Step 4: Implement the schema-v2 fallback validator**
+- [x] **Step 4: Implement the schema-v2 fallback validator**
 
 Keep `A6400Recipe` exact and target-bounded. Replace the old assumption that every fallback entry contains a complete valid first-class `ModernLook` record with an explicit optional reference-adjustment record whose unknown fields are `None`. Translation validation compares only proven source values; committed target recipes remain independently validated and must carry `PARTIAL` for direct mappings or `INFERRED` for the existing bounded approximations.
 
 The validator must ensure the union of represented and unrepresented reference look IDs equals Task 1 `BUILT_IN_LOOK_IDS`, with no overlap, and that fallback coverage never changes first-class availability.
 
-- [ ] **Step 5: Migrate recipes and render the guide**
+- [x] **Step 5: Migrate recipes and render the guide**
 
 Change the Creative Look reference URL to the α7 V guide. Preserve only the ten existing α6400 recipes. Set unproven first-class defaults, including Sharpness Range, to `null`; do not coerce them to `0`. Render:
 
@@ -295,7 +295,7 @@ represented=10 unrepresented=2 community=2
 
 The guide must state that the 12-look/6-Custom contract is authoritative, only ten fallback representations exist, FL2/FL3 are intentionally unrepresented, and nothing enables native Creative Look or camera testing.
 
-- [ ] **Step 6: Run focused tests and deterministic render check**
+- [x] **Step 6: Run focused tests and deterministic render check**
 
 ```powershell
 python -m unittest tests.analysis.test_creative_looks tests.analysis.test_real_creative_look_recipes tests.analysis.test_creative_look_cli -v
@@ -306,7 +306,7 @@ Compare-Object (Get-Content $env:TEMP/a6400-creative-look-guide.before.md) (Get-
 
 Expected: tests pass and `Compare-Object` prints nothing.
 
-- [ ] **Step 7: Commit the fallback migration**
+- [x] **Step 7: Commit the fallback migration**
 
 ```powershell
 git add pmca/analysis/creative_looks.py tests/analysis/test_creative_looks.py tests/analysis/test_real_creative_look_recipes.py creative_look_recipes.py tests/analysis/test_creative_look_cli.py analysis/creative-look-recipes.json analysis/a6400-creative-look-guide.md
