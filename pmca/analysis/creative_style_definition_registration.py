@@ -91,6 +91,34 @@ PRIOR_ARTIFACTS = {
     "picture_profile_initializer_registration_sha256": "585da9e3b3da99af9baeea003e749b75345b53e0eb322182e601ac7246eb986e",
 }
 INITIALIZER = {"array_index": 3, "array_site": "0xaa629c", "elf_thumb_target": "0x8251f9", "elf_owner": "0x8251f8", "analysis_owner": "0x8351f8"}
+ROOT_CONSTRUCTOR_BINDINGS = [
+    {
+        "owner_start": "0x93aff4",
+        "owner_end": "0x940954",
+        "init_array_indices": [4, 5],
+        "init_array_sites": ["0xaa62a0", "0xaa62a4"],
+        "init_array_targets": ["0x93aff5", "0x93b075"],
+        "reachable_init_array_indices": [5],
+        "reachable_entry_normalized": "0x93b074",
+        "entry_to_call_edge_count": 250,
+        "owner_decode_complete": False,
+        "bounded_decoded_end": "0x93bd78",
+        "pic_base": "0xb0c1c8",
+        "root_got_cell": "0xb1111c",
+        "root_relocation_index": 87604,
+        "root_object": "0xc5ae38",
+        "properties_got_cell": "0xb3a864",
+        "properties_relocation_index": 170252,
+        "properties_object": "0xc10a38",
+        "root_load_site": "0x93b338",
+        "properties_load_site": "0x93b342",
+        "call_site": "0x93b344",
+        "plt_address": "0x7be79c",
+        "constructor_symbol": "_ZN31CmnViewSettingNodeCreativeStyleC1EPP18CmnViewSettingNodeiPK24CmnViewSettingProperties",
+        "static_init_reachable": True,
+        "runtime_provider_binding_proven": False,
+    }
+]
 NEGATIVE_SCAN = {
     "name_fragments": ["creativestyle"],
     "verbs": ["save", "load", "write", "read", "store", "restore", "persist", "serialize"],
@@ -101,21 +129,23 @@ CLAIMS = {
     "publication_data_graph_found": True,
     "typed_class_interface_found": True,
     "broad_loader_registration_found": True,
-    "root_constructor_binding_found": False,
+    "root_constructor_binding_found": True,
+    "root_constructor_runtime_provider_proven": False,
     "selected_state_found": False,
     "persistence_found": False,
     "processing_found": False,
     "output_found": False,
     "first_class_creative_look": False,
 }
-READINESS = "STATIC_DEFINITION_AND_REGISTRATION_ONLY"
+READINESS = "STATIC_DEFINITION_ROOT_CONSTRUCTION_CALL_AND_REGISTRATION_ONLY"
 CONCLUSION = (
     "The Creative Style root, properties, property list, default-root publication relocation, "
-    "typed class interface, and broad initializer membership are exact static ELF metadata. "
-    "They do not establish root constructor invocation, selected state, persistence, processing, "
-    "output, or first-class Creative Look behavior."
+    "typed class interface, broad initializer membership, and an init-array-reachable static "
+    "call that loads the exact root and properties before Creative Style C1 are exact. Runtime "
+    "PLT-provider binding, selected state, persistence, processing, output, and first-class "
+    "Creative Look behavior remain unproven."
 )
-REPORT_ARTIFACT_SHA256 = "783507c05654f172a03966c259635677430c78801c9a067f122e21752dda0d16"
+REPORT_ARTIFACT_SHA256 = "febc2ce84490fcbf4072ce77b5323df8584a5c68dd41293a3bfa8e1a6587343a"
 _HEX = re.compile(r"0x[0-9a-f]+\Z")
 _SHA = re.compile(r"[0-9a-f]{64}\Z")
 _FORBIDDEN = ("raw", "byte", "disassembly", "instruction", "key", "device", "usb", "flash", "package")
@@ -170,7 +200,7 @@ EXPECTED_RAW_EXPORT = {
     "publication": PUBLICATION, "got_bindings": GOT_BINDINGS, "constructor_aliases": CONSTRUCTOR_ALIASES,
     "selector": SELECTOR, "plt_bindings": PLT_BINDINGS, "vtable": VTABLE, "structural_parity_slots": _expected_slots(),
     "prior_artifacts": PRIOR_ARTIFACTS, "initializer": INITIALIZER, "negative_symbol_scan": NEGATIVE_SCAN,
-    "root_constructor_bindings": [], "selected_state_paths": [], "persistence_paths": [], "processing_paths": [], "output_paths": [],
+    "root_constructor_bindings": ROOT_CONSTRUCTOR_BINDINGS, "selected_state_paths": [], "persistence_paths": [], "processing_paths": [], "output_paths": [],
     "claims": CLAIMS, "truncated": False,
 }
 
@@ -194,7 +224,7 @@ def normalize_creative_style_definition_registration_export(document):
 def validate_creative_style_definition_registration_report(document):
     _forbid(document)
     _exact(document, {"schema_version", "analysis_scope", "camera_policy", "camera_executed", "installable", "camera_test_eligible", "summary", "claims", "readiness", "conclusion"}, "report")
-    if document["schema_version"] != 1 or document["analysis_scope"] != "offline-static-creative-style-definition-registration" or document["camera_policy"] != "physically-disconnected":
+    if document["schema_version"] != 2 or document["analysis_scope"] != "offline-static-creative-style-definition-registration" or document["camera_policy"] != "physically-disconnected":
         raise CreativeStyleDefinitionRegistrationError("report scope differs")
     if any(document[field] is not False for field in ("camera_executed", "installable", "camera_test_eligible")):
         raise CreativeStyleDefinitionRegistrationError("report promotes camera activity")

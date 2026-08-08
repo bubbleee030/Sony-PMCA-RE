@@ -33,6 +33,46 @@ or terminal exception-index owners, noncanonical dispatch forms, indirect
 callbacks, dynamically initialized object fields, and cross-module/runtime
 delivery remain unresolved.
 
+## Schema-2 extension: typed ViewSettingMenu action route
+
+The next bounded slice extends this same artifact instead of creating a second
+report. New exact evidence closes a typed `ViewSettingMenu` action path to the
+existing process-data manager:
+
+- `ViewSettingMenu` vptr `0x8E2270` publishes slot 54 at `0x2108B0`, slot 64
+  at `0x21355E`, and slot 65 at `0x213418`;
+- slot 54 obtains the concrete manager through accessor `0x158350` and stores
+  it at the same receiver's field `+0x16C` at `0x2109C4`;
+- slot 64 selector 10 reaches `0x20C7C0` through the exact TBH entry and tail
+  branch at `0x2136E0`;
+- `0x20C7C0` obtains a selected-node property using key 14, preserves the
+  returned integer, and sends it to manager slot 19 and then slot 20 with the
+  condition loaded from the same `ViewSettingMenu` receiver at `+0x174`; and
+- the authenticated Creative Style root property list contains the exact raw
+  record `{key=14,type=1,value=42}`, while its typed slot 23 is the generic
+  `getIntProperty` implementation used by the VU2 helper.
+
+This proves a typed menu-action-to-process-manager route and proves that the
+constructed Creative Style root would return process ID 42 for property key
+14. It does **not** prove that the runtime selected-node pointer supplied to
+the helper is that Creative Style root. Consequently the existing canonical
+call at owner `[0x20C7C0,0x20C8A4)` gains manager receiver, manager vptr,
+property-source, and condition provenance, but it is still not an accepted
+process-ID-42 activation caller.
+
+The new exact stop boundary is
+`viewsettingmenu-selected-node-pointer-identity-to-constructed-creative-style-root`.
+The report must retain `process_id_42_activation_caller_proven = false`,
+`menu_root_activation_join_proven = false`, and every runtime, Creative Look,
+processing, recovery, installability, and camera claim as false.
+
+The same validated CautionConfig path supersedes the older definition report's
+empty root-constructor result. That report must be refreshed to record the
+init-array-reachable static C1 call while retaining runtime PLT-provider
+binding, selected state, persistence, processing, output, and Creative Look as
+unproven. Its digest change must propagate through the registry-consumer and
+menu-list dependency chain without changing their behavioral conclusions.
+
 ## Considered approaches
 
 ### Selected: standalone activation-caller boundary
@@ -178,8 +218,10 @@ source is never modified.
 
 ## Stop condition and next experiment
 
-This slice stops with
-`PROCESS_ID_42_ACTIVATION_CALLER_UNRESOLVED_IN_BOUNDED_STATIC_SCAN`.
+Schema 1 stopped with
+`PROCESS_ID_42_ACTIVATION_CALLER_UNRESOLVED_IN_BOUNDED_STATIC_SCAN`. Schema 2
+narrows that result to
+`VIEWSETTINGMENU_ACTION_TO_PROCESS_MANAGER_PROVEN__CREATIVE_STYLE_SELECTED_NODE_IDENTITY_UNRESOLVED`.
 
 The next static experiment should target only one of two missing universes:
 
@@ -189,5 +231,9 @@ The next static experiment should target only one of two missing universes:
    manager object `0xB06BB0` into an indirect callback/receiver, then trace that
    exact receiver to slot 20 with `r1 = 42`.
 
-Neither next step may infer activation from slot offset, root name, alias
-string, or adjacent data alone.
+The preferred next step is now narrower: prove or refute an exact pointer
+identity from the constructed `cmnViewSettingNodeRootCreativeStyle` object (or
+one of its validated list publications) to the selected-node receiver used by
+`0x2078C8`. Neither that step nor this report may infer activation from a
+matching property value, slot offset, root name, alias string, or adjacent
+data alone.

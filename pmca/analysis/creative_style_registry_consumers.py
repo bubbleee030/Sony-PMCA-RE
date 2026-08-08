@@ -28,7 +28,7 @@ CREATIVE_STYLE = {
     "target_dynsym_index": 31507, "target_symbol": "cmnViewSettingNodeRootCreativeStyle",
 }
 PRIOR_ARTIFACTS = {
-    "creative_style_definition_registration_sha256": "783507c05654f172a03966c259635677430c78801c9a067f122e21752dda0d16",
+    "creative_style_definition_registration_sha256": "febc2ce84490fcbf4072ce77b5323df8584a5c68dd41293a3bfa8e1a6587343a",
     "creative_style_root_consumers_sha256": "35e0eda6f4ffa817c14fa5c0c1cacf8d279bda7c8b58e83a4f8514a22e85f80d",
 }
 CLAIMS = {

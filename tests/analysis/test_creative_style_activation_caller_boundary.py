@@ -12,6 +12,83 @@ DEEP_DIVE_PATH = ROOT / "analysis" / "a6400a-updater-and-creative-style-deep-div
 
 
 class CreativeStyleActivationCallerBoundaryContractTests(unittest.TestCase):
+    def test_schema_2_pins_the_typed_menu_route_but_not_selected_node_identity(self):
+        """Break caught: property value 42 may not substitute for node identity."""
+        from pmca.analysis.creative_style_activation_caller_boundary import (
+            EXPECTED_EXPORT,
+            normalize_creative_style_activation_caller_boundary_export,
+        )
+
+        validated = normalize_creative_style_activation_caller_boundary_export(
+            EXPECTED_EXPORT
+        )
+        self.assertEqual(validated["schema_version"], 2)
+        self.assertEqual(
+            validated["supporting_source"],
+            {
+                "module": "lib/CautionConfig.so",
+                "size": 12_070_800,
+                "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7",
+            },
+        )
+        self.assertEqual(
+            validated["supporting_dependency"]["artifact_sha256"],
+            "febc2ce84490fcbf4072ce77b5323df8584a5c68dd41293a3bfa8e1a6587343a",
+        )
+        self.assertTrue(
+            validated["supporting_dependency"]["root_constructor_binding_found"]
+        )
+        self.assertFalse(
+            validated["supporting_dependency"][
+                "root_constructor_runtime_provider_proven"
+            ]
+        )
+        menu = validated["viewsettingmenu_identity"]
+        self.assertEqual(menu["vtable_address_point"], 0x8E2270)
+        self.assertEqual(menu["slot_54"]["target"], 0x2108B0)
+        self.assertEqual(menu["slot_64"]["target"], 0x21355E)
+        self.assertEqual(menu["manager_publication"]["field_offset"], 0x16C)
+        self.assertEqual(menu["manager_publication"]["store_site"], 0x2109C4)
+
+        route = validated["action_to_manager_route"]
+        self.assertEqual(route["action_selector"], 10)
+        self.assertEqual(route["action_target"], 0x20C7C0)
+        self.assertEqual(route["selected_node_property_key"], 14)
+        self.assertEqual(route["manager_field_offset"], 0x16C)
+        self.assertEqual(route["condition_field_offset"], 0x174)
+        self.assertTrue(route["manager_receiver_proven"])
+        self.assertTrue(route["manager_vptr_proven"])
+        self.assertTrue(route["selected_node_property_source_proven"])
+        self.assertTrue(route["condition_r2_proven"])
+        self.assertFalse(route["selected_node_is_creative_style_root_proven"])
+        self.assertFalse(route["process_id_42_proven"])
+
+        prop = validated["creative_style_property_14"]
+        self.assertEqual(prop["root_object"], 0xC5AE38)
+        self.assertEqual(prop["property_list"], 0xA54050)
+        self.assertEqual(prop["record"], {"key": 14, "type": 1, "value": 42})
+        self.assertEqual(prop["get_int_property_slot"], 23)
+        self.assertEqual(prop["get_int_property_target"], 0x7C7518)
+        self.assertTrue(prop["static_root_constructor_call_proven"])
+        self.assertFalse(prop["root_constructor_runtime_provider_binding_proven"])
+        self.assertTrue(
+            prop["static_creative_style_root_property_14_equals_42_proven"]
+        )
+
+        boundary = validated["selected_node_identity_boundary"]
+        self.assertEqual(boundary["runtime_selected_node_source"], "ViewSettingMenu")
+        self.assertFalse(boundary["pointer_identity_proven"])
+        self.assertFalse(
+            validated["claims"]["process_id_42_activation_caller_proven"]
+        )
+        candidate = validated["caller_scan"]["canonical_slot_20_calls"][0]
+        self.assertTrue(candidate["manager_receiver_proven"])
+        self.assertTrue(candidate["manager_vptr_proven"])
+        self.assertTrue(candidate["process_id_source_proven"])
+        self.assertTrue(candidate["condition_r2_proven"])
+        self.assertFalse(candidate["process_id_42_proven"])
+        self.assertFalse(candidate["accepted"])
+
     def test_contract_rejects_promoting_the_bounded_scan_to_an_activation_caller(self):
         """Break caught: a report may not turn bounded negative evidence into activation."""
         try:
@@ -78,7 +155,7 @@ class CreativeStyleActivationCallerBoundaryContractTests(unittest.TestCase):
         self.assertEqual(validated["summary"]["accepted_candidate_count"], 0)
         self.assertFalse(validated["summary"]["whole_program_absence_proven"])
         self.assertIn("28,869 fully decoded", validated["conclusion"])
-        self.assertIn("does not prove a process ID 42 activation caller", validated["conclusion"])
+        self.assertIn("does not prove process ID 42 activation", validated["conclusion"])
 
         mutations = (
             (
@@ -91,6 +168,12 @@ class CreativeStyleActivationCallerBoundaryContractTests(unittest.TestCase):
                 "menu",
                 lambda d: d["claims"].__setitem__(
                     "menu_root_activation_join_proven", True
+                ),
+            ),
+            (
+                "selected-node",
+                lambda d: d["claims"].__setitem__(
+                    "selected_node_is_creative_style_root_proven", True
                 ),
             ),
             (
@@ -132,18 +215,24 @@ class CreativeStyleActivationCallerBoundaryContractTests(unittest.TestCase):
         validate_creative_style_activation_caller_boundary_report(report)
         text = DEEP_DIVE_PATH.read_text(encoding="utf-8")
         for phrase in (
-            "concrete process-manager singleton at `0xB06BB0`",
+            "concrete process-manager singleton",
+            "`0xB06BB0`",
+            "typed `ViewSettingMenu` slot-54 owner",
+            "selector 10",
+            "property-key 14",
+            "exact `{14, 1, 42}`",
+            "selected-node pointer is not joined",
             "28,869 fully decoded",
             "1,594 decode-incomplete or terminal",
             "sixteen canonical slot-20 call shapes",
-            "accepts zero as the manager/ID-42/condition caller",
-            "not a whole-program absence claim",
+            "whole-program absence claim",
             "analysis/a6400-creative-style-activation-caller-boundary.json",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, text)
         for forbidden in (
             "process ID 42 activation caller is proven",
+            "selected node is proven to be the Creative Style root",
             "menu-root activation is proven",
             "runtime Creative Style factory invocation is proven",
             "Creative Look equivalence is proven",
@@ -153,6 +242,57 @@ class CreativeStyleActivationCallerBoundaryContractTests(unittest.TestCase):
 
 
 class CreativeStyleActivationCallerBoundaryExporterTests(unittest.TestCase):
+    def test_schema_2_source_mutations_reject_the_menu_and_property_joins(self):
+        """Break caught: independent menu/property facts may not survive byte drift."""
+        from tools.static import (
+            export_a6400_creative_style_activation_caller_boundary as exporter,
+        )
+
+        if not exporter.dependencies_available() or not exporter.sources_available():
+            self.skipTest("pinned static source or dependencies are unavailable")
+        deps = exporter._dependencies()
+
+        def context_with_mutation(path, address):
+            blob = bytearray(path.read_bytes())
+            context = exporter._context(bytes(blob), deps)
+            for start, end, file_offset in context["mappings"]:
+                if start <= address < end:
+                    blob[file_offset + address - start] ^= 1
+                    return exporter._context(bytes(blob), deps)
+            self.fail(f"mutation address {address:#x} is not file-backed")
+
+        for label, address in (
+            ("slot-64-cell", 0x8E2370),
+            ("manager-publication", 0x2109C4),
+            ("action-tail", 0x2136E0),
+            ("selected-node-producer", 0x20C7CE),
+            ("property-key", 0x2078DC),
+            ("manager-reload", 0x20C892),
+            ("condition-load", 0x20C898),
+        ):
+            with self.subTest(source="viewUnified2", label=label), self.assertRaises(
+                RuntimeError
+            ):
+                exporter._validate_viewsettingmenu_route(
+                    context_with_mutation(exporter.SOURCE_PATH, address), deps
+                )
+
+        for label, address in (
+            ("property-object-got", 0xB3A864),
+            ("property-list-reference", 0x83CCDA),
+            ("property-count", 0x83CCD6),
+            ("property-record-value", 0xA54094),
+            ("root-properties-load", 0x93B342),
+            ("root-constructor-call", 0x93B344),
+            ("get-int-property-cell", 0xAC8964),
+        ):
+            with self.subTest(source="CautionConfig", label=label), self.assertRaises(
+                RuntimeError
+            ):
+                exporter._validate_creative_style_property_14(
+                    context_with_mutation(exporter.CAUTION_SOURCE_PATH, address), deps
+                )
+
     def test_real_export_reproduces_the_bounded_activation_caller_contract(self):
         """Break caught: source drift may not retain the checked activation boundary."""
         try:

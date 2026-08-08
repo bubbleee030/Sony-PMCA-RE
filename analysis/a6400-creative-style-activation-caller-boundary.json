@@ -16,9 +16,14 @@
     "returned_viewcreative_style_identity_proven": false,
     "runtime_factory_invocation_proven": false,
     "runtime_open_view_delivery_proven": false,
-    "typed_manager_slot_20_bridge_proven": true
+    "selected_node_is_creative_style_root_proven": false,
+    "static_creative_style_property_14_equals_42_proven": true,
+    "typed_manager_slot_20_bridge_proven": true,
+    "viewsettingmenu_action_to_process_manager_proven": true,
+    "viewsettingmenu_manager_publication_proven": true,
+    "viewsettingmenu_typed_identity_proven": true
   },
-  "conclusion": "The authenticated VU2 module constructs a concrete CmnViewProcessDataMgr singleton at 0xB06BB0 and installs vptr 0x905930. Manager slot 20 reaches the typed execProcWithCondition bridge, and the Creative Style element slot 25 reaches the condition-preserving view/CREATIVE_STYLE openView wrapper. A function-aware scan covers 28,869 fully decoded exception-index owners and retains 1,594 incomplete or terminal owners outside the negative universe. It inventories 16 canonical slot-0x50 calls and accepts zero as a manager receiver with process ID 42 and condition provenance. This bounded result does not prove a process ID 42 activation caller, menu-root activation, runtime openView delivery, factory invocation, a returned ViewCreativeStyle object, first-class Creative Look equivalence, processing/output behavior, installability, recovery, or camera-test eligibility.",
+  "conclusion": "The authenticated VU2 module constructs a concrete CmnViewProcessDataMgr singleton at 0xB06BB0 and installs vptr 0x905930. A typed ViewSettingMenu slot-54 owner stores that manager at receiver field +0x16C, and slot-64 selector 10 reaches a bounded action that obtains selected-node property 14 and sends the returned integer plus receiver field +0x174 through manager slots 19 and 20. Authenticated CautionConfig metadata proves that the static Creative Style root-construction path's property-14 record is {14,1,42}; runtime PLT-provider binding remains unproven. The runtime selected-node pointer is not joined to that root, so the canonical call remains unaccepted and does not prove process ID 42 activation. The function-aware scan still covers 28,869 fully decoded exception-index owners, retains 1,594 incomplete or terminal owners, and inventories 16 canonical slot-0x50 calls. This result does not prove menu-root activation, runtime openView delivery, factory invocation, returned ViewCreativeStyle identity, first-class Creative Look equivalence, processing/output behavior, installability, recovery, or camera-test eligibility.",
   "dependency": {
     "evidence_digest": "6d1f51bd05f0bd2ba203ddef1a807aa8e25f5b924f41319cb1ad1ebddb44a572",
     "report": "analysis/a6400-creative-style-view-lifecycle-boundary.json",
@@ -26,21 +31,93 @@
     "typed_process_id_42_caller_proven": false
   },
   "evidence": {
+    "action_to_manager_route": {
+      "action_landing": 2176732,
+      "action_owner": {
+        "complete": true,
+        "end": 2148516,
+        "start": 2148288
+      },
+      "action_selector": 10,
+      "action_table_entry_halfword": 183,
+      "action_table_entry_site": 2176386,
+      "action_tail_site": 2176736,
+      "action_target": 2148288,
+      "condition_field_offset": 372,
+      "condition_load_site": 2148504,
+      "condition_r2_proven": true,
+      "dispatcher_owner": {
+        "complete": true,
+        "end": 2177932,
+        "start": 2176350
+      },
+      "manager_field_offset": 364,
+      "manager_receiver_proven": true,
+      "manager_slot_19_call_site": 2148494,
+      "manager_slot_19_cell": 9460092,
+      "manager_slot_19_id_site": 2148488,
+      "manager_slot_19_load_site": 2148492,
+      "manager_slot_19_receiver_site": 2148484,
+      "manager_slot_19_relocation_index": 37092,
+      "manager_slot_19_target": 4427988,
+      "manager_slot_19_vptr_site": 2148490,
+      "manager_slot_20_call_site": 2148512,
+      "manager_slot_20_id_site": 2148502,
+      "manager_slot_20_load_site": 2148510,
+      "manager_slot_20_receiver_site": 2148498,
+      "manager_slot_20_vptr_site": 2148508,
+      "manager_vptr_proven": true,
+      "process_id_42_proven": false,
+      "property_result_capture_site": 2148348,
+      "receiver_capture_site": 2148298,
+      "selected_node_is_creative_style_root_proven": false,
+      "selected_node_move_site": 2148332,
+      "selected_node_property_call_site": 2148340,
+      "selected_node_property_call_transfer_site": 2128096,
+      "selected_node_property_helper": 2128072,
+      "selected_node_property_helper_owner": {
+        "complete": true,
+        "end": 2128108,
+        "start": 2128072
+      },
+      "selected_node_property_key": 14,
+      "selected_node_property_key_site": 2128092,
+      "selected_node_property_slot_load_site": 2128094,
+      "selected_node_property_slot_offset": 92,
+      "selected_node_property_source_proven": true,
+      "selected_node_property_vptr_load_site": 2128086,
+      "selector_limit": 142,
+      "selector_limit_site": 2176356,
+      "state_1_selected_node_call_site": 2148302,
+      "state_1_selected_node_target": 2128970,
+      "state_3_nonzero_receiver_site": 2148318,
+      "state_3_nonzero_selected_node_call_site": 2148320,
+      "state_3_nonzero_selected_node_target": 2146336,
+      "state_3_probe_call_site": 2148312,
+      "state_3_probe_target": 2147228,
+      "state_3_zero_receiver_site": 2148326,
+      "state_3_zero_selected_node_call_site": 2148328,
+      "state_3_zero_selected_node_target": 2129704,
+      "state_field_load_site": 2148288,
+      "state_field_offset": 332,
+      "table_branch_site": 2176362
+    },
     "caller_scan": {
       "accepted_candidates": [],
       "canonical_slot_20_calls": [
         {
           "accepted": false,
           "call_site": 2148512,
-          "condition_r2_proven": false,
-          "manager_receiver_proven": false,
-          "manager_vptr_proven": false,
+          "condition_r2_proven": true,
+          "manager_receiver_proven": true,
+          "manager_vptr_proven": true,
           "owner": {
             "complete": true,
             "end": 2148516,
             "start": 2148288
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": true,
           "receiver_register": "r0",
           "slot_load_site": 2148510,
           "vptr_load_site": 2148508
@@ -57,6 +134,7 @@
             "start": 2773580
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r0",
           "slot_load_site": 2773590,
           "vptr_load_site": 2773588
@@ -73,6 +151,7 @@
             "start": 2801516
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r0",
           "slot_load_site": 2801582,
           "vptr_load_site": 2801580
@@ -89,6 +168,7 @@
             "start": 2803024
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r0",
           "slot_load_site": 2803056,
           "vptr_load_site": 2803054
@@ -105,6 +185,7 @@
             "start": 3084436
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r0",
           "slot_load_site": 3084476,
           "vptr_load_site": 3084474
@@ -121,6 +202,7 @@
             "start": 3537150
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r0",
           "slot_load_site": 3537192,
           "vptr_load_site": 3537190
@@ -137,6 +219,7 @@
             "start": 4428108
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r0",
           "slot_load_site": 4428124,
           "vptr_load_site": 4428120
@@ -153,6 +236,7 @@
             "start": 4433360
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r0",
           "slot_load_site": 4433370,
           "vptr_load_site": 4433368
@@ -169,6 +253,7 @@
             "start": 4579604
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r0",
           "slot_load_site": 4579618,
           "vptr_load_site": 4579616
@@ -185,6 +270,7 @@
             "start": 4632060
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r0",
           "slot_load_site": 4632074,
           "vptr_load_site": 4632072
@@ -201,6 +287,7 @@
             "start": 5307308
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r1",
           "slot_load_site": 5307320,
           "vptr_load_site": 5307316
@@ -217,6 +304,7 @@
             "start": 5307308
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r4",
           "slot_load_site": 5307332,
           "vptr_load_site": 5307328
@@ -233,6 +321,7 @@
             "start": 5734662
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r1",
           "slot_load_site": 5734674,
           "vptr_load_site": 5734670
@@ -249,6 +338,7 @@
             "start": 5734662
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r4",
           "slot_load_site": 5734686,
           "vptr_load_site": 5734682
@@ -265,6 +355,7 @@
             "start": 5771588
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r0",
           "slot_load_site": 5772040,
           "vptr_load_site": 5772038
@@ -281,6 +372,7 @@
             "start": 6014256
           },
           "process_id_42_proven": false,
+          "process_id_source_proven": false,
           "receiver_register": "r1",
           "slot_load_site": 6014294,
           "vptr_load_site": 6014292
@@ -300,6 +392,74 @@
         "cross-module-or-loader-mediated-delivery"
       ],
       "whole_program_absence_proven": false
+    },
+    "creative_style_property_14": {
+      "base_constructor_call_site": 8239688,
+      "base_constructor_candidate_owner": {
+        "complete": true,
+        "end": 8156724,
+        "start": 8156688
+      },
+      "base_constructor_properties_store_site": 8156710,
+      "base_constructor_symbol": "_ZN18CmnViewSettingNodeC2EPPS_iPK24CmnViewSettingProperties",
+      "derived_constructor_owner": {
+        "complete": true,
+        "end": 8239732,
+        "start": 8239680
+      },
+      "derived_vptr_store_site": 8239702,
+      "derived_vtable_address_point": 11307272,
+      "derived_vtable_got_cell": 11700880,
+      "derived_vtable_header": 11307264,
+      "derived_vtable_relocation_index": 134297,
+      "derived_vtable_symbol_index": 63566,
+      "get_int_property_cell": 11307364,
+      "get_int_property_relocation_index": 31358,
+      "get_int_property_slot": 23,
+      "get_int_property_symbol_index": 23818,
+      "get_int_property_target": 8156440,
+      "properties_object": 12651064,
+      "property_constructor_call_site": 8637664,
+      "property_constructor_owner": {
+        "complete": true,
+        "end": 9678836,
+        "start": 8540664
+      },
+      "property_constructor_symbol": "_ZN24CmnViewSettingPropertiesC1EPK16_settingPropertyi",
+      "property_count": 8,
+      "property_count_site": 8637654,
+      "property_list": 10829904,
+      "property_list_got_cell": 11785368,
+      "property_list_load_site": 8637662,
+      "property_list_relocation_index": 175923,
+      "property_list_symbol_index": 64985,
+      "property_object_got_cell": 11774052,
+      "property_object_load_site": 8637656,
+      "property_object_relocation_index": 170252,
+      "property_object_symbol_index": 59076,
+      "property_pic_base": 11583944,
+      "record": {
+        "key": 14,
+        "type": 1,
+        "value": 42
+      },
+      "record_address": 10829964,
+      "root_constructor_call_site": 9679684,
+      "root_constructor_owner": {
+        "complete": true,
+        "end": 9701716,
+        "start": 9678836
+      },
+      "root_constructor_runtime_provider_binding_proven": false,
+      "root_constructor_symbol": "_ZN31CmnViewSettingNodeCreativeStyleC1EPP18CmnViewSettingNodeiPK24CmnViewSettingProperties",
+      "root_got_cell": 11604252,
+      "root_object": 12955192,
+      "root_properties_load_site": 9679682,
+      "root_receiver_load_site": 9679672,
+      "root_relocation_index": 87604,
+      "root_symbol_index": 31507,
+      "static_creative_style_root_property_14_equals_42_proven": true,
+      "static_root_constructor_call_proven": true
     },
     "manager_identity": {
       "accessor": {
@@ -361,6 +521,19 @@
       "vtable_address_point": 9460016,
       "vtable_header": 9460008
     },
+    "selected_node_identity_boundary": {
+      "constructed_creative_style_root": 12955192,
+      "exact_pointer_match_found": false,
+      "pointer_identity_proven": false,
+      "process_id_42_proven": false,
+      "runtime_selected_node_helpers": [
+        2128970,
+        2146336,
+        2129704
+      ],
+      "runtime_selected_node_source": "ViewSettingMenu",
+      "selected_node_producer_identity_resolved": false
+    },
     "typed_activation_dependency": {
       "cell": 9498092,
       "element_type": "CmnViewProcessDataElementCustomCreativeStyle",
@@ -371,15 +544,65 @@
       "typed_process_id_42_caller_proven": false,
       "vtable_address_point": 9497992,
       "wrapper_target": 4755992
+    },
+    "viewsettingmenu_identity": {
+      "manager_publication": {
+        "field_offset": 364,
+        "manager_accessor_call_site": 2165162,
+        "manager_accessor_target": 1409872,
+        "receiver_capture_site": 2164924,
+        "same_receiver_proven": true,
+        "store_site": 2165188
+      },
+      "rtti": 9315380,
+      "slot_54": {
+        "cell": 9315144,
+        "owner": {
+          "complete": true,
+          "end": 2166048,
+          "start": 2164912
+        },
+        "relocation_index": 17848,
+        "slot": 54,
+        "target": 2164912
+      },
+      "slot_64": {
+        "cell": 9315184,
+        "owner": {
+          "complete": true,
+          "end": 2177932,
+          "start": 2176350
+        },
+        "relocation_index": 17858,
+        "slot": 64,
+        "target": 2176350
+      },
+      "slot_65": {
+        "cell": 9315188,
+        "owner": {
+          "complete": true,
+          "end": 2176328,
+          "start": 2176024
+        },
+        "relocation_index": 17859,
+        "slot": 65,
+        "target": 2176024
+      },
+      "type_name": "ViewSettingMenu",
+      "type_name_address": 6779152,
+      "typeinfo_cell": 9314924,
+      "typeinfo_relocation_index": 17834,
+      "vtable_address_point": 9314928,
+      "vtable_header": 9314920
     }
   },
-  "evidence_digest": "9bd269e0d77717fa00c472a9e6c433aba3a6ad09fb3fb3b954f4cb53fe6cff0e",
-  "first_unresolved_boundary": "decode-incomplete-noncanonical-or-runtime-receiver-provenance-to-manager-slot-20",
+  "evidence_digest": "5ba9e6edacdf1d1bfa4472de2eaa88381359a7cbdc0ed62aac1f8493b59812a4",
+  "first_unresolved_boundary": "viewsettingmenu-selected-node-pointer-identity-to-constructed-creative-style-root",
   "installable": false,
-  "narrative_sha256": "d3e444a0ee22abb0bf2d4fbdf465b157ae0c9086b3dba5922e2e3b1c35c71275",
-  "readiness": "PROCESS_ID_42_ACTIVATION_CALLER_UNRESOLVED_IN_BOUNDED_STATIC_SCAN",
+  "narrative_sha256": "457b6772ec81276c6b7c0a3cf935de92adc3c090e6532f50acabe3e420d2f98b",
+  "readiness": "VIEWSETTINGMENU_ACTION_TO_PROCESS_MANAGER_PROVEN__CREATIVE_STYLE_SELECTED_NODE_IDENTITY_UNRESOLVED",
   "recovery_validated": false,
-  "schema_version": 1,
+  "schema_version": 2,
   "source": {
     "module": "lib/viewUnified2.so",
     "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
@@ -387,12 +610,26 @@
   },
   "summary": {
     "accepted_candidate_count": 0,
-    "canonical_export_sha256": "32c2e90f0a63f6f66ac48956c9345fec4b995f8801b12b146885a8e178561389",
+    "canonical_export_sha256": "734bf668136d7030280c4c2c44e42d57016cf955430f17054980ac7d56d28923",
     "canonical_slot_20_call_count": 16,
     "fully_decoded_owner_count": 28869,
     "incomplete_or_terminal_owner_count": 1594,
     "manager_instance_object": 11561904,
     "manager_vtable_address_point": 9460016,
+    "selected_node_is_creative_style_root_proven": false,
+    "static_creative_style_property_14_equals_42_proven": true,
+    "viewsettingmenu_action_to_process_manager_proven": true,
     "whole_program_absence_proven": false
+  },
+  "supporting_dependency": {
+    "artifact_sha256": "febc2ce84490fcbf4072ce77b5323df8584a5c68dd41293a3bfa8e1a6587343a",
+    "report": "analysis/a6400-creative-style-definition-registration.json",
+    "root_constructor_binding_found": true,
+    "root_constructor_runtime_provider_proven": false
+  },
+  "supporting_source": {
+    "module": "lib/CautionConfig.so",
+    "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7",
+    "size": 12070800
   }
 }

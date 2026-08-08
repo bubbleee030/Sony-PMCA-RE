@@ -502,22 +502,32 @@ menu activation, Creative Look equivalence, installability, recovery, or camera
 readiness. The fail-closed record is
 `analysis/a6400-creative-style-view-lifecycle-boundary.json`.
 
-The activation-caller follow-up now pins the concrete process-manager singleton at `0xB06BB0`:
-its accessor and constructor install manager vptr
-`0x905930`, whose slot 20 reaches the typed condition bridge. The bounded
-function-aware scan covers 28,869 fully decoded exception-index owners and
-keeps 1,594 decode-incomplete or terminal owners outside its negative
-universe. Within the decoded universe it finds sixteen canonical slot-20 call shapes
-and accepts zero as the manager/ID-42/condition caller. Direct inbound
-transfers to the manager bridge and Creative Style slot-25 wrapper are also
-empty in that same incomplete scan.
+The activation-caller follow-up pins the concrete process-manager singleton at
+`0xB06BB0`: its accessor and constructor install manager vptr `0x905930`.
+A typed `ViewSettingMenu` slot-54 owner stores that exact accessor result at
+the same receiver's `+0x16c` field. Slot-64 selector 10 reaches a bounded
+action owner which obtains selected-node property-key 14, preserves the
+returned integer, and sends it through manager slots 19 and 20 while forwarding
+the same menu receiver's `+0x174` field as the condition.
 
-This is not a whole-program absence claim. Noncanonical virtual dispatch,
-indirect callbacks, runtime-initialized receiver fields, cross-module delivery,
-and the excluded owners remain unresolved. The result therefore does not prove
-a process ID 42 activation caller, menu-root activation, runtime `openView`
-delivery, factory invocation, returned `ViewCreativeStyle` identity, or any
-first-class Creative Look/output behavior. The fail-closed record is
+In authenticated `CautionConfig.so`, the Creative Style root's eight-record
+property list contains exact `{14, 1, 42}` metadata, and its typed slot 23 is
+the generic `getIntProperty` implementation invoked by the VU2 helper. These
+facts prove the typed menu-action-to-process-manager route and prove what the
+constructed Creative Style root would return for key 14. The runtime
+selected-node pointer is not joined to that root, however, so the route does
+not prove that its returned integer is process ID 42 and remains unaccepted as
+the activation caller.
+
+The wider bounded scan still covers 28,869 fully decoded exception-index
+owners, keeps 1,594 decode-incomplete or terminal owners outside its negative
+universe, and inventories sixteen canonical slot-20 call shapes. This is not a
+whole-program absence claim. Noncanonical virtual dispatch, indirect callbacks,
+runtime-selected node identity, cross-module delivery, and the excluded owners
+remain unresolved. The result therefore does not prove process ID 42
+activation, menu-root activation, runtime `openView` delivery, factory
+invocation, returned `ViewCreativeStyle` identity, or any first-class Creative
+Look/output behavior. The fail-closed record is
 `analysis/a6400-creative-style-activation-caller-boundary.json`.
 
 ### Target-native Creative Style interaction surface

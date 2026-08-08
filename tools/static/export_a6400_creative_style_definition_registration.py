@@ -17,7 +17,8 @@ if str(ROOT) not in sys.path:
 from pmca.analysis.creative_style_definition_registration import (
     CAUTION_CONFIG_SHA256, CAUTION_CONFIG_SIZE, CONSTRUCTOR_ALIASES, EXPECTED_RAW_EXPORT,
     GOT_BINDINGS, INITIALIZER, NEGATIVE_SCAN, PARITY_SLOTS, PLT_BINDINGS, PRIOR_ARTIFACTS,
-    PROPERTY_LIST, PROPERTY_ROOT, PUBLICATION, ROOT as CREATIVE_ROOT, SELECTOR, VTABLE,
+    PROPERTY_LIST, PROPERTY_ROOT, PUBLICATION, ROOT as CREATIVE_ROOT,
+    ROOT_CONSTRUCTOR_BINDINGS, SELECTOR, VTABLE,
     normalize_creative_style_definition_registration_export,
 )
 
@@ -217,6 +218,201 @@ def _negative_symbol_scan(dynsym):
     return result
 
 
+def _root_constructor_bindings(elf, binary, mappings):
+    from capstone import CS_ARCH_ARM, CS_MODE_THUMB, CS_OP_IMM, CS_OP_MEM, CS_OP_REG, Cs
+    from capstone.arm import (
+        ARM_INS_ADD,
+        ARM_INS_BLX,
+        ARM_INS_LDR,
+        ARM_INS_MOV,
+        ARM_REG_PC,
+        ARM_REG_R0,
+        ARM_REG_R1,
+        ARM_REG_R2,
+        ARM_REG_R3,
+        ARM_REG_R4,
+        ARM_REG_R8,
+    )
+
+    expected = ROOT_CONSTRUCTOR_BINDINGS[0]
+    decoder = Cs(CS_ARCH_ARM, CS_MODE_THUMB)
+    decoder.detail = True
+
+    def instruction(address, size=4):
+        items = list(decoder.disasm(_bytes_at_va(binary, mappings, address, size), address, 1))
+        if len(items) != 1 or items[0].address != address:
+            raise RuntimeError("Creative Style root constructor instruction is absent")
+        return items[0]
+
+    def word(address):
+        return int.from_bytes(_bytes_at_va(binary, mappings, address, 4), "little")
+
+    def literal_address(item):
+        if (
+            item.id != ARM_INS_LDR
+            or len(item.operands) != 2
+            or item.operands[1].type != CS_OP_MEM
+            or item.operands[1].mem.base != ARM_REG_PC
+            or item.operands[1].mem.index != 0
+        ):
+            return None
+        return ((item.address + 4) & ~3) + item.operands[1].mem.disp
+
+    init = elf.get_section_by_name(".init_array")
+    if init is None or init["sh_size"] != 24:
+        raise RuntimeError("Creative Style root constructor init-array differs")
+    init_values = [
+        int.from_bytes(binary[init["sh_offset"] + index * 4:init["sh_offset"] + index * 4 + 4], "little")
+        for index in range(init["sh_size"] // 4)
+    ]
+    if (
+        [init_values[index] for index in expected["init_array_indices"]]
+        != [int(value, 16) for value in expected["init_array_targets"]]
+        or [hex(init["sh_addr"] + index * 4) for index in expected["init_array_indices"]]
+        != expected["init_array_sites"]
+    ):
+        raise RuntimeError("Creative Style root constructor init-array targets differ")
+
+    exidx = elf.get_section_by_name(".ARM.exidx")
+    starts = []
+    for index in range(exidx["sh_size"] // 8):
+        place = exidx["sh_addr"] + index * 8
+        value = int.from_bytes(
+            binary[exidx["sh_offset"] + index * 8:exidx["sh_offset"] + index * 8 + 4],
+            "little",
+        )
+        offset = value & 0x7FFFFFFF
+        if offset & 0x40000000:
+            offset -= 0x80000000
+        starts.append(place + offset)
+    owner_start = int(expected["owner_start"], 16)
+    owner_index = starts.index(owner_start) if starts.count(owner_start) == 1 else -1
+    if owner_index < 0 or starts[owner_index + 1] != int(expected["owner_end"], 16):
+        raise RuntimeError("Creative Style root constructor owner differs")
+    from tools.static.export_a6400_creative_style_menu_list_construction import (
+        _cfg_distance,
+    )
+
+    owner_items = list(
+        decoder.disasm(
+            _bytes_at_va(
+                binary,
+                mappings,
+                owner_start,
+                int(expected["owner_end"], 16) - owner_start,
+            ),
+            owner_start,
+        )
+    )
+    decoded_end = owner_items[-1].address + owner_items[-1].size if owner_items else 0
+    reachable_entry = int(expected["reachable_entry_normalized"], 16)
+    entry_distance = _cfg_distance(
+        owner_items, reachable_entry, int(expected["call_site"], 16)
+    )
+    if (
+        expected["reachable_init_array_indices"] != [5]
+        or (int(expected["init_array_targets"][5 - expected["init_array_indices"][0]], 16) & ~1)
+        != reachable_entry
+        or entry_distance != expected["entry_to_call_edge_count"]
+        or (decoded_end == int(expected["owner_end"], 16))
+        != expected["owner_decode_complete"]
+        or decoded_end != int(expected["bounded_decoded_end"], 16)
+    ):
+        raise RuntimeError("Creative Style root constructor CFG reachability differs")
+
+    pic_load = instruction(0x93AFFA)
+    pic_add = instruction(0x93B000)
+    if (
+        literal_address(pic_load) != 0x93B050
+        or pic_load.operands[0].reg != ARM_REG_R4
+        or pic_add.id != ARM_INS_ADD
+        or pic_add.operands[0].reg != ARM_REG_R4
+        or pic_add.operands[1].reg != ARM_REG_PC
+        or word(0x93B050) + 0x93B004 != int(expected["pic_base"], 16)
+    ):
+        raise RuntimeError("Creative Style root constructor PIC base differs")
+
+    root_offset = instruction(0x93B330)
+    root_load = instruction(0x93B338)
+    properties_offset = instruction(0x93B33C)
+    receiver_move = instruction(0x93B340)
+    properties_load = instruction(0x93B342)
+    call = instruction(0x93B344)
+    zero = instruction(0x93B334)
+    count = instruction(0x93B336)
+    root_cell = int(expected["pic_base"], 16) + word(0x93BD34)
+    properties_cell = int(expected["pic_base"], 16) + word(0x93BD38)
+    if (
+        literal_address(root_offset) != 0x93BD34
+        or literal_address(properties_offset) != 0x93BD38
+        or root_cell != int(expected["root_got_cell"], 16)
+        or properties_cell != int(expected["properties_got_cell"], 16)
+        or root_load.id != ARM_INS_LDR
+        or root_load.operands[0].reg != ARM_REG_R8
+        or root_load.operands[1].mem.base != ARM_REG_R4
+        or root_load.operands[1].mem.index != ARM_REG_R3
+        or properties_load.id != ARM_INS_LDR
+        or properties_load.operands[0].reg != ARM_REG_R3
+        or properties_load.operands[1].mem.base != ARM_REG_R4
+        or properties_load.operands[1].mem.index != ARM_REG_R3
+        or receiver_move.id != ARM_INS_MOV
+        or receiver_move.operands[0].reg != ARM_REG_R0
+        or receiver_move.operands[1].reg != ARM_REG_R8
+        or zero.id != ARM_INS_MOV
+        or zero.operands[0].reg != ARM_REG_R1
+        or zero.operands[1].type != CS_OP_IMM
+        or zero.operands[1].imm != 0
+        or count.id != ARM_INS_MOV
+        or count.operands[0].reg != ARM_REG_R2
+        or count.operands[1].type != CS_OP_REG
+        or count.operands[1].reg != ARM_REG_R1
+        or call.id != ARM_INS_BLX
+        or call.operands[0].type != CS_OP_IMM
+        or (call.operands[0].imm & ~1) != int(expected["plt_address"], 16)
+    ):
+        raise RuntimeError("Creative Style root/properties constructor dataflow differs")
+
+    rel_dyn = list(elf.get_section_by_name(".rel.dyn").iter_relocations())
+    dynsym = elf.get_section_by_name(".dynsym")
+    for index, site, symbol_index, symbol_name, symbol_value in (
+        (
+            expected["root_relocation_index"],
+            root_cell,
+            CREATIVE_ROOT["symbol_index"],
+            CREATIVE_ROOT["symbol"],
+            int(expected["root_object"], 16),
+        ),
+        (
+            expected["properties_relocation_index"],
+            properties_cell,
+            PROPERTY_ROOT["symbol_index"],
+            PROPERTY_ROOT["symbol"],
+            int(expected["properties_object"], 16),
+        ),
+    ):
+        relocation = rel_dyn[index]
+        symbol = dynsym.get_symbol(symbol_index)
+        if (
+            relocation.entry.r_offset != site
+            or relocation.entry.r_info_type != 21
+            or relocation.entry.r_info_sym != symbol_index
+            or symbol.name != symbol_name
+            or symbol["st_value"] != symbol_value
+        ):
+            raise RuntimeError("Creative Style root constructor relocation differs")
+
+    relplt = list(elf.get_section_by_name(".rel.plt").iter_relocations())
+    constructor_relocation = relplt[PLT_BINDINGS[1]["relocation_index"]]
+    constructor_symbol = dynsym.get_symbol(constructor_relocation.entry.r_info_sym)
+    if (
+        constructor_relocation.entry.r_info_type != 22
+        or constructor_symbol.name != expected["constructor_symbol"]
+        or constructor_symbol["st_value"] != int(CONSTRUCTOR_ALIASES["elf_thumb_target"], 16)
+    ):
+        raise RuntimeError("Creative Style root constructor PLT symbol differs")
+    return copy.deepcopy(ROOT_CONSTRUCTOR_BINDINGS)
+
+
 def _metadata_from_file(source=SOURCE):
     source = Path(source)
     before = _sha256(source)
@@ -260,6 +456,9 @@ def _metadata_from_file(source=SOURCE):
         plt_bindings = _plt_bindings(elf, binary, _load_mappings(elf))
         vtable, parity = _vtable_and_parity(elf, rel_dyn)
         initializer = _init_owner(elf, binary)
+        root_constructor_bindings = _root_constructor_bindings(
+            elf, binary, _load_mappings(elf)
+        )
         negative = _negative_symbol_scan(dynsym)
     if _sha256(source) != before:
         raise RuntimeError("pinned source changed during read-only metadata export")
@@ -267,7 +466,8 @@ def _metadata_from_file(source=SOURCE):
     result.update({"root": root, "property_root": property_root, "property_list": property_list, "publication": publication,
                    "got_bindings": got, "constructor_aliases": alias_candidate, "selector": selector, "plt_bindings": plt_bindings,
                    "vtable": vtable, "structural_parity_slots": parity, "prior_artifacts": _prior_artifacts(),
-                   "initializer": initializer, "negative_symbol_scan": negative})
+                   "initializer": initializer, "root_constructor_bindings": root_constructor_bindings,
+                   "negative_symbol_scan": negative})
     return result
 
 
@@ -340,7 +540,7 @@ def main(args=None):
     if args:
         raise SystemExit("usage: no arguments; the source and output locations are pinned")
     write_json_atomic(OUTPUT_ROOT / OUTPUT_NAME, build_raw_export(FileAdapter()))
-    print("CREATIVE_STYLE_DEFINITION_REGISTRATION_EXPORT|publication=1|vtable_relocations=66|constructor=0|selected=0|persistence=0|processing=0|output=0")
+    print("CREATIVE_STYLE_DEFINITION_REGISTRATION_EXPORT|publication=1|vtable_relocations=66|constructor_static=1|constructor_runtime=0|selected=0|persistence=0|processing=0|output=0")
 
 
 if __name__ == "__main__":

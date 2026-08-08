@@ -163,3 +163,58 @@ helpers, JSON, SHA-256, and `apply_patch`.
 3. Push `feature/a6400-updater-re-lab` to origin.
 4. Verify local HEAD, upstream tracking SHA, and remote branch SHA match.
 5. Do not open a PR unless separately requested.
+
+## Task 8: Extend the boundary to the typed ViewSettingMenu action route
+
+**Files:**
+
+- Modify: `pmca/analysis/creative_style_activation_caller_boundary.py`
+- Modify: `tools/static/export_a6400_creative_style_activation_caller_boundary.py`
+- Modify: `tests/analysis/test_creative_style_activation_caller_boundary.py`
+- Regenerate: `analysis/a6400-creative-style-activation-caller-boundary.json`
+- Modify: `analysis/a6400a-updater-and-creative-style-deep-dive.md`
+
+1. Raise the raw/report schema to 2 and add pinned identities for
+   `ViewSettingMenu`, its manager publication, selector-10 action path,
+   selected-node property-key-14 helper, slot-19/20 calls, and the exact
+   forwarded condition at receiver `+0x174`.
+2. Add authenticated `CautionConfig.so` as a second source and validate the
+   Creative Style property-list construction, exact `{14,1,42}` record, root
+   construction/property attachment, derived vptr, and slot-23
+   `getIntProperty` relocation.
+3. Update only the canonical call at owner `[0x20C7C0,0x20C8A4)` to mark the
+   manager receiver, manager vptr, selected-node property source, and
+   condition provenance as proven. Keep `process_id_42_proven` and `accepted`
+   false because selected-node object identity is not joined.
+4. Write the contract assertions and source-byte/relocation/control-flow
+   mutation tests first. Observe RED before implementing the new validators.
+5. Add positive claims only for the typed ViewSettingMenu route and the static
+   Creative Style property-14 value. Reject mutations that promote selected
+   node identity, process-ID-42 activation, menu activation, runtime view or
+   factory behavior, Creative Look equivalence, processing, installability,
+   recovery, or camera eligibility.
+6. Regenerate atomically, update the deep-dive, rerun focused and full
+   analysis/safety verification, inspect the diff, then commit and push the
+   verified milestone without opening a PR.
+
+## Task 9: Reconcile root-constructor dependency evidence
+
+**Files:**
+
+- Modify: `pmca/analysis/creative_style_definition_registration.py`
+- Modify: `tools/static/export_a6400_creative_style_definition_registration.py`
+- Modify: `tests/analysis/test_creative_style_definition_registration.py`
+- Regenerate: `analysis/a6400-creative-style-definition-registration.json`
+- Refresh the registry-consumer and menu-list dependency digests and reports.
+
+1. Replace the stale empty root-constructor binding with the exact
+   init-array-reachable owner, root/properties GOT loads, and Creative Style C1
+   PLT call at `0x93B344`.
+2. Preserve runtime PLT-provider binding as false and retain every selected
+   state, persistence, processing, output, Creative Look, installation, and
+   camera claim as false.
+3. Add a real source-byte call mutation before implementing the validator,
+   then require the pinned exporter to derive the binding from the ELF.
+4. Recompute the definition artifact digest and propagate it through the
+   registry-consumer and menu-list dependency chain without changing their
+   behavioral claims.

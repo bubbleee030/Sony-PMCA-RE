@@ -141,8 +141,8 @@
       "this_source": {"cell": 9749000, "relocation_index": 59689, "relocation_type": 23, "target": 12028864}
     }
   ],
-  "prior_definition_registration": {"analysis_contract": "creative_style_definition_registration", "artifact_sha256": "783507c05654f172a03966c259635677430c78801c9a067f122e21752dda0d16"},
-  "prior_registry_consumers": {"analysis_contract": "creative_style_registry_consumers", "artifact_sha256": "4bb7a45b472e4c9f6d690579100d63493ec40281e9eacaccf33edccb0062c28d"},
+  "prior_definition_registration": {"analysis_contract": "creative_style_definition_registration", "artifact_sha256": "febc2ce84490fcbf4072ce77b5323df8584a5c68dd41293a3bfa8e1a6587343a"},
+  "prior_registry_consumers": {"analysis_contract": "creative_style_registry_consumers", "artifact_sha256": "37d004036817dd0402dfe646afdf17503d84d0fafed976792aae0b87d205b11e"},
   "readiness": "MENU_ROOT_LIST_CONSTRUCTION_ONLY",
   "root_inventory": {
     "constructor_bounded_list_count": 3,
@@ -156,7 +156,7 @@
   "schema_version": 1,
   "source": {"module": "lib/viewUnified2.so", "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2", "size": 11530552},
   "summary": {
-    "canonical_export_sha256": "7202543341ae1a401acd6e46ac97c7c1c9a92ac2046e4b06ae14b20d90ab153e",
+    "canonical_export_sha256": "43ce4740fe9d195505a35823722112543d2d2e29e7c1fc91b565ea7c85dd0e8d",
     "creative_style_membership_count": 3,
     "entry_counts": [4, 4, 2],
     "list_count": 3,

@@ -1,4 +1,5 @@
 import copy
+import io
 import importlib.util
 import json
 import tempfile
@@ -23,7 +24,17 @@ class CreativeStyleDefinitionRegistrationTests(unittest.TestCase):
         self.assertEqual(summary["publication_relocation_index"], 87605)
         self.assertEqual(summary["vtable_typed_relocation_count"], 66)
         self.assertTrue(summary["claims"]["creative_style_definition_found"])
-        self.assertFalse(summary["claims"]["root_constructor_binding_found"])
+        self.assertTrue(summary["claims"]["root_constructor_binding_found"])
+        self.assertFalse(summary["claims"]["root_constructor_runtime_provider_proven"])
+        binding = EXPECTED_RAW_EXPORT["root_constructor_bindings"][0]
+        self.assertEqual(binding["root_object"], "0xc5ae38")
+        self.assertEqual(binding["properties_object"], "0xc10a38")
+        self.assertEqual(binding["call_site"], "0x93b344")
+        self.assertEqual(binding["reachable_init_array_indices"], [5])
+        self.assertEqual(binding["entry_to_call_edge_count"], 250)
+        self.assertFalse(binding["owner_decode_complete"])
+        self.assertTrue(binding["static_init_reachable"])
+        self.assertFalse(binding["runtime_provider_binding_proven"])
 
     def test_contract_rejects_promoted_or_fabricated_metadata(self):
         from pmca.analysis.creative_style_definition_registration import (
@@ -89,6 +100,27 @@ class CreativeStyleDefinitionRegistrationExporterTests(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             exporter.build_raw_export(Adapter())
+
+    def test_root_constructor_source_mutation_is_rejected(self):
+        """Break caught: a literal call label may not replace exact constructor flow."""
+        exporter = self._load()
+        binary = bytearray(exporter.SOURCE.read_bytes())
+        _arch, _mode, _mem, _cs, ELFFile = exporter._deps()
+        with io.BytesIO(bytes(binary)) as stream:
+            mappings = exporter._load_mappings(ELFFile(stream))
+        address = 0x93B344
+        for start, end, file_offset in mappings:
+            if start <= address < end:
+                binary[file_offset + address - start] ^= 1
+                break
+        else:
+            self.fail("root constructor call is not file-backed")
+        with io.BytesIO(bytes(binary)) as stream:
+            elf = ELFFile(stream)
+            with self.assertRaises(RuntimeError):
+                exporter._root_constructor_bindings(
+                    elf, bytes(binary), exporter._load_mappings(elf)
+                )
 
     def test_prepare_output_root_rejects_precreation_ancestor_symlink_escape(self):
         exporter = self._load()
