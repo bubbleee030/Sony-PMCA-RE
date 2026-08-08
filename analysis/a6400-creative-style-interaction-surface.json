@@ -11,7 +11,7 @@
     "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
   },
   "summary": {
-    "canonical_export_sha256": "7bb810337c17269758ecf840d0e5d7cbda66a594cfd23de9fa574c0182fb3d31",
+    "canonical_export_sha256": "1b9110dbf947c0d759efd6b00d84a0284d18e414308aec0fd5194fe41fdd230d",
     "layout_helper_count": 3,
     "menu_index_count": 19,
     "greyout_call_count": 12,
@@ -19,7 +19,7 @@
     "touchable_true_call_count": 0,
     "conditional_generic_belt_input_chain_found": true
   },
-  "evidence_digest": "0c8b7e86e8efcecaaf64bd1f16e571f97e16e08498e96ab625f480995649c565",
+  "evidence_digest": "a9a27e3666a6da19957fafb1e145c5b2258f902afb5f2f9e38bd07469f6146d2",
   "claims": {
     "native_creative_style_layout_found": true,
     "native_menu_table_scaffold_found": true,
@@ -41,5 +41,5 @@
     "runtime_execution_proven": false
   },
   "readiness": "NATIVE_CREATIVE_STYLE_LAYOUT_AND_BELT_TOUCH_UNPROVEN",
-  "conclusion": "ViewCreativeStyle owns a target-native layout key, three menu helpers, a bounded 19-index initialization loop, twelve greyout call sites, a pre-existing belt-cursor update boundary, and exact navigation routes. The post-lookup call reaches the generic PAS_BtnCombo::cast Widget type filter, which returns the original widget or null; it does not type the belt member at +0x14c. The bounded derived/default-base constructors contain no direct +0x14c store. A candidate ViewBase constructor in libObj is not a declared viewUnified2 dependency, has no direct +0x14c store, and reaches a PLT/GOT boundary without a proved binding. The belt object's concrete type, creation, and touch route remain unproven. A separate Movie Rec path acquires a checked PAS_BarCtrlDial but explicitly calls setTouchable(false); its converter only forwards an unresolved value. This proves reusable UI scaffolding and a touchability flag boundary. Separately, a conditional generic PAS_MenuDataSelectBelt path reaches a custom grid-region test and selection-update method. Its callback-enable byte initializes to zero, and provider binding, registration invocation, root attachment, input delivery, callback enablement, ViewCreativeStyle+0x14c identity, and case-16 selector provenance remain unproved. The enabled callback continuation can select a grid item and reaches a typed PAS belt event-push boundary, but this is not Creative Style touch, hit testing, or selection, Creative Look layout equivalence, runtime behavior, or installability."
+  "conclusion": "ViewCreativeStyle owns a target-native layout key, three menu helpers, a bounded 19-index initialization loop, twelve greyout call sites, a pre-existing belt-cursor update boundary, and exact navigation routes. The post-lookup call reaches the generic PAS_BtnCombo::cast Widget type filter, which returns the original widget or null; it does not type the belt member at +0x14c. The bounded derived/default-base constructors contain no direct +0x14c store. A candidate ViewBase constructor in libObj is not a declared viewUnified2 dependency, has no direct +0x14c store, and reaches a PLT/GOT boundary without a proved binding. The belt object's concrete type, creation, and touch route remain unproven. A separate Movie Rec path acquires a checked PAS_BarCtrlDial but explicitly calls setTouchable(false); its converter only forwards an unresolved value. This proves reusable UI scaffolding and a touchability flag boundary. Separately, a conditional generic PAS_MenuDataSelectBelt path reaches a custom grid-region test and selection-update method. Its provider-candidate constructor path inserts the PAS root into the same WidgetSystem layer list traversed by hit testing, and the PAS-to-base-to-grid parent chain reaches the hook dispatcher. Runtime provider binding, actual input delivery, registration invocation, callback enablement, ViewCreativeStyle+0x14c identity, and case-16 selector provenance remain unproved. The enabled callback continuation can select a grid item and reaches a typed PAS belt event-push boundary, but this is not Creative Style touch, hit testing, or selection, Creative Look layout equivalence, runtime behavior, or installability."
 }

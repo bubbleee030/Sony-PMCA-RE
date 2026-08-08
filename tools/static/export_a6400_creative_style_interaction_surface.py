@@ -781,6 +781,35 @@ def _require_add_immediate(item, deps, destination, source, immediate, label):
         raise RuntimeError(label + " differs")
 
 
+def _require_add_in_place(item, deps, register, immediate, label):
+    if item.id != deps["add"] or len(item.operands) != 2:
+        raise RuntimeError(label + " differs")
+    _require_register_operand(item, deps, 0, register, label)
+    if item.operands[1].type != deps["imm"] or item.operands[1].imm != immediate:
+        raise RuntimeError(label + " differs")
+
+
+def _require_move_register(item, deps, destination, source, label):
+    if item.id != deps["mov"] or len(item.operands) != 2:
+        raise RuntimeError(label + " differs")
+    _require_register_operand(item, deps, 0, destination, label)
+    _require_register_operand(item, deps, 1, source, label)
+
+
+def _require_indexed_memory_instruction(item, deps, instruction_id, destination, base, index, label):
+    if item.id != instruction_id or len(item.operands) != 2:
+        raise RuntimeError(label + " differs")
+    _require_register_operand(item, deps, 0, destination, label)
+    memory = item.operands[1]
+    if (
+        memory.type != deps["mem"]
+        or _register_name(item, memory.mem.base) != base
+        or _register_name(item, memory.mem.index) != index
+        or memory.mem.disp != 0
+    ):
+        raise RuntimeError(label + " differs")
+
+
 def _require_indirect_call(item, deps, register, label):
     if item.id != deps["blx"] or not item.group(deps["call_group"]):
         raise RuntimeError(label + " differs")
@@ -790,6 +819,286 @@ def _require_indirect_call(item, deps, register, label):
 def _require_direct_call(item, deps, target, label):
     if not item.group(deps["call_group"]) or _direct_target(item, deps) != target:
         raise RuntimeError(label + " differs")
+
+
+def _validate_candidate_widget_system_delivery(
+    expected, view_blob, view_mappings, view_elf, deps, view_rels, view_by_site,
+    view_dynsym, view_plt_symbols, view_exidx, candidate_blob, candidate_mappings,
+    candidate_elf, candidate_rels, candidate_by_site, candidate_dynsym,
+    candidate_plt_symbols, candidate_exidx,
+):
+    delivery = expected["candidate_widget_system_delivery"]
+    view_chain = delivery["view_constructor_chain"]
+    provider = delivery["candidate_provider"]
+    layer = delivery["layer_attachment"]
+    parent = delivery["parent_chain"]
+    hit = delivery["hit_delivery"]
+
+    _require_direct_call(
+        _instruction(view_blob, view_mappings, deps, view_chain["pas_base_call_site"]),
+        deps, view_chain["pas_base_call_target"], "PAS base-constructor call",
+    )
+    _require_direct_call(
+        _instruction(view_blob, view_mappings, deps, view_chain["layoutable_base_import_call_site"]),
+        deps, view_chain["layoutable_base_import_plt"], "layoutable-base import call",
+    )
+    if (
+        _call_symbol(
+            view_blob, view_mappings, deps, view_plt_symbols,
+            view_chain["layoutable_base_import_call_site"],
+        ) != view_chain["layoutable_base_symbol"]
+        or ("libObj.so" in _needed_libraries(view_elf)) != view_chain["view_needed_libobj"]
+    ):
+        raise RuntimeError("layoutable-base provider boundary differs")
+    view_relplt = list(view_elf.get_section_by_name(".rel.plt").iter_relocations())
+    view_relocation = view_relplt[view_chain["layoutable_base_rel_plt_index"]]
+    view_symbol = view_dynsym.get_symbol(view_relocation["r_info_sym"])
+    if (
+        view_relocation["r_offset"] != view_chain["layoutable_base_got"]
+        or view_relocation["r_info_type"] != 22
+        or view_relocation["r_info_sym"] != view_chain["layoutable_base_dynsym_index"]
+        or view_symbol.name != view_chain["layoutable_base_symbol"]
+        or view_symbol["st_shndx"] != "SHN_UNDEF"
+    ):
+        raise RuntimeError("layoutable-base relocation differs")
+
+    layoutable_symbol = candidate_dynsym.get_symbol(provider["layoutable_constructor_dynsym_index"])
+    if (
+        layoutable_symbol.name != view_chain["layoutable_base_symbol"]
+        or layoutable_symbol["st_shndx"] == "SHN_UNDEF"
+        or layoutable_symbol["st_value"] != provider["layoutable_constructor_entry"]
+        or layoutable_symbol["st_size"] != provider["layoutable_constructor_size"]
+        or _owner(candidate_exidx, provider["layoutable_constructor_owner"]["start"])
+        != (provider["layoutable_constructor_owner"]["start"], provider["layoutable_constructor_owner"]["end"])
+    ):
+        raise RuntimeError("layoutable-base candidate provider differs")
+    _require_move_register(
+        _instruction(candidate_blob, candidate_mappings, deps, 0x41328A),
+        deps, "r4", "r0", "layoutable receiver capture",
+    )
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, deps, provider["layoutable_to_abstract_call_site"]),
+        deps, provider["layoutable_to_abstract_target"], "layoutable-to-abstract constructor call",
+    )
+    if _owner(candidate_exidx, provider["abstract_constructor_owner"]["start"]) != (
+        provider["abstract_constructor_owner"]["start"], provider["abstract_constructor_owner"]["end"]
+    ):
+        raise RuntimeError("abstract widget candidate owner differs")
+    _require_move_register(
+        _instruction(candidate_blob, candidate_mappings, deps, 0x3FECCE),
+        deps, "r4", "r0", "abstract widget receiver capture",
+    )
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, deps, provider["abstract_to_widget_bridge_call_site"]),
+        deps, provider["abstract_to_widget_bridge_target"], "abstract-to-widget bridge call",
+    )
+    if _owner(candidate_exidx, provider["widget_bridge_owner"]["start"]) != (
+        provider["widget_bridge_owner"]["start"], provider["widget_bridge_owner"]["end"]
+    ):
+        raise RuntimeError("widget constructor bridge owner differs")
+    _require_move_register(
+        _instruction(
+            candidate_blob,
+            candidate_mappings,
+            deps,
+            provider["widget_bridge_receiver_capture_site"],
+        ),
+        deps, "r5", "r0", "widget bridge receiver capture",
+    )
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, deps, provider["widget_constructor_call_site"]),
+        deps, provider["widget_constructor_target"], "widget constructor call",
+    )
+    if (
+        _owner(candidate_exidx, provider["widget_constructor_target"])
+        != (provider["widget_constructor_owner"]["start"], provider["widget_constructor_owner"]["end"])
+        or provider["same_receiver_preserved"] is not True
+    ):
+        raise RuntimeError("widget constructor owner/receiver claim differs")
+    _require_move_register(
+        _instruction(candidate_blob, candidate_mappings, deps, 0x5ED6DA),
+        deps, "r4", "r0", "widget receiver capture",
+    )
+    _require_move_register(
+        _instruction(candidate_blob, candidate_mappings, deps, 0x5ED760),
+        deps, "r0", "r4", "set-layer receiver forwarding",
+    )
+
+    _validate_relative(
+        candidate_rels, candidate_by_site, candidate_blob, candidate_mappings,
+        index=layer["default_layer_relocation_index"], site=layer["default_layer_got_cell"],
+        target=layer["default_layer_object"],
+    )
+    _require_indexed_memory_instruction(
+        _instruction(candidate_blob, candidate_mappings, deps, layer["default_layer_load_site"]),
+        deps, deps["ldr"], "r1", "r8", "r3", "default layer-ID load",
+    )
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, deps, layer["set_layer_call_site"]),
+        deps, layer["set_layer_plt"], "widget set-layer call",
+    )
+    if _call_symbol(
+        candidate_blob, candidate_mappings, deps, candidate_plt_symbols,
+        layer["set_layer_call_site"],
+    ) != layer["set_layer_symbol"]:
+        raise RuntimeError("widget set-layer symbol differs")
+    candidate_relplt = list(candidate_elf.get_section_by_name(".rel.plt").iter_relocations())
+    set_layer_relocation = candidate_relplt[layer["set_layer_rel_plt_index"]]
+    set_layer_symbol = candidate_dynsym.get_symbol(set_layer_relocation["r_info_sym"])
+    if (
+        set_layer_relocation["r_offset"] != layer["set_layer_got"]
+        or set_layer_relocation["r_info_type"] != 22
+        or set_layer_relocation["r_info_sym"] != layer["set_layer_dynsym_index"]
+        or set_layer_symbol.name != layer["set_layer_symbol"]
+        or _owner(candidate_exidx, layer["set_layer_owner"]["start"])
+        != (layer["set_layer_owner"]["start"], layer["set_layer_owner"]["end"])
+    ):
+        raise RuntimeError("widget set-layer provider differs")
+    if _call_symbol(
+        candidate_blob, candidate_mappings, deps, candidate_plt_symbols,
+        layer["get_layer_call_site"],
+    ) != layer["get_layer_symbol"]:
+        raise RuntimeError("WidgetSystem layer lookup differs")
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, deps, layer["get_layer_call_site"]),
+        deps, layer["get_layer_plt"], "WidgetSystem layer lookup call",
+    )
+    _require_add_immediate(
+        _instruction(candidate_blob, candidate_mappings, deps, layer["widget_node_address_site"]),
+        deps, "r1", "r5", layer["widget_node_offset"], "widget layer-node address",
+    )
+    _require_add_immediate(
+        _instruction(candidate_blob, candidate_mappings, deps, layer["layer_widget_list_address_site"]),
+        deps, "r0", "r0", layer["layer_widget_list_offset"], "layer widget-list address",
+    )
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, deps, layer["insert_call_site"]),
+        deps, layer["insert_target"], "layer widget-list insertion",
+    )
+
+    set_parent_symbol = candidate_dynsym.get_symbol(parent["set_parent_dynsym_index"])
+    if (
+        set_parent_symbol.name != "_ZN2ux6wgtsys6Widget9setParentERNS0_10WidgetBaseE"
+        or set_parent_symbol["st_value"] != parent["set_parent_entry"]
+        or set_parent_symbol["st_size"] != parent["set_parent_size"]
+        or set_parent_symbol["st_shndx"] == "SHN_UNDEF"
+        or _owner(candidate_exidx, parent["set_parent_owner"]["start"])
+        != (parent["set_parent_owner"]["start"], parent["set_parent_owner"]["end"])
+    ):
+        raise RuntimeError("set-parent candidate provider differs")
+    _require_add_immediate(
+        _instruction(candidate_blob, candidate_mappings, deps, parent["child_node_address_site"]),
+        deps, "r1", "r5", parent["node_offset"], "child node address",
+    )
+    _require_add_immediate(
+        _instruction(candidate_blob, candidate_mappings, deps, parent["parent_node_address_site"]),
+        deps, "r0", "r4", parent["node_offset"], "parent child-list address",
+    )
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, deps, parent["insert_call_site"]),
+        deps, parent["insert_target"], "parent child-list insertion",
+    )
+    for site in (parent["pas_to_base_call_site"], parent["base_to_grid_call_site"]):
+        if _call_symbol(view_blob, view_mappings, deps, view_plt_symbols, site) != set_parent_symbol.name:
+            raise RuntimeError("PAS embedded parent chain differs")
+
+    child_cells = (
+        (expected["pas_belt"]["vtable_address_point"], parent["pas_child_slot_relocation_index"]),
+        (expected["embedded_grid"]["base_vtable_address_point"], parent["base_child_slot_relocation_index"]),
+    )
+    for address_point, relocation_index in child_cells:
+        cell = address_point + parent["child_slot"] * 4
+        index, relocation = view_by_site[cell]
+        symbol = view_dynsym.get_symbol(relocation["r_info_sym"])
+        if (
+            index != relocation_index or relocation["r_info_type"] != 2
+            or symbol.name != parent["view_child_symbol"]
+        ):
+            raise RuntimeError("PAS/base child traversal slot differs")
+    candidate_grid_cell = (
+        expected["embedded_grid"]["candidate_vtable_address_point"]
+        + parent["child_slot"] * 4
+    )
+    index, relocation = candidate_by_site[candidate_grid_cell]
+    child_symbol = candidate_dynsym.get_symbol(parent["candidate_child_symbol_dynsym_index"])
+    if (
+        index != parent["candidate_grid_child_slot_relocation_index"]
+        or relocation["r_info_type"] != 2
+        or relocation["r_info_sym"] != parent["candidate_child_symbol_dynsym_index"]
+        or child_symbol.name != parent["view_child_symbol"]
+        or child_symbol["st_value"] != parent["candidate_child_entry"]
+        or child_symbol["st_size"] != parent["candidate_child_size"]
+    ):
+        raise RuntimeError("GEN_GridList child traversal slot differs")
+    child_tail = _instruction(
+        candidate_blob, candidate_mappings, deps, parent["candidate_child_tail_site"]
+    )
+    if (
+        child_tail.group(deps["call_group"])
+        or not child_tail.group(deps["jump_group"])
+        or _direct_target(child_tail, deps) != parent["candidate_child_tail_target"]
+    ):
+        raise RuntimeError("candidate child traversal tail differs")
+    _require_add_in_place(
+        _instruction(candidate_blob, candidate_mappings, deps, parent["candidate_child_container_address_site"]),
+        deps, "r0", parent["candidate_child_container_offset"], "candidate child-list address",
+    )
+
+    for owner_name in ("layer_hit_owner", "recursive_hit_owner", "per_mouse_owner", "mouse_dispatch_owner"):
+        owner = hit[owner_name]
+        if _owner(candidate_exidx, owner["start"]) != (owner["start"], owner["end"]):
+            raise RuntimeError(owner_name.replace("_", " ") + " differs")
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, deps, hit["layer_first_widget_call_site"]),
+        deps, hit["layer_first_widget_target"], "layer first-widget lookup",
+    )
+    _require_add_in_place(
+        _instruction(candidate_blob, candidate_mappings, deps, hit["layer_widget_list_offset_site"]),
+        deps, "r0", hit["layer_widget_list_offset"], "layer first-widget list address",
+    )
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, deps, hit["recursive_hit_call_site"]),
+        deps, hit["recursive_hit_target"], "recursive widget hit walk",
+    )
+    _require_memory_instruction(
+        _instruction(candidate_blob, candidate_mappings, deps, hit["recursive_child_slot_load_site"]),
+        deps, deps["ldr"], "r3", "r3", parent["child_slot"] * 4,
+        "recursive child-slot load",
+    )
+    _require_indirect_call(
+        _instruction(candidate_blob, candidate_mappings, deps, hit["recursive_child_slot_call_site"]),
+        deps, "r3", "recursive child-slot call",
+    )
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, deps, hit["recursive_next_child_call_site"]),
+        deps, hit["recursive_next_child_target"], "recursive next-child lookup",
+    )
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, deps, hit["hit_walk_call_site"]),
+        deps, hit["hit_walk_target"], "per-mouse hit walk",
+    )
+    for site in (hit["old_receiver_dispatch_call_site"], hit["new_receiver_dispatch_call_site"]):
+        _require_direct_call(
+            _instruction(candidate_blob, candidate_mappings, deps, site),
+            deps, hit["mouse_dispatch_target"], "per-mouse receiver dispatch",
+        )
+    if (
+        hit["hook_dispatch_offset"] != hit["hook_dispatch_slot"] * 4
+        or hit["fallback_dispatch_offset"] != hit["fallback_dispatch_slot"] * 4
+    ):
+        raise RuntimeError("mouse dispatch slot relation differs")
+    for load_site, call_site, offset in (
+        (hit["hook_dispatch_load_site"], hit["hook_dispatch_call_site"], hit["hook_dispatch_offset"]),
+        (hit["fallback_dispatch_load_site"], hit["fallback_dispatch_call_site"], hit["fallback_dispatch_offset"]),
+    ):
+        _require_memory_instruction(
+            _instruction(candidate_blob, candidate_mappings, deps, load_site),
+            deps, deps["ldr"], "r3", "r3", offset, "mouse dispatch slot load",
+        )
+        _require_indirect_call(
+            _instruction(candidate_blob, candidate_mappings, deps, call_site),
+            deps, "r3", "mouse receiver dispatch",
+        )
 
 
 def _validate_generic_belt_input_chain(
@@ -1154,6 +1463,27 @@ def _validate_generic_belt_input_chain(
     ):
         raise RuntimeError("PAS belt event-push binding boundary differs")
 
+    _validate_candidate_widget_system_delivery(
+        expected,
+        view_blob,
+        view_mappings,
+        view_elf,
+        view_deps,
+        view_rels,
+        view_by_site,
+        view_dynsym,
+        view_plt_symbols,
+        view_exidx,
+        candidate_blob,
+        candidate_mappings,
+        candidate_elf,
+        candidate_rels,
+        candidate_by_site,
+        candidate_dynsym,
+        candidate_plt_symbols,
+        candidate_exidx,
+    )
+
     if expected["findings"] != {
         "slot27_to_custom_region_test_proven": True,
         "slot27_to_selection_update_proven": True,
@@ -1163,6 +1493,9 @@ def _validate_generic_belt_input_chain(
         "enabled_callback_to_grid_selection_proven": True,
         "enabled_callback_to_typed_pas_belt_event_push_boundary_proven": True,
         "widget_is_hit_used_by_this_path": False,
+        "candidate_provider_layer_attachment_path_proven": True,
+        "candidate_provider_parent_chain_to_embedded_grid_proven": True,
+        "candidate_provider_widget_system_hit_delivery_path_proven": True,
         "bounded_absent_vtable_offsets": [0x8C, 0x90],
         "bounded_absent_direct_targets": [0x606676, 0x5ED0F8],
         "bounded_absent_plt_symbols": [

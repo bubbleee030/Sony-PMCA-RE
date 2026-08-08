@@ -248,11 +248,27 @@ class CreativeStyleInteractionSurfaceContractTests(unittest.TestCase):
         self.assertTrue(chain["findings"]["enabled_callback_to_grid_selection_proven"])
         self.assertTrue(chain["findings"]["enabled_callback_to_typed_pas_belt_event_push_boundary_proven"])
         self.assertFalse(chain["findings"]["widget_is_hit_used_by_this_path"])
+        delivery = chain["candidate_widget_system_delivery"]
+        self.assertEqual(delivery["status"], "CONDITIONAL_ON_LIBOBJ_PROVIDER_BINDINGS")
+        self.assertEqual(delivery["view_constructor_chain"]["pas_base_call_site"], 0x56E86C)
+        self.assertEqual(delivery["view_constructor_chain"]["layoutable_base_import_call_site"], 0x401270)
+        self.assertEqual(delivery["candidate_provider"]["layoutable_constructor_entry"], 0x413281)
+        self.assertEqual(delivery["candidate_provider"]["widget_constructor_call_site"], 0x84243C)
+        self.assertEqual(delivery["layer_attachment"]["set_layer_call_site"], 0x5ED766)
+        self.assertEqual(delivery["layer_attachment"]["widget_node_offset"], 4)
+        self.assertEqual(delivery["layer_attachment"]["layer_widget_list_offset"], 0x18)
+        self.assertEqual(delivery["parent_chain"]["pas_to_base_call_site"], 0x56E8EC)
+        self.assertEqual(delivery["parent_chain"]["base_to_grid_call_site"], 0x59DE46)
+        self.assertEqual(delivery["hit_delivery"]["recursive_hit_call_site"], 0x5F1B80)
+        self.assertEqual(delivery["hit_delivery"]["hook_dispatch_call_site"], 0x5F11CA)
+        self.assertTrue(chain["findings"]["candidate_provider_layer_attachment_path_proven"])
+        self.assertTrue(chain["findings"]["candidate_provider_parent_chain_to_embedded_grid_proven"])
+        self.assertTrue(chain["findings"]["candidate_provider_widget_system_hit_delivery_path_proven"])
         for key in (
             "runtime_provider_binding_proven",
             "registration_method_invocation_proven",
-            "widget_system_delivery_to_embedded_grid_proven",
-            "registered_root_attachment_proven",
+            "runtime_widget_system_delivery_to_embedded_grid_proven",
+            "runtime_registered_root_attachment_proven",
             "viewcreative_style_field_0x14c_instance_join_proven",
             "viewcreative_style_case16_selector_proven",
         ):
@@ -353,8 +369,8 @@ class CreativeStyleInteractionSurfaceExporterTests(unittest.TestCase):
         original_instruction = exporter._instruction
 
         for changed_site in (
-            0x3E9C04, 0x3E9F3E, 0x3EA6B2, 0x3EB06A, 0x3E8C70, 0x59E844,
-            0x56EDFE,
+            0x3E9C04, 0x3EA6B2, 0x3E8C70, 0x59E844, 0x56EDFE, 0x5ED766,
+            0x5F11CA,
         ):
             def changed_instruction(blob, mappings, local_deps, site, *, changed_site=changed_site):
                 item = original_instruction(blob, mappings, local_deps, site)

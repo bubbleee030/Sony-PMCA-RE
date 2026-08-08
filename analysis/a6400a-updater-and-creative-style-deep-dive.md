@@ -536,10 +536,17 @@ nonzero. Conditional on that enable state and prior execution of the base's
 slot-107 callback-registration method, the callback continuation returns to
 the same embedded grid, calls `GEN_GridList::setItemSelect`, checks the parent
 as `PAS_MenuDataSelectBelt`, and reaches the imported
-`AppWidgetBase::pushEvent` boundary. Static evidence does not prove the
-`viewUnified2.so`-to-`libObj.so` provider binding, invocation of the registration
-method, root attachment, WidgetSystem delivery to this grid, the later enable
-state, identity with `ViewCreativeStyle+0x14c`, or the case-16 selector source.
+`AppWidgetBase::pushEvent` boundary.
+
+The same provider-candidate constructor chain now closes a bounded delivery
+substrate: it inserts the PAS root into the WidgetSystem layer list at
+`layer+0x18`; the PAS-to-base-to-grid `setParent` calls use the same `+0x4`
+child lists traversed by recursive hit testing; and the hit receiver is passed
+to the slot-26/27 mouse dispatcher. This remains conditional on the unresolved
+`viewUnified2.so`-to-`libObj.so` provider binding. Static evidence also does not
+prove actual input delivery, invocation of the callback-registration method,
+the later enable state, identity with `ViewCreativeStyle+0x14c`, or the case-16
+selector source.
 It is therefore a conditional generic PAS belt mechanism, not a Creative
 Style touch or selection route.
 
