@@ -213,6 +213,57 @@ class CreativeStyleInteractionSurfaceContractTests(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(CreativeStyleInteractionSurfaceError):
                 normalize_creative_style_interaction_surface_export(changed)
 
+    def test_generic_belt_input_chain_is_conditional_and_not_creative_style_touch(self):
+        from pmca.analysis.creative_style_interaction_surface import EXPECTED_EXPORT
+
+        chain = EXPECTED_EXPORT["generic_belt_input_chain"]
+        self.assertEqual(chain["status"], "CONDITIONAL_STATIC_PATH")
+        self.assertEqual(chain["pas_belt"]["type_name"], "PAS_MenuDataSelectBelt")
+        self.assertEqual(chain["pas_belt"]["vtable_address_point"], 0x92EFA8)
+        self.assertEqual(chain["embedded_grid"]["object_offset"], 0x3F8)
+        self.assertEqual(chain["embedded_grid"]["candidate_type_name"], "GEN_GridList")
+        self.assertEqual(chain["embedded_grid"]["candidate_vtable_address_point"], 0x133C908)
+        self.assertEqual(
+            chain["embedded_grid"]["candidate_slots"],
+            {
+                "mouse_wrapper": {"slot": 26, "relocation_index": 37135, "target": 0x3E850C},
+                "mouse_handler": {"slot": 27, "relocation_index": 37136, "target": 0x3E9BCC},
+                "action_callback": {"slot": 88, "relocation_index": 37156, "target": 0x3EA35A},
+                "selection_update": {"slot": 121, "relocation_index": 37173, "target": 0x3EAF0C},
+                "custom_region_test": {"slot": 126, "relocation_index": 37178, "target": 0x3E86D6},
+            },
+        )
+        self.assertEqual(chain["path"]["event_type"], 4)
+        self.assertEqual(chain["path"]["custom_region_call_site"], 0x3E9F3E)
+        self.assertEqual(chain["path"]["selection_update_call_site"], 0x3EA00A)
+        self.assertEqual(chain["path"]["registered_callback_call_site"], 0x3E8C70)
+        self.assertEqual(chain["path"]["set_item_select_call_site"], 0x59E844)
+        self.assertEqual(chain["path"]["belt_check_call_site"], 0x59E7B6)
+        self.assertEqual(chain["path"]["event_push_tail_site"], 0x56EDFE)
+        self.assertTrue(chain["findings"]["slot27_to_custom_region_test_proven"])
+        self.assertTrue(chain["findings"]["slot27_to_selection_update_proven"])
+        self.assertFalse(chain["findings"]["slot27_to_registered_callback_proven"])
+        self.assertFalse(chain["findings"]["selection_callback_enable_state_proven"])
+        self.assertEqual(chain["findings"]["selection_callback_constructor_initial_value"], 0)
+        self.assertTrue(chain["findings"]["enabled_callback_to_grid_selection_proven"])
+        self.assertTrue(chain["findings"]["enabled_callback_to_typed_pas_belt_event_push_boundary_proven"])
+        self.assertFalse(chain["findings"]["widget_is_hit_used_by_this_path"])
+        for key in (
+            "runtime_provider_binding_proven",
+            "registration_method_invocation_proven",
+            "widget_system_delivery_to_embedded_grid_proven",
+            "registered_root_attachment_proven",
+            "viewcreative_style_field_0x14c_instance_join_proven",
+            "viewcreative_style_case16_selector_proven",
+        ):
+            self.assertFalse(chain["preconditions"][key])
+
+        claims = EXPECTED_EXPORT["claims"]
+        self.assertTrue(claims["conditional_generic_pas_belt_input_chain_found"])
+        self.assertFalse(claims["creative_style_touch_route_found"])
+        self.assertFalse(claims["coordinate_input_found"])
+        self.assertFalse(claims["selection_dispatch_found"])
+
     def test_checked_in_report_is_non_installable(self):
         from pmca.analysis.creative_style_interaction_surface import validate_creative_style_interaction_surface_report
 
@@ -293,6 +344,28 @@ class CreativeStyleInteractionSurfaceExporterTests(unittest.TestCase):
         if not self.exporter.sources_available() or not self.exporter.dependencies_available():
             self.skipTest("pinned source or parser dependencies are unavailable")
         self.assertEqual(self.exporter.build_raw_export(), self.exporter.EXPECTED_EXPORT)
+
+    def test_generic_belt_input_chain_rejects_source_anchor_mutations(self):
+        if not self.exporter.sources_available() or not self.exporter.dependencies_available():
+            self.skipTest("pinned source or parser dependencies are unavailable")
+        exporter = self.exporter
+        deps = exporter._dependencies()
+        original_instruction = exporter._instruction
+
+        for changed_site in (
+            0x3E9C04, 0x3E9F3E, 0x3EA6B2, 0x3EB06A, 0x3E8C70, 0x59E844,
+            0x56EDFE,
+        ):
+            def changed_instruction(blob, mappings, local_deps, site, *, changed_site=changed_site):
+                item = original_instruction(blob, mappings, local_deps, site)
+                if site != changed_site:
+                    return item
+                return _InstructionProxy(item, instruction_id=0, mnemonic="nop", groups=[])
+
+            with self.subTest(site=changed_site), mock.patch.object(
+                exporter, "_instruction", side_effect=changed_instruction
+            ), self.assertRaises(RuntimeError):
+                exporter.ElfAdapter().metadata()
 
     def test_widget_cast_and_constructor_static_mutations_fail_closed(self):
         """Wrong call, PLT, type filter, or constructor edge cannot prove a belt type."""

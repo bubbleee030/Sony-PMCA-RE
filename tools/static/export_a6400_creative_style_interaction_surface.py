@@ -741,6 +741,439 @@ def _validate_touchability(blob, mappings, deps, rels, by_site, dynsym, plt_symb
     return copy.deepcopy(expected)
 
 
+def _register_name(item, register):
+    return item.reg_name(register)
+
+
+def _require_register_operand(item, deps, operand_index, name, label):
+    if (
+        len(item.operands) <= operand_index
+        or item.operands[operand_index].type != deps["reg"]
+        or _register_name(item, item.operands[operand_index].reg) != name
+    ):
+        raise RuntimeError(label + " differs")
+
+
+def _require_memory_instruction(item, deps, instruction_id, source_or_dest, base, displacement, label):
+    instruction_matches = (
+        item.mnemonic.split(".", 1)[0] == instruction_id
+        if isinstance(instruction_id, str) else item.id == instruction_id
+    )
+    if not instruction_matches or len(item.operands) != 2:
+        raise RuntimeError(label + " differs")
+    _require_register_operand(item, deps, 0, source_or_dest, label)
+    memory = item.operands[1]
+    if (
+        memory.type != deps["mem"]
+        or _register_name(item, memory.mem.base) != base
+        or memory.mem.index != 0
+        or memory.mem.disp != displacement
+    ):
+        raise RuntimeError(label + " differs")
+
+
+def _require_add_immediate(item, deps, destination, source, immediate, label):
+    if item.id != deps["add"] or len(item.operands) != 3:
+        raise RuntimeError(label + " differs")
+    _require_register_operand(item, deps, 0, destination, label)
+    _require_register_operand(item, deps, 1, source, label)
+    if item.operands[2].type != deps["imm"] or item.operands[2].imm != immediate:
+        raise RuntimeError(label + " differs")
+
+
+def _require_indirect_call(item, deps, register, label):
+    if item.id != deps["blx"] or not item.group(deps["call_group"]):
+        raise RuntimeError(label + " differs")
+    _require_register_operand(item, deps, 0, register, label)
+
+
+def _require_direct_call(item, deps, target, label):
+    if not item.group(deps["call_group"]) or _direct_target(item, deps) != target:
+        raise RuntimeError(label + " differs")
+
+
+def _validate_generic_belt_input_chain(
+    view_blob, view_mappings, view_elf, view_deps, view_rels, view_by_site,
+    view_dynsym, view_plt_symbols, view_exidx,
+    candidate_blob, candidate_mappings, candidate_elf, candidate_rels,
+    candidate_by_site, candidate_dynsym, candidate_plt_symbols, candidate_exidx,
+):
+    """Pin a conditional PAS belt path without promoting Creative Style touch."""
+    expected = EXPECTED_EXPORT["generic_belt_input_chain"]
+    pas = expected["pas_belt"]
+    grid = expected["embedded_grid"]
+    path = expected["path"]
+
+    _validate_si_rtti(
+        None, view_blob, view_mappings, view_rels, view_by_site, view_dynsym,
+        rtti=pas["rtti"], encoding="22PAS_MenuDataSelectBelt",
+    )
+    _validate_typed_vtable(
+        view_blob, view_mappings, view_rels, view_by_site,
+        address_point=pas["vtable_address_point"], rtti=pas["rtti"],
+    )
+    _validate_relative(
+        view_rels, view_by_site, view_blob, view_mappings,
+        index=pas["vtable_type_relocation_index"],
+        site=pas["vtable_address_point"] - 4, target=pas["rtti"],
+    )
+    _validate_relative(
+        view_rels, view_by_site, view_blob, view_mappings,
+        index=pas["vtable_got_relocation_index"], site=pas["vtable_got_cell"],
+        target=pas["vtable_address_point"] - 8,
+    )
+    if _owner(view_exidx, pas["constructor_owner"]["start"]) != (
+        pas["constructor_owner"]["start"], pas["constructor_owner"]["end"]
+    ):
+        raise RuntimeError("PAS belt constructor owner differs")
+    _require_memory_instruction(
+        _instruction(view_blob, view_mappings, view_deps, pas["vptr_store_site"]),
+        view_deps, view_deps["str"], "r3", "r5", 0, "PAS belt vptr store",
+    )
+    _require_direct_call(
+        _instruction(view_blob, view_mappings, view_deps, pas["embedded_base_constructor_call_site"]),
+        view_deps, pas["embedded_base_constructor_target"], "PAS belt embedded-base constructor",
+    )
+    if _call_symbol(
+        view_blob, view_mappings, view_deps, view_plt_symbols,
+        pas["embedded_base_parent_call_site"],
+    ) != "_ZN2ux6wgtsys6Widget9setParentERNS0_10WidgetBaseE":
+        raise RuntimeError("PAS belt embedded-base parent link differs")
+
+    _validate_si_rtti(
+        None, view_blob, view_mappings, view_rels, view_by_site, view_dynsym,
+        rtti=grid["base_rtti"], encoding="26PAS_MenuDataSelectBeltBase",
+    )
+    _validate_typed_vtable(
+        view_blob, view_mappings, view_rels, view_by_site,
+        address_point=grid["base_vtable_address_point"], rtti=grid["base_rtti"],
+    )
+    _validate_relative(
+        view_rels, view_by_site, view_blob, view_mappings,
+        index=grid["base_vtable_type_relocation_index"],
+        site=grid["base_vtable_address_point"] - 4, target=grid["base_rtti"],
+    )
+    _require_add_immediate(
+        _instruction(view_blob, view_mappings, view_deps, 0x59DD42),
+        view_deps, "r6", "r5", grid["object_offset"], "embedded grid address",
+    )
+    if _call_symbol(
+        view_blob, view_mappings, view_deps, view_plt_symbols, grid["constructor_call_site"]
+    ) != grid["constructor_symbol"]:
+        raise RuntimeError("embedded grid constructor import differs")
+    view_relplt = list(view_elf.get_section_by_name(".rel.plt").iter_relocations())
+    constructor_relocation = view_relplt[grid["constructor_rel_plt_index"]]
+    constructor_import = view_dynsym.get_symbol(constructor_relocation["r_info_sym"])
+    if (
+        constructor_relocation["r_offset"] != grid["constructor_got"]
+        or constructor_relocation["r_info_type"] != 22
+        or constructor_relocation["r_info_sym"] != grid["constructor_dynsym_index"]
+        or constructor_import.name != grid["constructor_symbol"]
+        or constructor_import["st_shndx"] != "SHN_UNDEF"
+    ):
+        raise RuntimeError("embedded grid constructor relocation differs")
+    if "libObj.so" in _needed_libraries(view_elf) or grid["runtime_provider_binding_proven"] is not False:
+        raise RuntimeError("embedded grid provider boundary differs")
+    if (
+        _call_symbol(view_blob, view_mappings, view_deps, view_plt_symbols, grid["parent_call_site"])
+        != "_ZN2ux6wgtsys6Widget9setParentERNS0_10WidgetBaseE"
+        or _call_symbol(view_blob, view_mappings, view_deps, view_plt_symbols, grid["mouse_hook_call_site"])
+        != "_ZN2ux6wgtsys10WidgetBase17setMouseEventHookEb"
+    ):
+        raise RuntimeError("embedded grid parent/hook setup differs")
+
+    _validate_si_rtti(
+        None, candidate_blob, candidate_mappings, candidate_rels, candidate_by_site,
+        candidate_dynsym, rtti=grid["candidate_rtti"], encoding="12GEN_GridList",
+    )
+    candidate_constructor = candidate_dynsym.get_symbol(grid["candidate_constructor_dynsym_index"])
+    if (
+        candidate_constructor.name != grid["constructor_symbol"]
+        or candidate_constructor["st_shndx"] == "SHN_UNDEF"
+        or candidate_constructor["st_value"] != grid["candidate_constructor_entry"]
+        or candidate_constructor["st_size"] != grid["candidate_constructor_size"]
+    ):
+        raise RuntimeError("GEN_GridList candidate constructor symbol differs")
+    _validate_typed_vtable(
+        candidate_blob, candidate_mappings, candidate_rels, candidate_by_site,
+        address_point=grid["candidate_vtable_address_point"], rtti=grid["candidate_rtti"],
+    )
+    _validate_relative(
+        candidate_rels, candidate_by_site, candidate_blob, candidate_mappings,
+        index=grid["candidate_vtable_type_relocation_index"],
+        site=grid["candidate_vtable_address_point"] - 4, target=grid["candidate_rtti"],
+    )
+    _validate_relative(
+        candidate_rels, candidate_by_site, candidate_blob, candidate_mappings,
+        index=grid["candidate_vtable_got_relocation_index"],
+        site=grid["candidate_vtable_got_cell"], target=grid["candidate_vtable_address_point"] - 8,
+    )
+    if _owner(candidate_exidx, grid["candidate_constructor_owner"]["start"]) != (
+        grid["candidate_constructor_owner"]["start"], grid["candidate_constructor_owner"]["end"]
+    ):
+        raise RuntimeError("GEN_GridList candidate constructor owner differs")
+    _require_memory_instruction(
+        _instruction(candidate_blob, candidate_mappings, view_deps, grid["candidate_vptr_store_site"]),
+        view_deps, view_deps["str"], "r3", "r4", 0, "GEN_GridList candidate vptr store",
+    )
+    for slot in grid["candidate_slots"].values():
+        site = grid["candidate_vtable_address_point"] + slot["slot"] * 4
+        _validate_relative(
+            candidate_rels, candidate_by_site, candidate_blob, candidate_mappings,
+            index=slot["relocation_index"], site=site, target=slot["target"],
+        )
+
+    registration_cell = grid["base_vtable_address_point"] + grid["registration_slot"] * 4
+    _validate_relative(
+        view_rels, view_by_site, view_blob, view_mappings,
+        index=grid["registration_relocation_index"], site=registration_cell,
+        target=grid["registration_target"],
+    )
+    _require_direct_call(
+        _instruction(view_blob, view_mappings, view_deps, grid["registration_call_site"]),
+        view_deps, 0x567B5C, "grid callback registration helper",
+    )
+    _validate_relative(
+        view_rels, view_by_site, view_blob, view_mappings,
+        index=grid["registration_callback_relocation_index"],
+        site=grid["registration_callback_got_cell"], target=grid["callback"],
+    )
+    _require_memory_instruction(
+        _instruction(view_blob, view_mappings, view_deps, 0x567B60),
+        view_deps, view_deps["str"], "r1", "r0", grid["callback_callee_offset"],
+        "grid callback callee store",
+    )
+    _require_memory_instruction(
+        _instruction(view_blob, view_mappings, view_deps, 0x567B64),
+        view_deps, view_deps["str"], "r2", "r0", grid["callback_function_offset"],
+        "grid callback function store",
+    )
+
+    # The event-type-4 handler loads slot 126 into r6 and calls it with the
+    # same grid receiver.  It later loads slot 121 and enters selection update.
+    handler_owner = path["mouse_handler_owner"]
+    if _owner(candidate_exidx, handler_owner["start"]) != (handler_owner["start"], handler_owner["end"]):
+        raise RuntimeError("GEN_GridList mouse-handler owner differs")
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, view_deps, path["event_type_call_site"]),
+        view_deps, path["event_type_call_plt"], "grid event-type call",
+    )
+    if _call_symbol(
+        candidate_blob, candidate_mappings, view_deps, candidate_plt_symbols,
+        path["event_type_call_site"],
+    ) != path["event_type_symbol"]:
+        raise RuntimeError("grid event-type symbol differs")
+    bias = _instruction(candidate_blob, candidate_mappings, view_deps, path["event_type_bias_site"])
+    if (
+        not bias.mnemonic.startswith("sub") or len(bias.operands) != 2
+        or bias.operands[1].type != view_deps["imm"]
+        or bias.operands[1].imm != path["event_type_bias"]
+    ):
+        raise RuntimeError("grid event-type bias differs")
+    _require_register_operand(bias, view_deps, 0, "r0", "grid event-type bias")
+    guard = _instruction(candidate_blob, candidate_mappings, view_deps, path["event_type_guard_site"])
+    branch = _instruction(candidate_blob, candidate_mappings, view_deps, path["event_type_guard_branch_site"])
+    table = _instruction(candidate_blob, candidate_mappings, view_deps, path["event_type_table_branch_site"])
+    if (
+        guard.id != view_deps["cmp"] or len(guard.operands) != 2
+        or guard.operands[1].type != view_deps["imm"]
+        or guard.operands[1].imm != path["event_type_guard_max_index"]
+        or branch.mnemonic != "bhi.w"
+        or _direct_target(branch, view_deps) != path["event_type_guard_target"]
+        or table.id != view_deps["tbh"]
+        or table.operands[0].mem.base != view_deps["pc"]
+        or _register_name(table, table.operands[0].mem.index) != "r0"
+        or table.operands[0].mem.lshift != 1
+        or table.address + 4 != path["event_type_table_start"]
+    ):
+        raise RuntimeError("grid event-type dispatch differs")
+    _require_register_operand(guard, view_deps, 0, "r0", "grid event-type guard")
+    entry = int.from_bytes(
+        _at(candidate_blob, candidate_mappings, path["event_type_table_start"], 2), "little"
+    )
+    if path["event_type_table_start"] + 2 * entry != path["event_type_case_landing"]:
+        raise RuntimeError("grid event-type-4 landing differs")
+    handler_items = _decode(
+        candidate_blob, candidate_mappings, view_deps,
+        handler_owner["start"], handler_owner["end"], complete=True,
+    )
+    absent_offsets = set(expected["findings"]["bounded_absent_vtable_offsets"])
+    if any(
+        operand.type == view_deps["mem"] and operand.mem.disp in absent_offsets
+        for item in handler_items for operand in item.operands
+    ):
+        raise RuntimeError("grid handler unexpectedly uses inherited hit-test slots")
+    absent_targets = set(expected["findings"]["bounded_absent_direct_targets"])
+    absent_symbols = set(expected["findings"]["bounded_absent_plt_symbols"])
+    for item in handler_items:
+        if not item.group(view_deps["call_group"]):
+            continue
+        target = _direct_target(item, view_deps)
+        if target in absent_targets or candidate_plt_symbols.get(target) in absent_symbols:
+            raise RuntimeError("grid handler unexpectedly calls inherited hit testing")
+    _require_memory_instruction(
+        _instruction(candidate_blob, candidate_mappings, view_deps, 0x3E9F30),
+        view_deps, view_deps["ldr"], "r6", "r3", 0x1F8, "custom region slot load",
+    )
+    _require_indirect_call(
+        _instruction(candidate_blob, candidate_mappings, view_deps, path["custom_region_call_site"]),
+        view_deps, "r6", "custom region call",
+    )
+    custom_zero = _instruction(
+        candidate_blob, candidate_mappings, view_deps, path["custom_region_zero_branch_site"]
+    )
+    zero_tail = _instruction(
+        candidate_blob, candidate_mappings, view_deps, path["custom_region_zero_tail_call_site"]
+    )
+    if (
+        custom_zero.mnemonic != "cbz"
+        or _direct_target(custom_zero, view_deps) != path["custom_region_zero_target"]
+        or not zero_tail.group(view_deps["call_group"])
+        or zero_tail.address + zero_tail.size != path["custom_region_zero_path_join"]
+    ):
+        raise RuntimeError("custom region conditional continuation differs")
+    _require_register_operand(custom_zero, view_deps, 0, "r0", "custom region zero branch")
+    _require_memory_instruction(
+        _instruction(candidate_blob, candidate_mappings, view_deps, 0x3E9FF6),
+        view_deps, view_deps["ldr"], "r6", "r3", 0x1E4, "selection-update slot load",
+    )
+    _require_indirect_call(
+        _instruction(candidate_blob, candidate_mappings, view_deps, path["selection_update_call_site"]),
+        view_deps, "r6", "selection-update call",
+    )
+
+    _require_mov_immediate(
+        _instruction(candidate_blob, candidate_mappings, view_deps, path["callback_enable_zero_source_site"]),
+        view_deps, _instruction(candidate_blob, candidate_mappings, view_deps, path["callback_enable_zero_source_site"]).operands[0].reg,
+        path["callback_enable_initial_value"], "selection callback initial value",
+    )
+    zero_source = _instruction(candidate_blob, candidate_mappings, view_deps, path["callback_enable_zero_source_site"])
+    _require_register_operand(zero_source, view_deps, 0, "r6", "selection callback zero source")
+    _require_memory_instruction(
+        _instruction(candidate_blob, candidate_mappings, view_deps, path["callback_enable_initialization_site"]),
+        view_deps, view_deps["strb"], "r6", "r4", path["callback_enable_offset"],
+        "selection callback initial store",
+    )
+    _require_memory_instruction(
+        _instruction(candidate_blob, candidate_mappings, view_deps, path["callback_enable_test_site"]),
+        view_deps, "ldrb", "r3", "r4", path["callback_enable_offset"],
+        "selection callback enable test",
+    )
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, view_deps, path["enabled_callback_entry_call_site"]),
+        view_deps, 0x3E977C, "enabled selection callback entry",
+    )
+    _require_memory_instruction(
+        _instruction(candidate_blob, candidate_mappings, view_deps, 0x3E97FC),
+        view_deps, view_deps["ldr"], "r3", "r3", 0x160, "grid action-callback slot load",
+    )
+    _require_indirect_call(
+        _instruction(candidate_blob, candidate_mappings, view_deps, path["action_callback_call_site"]),
+        view_deps, "r3", "grid action-callback call",
+    )
+    _require_direct_call(
+        _instruction(candidate_blob, candidate_mappings, view_deps, path["action_dispatch_call_site"]),
+        view_deps, path["action_dispatch_target"], "grid action dispatch",
+    )
+    _require_memory_instruction(
+        _instruction(candidate_blob, candidate_mappings, view_deps, 0x3E8C60),
+        view_deps, view_deps["ldr"], "r1", "r6", grid["callback_callee_offset"],
+        "registered callback callee load",
+    )
+    _require_memory_instruction(
+        _instruction(candidate_blob, candidate_mappings, view_deps, 0x3E8C68),
+        view_deps, view_deps["ldr"], "r3", "r6", grid["callback_function_offset"],
+        "registered callback function load",
+    )
+    _require_indirect_call(
+        _instruction(candidate_blob, candidate_mappings, view_deps, path["registered_callback_call_site"]),
+        view_deps, "r3", "registered callback call",
+    )
+
+    callback_tail = _instruction(view_blob, view_mappings, view_deps, path["callback_tail_site"])
+    if not callback_tail.group(view_deps["jump_group"]) or _direct_target(callback_tail, view_deps) != path["callback_tail_target"]:
+        raise RuntimeError("PAS belt callback continuation differs")
+    _require_direct_call(
+        _instruction(view_blob, view_mappings, view_deps, path["selection_helper_call_site"]),
+        view_deps, path["selection_helper_target"], "PAS belt selection helper",
+    )
+    _require_add_immediate(
+        _instruction(view_blob, view_mappings, view_deps, path["selection_grid_address_site"]),
+        view_deps, "r5", "r0", grid["object_offset"], "PAS belt selection grid address",
+    )
+    set_item_receiver = _instruction(view_blob, view_mappings, view_deps, 0x59E842)
+    if set_item_receiver.id != view_deps["mov"]:
+        raise RuntimeError("PAS belt set-item receiver differs")
+    _require_register_operand(set_item_receiver, view_deps, 0, "r0", "PAS belt set-item receiver")
+    _require_register_operand(set_item_receiver, view_deps, 1, "r5", "PAS belt set-item receiver")
+    _require_direct_call(
+        _instruction(view_blob, view_mappings, view_deps, path["set_item_select_call_site"]),
+        view_deps, path["set_item_select_plt"], "PAS belt set-item-selection call",
+    )
+    _require_direct_call(
+        _instruction(view_blob, view_mappings, view_deps, path["belt_check_call_site"]),
+        view_deps, path["belt_check_plt"], "PAS belt type-check call",
+    )
+    if (
+        _call_symbol(view_blob, view_mappings, view_deps, view_plt_symbols, path["set_item_select_call_site"])
+        != path["set_item_select_symbol"]
+        or _call_symbol(view_blob, view_mappings, view_deps, view_plt_symbols, path["belt_check_call_site"])
+        != path["belt_check_symbol"]
+    ):
+        raise RuntimeError("PAS belt selection/check boundary differs")
+
+    _require_direct_call(
+        _instruction(view_blob, view_mappings, view_deps, path["event_helper_call_site"]),
+        view_deps, path["event_helper_target"], "PAS belt event helper call",
+    )
+    _require_add_immediate(
+        _instruction(view_blob, view_mappings, view_deps, path["event_id_base_site"]),
+        view_deps, "r3", "r0", path["event_id_base_offset"], "PAS belt event-id base",
+    )
+    _require_memory_instruction(
+        _instruction(view_blob, view_mappings, view_deps, path["event_id_load_site"]),
+        view_deps, view_deps["ldr"], "r1", "r3", path["event_id_offset"],
+        "PAS belt event-id load",
+    )
+
+    event_tail = _instruction(view_blob, view_mappings, view_deps, path["event_push_tail_site"])
+    if (
+        event_tail.group(view_deps["call_group"])
+        or not event_tail.group(view_deps["jump_group"])
+        or _direct_target(event_tail, view_deps) != path["event_push_gate"]
+    ):
+        raise RuntimeError("PAS belt event-push tail differs")
+    relocation = view_relplt[path["event_push_rel_plt_index"]]
+    symbol = view_dynsym.get_symbol(relocation["r_info_sym"])
+    decoded = _decoded_plt_addresses_exact(view_elf, view_blob, view_mappings)
+    if (
+        relocation["r_offset"] != path["event_push_got"]
+        or relocation["r_info_type"] != 22
+        or symbol.name != path["event_push_symbol"]
+        or decoded.get(path["event_push_got"]) != path["event_push_veneer"]
+    ):
+        raise RuntimeError("PAS belt event-push binding boundary differs")
+
+    if expected["findings"] != {
+        "slot27_to_custom_region_test_proven": True,
+        "slot27_to_selection_update_proven": True,
+        "slot27_to_registered_callback_proven": False,
+        "selection_callback_enable_state_proven": False,
+        "selection_callback_constructor_initial_value": 0,
+        "enabled_callback_to_grid_selection_proven": True,
+        "enabled_callback_to_typed_pas_belt_event_push_boundary_proven": True,
+        "widget_is_hit_used_by_this_path": False,
+        "bounded_absent_vtable_offsets": [0x8C, 0x90],
+        "bounded_absent_direct_targets": [0x606676, 0x5ED0F8],
+        "bounded_absent_plt_symbols": [
+            "_ZN2ux6wgtsys10WidgetBase9sys_isHitERKNS_4core7Vector2E",
+            "_ZN2ux6wgtsys6Widget5isHitERKNS_4core7Vector2E",
+        ],
+    } or any(expected["preconditions"].values()):
+        raise RuntimeError("generic belt claim boundary differs")
+    return copy.deepcopy(expected)
+
+
 class ElfAdapter:
     def metadata(self):
         if not sources_available():
@@ -760,9 +1193,13 @@ class ElfAdapter:
             mappings = _mappings(elf)
             candidate_mappings = _mappings(candidate_elf)
             rels, by_site = _relocations(elf)
+            candidate_rels, candidate_by_site = _relocations(candidate_elf)
             dynsym = elf.get_section_by_name(".dynsym")
+            candidate_dynsym = candidate_elf.get_section_by_name(".dynsym")
             plt_symbols = _plt_symbols(elf, blob, mappings)
+            candidate_plt_symbols = _plt_symbols(candidate_elf, candidate_blob, candidate_mappings)
             exidx = _exidx_ranges(elf, blob)
+            candidate_exidx = _exidx_ranges(candidate_elf, candidate_blob)
             dispatcher = _validate_dispatcher(blob, mappings, deps, rels, by_site, dynsym, exidx)
             layout = _validate_layout(blob, mappings, deps, rels, by_site, dynsym, plt_symbols, exidx)
             menu = _validate_menu_table(blob, mappings, deps, plt_symbols, exidx)
@@ -779,6 +1216,11 @@ class ElfAdapter:
             )
             navigation = _validate_navigation(blob, mappings, deps, plt_symbols, exidx)
             touchability = _validate_touchability(blob, mappings, deps, rels, by_site, dynsym, plt_symbols, exidx)
+            generic_belt = _validate_generic_belt_input_chain(
+                blob, mappings, elf, deps, rels, by_site, dynsym, plt_symbols, exidx,
+                candidate_blob, candidate_mappings, candidate_elf, candidate_rels,
+                candidate_by_site, candidate_dynsym, candidate_plt_symbols, candidate_exidx,
+            )
         if _sha256(SOURCE_PATH) != before or _sha256(LIBOBJ_SOURCE_PATH) != candidate_before:
             raise RuntimeError("pinned interaction source changed during export")
         document = copy.deepcopy(EXPECTED_EXPORT)
@@ -791,6 +1233,7 @@ class ElfAdapter:
             "field_0x14c_constructor_boundary": constructor_boundary,
             "navigation": navigation,
             "touchability_candidate": touchability,
+            "generic_belt_input_chain": generic_belt,
         })
         return document
 

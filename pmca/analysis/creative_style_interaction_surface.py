@@ -304,6 +304,151 @@ TOUCHABILITY_CANDIDATE = {
     },
 }
 
+# This chain is intentionally generic and conditional.  It describes what a
+# PAS_MenuDataSelectBelt can do after a candidate GEN_GridList provider is
+# bound, its registration method has run, and the callback-enable state has
+# become nonzero.  None of those facts identifies ViewCreativeStyle+0x14c or
+# proves delivery of a camera touch event to that member.
+GENERIC_BELT_INPUT_CHAIN = {
+    "status": "CONDITIONAL_STATIC_PATH",
+    "pas_belt": {
+        "type_name": "PAS_MenuDataSelectBelt",
+        "rtti": 0x92EF90,
+        "vtable_address_point": 0x92EFA8,
+        "vtable_type_relocation_index": 47852,
+        "vtable_got_cell": 0x94D5EC,
+        "vtable_got_relocation_index": 60904,
+        "constructor_owner": {"start": 0x56E860, "end": 0x56E97C},
+        "vptr_store_site": 0x56E87E,
+        "embedded_base_offset": 0x410,
+        "embedded_base_constructor_call_site": 0x56E8A4,
+        "embedded_base_constructor_target": 0x59DD1C,
+        "embedded_base_parent_call_site": 0x56E8EC,
+    },
+    "embedded_grid": {
+        "base_type_name": "PAS_MenuDataSelectBeltBase",
+        "base_rtti": 0x9375A0,
+        "base_vtable_address_point": 0x9373E8,
+        "base_vtable_type_relocation_index": 49950,
+        "object_offset": 0x3F8,
+        "constructor_call_site": 0x59DD48,
+        "constructor_symbol": "_ZN12GEN_GridListC1Ev",
+        "constructor_dynsym_index": 1029,
+        "constructor_rel_plt_index": 1448,
+        "constructor_got": 0x945D4C,
+        "candidate_module": "lib/libObj.so",
+        "candidate_type_name": "GEN_GridList",
+        "candidate_constructor_dynsym_index": 3316,
+        "candidate_constructor_entry": 0x3EA611,
+        "candidate_constructor_size": 0x218,
+        "candidate_rtti": 0x133CB20,
+        "candidate_vtable_address_point": 0x133C908,
+        "candidate_vtable_type_relocation_index": 37133,
+        "candidate_vtable_got_cell": 0x1371BE0,
+        "candidate_vtable_got_relocation_index": 68710,
+        "candidate_constructor_owner": {"start": 0x3EA610, "end": 0x3EA828},
+        "candidate_vptr_store_site": 0x3EA62C,
+        "candidate_slots": {
+            "mouse_wrapper": {"slot": 26, "relocation_index": 37135, "target": 0x3E850C},
+            "mouse_handler": {"slot": 27, "relocation_index": 37136, "target": 0x3E9BCC},
+            "action_callback": {"slot": 88, "relocation_index": 37156, "target": 0x3EA35A},
+            "selection_update": {"slot": 121, "relocation_index": 37173, "target": 0x3EAF0C},
+            "custom_region_test": {"slot": 126, "relocation_index": 37178, "target": 0x3E86D6},
+        },
+        "parent_call_site": 0x59DE46,
+        "mouse_hook_call_site": 0x59DE56,
+        "registration_slot": 107,
+        "registration_relocation_index": 49972,
+        "registration_target": 0x59DCB8,
+        "registration_call_site": 0x59DCFA,
+        "registration_callback_got_cell": 0x94DF34,
+        "registration_callback_relocation_index": 61470,
+        "callback": 0x59EDE0,
+        "callback_callee_offset": 0x17C,
+        "callback_function_offset": 0x180,
+        "runtime_provider_binding_proven": False,
+    },
+    "path": {
+        "event_type": 4,
+        "mouse_handler_owner": {"start": 0x3E9BCC, "end": 0x3EA098},
+        "event_type_call_site": 0x3E9BF8,
+        "event_type_call_plt": 0x102C08,
+        "event_type_symbol": "_ZNK2ux6wgtsys10MouseEvent12getEventTypeEv",
+        "event_type_bias_site": 0x3E9BFC,
+        "event_type_bias": 4,
+        "event_type_guard_site": 0x3E9BFE,
+        "event_type_guard_max_index": 7,
+        "event_type_guard_branch_site": 0x3E9C00,
+        "event_type_guard_target": 0x3EA038,
+        "event_type_table_branch_site": 0x3E9C04,
+        "event_type_table_start": 0x3E9C08,
+        "event_type_case_landing": 0x3E9E22,
+        "custom_region_call_site": 0x3E9F3E,
+        "custom_region_zero_branch_site": 0x3E9F42,
+        "custom_region_zero_target": 0x3E9F60,
+        "custom_region_zero_tail_call_site": 0x3E9F78,
+        "custom_region_zero_path_join": 0x3E9F7A,
+        "selection_update_call_site": 0x3EA00A,
+        "callback_enable_offset": 0x314,
+        "callback_enable_initialization_site": 0x3EA6B2,
+        "callback_enable_zero_source_site": 0x3EA644,
+        "callback_enable_initial_value": 0,
+        "callback_enable_test_site": 0x3EB06A,
+        "enabled_callback_entry_call_site": 0x3EB074,
+        "action_callback_call_site": 0x3E9800,
+        "action_dispatch_call_site": 0x3EA420,
+        "action_dispatch_target": 0x3E8C18,
+        "registered_callback_call_site": 0x3E8C70,
+        "callback_tail_site": 0x59EDEE,
+        "callback_tail_target": 0x59E87C,
+        "selection_helper_call_site": 0x59E95A,
+        "selection_helper_target": 0x59E6F4,
+        "selection_grid_address_site": 0x59E6FC,
+        "set_item_select_call_site": 0x59E844,
+        "set_item_select_plt": 0x154180,
+        "set_item_select_symbol": "_ZN12GEN_GridList13setItemSelectEib",
+        "belt_check_call_site": 0x59E7B6,
+        "belt_check_plt": 0x155D00,
+        "belt_check_symbol": "_Z28Check_PAS_MenuDataSelectBeltPN2ux6wgtsys6WidgetE",
+        "event_helper_call_site": 0x59E7BC,
+        "event_helper_target": 0x56EDEE,
+        "event_id_base_site": 0x56EDEE,
+        "event_id_base_offset": 0x2500,
+        "event_id_load_site": 0x56EDF8,
+        "event_id_offset": 0x4C,
+        "event_push_tail_site": 0x56EDFE,
+        "event_push_gate": 0x154EDC,
+        "event_push_veneer": 0x154EE0,
+        "event_push_got": 0x946600,
+        "event_push_rel_plt_index": 2005,
+        "event_push_symbol": "_ZN13AppWidgetBase9pushEventEmP9ParamList",
+    },
+    "findings": {
+        "slot27_to_custom_region_test_proven": True,
+        "slot27_to_selection_update_proven": True,
+        "slot27_to_registered_callback_proven": False,
+        "selection_callback_enable_state_proven": False,
+        "selection_callback_constructor_initial_value": 0,
+        "enabled_callback_to_grid_selection_proven": True,
+        "enabled_callback_to_typed_pas_belt_event_push_boundary_proven": True,
+        "widget_is_hit_used_by_this_path": False,
+        "bounded_absent_vtable_offsets": [0x8C, 0x90],
+        "bounded_absent_direct_targets": [0x606676, 0x5ED0F8],
+        "bounded_absent_plt_symbols": [
+            "_ZN2ux6wgtsys10WidgetBase9sys_isHitERKNS_4core7Vector2E",
+            "_ZN2ux6wgtsys6Widget5isHitERKNS_4core7Vector2E",
+        ],
+    },
+    "preconditions": {
+        "runtime_provider_binding_proven": False,
+        "registration_method_invocation_proven": False,
+        "widget_system_delivery_to_embedded_grid_proven": False,
+        "registered_root_attachment_proven": False,
+        "viewcreative_style_field_0x14c_instance_join_proven": False,
+        "viewcreative_style_case16_selector_proven": False,
+    },
+}
+
 CLAIMS = {
     "native_creative_style_layout_found": True,
     "native_menu_table_scaffold_found": True,
@@ -311,6 +456,7 @@ CLAIMS = {
     "native_navigation_boundary_found": True,
     "concrete_touchability_flag_boundary_found": True,
     "generic_widget_type_filter_proven": True,
+    "conditional_generic_pas_belt_input_chain_found": True,
     "concrete_creative_style_belt_type_found": False,
     "creative_style_touch_route_found": False,
     "coordinate_input_found": False,
@@ -346,6 +492,7 @@ EXPECTED_EXPORT = {
     "field_0x14c_constructor_boundary": FIELD_0X14C_CONSTRUCTOR_BOUNDARY,
     "navigation": NAVIGATION,
     "touchability_candidate": TOUCHABILITY_CANDIDATE,
+    "generic_belt_input_chain": GENERIC_BELT_INPUT_CHAIN,
     "claims": CLAIMS,
     "evidence_digest": canonical_digest({
         "creative_style_layout": CREATIVE_STYLE_LAYOUT,
@@ -356,6 +503,7 @@ EXPECTED_EXPORT = {
         "field_0x14c_constructor_boundary": FIELD_0X14C_CONSTRUCTOR_BOUNDARY,
         "navigation": NAVIGATION,
         "touchability_candidate": TOUCHABILITY_CANDIDATE,
+        "generic_belt_input_chain": GENERIC_BELT_INPUT_CHAIN,
     }),
     "truncated": False,
 }
@@ -372,7 +520,13 @@ CONCLUSION = (
     "and touch route remain unproven. A separate Movie Rec path acquires a checked PAS_BarCtrlDial "
     "but explicitly calls "
     "setTouchable(false); its converter only forwards an unresolved value. This proves reusable UI "
-    "scaffolding and a touchability flag boundary, not Creative Style touch, hit testing, selection, "
+    "scaffolding and a touchability flag boundary. Separately, a conditional generic "
+    "PAS_MenuDataSelectBelt path reaches a custom grid-region test and selection-update method. Its "
+    "callback-enable byte initializes to zero, and provider binding, registration invocation, root "
+    "attachment, input delivery, callback enablement, ViewCreativeStyle+0x14c identity, and case-16 "
+    "selector provenance remain unproved. The enabled callback continuation can select a grid item "
+    "and reaches a typed PAS belt event-push boundary, but this is not Creative Style touch, hit "
+    "testing, or selection, "
     "Creative Look layout equivalence, runtime behavior, or installability."
 )
 
@@ -410,6 +564,7 @@ def normalize_creative_style_interaction_surface_export(document):
         "field_0x14c_constructor_boundary": document["field_0x14c_constructor_boundary"],
         "navigation": document["navigation"],
         "touchability_candidate": document["touchability_candidate"],
+        "generic_belt_input_chain": document["generic_belt_input_chain"],
     }):
         raise CreativeStyleInteractionSurfaceError("interaction-surface digest differs")
     forbidden_positive = (
@@ -433,6 +588,7 @@ def summarize_creative_style_interaction_surface_export(document):
         "greyout_call_count": len(export["menu_table"]["set_greyout_call_sites"]),
         "navigation_route_count": len(export["navigation"]["routes"]),
         "touchable_true_call_count": int(export["touchability_candidate"]["movie_view"]["set_touchable_value"] is True),
+        "conditional_generic_belt_input_chain_found": export["claims"]["conditional_generic_pas_belt_input_chain_found"],
     }
 
 

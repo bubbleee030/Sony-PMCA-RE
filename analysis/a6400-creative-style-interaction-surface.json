@@ -1,43 +1,45 @@
 {
-  "analysis_scope": "offline-static-creative-style-interaction-surface",
-  "camera_executed": false,
-  "camera_policy": "physically-disconnected",
-  "camera_test_eligible": false,
-  "claims": {
-    "concrete_creative_style_belt_type_found": false,
-    "concrete_touchability_flag_boundary_found": true,
-    "coordinate_input_found": false,
-    "creative_look_layout_equivalence_found": false,
-    "creative_style_touch_route_found": false,
-    "field_0x14c_concrete_type_resolved": false,
-    "generic_widget_type_filter_proven": true,
-    "gesture_found": false,
-    "hit_test_found": false,
-    "menu_selection_dispatch_found": false,
-    "native_belt_cursor_boundary_found": true,
-    "native_creative_style_layout_found": true,
-    "native_menu_table_scaffold_found": true,
-    "native_navigation_boundary_found": true,
-    "reusable_touch_adjustment_implementation_found": false,
-    "runtime_execution_proven": false,
-    "selection_dispatch_found": false
-  },
-  "conclusion": "ViewCreativeStyle owns a target-native layout key, three menu helpers, a bounded 19-index initialization loop, twelve greyout call sites, a pre-existing belt-cursor update boundary, and exact navigation routes. The post-lookup call reaches the generic PAS_BtnCombo::cast Widget type filter, which returns the original widget or null; it does not type the belt member at +0x14c. The bounded derived/default-base constructors contain no direct +0x14c store. A candidate ViewBase constructor in libObj is not a declared viewUnified2 dependency, has no direct +0x14c store, and reaches a PLT/GOT boundary without a proved binding. The belt object's concrete type, creation, and touch route remain unproven. A separate Movie Rec path acquires a checked PAS_BarCtrlDial but explicitly calls setTouchable(false); its converter only forwards an unresolved value. This proves reusable UI scaffolding and a touchability flag boundary, not Creative Style touch, hit testing, selection, Creative Look layout equivalence, runtime behavior, or installability.",
-  "evidence_digest": "533f9fcc74c62b0e4e981e2a1afa58a1a6e86d873e91048f31a57a566edc43dc",
-  "installable": false,
-  "readiness": "NATIVE_CREATIVE_STYLE_LAYOUT_AND_BELT_TOUCH_UNPROVEN",
   "schema_version": 1,
+  "analysis_scope": "offline-static-creative-style-interaction-surface",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
   "source": {
     "module": "lib/viewUnified2.so",
-    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
-    "size": 11530552
+    "size": 11530552,
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
   },
   "summary": {
-    "canonical_export_sha256": "7a06e27aec77be756b13925a407aa1244c18a17fab723c52e06137f3160a647e",
-    "greyout_call_count": 12,
+    "canonical_export_sha256": "7bb810337c17269758ecf840d0e5d7cbda66a594cfd23de9fa574c0182fb3d31",
     "layout_helper_count": 3,
     "menu_index_count": 19,
+    "greyout_call_count": 12,
     "navigation_route_count": 3,
-    "touchable_true_call_count": 0
-  }
+    "touchable_true_call_count": 0,
+    "conditional_generic_belt_input_chain_found": true
+  },
+  "evidence_digest": "0c8b7e86e8efcecaaf64bd1f16e571f97e16e08498e96ab625f480995649c565",
+  "claims": {
+    "native_creative_style_layout_found": true,
+    "native_menu_table_scaffold_found": true,
+    "native_belt_cursor_boundary_found": true,
+    "native_navigation_boundary_found": true,
+    "concrete_touchability_flag_boundary_found": true,
+    "generic_widget_type_filter_proven": true,
+    "conditional_generic_pas_belt_input_chain_found": true,
+    "concrete_creative_style_belt_type_found": false,
+    "creative_style_touch_route_found": false,
+    "coordinate_input_found": false,
+    "hit_test_found": false,
+    "gesture_found": false,
+    "selection_dispatch_found": false,
+    "menu_selection_dispatch_found": false,
+    "field_0x14c_concrete_type_resolved": false,
+    "reusable_touch_adjustment_implementation_found": false,
+    "creative_look_layout_equivalence_found": false,
+    "runtime_execution_proven": false
+  },
+  "readiness": "NATIVE_CREATIVE_STYLE_LAYOUT_AND_BELT_TOUCH_UNPROVEN",
+  "conclusion": "ViewCreativeStyle owns a target-native layout key, three menu helpers, a bounded 19-index initialization loop, twelve greyout call sites, a pre-existing belt-cursor update boundary, and exact navigation routes. The post-lookup call reaches the generic PAS_BtnCombo::cast Widget type filter, which returns the original widget or null; it does not type the belt member at +0x14c. The bounded derived/default-base constructors contain no direct +0x14c store. A candidate ViewBase constructor in libObj is not a declared viewUnified2 dependency, has no direct +0x14c store, and reaches a PLT/GOT boundary without a proved binding. The belt object's concrete type, creation, and touch route remain unproven. A separate Movie Rec path acquires a checked PAS_BarCtrlDial but explicitly calls setTouchable(false); its converter only forwards an unresolved value. This proves reusable UI scaffolding and a touchability flag boundary. Separately, a conditional generic PAS_MenuDataSelectBelt path reaches a custom grid-region test and selection-update method. Its callback-enable byte initializes to zero, and provider binding, registration invocation, root attachment, input delivery, callback enablement, ViewCreativeStyle+0x14c identity, and case-16 selector provenance remain unproved. The enabled callback continuation can select a grid item and reaches a typed PAS belt event-push boundary, but this is not Creative Style touch, hit testing, or selection, Creative Look layout equivalence, runtime behavior, or installability."
 }

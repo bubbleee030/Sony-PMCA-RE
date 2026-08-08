@@ -519,6 +519,30 @@ module as a dependency. The candidate constructor also has no direct `+0x14c`
 store and immediately reaches another PLT/GOT-mediated call. Neither fact
 proves the binding, belt ownership, or a concrete input-event route.
 
+A separate, explicitly conditional belt path now narrows the generic input
+surface. `PAS_MenuDataSelectBelt` constructs an embedded base at `+0x410`; that
+base prepares a grid at `+0x3f8` through an undefined `GEN_GridList`
+constructor import. The pinned `libObj.so` candidate installs the typed
+`GEN_GridList` vtable. Its event-type-4 slot-27 handler computes local mouse
+coordinates, calls a custom slot-126 rectangle test, and then reaches the
+slot-121 selection-update method. The fully decoded handler owner has no direct
+call or vtable-slot load for the inherited `Widget::sys_isHit`/`Widget::isHit`
+offsets; this path uses the custom region test instead.
+
+The continuation remains gated. The candidate constructor initializes the
+grid callback-enable byte at `+0x314` to zero, and the selection-update method
+calls the registered callback only when a later runtime state makes that byte
+nonzero. Conditional on that enable state and prior execution of the base's
+slot-107 callback-registration method, the callback continuation returns to
+the same embedded grid, calls `GEN_GridList::setItemSelect`, checks the parent
+as `PAS_MenuDataSelectBelt`, and reaches the imported
+`AppWidgetBase::pushEvent` boundary. Static evidence does not prove the
+`viewUnified2.so`-to-`libObj.so` provider binding, invocation of the registration
+method, root attachment, WidgetSystem delivery to this grid, the later enable
+state, identity with `ViewCreativeStyle+0x14c`, or the case-16 selector source.
+It is therefore a conditional generic PAS belt mechanism, not a Creative
+Style touch or selection route.
+
 The nearest concrete touchability lead does not yet solve touch. A typed
 `ViewMovieRecPatch` path gets and checks a `PAS_BarCtrlDial`, then passes the
 exact value false to `setTouchable(bool)` before entering Movie/Iris data
