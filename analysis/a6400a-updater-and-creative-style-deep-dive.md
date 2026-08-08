@@ -502,6 +502,24 @@ menu activation, Creative Look equivalence, installability, recovery, or camera
 readiness. The fail-closed record is
 `analysis/a6400-creative-style-view-lifecycle-boundary.json`.
 
+The activation-caller follow-up now pins the concrete process-manager singleton at `0xB06BB0`:
+its accessor and constructor install manager vptr
+`0x905930`, whose slot 20 reaches the typed condition bridge. The bounded
+function-aware scan covers 28,869 fully decoded exception-index owners and
+keeps 1,594 decode-incomplete or terminal owners outside its negative
+universe. Within the decoded universe it finds sixteen canonical slot-20 call shapes
+and accepts zero as the manager/ID-42/condition caller. Direct inbound
+transfers to the manager bridge and Creative Style slot-25 wrapper are also
+empty in that same incomplete scan.
+
+This is not a whole-program absence claim. Noncanonical virtual dispatch,
+indirect callbacks, runtime-initialized receiver fields, cross-module delivery,
+and the excluded owners remain unresolved. The result therefore does not prove
+a process ID 42 activation caller, menu-root activation, runtime `openView`
+delivery, factory invocation, returned `ViewCreativeStyle` identity, or any
+first-class Creative Look/output behavior. The fail-closed record is
+`analysis/a6400-creative-style-activation-caller-boundary.json`.
+
 ### Target-native Creative Style interaction surface
 
 The concrete view also owns a target-native interaction scaffold rather than

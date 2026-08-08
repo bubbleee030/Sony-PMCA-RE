@@ -1,0 +1,398 @@
+{
+  "analysis_scope": "offline-static-creative-style-activation-caller-boundary",
+  "camera_executed": false,
+  "camera_policy": "physically-disconnected",
+  "camera_test_eligible": false,
+  "claims": {
+    "bounded_canonical_slot_20_inventory_proven": true,
+    "camera_test_eligible": false,
+    "concrete_process_manager_singleton_and_vptr_proven": true,
+    "first_class_creative_look_equivalence_proven": false,
+    "installable": false,
+    "menu_root_activation_join_proven": false,
+    "process_id_42_activation_caller_proven": false,
+    "processing_or_output_behavior_proven": false,
+    "recovery_validated": false,
+    "returned_viewcreative_style_identity_proven": false,
+    "runtime_factory_invocation_proven": false,
+    "runtime_open_view_delivery_proven": false,
+    "typed_manager_slot_20_bridge_proven": true
+  },
+  "conclusion": "The authenticated VU2 module constructs a concrete CmnViewProcessDataMgr singleton at 0xB06BB0 and installs vptr 0x905930. Manager slot 20 reaches the typed execProcWithCondition bridge, and the Creative Style element slot 25 reaches the condition-preserving view/CREATIVE_STYLE openView wrapper. A function-aware scan covers 28,869 fully decoded exception-index owners and retains 1,594 incomplete or terminal owners outside the negative universe. It inventories 16 canonical slot-0x50 calls and accepts zero as a manager receiver with process ID 42 and condition provenance. This bounded result does not prove a process ID 42 activation caller, menu-root activation, runtime openView delivery, factory invocation, a returned ViewCreativeStyle object, first-class Creative Look equivalence, processing/output behavior, installability, recovery, or camera-test eligibility.",
+  "dependency": {
+    "evidence_digest": "6d1f51bd05f0bd2ba203ddef1a807aa8e25f5b924f41319cb1ad1ebddb44a572",
+    "report": "analysis/a6400-creative-style-view-lifecycle-boundary.json",
+    "runtime_factory_invocation_proven": false,
+    "typed_process_id_42_caller_proven": false
+  },
+  "evidence": {
+    "caller_scan": {
+      "accepted_candidates": [],
+      "canonical_slot_20_calls": [
+        {
+          "accepted": false,
+          "call_site": 2148512,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 2148516,
+            "start": 2148288
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r0",
+          "slot_load_site": 2148510,
+          "vptr_load_site": 2148508
+        },
+        {
+          "accepted": false,
+          "call_site": 2773592,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 2773652,
+            "start": 2773580
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r0",
+          "slot_load_site": 2773590,
+          "vptr_load_site": 2773588
+        },
+        {
+          "accepted": false,
+          "call_site": 2801584,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 2801628,
+            "start": 2801516
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r0",
+          "slot_load_site": 2801582,
+          "vptr_load_site": 2801580
+        },
+        {
+          "accepted": false,
+          "call_site": 2803058,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 2803088,
+            "start": 2803024
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r0",
+          "slot_load_site": 2803056,
+          "vptr_load_site": 2803054
+        },
+        {
+          "accepted": false,
+          "call_site": 3084478,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 3084488,
+            "start": 3084436
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r0",
+          "slot_load_site": 3084476,
+          "vptr_load_site": 3084474
+        },
+        {
+          "accepted": false,
+          "call_site": 3537194,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 3537214,
+            "start": 3537150
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r0",
+          "slot_load_site": 3537192,
+          "vptr_load_site": 3537190
+        },
+        {
+          "accepted": false,
+          "call_site": 4428126,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 4428132,
+            "start": 4428108
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r0",
+          "slot_load_site": 4428124,
+          "vptr_load_site": 4428120
+        },
+        {
+          "accepted": false,
+          "call_site": 4433372,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 4433392,
+            "start": 4433360
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r0",
+          "slot_load_site": 4433370,
+          "vptr_load_site": 4433368
+        },
+        {
+          "accepted": false,
+          "call_site": 4579620,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 4579624,
+            "start": 4579604
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r0",
+          "slot_load_site": 4579618,
+          "vptr_load_site": 4579616
+        },
+        {
+          "accepted": false,
+          "call_site": 4632076,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 4632080,
+            "start": 4632060
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r0",
+          "slot_load_site": 4632074,
+          "vptr_load_site": 4632072
+        },
+        {
+          "accepted": false,
+          "call_site": 5307322,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 5307356,
+            "start": 5307308
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r1",
+          "slot_load_site": 5307320,
+          "vptr_load_site": 5307316
+        },
+        {
+          "accepted": false,
+          "call_site": 5307334,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 5307356,
+            "start": 5307308
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r4",
+          "slot_load_site": 5307332,
+          "vptr_load_site": 5307328
+        },
+        {
+          "accepted": false,
+          "call_site": 5734676,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 5734710,
+            "start": 5734662
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r1",
+          "slot_load_site": 5734674,
+          "vptr_load_site": 5734670
+        },
+        {
+          "accepted": false,
+          "call_site": 5734688,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 5734710,
+            "start": 5734662
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r4",
+          "slot_load_site": 5734686,
+          "vptr_load_site": 5734682
+        },
+        {
+          "accepted": false,
+          "call_site": 5772042,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 5772060,
+            "start": 5771588
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r0",
+          "slot_load_site": 5772040,
+          "vptr_load_site": 5772038
+        },
+        {
+          "accepted": false,
+          "call_site": 6014296,
+          "condition_r2_proven": false,
+          "manager_receiver_proven": false,
+          "manager_vptr_proven": false,
+          "owner": {
+            "complete": true,
+            "end": 6014324,
+            "start": 6014256
+          },
+          "process_id_42_proven": false,
+          "receiver_register": "r1",
+          "slot_load_site": 6014294,
+          "vptr_load_site": 6014292
+        }
+      ],
+      "canonical_slot_offset": 80,
+      "direct_inbound_scan_complete": false,
+      "exidx_owner_count": 30463,
+      "fully_decoded_owner_count": 28869,
+      "incomplete_or_terminal_owner_count": 1594,
+      "manager_bridge_direct_inbound": [],
+      "typed_wrapper_direct_inbound": [],
+      "unresolved_universes": [
+        "decode-incomplete-or-terminal-exidx-owners",
+        "noncanonical-virtual-dispatch",
+        "indirect-callback-or-runtime-initialized-receiver",
+        "cross-module-or-loader-mediated-delivery"
+      ],
+      "whole_program_absence_proven": false
+    },
+    "manager_identity": {
+      "accessor": {
+        "constructor_call_site": 1409906,
+        "constructor_receiver_site": 1409904,
+        "constructor_symbol": "_ZN21CmnViewProcessDataMgrC1Ev",
+        "guard_got_cell": 9753128,
+        "guard_relocation_index": 60668,
+        "guard_storage": 11561900,
+        "instance_got_cell": 9755024,
+        "instance_relocation_index": 61126,
+        "owner": {
+          "complete": true,
+          "end": 1409964,
+          "start": 1409872
+        },
+        "pic_base": 9717408,
+        "pic_literal_site": 1409944,
+        "return_site": 1409930
+      },
+      "bridge": {
+        "condition_capture_site": 4427968,
+        "condition_forward_site": 4427978,
+        "lookup_call_site": 4427970,
+        "lookup_target": 4427912,
+        "typed_slot_call_site": 4427982,
+        "typed_slot_load_site": 4427980,
+        "typed_slot_offset": 100
+      },
+      "bridge_cell": 9460096,
+      "bridge_owner": {
+        "complete": true,
+        "end": 4427988,
+        "start": 4427964
+      },
+      "bridge_relocation_index": 37093,
+      "bridge_slot": 20,
+      "bridge_target": 4427964,
+      "constructor": {
+        "address_point_add_site": 4427888,
+        "bounded_body_end": 4427902,
+        "owner": {
+          "complete": true,
+          "end": 4427964,
+          "start": 4427868
+        },
+        "pic_base": 9717408,
+        "pic_literal_site": 4427904,
+        "return_site": 4427898,
+        "vptr_store_site": 4427890,
+        "vtable_got_cell": 9744644,
+        "vtable_header_target": 9460008,
+        "vtable_load_site": 4427886,
+        "vtable_offset_literal_site": 4427908,
+        "vtable_relocation_index": 58661
+      },
+      "instance_object": 11561904,
+      "type_name": "CmnViewProcessDataMgr",
+      "vtable_address_point": 9460016,
+      "vtable_header": 9460008
+    },
+    "typed_activation_dependency": {
+      "cell": 9498092,
+      "element_type": "CmnViewProcessDataElementCustomCreativeStyle",
+      "manager_bridge_target": 4427964,
+      "process_id": 42,
+      "relocation_index": 40033,
+      "slot": 25,
+      "typed_process_id_42_caller_proven": false,
+      "vtable_address_point": 9497992,
+      "wrapper_target": 4755992
+    }
+  },
+  "evidence_digest": "9bd269e0d77717fa00c472a9e6c433aba3a6ad09fb3fb3b954f4cb53fe6cff0e",
+  "first_unresolved_boundary": "decode-incomplete-noncanonical-or-runtime-receiver-provenance-to-manager-slot-20",
+  "installable": false,
+  "narrative_sha256": "d3e444a0ee22abb0bf2d4fbdf465b157ae0c9086b3dba5922e2e3b1c35c71275",
+  "readiness": "PROCESS_ID_42_ACTIVATION_CALLER_UNRESOLVED_IN_BOUNDED_STATIC_SCAN",
+  "recovery_validated": false,
+  "schema_version": 1,
+  "source": {
+    "module": "lib/viewUnified2.so",
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+    "size": 11530552
+  },
+  "summary": {
+    "accepted_candidate_count": 0,
+    "canonical_export_sha256": "32c2e90f0a63f6f66ac48956c9345fec4b995f8801b12b146885a8e178561389",
+    "canonical_slot_20_call_count": 16,
+    "fully_decoded_owner_count": 28869,
+    "incomplete_or_terminal_owner_count": 1594,
+    "manager_instance_object": 11561904,
+    "manager_vtable_address_point": 9460016,
+    "whole_program_absence_proven": false
+  }
+}
