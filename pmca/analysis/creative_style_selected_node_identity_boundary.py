@@ -244,14 +244,157 @@ RUNTIME_SELECTION = {
     },
 }
 
+ROOT_INITIALIZATION = {
+    "slot_54_owner": {"start": 0x2108B0, "end": 0x210D20, "complete": True},
+    "root_field_offset": 0x1A0,
+    "root_store_site": 0x21098C,
+    "root_vptr_load_site": 0x210992,
+    "init_slot_load_site": 0x210994,
+    "init_slot_offset": 0x08,
+    "list_helper_call_site": 0x210996,
+    "list_helper_target": 0x2084EC,
+    "list_helper_owner": {"start": 0x2084EC, "end": 0x208548, "complete": True},
+    "count_load_site": 0x21099E,
+    "root_receiver_restore_site": 0x2109A2,
+    "init_call_site": 0x2109A4,
+    "default_root_bindings": [
+        {
+            "role": "root-list",
+            "got": 0x948AA0,
+            "relocation_index": 130_801,
+            "relocation_type": 21,
+            "symbol_index": 392,
+            "symbol": "cmnViewSettingNodesRootDefault",
+        },
+        {
+            "role": "root-count",
+            "got": 0x94B8E4,
+            "relocation_index": 130_996,
+            "relocation_type": 21,
+            "symbol_index": 937,
+            "symbol": "cmnViewSettingNodesNumOfRootDefault",
+        },
+    ],
+    "pointer_width": 4,
+    "list_argument_register": "r1",
+    "count_argument_register": "r2",
+    "root_argument_register": "r0",
+    "virtual_target_register": "r4",
+    "runtime_binding_proven": False,
+}
+
+CANDIDATE_LIFECYCLE = {
+    "vtable_address_point": 0xAB9400,
+    "init_setting_node": {
+        "cell": 0xAB9408,
+        "slot_offset": 0x08,
+        "relocation_index": 6_168,
+        "relocation_type": 2,
+        "symbol_index": 3_892,
+        "symbol": "_ZN18CmnViewSettingNode15initSettingNodeEPPS_i",
+        "owner": {"start": 0x7C6AEA, "end": 0x7C6B20, "complete": True},
+        "lifecycle_slots": [
+            {"offset": 0xE8, "load_site": 0x7C6AF2, "call_site": 0x7C6AFC},
+            {"offset": 0xF8, "load_site": 0x7C6B08, "call_site": 0x7C6B0E},
+            {"offset": 0xEC, "load_site": 0x7C6B16, "call_site": 0x7C6B1A},
+        ],
+    },
+    "recursive_init": {
+        "cell": 0xAB94F8,
+        "slot_offset": 0xF8,
+        "relocation_index": 76_320,
+        "relocation_type": 2,
+        "symbol_index": 72_371,
+        "symbol": "_ZN18CmnViewSettingNode4initEPPS_ii",
+        "owner": {"start": 0x7C732C, "end": 0x7C744C, "complete": True},
+        "parent_store_site": 0x7C73BE,
+        "parent_field_offset": 0x10,
+        "ordinal_increment_site": 0x7C73B8,
+        "ordinal_store_site": 0x7C73C4,
+        "one_based_ordinal_field_offset": 0x20,
+        "selected_state_store_site": 0x7C73C8,
+        "selected_state_field_offset": 0x24,
+        "selected_ordinal_store_site": 0x7C73CE,
+        "selected_ordinal_field_offset": 0x18,
+        "recursive_slot_load_site": 0x7C73FA,
+        "recursive_call_site": 0x7C7402,
+        "selected_state_test_slot_offset": 0x94,
+        "selected_state_test_call_site": 0x7C7410,
+        "set_selected_slot_offset": 0xB8,
+        "set_selected_call_site": 0x7C741E,
+        "selected_child_slot_offset": 0x28,
+        "selected_child_call_site": 0x7C7432,
+        "fallback_slot_offset": 0xFC,
+        "fallback_call_site": 0x7C743E,
+    },
+    "set_head_selected": {
+        "cell": 0xAB94FC,
+        "slot_offset": 0xFC,
+        "relocation_index": 77_509,
+        "relocation_type": 2,
+        "symbol_index": 57_258,
+        "symbol": "_ZN18CmnViewSettingNode19setHeadItemSelectedEv",
+        "owner": {"start": 0x7C744C, "end": 0x7C747A, "complete": True},
+        "requested_one_based_ordinal": 1,
+        "child_lookup_slot_offset": 0x38,
+        "child_lookup_call_site": 0x7C745C,
+        "set_selected_slot_offset": 0xB8,
+        "set_selected_call_site": 0x7C7468,
+        "missing_child_selected_ordinal": -1,
+    },
+    "one_based_ordinal_field_offset": 0x20,
+    "selected_ordinal_field_offset": 0x18,
+    "runtime_provider_binding_proven": False,
+    "live_selected_ordinal_triplet_1_5_2_proven": False,
+}
+
+PRODUCTACTION_DELIVERY = {
+    "viewsettingmenu_vtable_address_point": 0x8E2270,
+    "slot_37": {
+        "cell": 0x8E2304,
+        "relocation_index": 86_865,
+        "relocation_type": 2,
+        "symbol_index": 2_323,
+        "symbol": "_ZN15ViewBaseProduct13ProductActionEi",
+    },
+    "productaction": {
+        "symbol_index": 2_323,
+        "owner": {"start": 0x2F1350, "end": 0x2F135E, "complete": True},
+        "instruction_count": 6,
+        "receiver_vptr_load_site": 0x2F1350,
+        "slot_64_load_site": 0x2F1356,
+        "slot_64_offset": 0x100,
+        "slot_64_call_site": 0x2F135A,
+        "selector_register": "r1",
+        "selector_register_preserved": True,
+    },
+    "slot_64": {
+        "cell": 0x8E2370,
+        "relocation_index": 17_858,
+        "relocation_type": 23,
+        "target": 0x21355E,
+    },
+    "fully_decoded_owner_count": 28_869,
+    "incomplete_or_terminal_owner_count": 1_594,
+    "canonical_slot_37_call_count": 6,
+    "accepted_candidates": [],
+    "receiver_identity_proven": False,
+    "selector_10_proven": False,
+    "whole_program_absence_proven": False,
+}
+
 CLAIMS = {
     "product_root_selector_found": True,
     "default_product_root_constructor_found": True,
     "creative_style_static_selected_child_path_0_4_1_found": True,
     "candidate_get_selected_item_semantics_found": True,
+    "viewsettingmenu_product_root_init_call_found": True,
+    "candidate_recursive_one_based_ordinal_assignment_found": True,
+    "productaction_forwards_selector_to_slot_64_found": True,
     "runtime_constructor_provider_binding_proven": False,
     "runtime_selected_ordinal_triplet_1_5_2_proven": False,
     "runtime_selected_node_is_creative_style_root_proven": False,
+    "viewsettingmenu_productaction_10_delivery_proven": False,
     "process_id_42_activation_accepted": False,
     "viewcreative_style_factory_invocation_proven": False,
     "first_class_creative_look_proven": False,
@@ -261,23 +404,26 @@ CLAIMS = {
     "camera_test_eligible": False,
 }
 
-READINESS = "STATIC_CREATIVE_STYLE_SELECTED_CHILD_PATH_ONLY"
+READINESS = "STATIC_CREATIVE_STYLE_PATH_WITH_CANDIDATE_RUNTIME_INITIALIZATION"
 FIRST_UNRESOLVED_BOUNDARY = (
-    "viewsettingmenu-runtime-selected-ordinal-triplet-1-5-2-and-action-provenance"
+    "viewsettingmenu-live-selected-ordinals-1-5-2-and-productaction-10-delivery"
 )
 CONCLUSION = (
     "The authenticated viewUnified2 source proves a default product-root "
     "constructor graph whose relocation-backed child indices 0, 4, and 1 end "
-    "at the Creative Style root symbol. Candidate CautionConfig base semantics "
-    "would select those entries with one-based ordinals 1, 5, and 2, but the "
-    "runtime ordinals, provider bindings, selected-node identity, process-ID 42 "
-    "activation, ViewCreativeStyle factory invocation, first-class Creative Look, "
+    "at the Creative Style root symbol. ViewSettingMenu passes the selected product "
+    "root through the typed initialization slot, and candidate CautionConfig base "
+    "semantics recursively assign one-based child ordinals and restore or choose "
+    "generic selection. ProductAction preserves its selector into slot 64. The live "
+    "ordinal triplet 1, 5, and 2, receiver-proven ProductAction selector 10 delivery, "
+    "provider bindings, selected-node identity, process-ID 42 activation, "
+    "ViewCreativeStyle factory invocation, first-class Creative Look, "
     "processing/output binding, installation, recovery, and camera eligibility "
     "remain unproven."
 )
 
 EXPECTED_EXPORT = {
-    "schema_version": 1,
+    "schema_version": 2,
     "analysis_mode": "offline-static-creative-style-selected-node-identity-boundary",
     "source": SOURCE,
     "supporting_source": SUPPORTING_SOURCE,
@@ -287,6 +433,9 @@ EXPECTED_EXPORT = {
     "static_path": STATIC_PATH,
     "selected_child_mechanism": SELECTED_CHILD_MECHANISM,
     "runtime_selection": RUNTIME_SELECTION,
+    "root_initialization": ROOT_INITIALIZATION,
+    "candidate_lifecycle": CANDIDATE_LIFECYCLE,
+    "productaction_delivery": PRODUCTACTION_DELIVERY,
     "claims": CLAIMS,
     "readiness": READINESS,
     "first_unresolved_boundary": FIRST_UNRESOLVED_BOUNDARY,
@@ -311,7 +460,7 @@ def normalize_creative_style_selected_node_identity_boundary_export(document):
 
 def _report_from_export(export):
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "analysis_scope": "offline-static-creative-style-selected-node-identity-boundary",
         "camera_policy": "physically-disconnected",
         "camera_executed": False,
@@ -329,6 +478,9 @@ def _report_from_export(export):
             export["selected_child_mechanism"]
         ),
         "runtime_selection": copy.deepcopy(export["runtime_selection"]),
+        "root_initialization": copy.deepcopy(export["root_initialization"]),
+        "candidate_lifecycle": copy.deepcopy(export["candidate_lifecycle"]),
+        "productaction_delivery": copy.deepcopy(export["productaction_delivery"]),
         "claims": copy.deepcopy(export["claims"]),
         "readiness": export["readiness"],
         "first_unresolved_boundary": export["first_unresolved_boundary"],

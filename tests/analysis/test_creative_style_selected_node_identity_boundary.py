@@ -22,11 +22,43 @@ class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
                 EXPECTED_EXPORT
             )
         )
-        self.assertEqual(report["schema_version"], 1)
+        self.assertEqual(report["schema_version"], 2)
         self.assertEqual(report["static_path"]["zero_based_indices"], [0, 4, 1])
         self.assertEqual(
             report["runtime_selection"]["required_one_based_ordinals"],
             [1, 5, 2],
+        )
+        self.assertEqual(
+            (
+                report["root_initialization"]["root_vptr_load_site"],
+                report["root_initialization"]["init_slot_offset"],
+                report["root_initialization"]["init_call_site"],
+            ),
+            (0x210992, 0x08, 0x2109A4),
+        )
+        self.assertEqual(
+            [
+                (item["got"], item["relocation_index"], item["symbol"])
+                for item in report["root_initialization"]["default_root_bindings"]
+            ],
+            [
+                (0x948AA0, 130801, "cmnViewSettingNodesRootDefault"),
+                (0x94B8E4, 130996, "cmnViewSettingNodesNumOfRootDefault"),
+            ],
+        )
+        self.assertEqual(
+            report["candidate_lifecycle"]["one_based_ordinal_field_offset"],
+            0x20,
+        )
+        self.assertEqual(
+            report["productaction_delivery"]["canonical_slot_37_call_count"],
+            6,
+        )
+        self.assertEqual(
+            report["productaction_delivery"]["accepted_candidates"], []
+        )
+        self.assertFalse(
+            report["productaction_delivery"]["whole_program_absence_proven"]
         )
         self.assertTrue(
             report["claims"][
@@ -43,9 +75,27 @@ class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
         )
         self.assertFalse(report["claims"]["process_id_42_activation_accepted"])
         self.assertFalse(report["claims"]["first_class_creative_look_proven"])
+        self.assertTrue(
+            report["claims"]["viewsettingmenu_product_root_init_call_found"]
+        )
+        self.assertTrue(
+            report["claims"][
+                "candidate_recursive_one_based_ordinal_assignment_found"
+            ]
+        )
+        self.assertTrue(
+            report["claims"][
+                "productaction_forwards_selector_to_slot_64_found"
+            ]
+        )
+        self.assertFalse(
+            report["claims"][
+                "viewsettingmenu_productaction_10_delivery_proven"
+            ]
+        )
         self.assertEqual(
             report["first_unresolved_boundary"],
-            "viewsettingmenu-runtime-selected-ordinal-triplet-1-5-2-and-action-provenance",
+            "viewsettingmenu-live-selected-ordinals-1-5-2-and-productaction-10-delivery",
         )
 
     def test_export_rejects_claim_path_ordinal_dependency_and_boundary_mutations(self):
