@@ -356,6 +356,155 @@ class CreativeStyleSelectedNodeIdentityBoundaryExporterTests(unittest.TestCase):
             with self.subTest(site=f"{site:#x}"), self.assertRaises(RuntimeError):
                 _validate_runtime_selection(mutated, deps)
 
+    def test_root_initialization_and_candidate_lifecycle_are_source_derived(self):
+        """Break caught: schema-2 positives may not be unvalidated constants."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        root_validator = getattr(exporter, "_validate_root_initialization", None)
+        lifecycle_validator = getattr(exporter, "_validate_candidate_lifecycle", None)
+        self.assertTrue(callable(root_validator))
+        self.assertTrue(callable(lifecycle_validator))
+        view, caution, deps = self._real_contexts()
+        self.assertEqual(
+            root_validator(view, deps), EXPECTED_EXPORT["root_initialization"]
+        )
+        self.assertEqual(
+            lifecycle_validator(caution, deps),
+            EXPECTED_EXPORT["candidate_lifecycle"],
+        )
+
+    def test_root_initialization_and_lifecycle_operand_mutations_are_rejected(self):
+        """Break caught: root/lifecycle claims must fail on source drift."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        root_validator = getattr(exporter, "_validate_root_initialization", None)
+        lifecycle_validator = getattr(exporter, "_validate_candidate_lifecycle", None)
+        self.assertTrue(callable(root_validator))
+        self.assertTrue(callable(lifecycle_validator))
+        view, caution, deps = self._real_contexts()
+        for site in (
+            0x210992,
+            0x210994,
+            0x210996,
+            0x21099E,
+            0x2109A2,
+            0x2109A4,
+            0x2084FE,
+            0x208504,
+            0x208508,
+            0x20850A,
+            0x208518,
+            0x20851E,
+            0x208520,
+            0x208528,
+        ):
+            mutated = self._mutated_blob_context(view, site)
+            with self.subTest(source="view", site=f"{site:#x}"), self.assertRaises(
+                RuntimeError
+            ):
+                root_validator(mutated, deps)
+
+        for got in (0x948AA0, 0x94B8E4):
+            index, relocation = view["by_site"][got]
+            for label, changed_index, changed_relocation in (
+                ("index", index + 1, relocation),
+                (
+                    "type",
+                    index,
+                    {
+                        "r_info_type": relocation["r_info_type"] ^ 1,
+                        "r_info_sym": relocation["r_info_sym"],
+                    },
+                ),
+                (
+                    "symbol",
+                    index,
+                    {
+                        "r_info_type": relocation["r_info_type"],
+                        "r_info_sym": relocation["r_info_sym"] + 1,
+                    },
+                ),
+            ):
+                mutated = dict(view)
+                mutated["by_site"] = dict(view["by_site"])
+                mutated["by_site"][got] = (changed_index, changed_relocation)
+                with self.subTest(got=f"{got:#x}", field=label), self.assertRaises(
+                    RuntimeError
+                ):
+                    root_validator(mutated, deps)
+
+        for site in (
+            0xAB9408,
+            0xAB94F8,
+            0xAB94FC,
+            0x7C6AF2,
+            0x7C6AFC,
+            0x7C6B08,
+            0x7C6B0E,
+            0x7C6B16,
+            0x7C6B1A,
+            0x7C73B8,
+            0x7C73BE,
+            0x7C73C4,
+            0x7C73C8,
+            0x7C73CE,
+            0x7C73FA,
+            0x7C7402,
+            0x7C740C,
+            0x7C7410,
+            0x7C741A,
+            0x7C741E,
+            0x7C7428,
+            0x7C742A,
+            0x7C7430,
+            0x7C7432,
+            0x7C7436,
+            0x7C7438,
+            0x7C743A,
+            0x7C743E,
+            0x7C7452,
+            0x7C745A,
+            0x7C745C,
+            0x7C7464,
+            0x7C7468,
+            0x7C7470,
+        ):
+            mutated = self._mutated_blob_context(caution, site)
+            with self.subTest(source="caution", site=f"{site:#x}"), self.assertRaises(
+                RuntimeError
+            ):
+                lifecycle_validator(mutated, deps)
+
+        for role in ("init_setting_node", "recursive_init", "set_head_selected"):
+            cell = EXPECTED_EXPORT["candidate_lifecycle"][role]["cell"]
+            index, relocation = caution["by_site"][cell]
+            for label, changed_index, changed_relocation in (
+                ("index", index + 1, relocation),
+                (
+                    "type",
+                    index,
+                    {
+                        "r_info_type": relocation["r_info_type"] ^ 1,
+                        "r_info_sym": relocation["r_info_sym"],
+                    },
+                ),
+                (
+                    "symbol",
+                    index,
+                    {
+                        "r_info_type": relocation["r_info_type"],
+                        "r_info_sym": relocation["r_info_sym"] + 1,
+                    },
+                ),
+            ):
+                mutated = dict(caution)
+                mutated["by_site"] = dict(caution["by_site"])
+                mutated["by_site"][cell] = (changed_index, changed_relocation)
+                with self.subTest(role=role, field=label), self.assertRaises(
+                    RuntimeError
+                ):
+                    lifecycle_validator(mutated, deps)
+
     def test_checked_report_matches_fresh_deterministic_export(self):
         """Break caught: the checked report may not drift from authenticated sources."""
         from tools.static.export_a6400_creative_style_selected_node_identity_boundary import (

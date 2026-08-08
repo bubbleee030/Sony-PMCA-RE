@@ -18,10 +18,12 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pmca.analysis.creative_style_selected_node_identity_boundary import (
+    CANDIDATE_LIFECYCLE,
     CONSTRUCTOR_GRAPH,
     DEPENDENCIES,
     EXPECTED_EXPORT,
     PRODUCT_ROOT_SELECTION,
+    ROOT_INITIALIZATION,
     RUNTIME_SELECTION,
     SELECTED_CHILD_MECHANISM,
     SOURCE,
@@ -91,6 +93,7 @@ def _dependencies():
             ARM_INS_CMP,
             ARM_INS_LDR,
             ARM_INS_LDRB,
+            ARM_INS_LSL,
             ARM_INS_MOV,
             ARM_INS_STR,
             ARM_INS_SUB,
@@ -109,6 +112,7 @@ def _dependencies():
             ARM_REG_R6,
             ARM_REG_R7,
             ARM_REG_R8,
+            ARM_REG_R9,
         )
         from tools.static.export_a6400_creative_style_view_model_binding import (
             _dependencies as base_dependencies,
@@ -130,6 +134,7 @@ def _dependencies():
             "cmp": ARM_INS_CMP,
             "ldr": ARM_INS_LDR,
             "ldrb": ARM_INS_LDRB,
+            "lsl": ARM_INS_LSL,
             "mov": ARM_INS_MOV,
             "str": ARM_INS_STR,
             "sub": ARM_INS_SUB,
@@ -148,6 +153,7 @@ def _dependencies():
             "r6": ARM_REG_R6,
             "r7": ARM_REG_R7,
             "r8": ARM_REG_R8,
+            "r9": ARM_REG_R9,
         }
     )
     return result
@@ -692,7 +698,10 @@ def _validate_symbol_relocation(context, expected, label):
     symbol_range = expected.get("owner") or expected.get("symbol_range")
     if (
         actual_index != expected["relocation_index"]
-        or relocation["r_info_type"] != 2
+        or relocation["r_info_type"] != expected.get("relocation_type", 2)
+        or relocation["r_info_sym"] != expected.get(
+            "symbol_index", relocation["r_info_sym"]
+        )
         or symbol.name != expected["symbol"]
         or (symbol["st_value"] & ~1) != symbol_range["start"]
         or symbol["st_size"] != symbol_range["end"] - symbol_range["start"]
@@ -766,6 +775,203 @@ def _validate_runtime_selection(context, deps):
     return copy.deepcopy(expected)
 
 
+def _require_text(context, deps, site, mnemonic, operands, label):
+    item = _instruction(context["blob"], context["mappings"], deps, site)
+    if item.mnemonic != mnemonic or item.op_str != operands:
+        raise RuntimeError(label + " instruction/operands differ")
+    return item
+
+
+def _pic_address(context, deps, load_site, add_site, register, label):
+    load = _instruction(context["blob"], context["mappings"], deps, load_site)
+    add = _instruction(context["blob"], context["mappings"], deps, add_site)
+    if load.id != deps["ldr"] or add.id != deps["add"]:
+        raise RuntimeError(label + " PIC instruction differs")
+    _require_register(load, 0, register, deps, label)
+    _require_memory(load, 1, deps["pc"], load.operands[1].mem.disp, deps, label)
+    _require_register(add, 0, register, deps, label)
+    _require_register(add, 1, deps["pc"], deps, label)
+    literal = _literal_address(load, deps)
+    pc = add.address + 4
+    return (_word(context["blob"], context["mappings"], literal) + pc) & 0xFFFFFFFF
+
+
+def _validate_dynamic_binding(context, expected, label):
+    try:
+        actual_index, relocation = context["by_site"][expected["got"]]
+        symbol = context["elf"].get_section_by_name(".dynsym").get_symbol(
+            relocation["r_info_sym"]
+        )
+    except (AttributeError, KeyError, TypeError) as exc:
+        raise RuntimeError(label + " binding is missing") from exc
+    if (
+        actual_index != expected["relocation_index"]
+        or relocation["r_info_type"] != expected["relocation_type"]
+        or relocation["r_info_sym"] != expected["symbol_index"]
+        or symbol.name != expected["symbol"]
+        or symbol["st_shndx"] != "SHN_UNDEF"
+        or _word(context["blob"], context["mappings"], expected["got"]) != 0
+    ):
+        raise RuntimeError(label + " binding differs")
+
+
+def _validate_root_initialization(context, deps):
+    expected = ROOT_INITIALIZATION
+    owner = expected["slot_54_owner"]
+    _require_owner(context, owner["start"], owner["end"], "root initialization")
+    helper = expected["list_helper_owner"]
+    _require_owner(context, helper["start"], helper["end"], "root-list helper")
+
+    for binding in expected["default_root_bindings"]:
+        _validate_dynamic_binding(context, binding, binding["role"])
+
+    root_sites = (
+        (0x21098A, "mov", "sb, r0"),
+        (0x21098C, "str.w", "r0, [r5, #0x1a0]"),
+        (0x210992, "ldr", "r3, [r0]"),
+        (0x210994, "ldr", "r4, [r3, #8]"),
+        (0x210996, "bl", "#0x2084ec"),
+        (0x21099A, "ldr", "r3, [pc, #0x94]"),
+        (0x21099C, "ldr", "r3, [r6, r3]"),
+        (0x21099E, "ldr", "r2, [r3]"),
+        (0x2109A0, "mov", "r1, r0"),
+        (0x2109A2, "mov", "r0, sb"),
+        (0x2109A4, "blx", "r4"),
+    )
+    for site, mnemonic, operands in root_sites:
+        _require_text(context, deps, site, mnemonic, operands, "root initialization")
+    helper_call = _instruction(context["blob"], context["mappings"], deps, 0x210996)
+    if _direct_target(helper_call, deps) != expected["list_helper_target"]:
+        raise RuntimeError("root-list helper call differs")
+
+    caller_pic = _pic_address(context, deps, 0x210928, 0x210942, deps["r6"], "root count")
+    count_offset_load = _instruction(
+        context["blob"], context["mappings"], deps, 0x21099A
+    )
+    count_got = (
+        caller_pic
+        + _word(
+            context["blob"],
+            context["mappings"],
+            _literal_address(count_offset_load, deps),
+        )
+    ) & 0xFFFFFFFF
+    if count_got != expected["default_root_bindings"][1]["got"]:
+        raise RuntimeError("root count GOT flow differs")
+
+    helper_sites = (
+        (0x2084FE, "ldr", "r3, [pc, #0x3c]"),
+        (0x208500, "ldr.w", "r8, [r4, r3]"),
+        (0x208504, "ldr.w", "r0, [r8]"),
+        (0x208508, "lsls", "r0, r0, #2"),
+        (0x20850A, "blx", "#0x154480"),
+        (0x20850E, "ldr.w", "r2, [r8]"),
+        (0x208518, "ldr", "r1, [pc, #0x24]"),
+        (0x20851C, "ldr", "r1, [r4, r1]"),
+        (0x20851E, "ldr", "r1, [r6, r1]"),
+        (0x208520, "str", "r1, [r0, r6]"),
+        (0x208528, "ldr", "r0, [pc, #0x18]"),
+        (0x20852A, "add", "r0, pc"),
+        (0x20852C, "ldr", "r0, [r0]"),
+    )
+    for site, mnemonic, operands in helper_sites:
+        _require_text(context, deps, site, mnemonic, operands, "root-list helper")
+    if (
+        _call_symbol(
+            context["blob"],
+            context["mappings"],
+            deps,
+            context["plt_symbols"],
+            0x20850A,
+        )
+        != "_Znaj"
+    ):
+        raise RuntimeError("root-list allocation binding differs")
+
+    helper_pic = _pic_address(context, deps, 0x2084F4, 0x2084F8, deps["r4"], "root list")
+    count_load = _instruction(context["blob"], context["mappings"], deps, 0x2084FE)
+    list_load = _instruction(context["blob"], context["mappings"], deps, 0x208518)
+    if (
+        helper_pic
+        + _word(
+            context["blob"],
+            context["mappings"],
+            _literal_address(count_load, deps),
+        )
+        != expected["default_root_bindings"][1]["got"]
+        or helper_pic
+        + _word(
+            context["blob"],
+            context["mappings"],
+            _literal_address(list_load, deps),
+        )
+        != expected["default_root_bindings"][0]["got"]
+    ):
+        raise RuntimeError("root-list helper GOT flow differs")
+    if _pic_address(context, deps, 0x2084F2, 0x2084F6, deps["r5"], "root cache") != _pic_address(
+        context, deps, 0x208528, 0x20852A, deps["r0"], "root cache return"
+    ):
+        raise RuntimeError("root-list cache identity differs")
+    return copy.deepcopy(expected)
+
+
+def _validate_candidate_lifecycle(context, deps):
+    expected = CANDIDATE_LIFECYCLE
+    for label in ("init_setting_node", "recursive_init", "set_head_selected"):
+        record = expected[label]
+        _validate_symbol_relocation(context, record, label.replace("_", "-"))
+        owner = record["owner"]
+        _require_owner(context, owner["start"], owner["end"], label.replace("_", "-"))
+
+    init_sites = (
+        (0x7C6AF2, "ldr.w", "r3, [r3, #0xe8]"),
+        (0x7C6AFC, "blx", "r3"),
+        (0x7C6B08, "ldr.w", "r5, [r3, #0xf8]"),
+        (0x7C6B0E, "blx", "r5"),
+        (0x7C6B16, "ldr.w", "r3, [r3, #0xec]"),
+        (0x7C6B1A, "blx", "r3"),
+    )
+    recursive_sites = (
+        (0x7C73B8, "add.w", "r8, r8, #1"),
+        (0x7C73BE, "str", "r4, [r2, #0x10]"),
+        (0x7C73C4, "str.w", "r8, [r2, #0x20]"),
+        (0x7C73C8, "str", "r3, [r0, #0x24]"),
+        (0x7C73CA, "subs", "r3, #2"),
+        (0x7C73CE, "str", "r3, [r0, #0x18]"),
+        (0x7C73FA, "ldr.w", "r6, [r3, #0xf8]"),
+        (0x7C7402, "blx", "r6"),
+        (0x7C740C, "ldr.w", "r3, [r3, #0x94]"),
+        (0x7C7410, "blx", "r3"),
+        (0x7C741A, "ldr.w", "r3, [r3, #0xb8]"),
+        (0x7C741E, "blx", "r3"),
+        (0x7C7428, "ldr", "r3, [r4]"),
+        (0x7C742A, "mov", "r0, r4"),
+        (0x7C7430, "ldr", "r3, [r3, #0x28]"),
+        (0x7C7432, "blx", "r3"),
+        (0x7C7436, "ldr", "r3, [r4]"),
+        (0x7C7438, "mov", "r0, r4"),
+        (0x7C743A, "ldr.w", "r3, [r3, #0xfc]"),
+        (0x7C743E, "blx", "r3"),
+    )
+    fallback_sites = (
+        (0x7C7452, "movs", "r1, #1"),
+        (0x7C745A, "ldr", "r3, [r3, #0x38]"),
+        (0x7C745C, "blx", "r3"),
+        (0x7C7464, "ldr.w", "r3, [r3, #0xb8]"),
+        (0x7C7468, "blx", "r3"),
+        (0x7C746C, "mov.w", "r3, #-1"),
+        (0x7C7470, "str", "r3, [r4, #0x18]"),
+    )
+    for label, records in (
+        ("init-setting-node", init_sites),
+        ("recursive-init", recursive_sites),
+        ("set-head-selected", fallback_sites),
+    ):
+        for site, mnemonic, operands in records:
+            _require_text(context, deps, site, mnemonic, operands, label)
+    return copy.deepcopy(expected)
+
+
 def _metadata_from_blobs(view_blob, caution_blob, deps):
     if len(view_blob) != SOURCE["size"] or _sha256_bytes(view_blob) != SOURCE["sha256"]:
         raise RuntimeError("viewUnified2 source identity differs")
@@ -784,6 +990,8 @@ def _metadata_from_blobs(view_blob, caution_blob, deps):
         view, deps
     )
     document["runtime_selection"] = _validate_runtime_selection(caution, deps)
+    document["root_initialization"] = _validate_root_initialization(view, deps)
+    document["candidate_lifecycle"] = _validate_candidate_lifecycle(caution, deps)
     return normalize_creative_style_selected_node_identity_boundary_export(document)
 
 
