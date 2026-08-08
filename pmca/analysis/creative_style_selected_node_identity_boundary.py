@@ -348,6 +348,70 @@ CANDIDATE_LIFECYCLE = {
     "live_selected_ordinal_triplet_1_5_2_proven": False,
 }
 
+CANONICAL_SLOT_37_CALLS = [
+    {
+        "owner": {"start": 0x310CD8, "end": 0x310E30, "complete": True},
+        "vptr_load_site": 0x310CFE,
+        "slot_load_site": 0x310D02,
+        "call_site": 0x310D06,
+        "receiver_register": "r4",
+        "receiver_identity_proven": False,
+        "selector_10_proven": False,
+        "accepted": False,
+    },
+    {
+        "owner": {"start": 0x310CD8, "end": 0x310E30, "complete": True},
+        "vptr_load_site": 0x310D6C,
+        "slot_load_site": 0x310D70,
+        "call_site": 0x310D74,
+        "receiver_register": "r4",
+        "receiver_identity_proven": False,
+        "selector_10_proven": False,
+        "accepted": False,
+    },
+    {
+        "owner": {"start": 0x310CD8, "end": 0x310E30, "complete": True},
+        "vptr_load_site": 0x310D9A,
+        "slot_load_site": 0x310D9E,
+        "call_site": 0x310DA2,
+        "receiver_register": "r4",
+        "receiver_identity_proven": False,
+        "selector_10_proven": False,
+        "accepted": False,
+    },
+    {
+        "owner": {"start": 0x310CD8, "end": 0x310E30, "complete": True},
+        "vptr_load_site": 0x310DC8,
+        "slot_load_site": 0x310DCC,
+        "call_site": 0x310DD0,
+        "receiver_register": "r4",
+        "receiver_identity_proven": False,
+        "selector_10_proven": False,
+        "accepted": False,
+    },
+    {
+        "owner": {"start": 0x35F66C, "end": 0x35F67E, "complete": True},
+        "vptr_load_site": 0x35F674,
+        "slot_load_site": 0x35F676,
+        "call_site": 0x35F67A,
+        "receiver_register": "r0",
+        "receiver_identity_proven": False,
+        "selector_10_proven": False,
+        "accepted": False,
+    },
+    {
+        "owner": {"start": 0x3E11D4, "end": 0x3E134C, "complete": True},
+        "vptr_load_site": 0x3E1318,
+        "slot_load_site": 0x3E1322,
+        "call_site": 0x3E1328,
+        "receiver_register": "r5",
+        "receiver_identity_proven": False,
+        "selector_10_proven": False,
+        "accepted": False,
+    },
+]
+
+
 PRODUCTACTION_DELIVERY = {
     "viewsettingmenu_vtable_address_point": 0x8E2270,
     "slot_37": {
@@ -359,7 +423,12 @@ PRODUCTACTION_DELIVERY = {
     },
     "productaction": {
         "symbol_index": 2_323,
-        "owner": {"start": 0x2F1350, "end": 0x2F135E, "complete": True},
+        "symbol_range": {"start": 0x2F1350, "end": 0x2F135E},
+        "exidx_owner": {
+            "start": 0x2F12EC,
+            "end": 0x2F135E,
+            "complete": True,
+        },
         "instruction_count": 6,
         "receiver_vptr_load_site": 0x2F1350,
         "slot_64_load_site": 0x2F1356,
@@ -377,6 +446,7 @@ PRODUCTACTION_DELIVERY = {
     "fully_decoded_owner_count": 28_869,
     "incomplete_or_terminal_owner_count": 1_594,
     "canonical_slot_37_call_count": 6,
+    "canonical_slot_37_calls": CANONICAL_SLOT_37_CALLS,
     "accepted_candidates": [],
     "receiver_identity_proven": False,
     "selector_10_proven": False,

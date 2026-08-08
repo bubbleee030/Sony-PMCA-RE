@@ -22,6 +22,7 @@ from pmca.analysis.creative_style_selected_node_identity_boundary import (
     CONSTRUCTOR_GRAPH,
     DEPENDENCIES,
     EXPECTED_EXPORT,
+    PRODUCTACTION_DELIVERY,
     PRODUCT_ROOT_SELECTION,
     ROOT_INITIALIZATION,
     RUNTIME_SELECTION,
@@ -972,6 +973,209 @@ def _validate_candidate_lifecycle(context, deps):
     return copy.deepcopy(expected)
 
 
+def _written_registers(instruction):
+    try:
+        return set(instruction.regs_access()[1])
+    except (AttributeError, ValueError):
+        return set()
+
+
+def _validate_productaction_interface(context, deps):
+    expected = PRODUCTACTION_DELIVERY
+    address_point = expected["viewsettingmenu_vtable_address_point"]
+    slot_37 = expected["slot_37"]
+    productaction = expected["productaction"]
+    slot_64 = expected["slot_64"]
+    if (
+        slot_37["cell"] != address_point + 37 * 4
+        or slot_64["cell"] != address_point + 64 * 4
+    ):
+        raise RuntimeError("ViewSettingMenu ProductAction slot relation differs")
+
+    slot_37_record = dict(slot_37)
+    slot_37_record["symbol_range"] = productaction["symbol_range"]
+    _validate_symbol_relocation(context, slot_37_record, "ViewSettingMenu slot 37")
+    owner = productaction["exidx_owner"]
+    _require_owner(context, owner["start"], owner["end"], "ProductAction")
+    symbol_range = productaction["symbol_range"]
+    items = _decode(
+        context["blob"],
+        context["mappings"],
+        deps,
+        symbol_range["start"],
+        symbol_range["end"],
+    )
+    if (
+        len(items) != productaction["instruction_count"]
+        or items[0].address != symbol_range["start"]
+        or items[-1].address + items[-1].size != symbol_range["end"]
+    ):
+        raise RuntimeError("ProductAction instruction coverage differs")
+    exact = (
+        (0x2F1350, "ldr", "r3, [r0]"),
+        (0x2F1352, "push", "{r7, lr}"),
+        (0x2F1354, "add", "r7, sp, #0"),
+        (0x2F1356, "ldr.w", "r3, [r3, #0x100]"),
+        (0x2F135A, "blx", "r3"),
+        (0x2F135C, "pop", "{r7, pc}"),
+    )
+    for site, mnemonic, operands in exact:
+        _require_text(context, deps, site, mnemonic, operands, "ProductAction")
+    if any(deps["r1"] in _written_registers(item) for item in items):
+        raise RuntimeError("ProductAction selector register preservation differs")
+
+    try:
+        actual_index, relocation = context["by_site"][slot_64["cell"]]
+    except (KeyError, TypeError) as exc:
+        raise RuntimeError("ViewSettingMenu slot 64 relocation is missing") from exc
+    if (
+        actual_index != slot_64["relocation_index"]
+        or relocation["r_info_type"] != slot_64["relocation_type"]
+        or relocation["r_info_sym"] != 0
+        or _word(context["blob"], context["mappings"], slot_64["cell"])
+        != slot_64["target"] | 1
+    ):
+        raise RuntimeError("ViewSettingMenu slot 64 relocation differs")
+
+    return {
+        "viewsettingmenu_vtable_address_point": address_point,
+        "slot_37": copy.deepcopy(slot_37),
+        "productaction": copy.deepcopy(productaction),
+        "slot_64": copy.deepcopy(slot_64),
+    }
+
+
+def _known_immediate_before(items, call_index, register, deps):
+    for item in reversed(items[:call_index]):
+        if item.group(deps["call_group"]):
+            return None
+        if register not in _written_registers(item):
+            continue
+        if (
+            item.id == deps["mov"]
+            and len(item.operands) == 2
+            and item.operands[0].type == deps["reg"]
+            and item.operands[0].reg == register
+            and item.operands[1].type == deps["imm"]
+        ):
+            return item.operands[1].imm & 0xFFFFFFFF
+        return None
+    return None
+
+
+def _canonical_slot_37_calls(context, deps):
+    decoder = deps["Cs"](deps["arch"], deps["mode"])
+    decoder.detail = True
+    calls = []
+    complete_count = 0
+    incomplete_count = 0
+    for start, end in context["exidx"]:
+        items = list(
+            decoder.disasm(
+                _at(context["blob"], context["mappings"], start, end - start),
+                start,
+            )
+        )
+        complete = bool(
+            items
+            and items[0].address == start
+            and items[-1].address + items[-1].size == end
+        )
+        if not complete:
+            incomplete_count += 1
+            continue
+        complete_count += 1
+        for call_index, call in enumerate(items):
+            if (
+                call.id != deps["blx"]
+                or len(call.operands) != 1
+                or call.operands[0].type != deps["reg"]
+            ):
+                continue
+            call_register = call.operands[0].reg
+            slot_index = None
+            for candidate_index in range(call_index - 1, max(-1, call_index - 7), -1):
+                candidate = items[candidate_index]
+                if call_register not in _written_registers(candidate):
+                    continue
+                if (
+                    candidate.id == deps["ldr"]
+                    and len(candidate.operands) == 2
+                    and candidate.operands[0].type == deps["reg"]
+                    and candidate.operands[0].reg == call_register
+                    and candidate.operands[1].type == deps["mem"]
+                    and candidate.operands[1].mem.index == 0
+                    and candidate.operands[1].mem.disp == 0x94
+                ):
+                    slot_index = candidate_index
+                break
+            if slot_index is None:
+                continue
+            vptr_register = items[slot_index].operands[1].mem.base
+            vptr_index = None
+            for candidate_index in range(slot_index - 1, max(-1, slot_index - 9), -1):
+                candidate = items[candidate_index]
+                if vptr_register not in _written_registers(candidate):
+                    continue
+                if (
+                    candidate.id == deps["ldr"]
+                    and len(candidate.operands) == 2
+                    and candidate.operands[0].type == deps["reg"]
+                    and candidate.operands[0].reg == vptr_register
+                    and candidate.operands[1].type == deps["mem"]
+                    and candidate.operands[1].mem.index == 0
+                    and candidate.operands[1].mem.disp == 0
+                ):
+                    vptr_index = candidate_index
+                break
+            if vptr_index is None:
+                continue
+            receiver = items[vptr_index].operands[1].mem.base
+            selector_10 = (
+                _known_immediate_before(items, call_index, deps["r1"], deps) == 10
+            )
+            receiver_identity = False
+            calls.append(
+                {
+                    "owner": {"start": start, "end": end, "complete": True},
+                    "vptr_load_site": items[vptr_index].address,
+                    "slot_load_site": items[slot_index].address,
+                    "call_site": call.address,
+                    "receiver_register": decoder.reg_name(receiver),
+                    "receiver_identity_proven": receiver_identity,
+                    "selector_10_proven": selector_10,
+                    "accepted": receiver_identity and selector_10,
+                }
+            )
+    return calls, complete_count, incomplete_count
+
+
+def _validate_productaction_scan_result(document):
+    if document != PRODUCTACTION_DELIVERY:
+        raise RuntimeError("bounded ProductAction delivery inventory differs")
+    return copy.deepcopy(document)
+
+
+def _validate_productaction_delivery(context, deps):
+    document = _validate_productaction_interface(context, deps)
+    calls, complete_count, incomplete_count = _canonical_slot_37_calls(context, deps)
+    document.update(
+        {
+            "fully_decoded_owner_count": complete_count,
+            "incomplete_or_terminal_owner_count": incomplete_count,
+            "canonical_slot_37_call_count": len(calls),
+            "canonical_slot_37_calls": calls,
+            "accepted_candidates": [item for item in calls if item["accepted"]],
+            "receiver_identity_proven": any(
+                item["receiver_identity_proven"] for item in calls
+            ),
+            "selector_10_proven": any(item["selector_10_proven"] for item in calls),
+            "whole_program_absence_proven": False,
+        }
+    )
+    return _validate_productaction_scan_result(document)
+
+
 def _metadata_from_blobs(view_blob, caution_blob, deps):
     if len(view_blob) != SOURCE["size"] or _sha256_bytes(view_blob) != SOURCE["sha256"]:
         raise RuntimeError("viewUnified2 source identity differs")
@@ -992,6 +1196,9 @@ def _metadata_from_blobs(view_blob, caution_blob, deps):
     document["runtime_selection"] = _validate_runtime_selection(caution, deps)
     document["root_initialization"] = _validate_root_initialization(view, deps)
     document["candidate_lifecycle"] = _validate_candidate_lifecycle(caution, deps)
+    document["productaction_delivery"] = _validate_productaction_delivery(
+        view, deps
+    )
     return normalize_creative_style_selected_node_identity_boundary_export(document)
 
 

@@ -5,6 +5,7 @@ from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest import mock
 
 from pmca.analysis.creative_style_selected_node_identity_boundary import (
     EXPECTED_EXPORT,
@@ -504,6 +505,266 @@ class CreativeStyleSelectedNodeIdentityBoundaryExporterTests(unittest.TestCase):
                     RuntimeError
                 ):
                     lifecycle_validator(mutated, deps)
+
+    def test_productaction_interface_is_source_derived(self):
+        """Break caught: ProductAction forwarding may not be an asserted constant."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        validator = getattr(exporter, "_validate_productaction_interface", None)
+        self.assertTrue(callable(validator))
+        view, _caution, deps = self._real_contexts()
+        expected = EXPECTED_EXPORT["productaction_delivery"]
+        self.assertEqual(
+            expected["productaction"]["symbol_range"],
+            {"start": 0x2F1350, "end": 0x2F135E},
+        )
+        self.assertEqual(
+            expected["productaction"]["exidx_owner"],
+            {"start": 0x2F12EC, "end": 0x2F135E, "complete": True},
+        )
+        self.assertEqual(
+            validator(view, deps),
+            {
+                "viewsettingmenu_vtable_address_point": expected[
+                    "viewsettingmenu_vtable_address_point"
+                ],
+                "slot_37": expected["slot_37"],
+                "productaction": expected["productaction"],
+                "slot_64": expected["slot_64"],
+            },
+        )
+
+    def test_productaction_interface_source_mutations_are_rejected(self):
+        """Break caught: wrapper bytes, relocations, or symbol identity may not drift."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        validator = getattr(exporter, "_validate_productaction_interface", None)
+        self.assertTrue(callable(validator))
+        view, _caution, deps = self._real_contexts()
+        for site in (
+            0x8E2304,
+            0x2F1350,
+            0x2F1352,
+            0x2F1354,
+            0x2F1356,
+            0x2F135A,
+            0x2F135C,
+            0x8E2370,
+        ):
+            mutated = self._mutated_blob_context(view, site)
+            with self.subTest(site=f"{site:#x}"), self.assertRaises(RuntimeError):
+                validator(mutated, deps)
+
+        for role in ("slot_37", "slot_64"):
+            record = EXPECTED_EXPORT["productaction_delivery"][role]
+            cell = record["cell"]
+            index, relocation = view["by_site"][cell]
+            for label, changed_index, changed_relocation in (
+                ("index", index + 1, relocation),
+                (
+                    "type",
+                    index,
+                    {
+                        "r_info_type": relocation["r_info_type"] ^ 1,
+                        "r_info_sym": relocation["r_info_sym"],
+                    },
+                ),
+                (
+                    "symbol",
+                    index,
+                    {
+                        "r_info_type": relocation["r_info_type"],
+                        "r_info_sym": relocation["r_info_sym"] + 1,
+                    },
+                ),
+            ):
+                mutated = dict(view)
+                mutated["by_site"] = dict(view["by_site"])
+                mutated["by_site"][cell] = (changed_index, changed_relocation)
+                with self.subTest(role=role, field=label), self.assertRaises(
+                    RuntimeError
+                ):
+                    validator(mutated, deps)
+
+        real_elf = view["elf"]
+        symbol_index = EXPECTED_EXPORT["productaction_delivery"]["productaction"][
+            "symbol_index"
+        ]
+
+        class SymbolProxy:
+            def __init__(self, real, field, value):
+                self.real = real
+                self.field = field
+                self.value = value
+                self.name = real.name
+
+            def __getitem__(self, key):
+                return self.value if key == self.field else self.real[key]
+
+        class DynsymProxy:
+            def __init__(self, field, value):
+                self.field = field
+                self.value = value
+
+            def get_symbol(self, index):
+                real = real_elf.get_section_by_name(".dynsym").get_symbol(index)
+                if index == symbol_index:
+                    return SymbolProxy(real, self.field, self.value)
+                return real
+
+        class ElfProxy:
+            def __init__(self, field, value):
+                self.field = field
+                self.value = value
+
+            def get_section_by_name(self, name):
+                if name == ".dynsym":
+                    return DynsymProxy(self.field, self.value)
+                return real_elf.get_section_by_name(name)
+
+        for field, value in (("st_value", 0x2F1361), ("st_size", 12)):
+            mutated = dict(view)
+            mutated["elf"] = ElfProxy(field, value)
+            with self.subTest(symbol_field=field), self.assertRaises(RuntimeError):
+                validator(mutated, deps)
+
+    def test_productaction_delivery_scan_is_source_derived(self):
+        """Break caught: bounded ProductAction caller coverage may not be asserted."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        validator = getattr(exporter, "_validate_productaction_delivery", None)
+        self.assertTrue(callable(validator))
+        view, _caution, deps = self._real_contexts()
+        actual = validator(view, deps)
+        self.assertEqual(actual, EXPECTED_EXPORT["productaction_delivery"])
+        self.assertEqual(actual["fully_decoded_owner_count"], 28_869)
+        self.assertEqual(actual["incomplete_or_terminal_owner_count"], 1_594)
+        self.assertEqual(
+            actual["canonical_slot_37_calls"],
+            [
+                {
+                    "owner": {"start": 0x310CD8, "end": 0x310E30, "complete": True},
+                    "vptr_load_site": 0x310CFE,
+                    "slot_load_site": 0x310D02,
+                    "call_site": 0x310D06,
+                    "receiver_register": "r4",
+                    "receiver_identity_proven": False,
+                    "selector_10_proven": False,
+                    "accepted": False,
+                },
+                {
+                    "owner": {"start": 0x310CD8, "end": 0x310E30, "complete": True},
+                    "vptr_load_site": 0x310D6C,
+                    "slot_load_site": 0x310D70,
+                    "call_site": 0x310D74,
+                    "receiver_register": "r4",
+                    "receiver_identity_proven": False,
+                    "selector_10_proven": False,
+                    "accepted": False,
+                },
+                {
+                    "owner": {"start": 0x310CD8, "end": 0x310E30, "complete": True},
+                    "vptr_load_site": 0x310D9A,
+                    "slot_load_site": 0x310D9E,
+                    "call_site": 0x310DA2,
+                    "receiver_register": "r4",
+                    "receiver_identity_proven": False,
+                    "selector_10_proven": False,
+                    "accepted": False,
+                },
+                {
+                    "owner": {"start": 0x310CD8, "end": 0x310E30, "complete": True},
+                    "vptr_load_site": 0x310DC8,
+                    "slot_load_site": 0x310DCC,
+                    "call_site": 0x310DD0,
+                    "receiver_register": "r4",
+                    "receiver_identity_proven": False,
+                    "selector_10_proven": False,
+                    "accepted": False,
+                },
+                {
+                    "owner": {"start": 0x35F66C, "end": 0x35F67E, "complete": True},
+                    "vptr_load_site": 0x35F674,
+                    "slot_load_site": 0x35F676,
+                    "call_site": 0x35F67A,
+                    "receiver_register": "r0",
+                    "receiver_identity_proven": False,
+                    "selector_10_proven": False,
+                    "accepted": False,
+                },
+                {
+                    "owner": {"start": 0x3E11D4, "end": 0x3E134C, "complete": True},
+                    "vptr_load_site": 0x3E1318,
+                    "slot_load_site": 0x3E1322,
+                    "call_site": 0x3E1328,
+                    "receiver_register": "r5",
+                    "receiver_identity_proven": False,
+                    "selector_10_proven": False,
+                    "accepted": False,
+                },
+            ],
+        )
+        self.assertEqual(actual["accepted_candidates"], [])
+        self.assertFalse(actual["whole_program_absence_proven"])
+
+    def test_productaction_delivery_scan_drift_and_promotion_are_rejected(self):
+        """Break caught: scan drift or a fabricated selector-10 receiver must fail."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        validator = getattr(exporter, "_validate_productaction_delivery", None)
+        result_validator = getattr(exporter, "_validate_productaction_scan_result", None)
+        self.assertTrue(callable(validator))
+        self.assertTrue(callable(result_validator))
+        view, _caution, deps = self._real_contexts()
+
+        mutated_source = self._mutated_blob_context(view, 0x310D06)
+        with self.assertRaises(RuntimeError):
+            validator(mutated_source, deps)
+
+        expected = copy.deepcopy(EXPECTED_EXPORT["productaction_delivery"])
+        mutations = []
+        changed = copy.deepcopy(expected)
+        changed["fully_decoded_owner_count"] -= 1
+        mutations.append(changed)
+        changed = copy.deepcopy(expected)
+        changed["incomplete_or_terminal_owner_count"] += 1
+        mutations.append(changed)
+        changed = copy.deepcopy(expected)
+        changed["canonical_slot_37_calls"].pop()
+        changed["canonical_slot_37_call_count"] -= 1
+        mutations.append(changed)
+        changed = copy.deepcopy(expected)
+        fabricated = copy.deepcopy(changed["canonical_slot_37_calls"][0])
+        fabricated["receiver_identity_proven"] = True
+        fabricated["selector_10_proven"] = True
+        fabricated["accepted"] = True
+        changed["canonical_slot_37_calls"].append(fabricated)
+        changed["canonical_slot_37_call_count"] += 1
+        changed["accepted_candidates"] = [fabricated]
+        changed["receiver_identity_proven"] = True
+        changed["selector_10_proven"] = True
+        mutations.append(changed)
+        for index, mutation in enumerate(mutations):
+            with self.subTest(mutation=index), self.assertRaises(RuntimeError):
+                result_validator(mutation)
+
+    def test_authenticated_export_fails_if_productaction_validation_fails(self):
+        """Break caught: the full exporter may not bypass ProductAction validation."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        if not exporter.sources_available():
+            self.skipTest("authenticated α6400 sources are unavailable")
+        with mock.patch.object(
+            exporter,
+            "_validate_productaction_delivery",
+            side_effect=RuntimeError("forced ProductAction validation failure"),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "forced ProductAction"):
+                exporter._metadata_from_blobs(
+                    exporter.SOURCE_PATH.read_bytes(),
+                    exporter.CAUTION_SOURCE_PATH.read_bytes(),
+                    exporter._dependencies(),
+                )
 
     def test_checked_report_matches_fresh_deterministic_export(self):
         """Break caught: the checked report may not drift from authenticated sources."""
