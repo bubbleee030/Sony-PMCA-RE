@@ -547,14 +547,37 @@ ordinal from `this+0x18`, clamps it to the child count, subtracts one, and
 returns the indexed child. Under that candidate provider, the static path
 would therefore require runtime ordinals `1 -> 5 -> 2`.
 
-No static event, selected-state writer, or caller provenance proves those
-three ordinal values are live when the selector-10 menu action executes.
-Runtime provider binding and selected-node pointer identity also remain
-unproven. Consequently process ID 42 activation, `ViewCreativeStyle` factory
-invocation, first-class Creative Look, processing/output behavior,
-installability, recovery, and camera-test eligibility remain false. The next
-safe experiment is selected-ordinal writer and action-caller provenance, not a
-firmware modification. The fail-closed record is
+The same typed slot-54 owner then preserves the product-root pointer, stores it
+at the menu receiver's `+0x1a0`, obtains the root's virtual target at
+`vptr+0x08`, and invokes it with a copied default-root pointer list and its
+exact count. The list helper is tied to the `cmnViewSettingNodesRootDefault`
+and `cmnViewSettingNodesNumOfRootDefault` GOT relocations. Candidate
+`CautionConfig.so` lifecycle implementations assign each child a one-based
+ordinal at `+0x20`, carry generic selection state through `+0x18` and `+0x24`,
+recurse through `vptr+0xf8`, restore selected children through `vptr+0xb8`, and
+fall back to selectable child one through `vptr+0x38`. These are candidate
+provider semantics, not proof that the live menu selected ordinals are
+`1 -> 5 -> 2`.
+
+The `ViewSettingMenu` vtable separately installs
+`ViewBaseProduct::ProductAction(int)` in slot 37 and the menu action dispatcher
+in slot 64. Dynsym 2323 has exact function range `[0x2f1350,0x2f135e)` inside
+EXIDX owner `[0x2f12ec,0x2f135e)`; all six function instructions preserve the
+incoming `r1` selector while forwarding the receiver through `vptr+0x100`.
+A function-aware scan covers 28,869 fully decoded EXIDX owners, leaves 1,594
+incomplete or terminal owners outside the negative universe, and inventories
+six canonical slot-37 calls. None proves both a `ViewSettingMenu` receiver and
+selector value 10, so the accepted set remains empty and whole-program absence
+is explicitly false.
+
+No static event, selected-state writer, or caller provenance therefore proves
+that ordinals `1,5,2` are live when `ProductAction(10)` executes. Runtime
+provider binding and selected-node pointer identity also remain unproven.
+Consequently process ID 42 activation, `ViewCreativeStyle` factory invocation,
+first-class Creative Look, processing/output behavior, installability,
+recovery, and camera-test eligibility remain false. The next safe experiment
+is live selected-ordinal and receiver-proven ProductAction delivery provenance,
+not a firmware modification. The fail-closed record is
 `analysis/a6400-creative-style-selected-node-identity-boundary.json`.
 
 ### Target-native Creative Style interaction surface

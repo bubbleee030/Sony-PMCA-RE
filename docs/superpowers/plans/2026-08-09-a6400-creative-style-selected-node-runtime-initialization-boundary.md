@@ -216,15 +216,17 @@ PRODUCTACTION_INTERFACE = {
     "slot_37_cell": 0x8E2304,
     "slot_37_relocation_index": 86865,
     "productaction_symbol_index": 2323,
-    "productaction_owner": {"start": 0x2F1350, "end": 0x2F135E},
+    "productaction_symbol_range": {"start": 0x2F1350, "end": 0x2F135E},
+    "productaction_exidx_owner": {"start": 0x2F12EC, "end": 0x2F135E},
     "slot_64_cell": 0x8E2370,
     "slot_64_relocation_index": 17858,
     "slot_64_target": 0x21355E,
 }
 ```
 
-Decode all six ProductAction-owner instructions and prove incoming `r1` is
-untouched before the indirect slot-64 transfer.
+Decode all six ProductAction symbol-range instructions, independently validate
+the enclosing EXIDX owner, and prove incoming `r1` is untouched before the
+indirect slot-64 transfer.
 
 - [ ] **Step 3: Add RED bounded-scan mutations**
 

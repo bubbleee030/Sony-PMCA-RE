@@ -113,10 +113,12 @@ Validate the `ViewSettingMenu` address point `0x8E2270` with:
   `ViewBaseProduct::ProductAction(int)`;
 - slot 64 cell `0x8E2370`, relocation 17858, target `0x21355E`.
 
-Validate dynsym 2323 as Thumb owner `[0x2F1350,0x2F135E)`. Its entire body must
-load the incoming receiver vptr, load `vptr+0x100`, and call that target without
-writing `r1`. This proves that a `ProductAction(10)` call on a `ViewSettingMenu`
-receiver would reach the known selector-10 dispatcher case.
+Validate dynsym 2323 as the exact Thumb symbol range
+`[0x2F1350,0x2F135E)` inside EXIDX owner `[0x2F12EC,0x2F135E)`. Its entire
+six-instruction body must load the incoming receiver vptr, load `vptr+0x100`,
+and call that target without writing `r1`. This proves that a
+`ProductAction(10)` call on a `ViewSettingMenu` receiver would reach the known
+selector-10 dispatcher case; it does not prove that such a call occurs.
 
 Run a function-aware VU2 scan over the exact `.ARM.exidx` universe already used
 by the activation artifact. Record 28,869 fully decoded owners and 1,594

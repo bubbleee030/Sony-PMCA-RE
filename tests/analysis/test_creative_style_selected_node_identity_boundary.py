@@ -799,6 +799,22 @@ class CreativeStyleSelectedNodeIdentityBoundaryExporterTests(unittest.TestCase):
             write_report(invalid)
         self.assertEqual(REPORT_PATH.read_bytes(), before)
 
+    def test_lifecycle_source_failure_does_not_write_the_checked_report(self):
+        """Break caught: source validation must finish before the atomic write."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        if not exporter.sources_available():
+            self.skipTest("authenticated α6400 sources are unavailable")
+        before = exporter.REPORT_PATH.read_bytes()
+        with mock.patch.object(
+            exporter,
+            "_validate_candidate_lifecycle",
+            side_effect=RuntimeError("forced lifecycle validation failure"),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "forced lifecycle"):
+                exporter.main()
+        self.assertEqual(exporter.REPORT_PATH.read_bytes(), before)
+
 
 if __name__ == "__main__":
     unittest.main()
