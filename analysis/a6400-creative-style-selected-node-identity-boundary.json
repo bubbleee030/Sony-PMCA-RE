@@ -3,6 +3,82 @@
   "camera_executed": false,
   "camera_policy": "physically-disconnected",
   "camera_test_eligible": false,
+  "candidate_initialization_refutation": {
+    "blocking_level": 1,
+    "blocking_one_based_ordinal": 5,
+    "blocking_zero_based_index": 4,
+    "candidate_generic_state_1_blocks_parent_selection_proven": true,
+    "candidate_generic_state_test": {
+      "cell": 11244692,
+      "owner": {
+        "complete": true,
+        "end": 8154952,
+        "start": 8154918
+      },
+      "relocation_index": 47783,
+      "relocation_type": 2,
+      "selected_states": [
+        2,
+        4,
+        6
+      ],
+      "state_1_selected": false,
+      "state_field_offset": 36,
+      "state_load_site": 8154918,
+      "symbol": "_ZN18CmnViewSettingNode14isItemSelectedEv",
+      "symbol_index": 59850
+    },
+    "candidate_generic_vptr": {
+      "address_point": 11244544,
+      "got_cell": 11812608,
+      "relocation_index": 189334,
+      "relocation_type": 21,
+      "symbol": "_ZTV18CmnViewSettingNode",
+      "symbol_index": 52922,
+      "symbol_size": 268,
+      "vptr_store_site": 8156708,
+      "vtable_header": 11244536
+    },
+    "exact_triplet_during_candidate_initialization_refuted": true,
+    "intermediate_constructor": {
+      "call_site": 2222842,
+      "candidate_provider_owner": {
+        "complete": true,
+        "end": 8156724,
+        "start": 8156688
+      },
+      "candidate_provider_symbol": "_ZN18CmnViewSettingNodeC1EPPS_iPK24CmnViewSettingProperties",
+      "candidate_provider_symbol_index": 61607,
+      "generic_constructor_plt": 1392676,
+      "runtime_provider_binding_proven": false
+    },
+    "intermediate_node": 11608932,
+    "later_runtime_selection_or_interposition_unresolved": true,
+    "ordinal_5_selected_during_candidate_initialization_proven": false,
+    "parent_loop": {
+      "child_state_field_offset": 36,
+      "child_state_initial_value": 1,
+      "child_state_initialization_site": 8156104,
+      "recursive_call_site": 8156162,
+      "recursive_owner": {
+        "complete": true,
+        "end": 8156236,
+        "start": 8155948
+      },
+      "set_selected_call_site": 8156190,
+      "set_selected_slot_offset": 184,
+      "state_test_call_site": 8156176,
+      "state_test_slot_offset": 148
+    },
+    "parent_node": 11621032,
+    "required_one_based_ordinals": [
+      1,
+      5,
+      2
+    ],
+    "scope": "candidate-generic-provider-recursive-initialization-only",
+    "whole_runtime_absence_proven": false
+  },
   "candidate_lifecycle": {
     "init_setting_node": {
       "cell": 11244552,
@@ -94,6 +170,7 @@
   "claims": {
     "camera_test_eligible": false,
     "candidate_get_selected_item_semantics_found": true,
+    "candidate_initialization_triplet_1_5_2_refuted": true,
     "candidate_provider_conditional_ordinal_triplet_proven": false,
     "candidate_recursive_one_based_ordinal_assignment_found": true,
     "creative_style_static_selected_child_path_0_4_1_found": true,
@@ -114,7 +191,7 @@
     "viewsettingmenu_product_root_init_call_found": true,
     "viewsettingmenu_productaction_10_delivery_proven": false
   },
-  "conclusion": "The authenticated viewUnified2 source proves a default product-root constructor graph whose relocation-backed child indices 0, 4, and 1 end at the Creative Style root symbol. ViewSettingMenu passes the selected product root through the typed initialization slot, and candidate CautionConfig base semantics recursively assign one-based child ordinals and restore or choose generic selection. Five bounded selected-ordinal writes are source-derived; setItemSelected copies a selected child's one-based ordinal into its resolved parent cache. ProductAction preserves its selector into slot 64, but all six canonical callers are source-classified and rejected. The exact three-level 1, 5, and 2 selection chain, receiver-proven ProductAction selector 10 delivery, provider bindings, selected-node identity, process-ID 42 activation, ViewCreativeStyle factory invocation, first-class Creative Look, processing/output binding, installation, recovery, and camera eligibility remain unproven.",
+  "conclusion": "The authenticated viewUnified2 source proves a default product-root constructor graph whose relocation-backed child indices 0, 4, and 1 end at the Creative Style root symbol. ViewSettingMenu passes the selected product root through the typed initialization slot, and candidate CautionConfig base semantics recursively assign one-based child ordinals and restore or choose generic selection. Five bounded selected-ordinal writes are source-derived; setItemSelected copies a selected child's one-based ordinal into its resolved parent cache. Conditional on the pinned generic provider, recursive initialization leaves the static index-4 intermediate node in state 1; the generic selected-state predicate accepts only states 2, 4, and 6, so the exact 1, 5, and 2 triplet is refuted for initialization alone. ProductAction preserves its selector into slot 64, but all six canonical callers are source-classified and rejected. Later runtime selection, receiver-proven ProductAction selector 10 delivery, provider bindings, selected-node identity, process-ID 42 activation, ViewCreativeStyle factory invocation, first-class Creative Look, processing/output binding, installation, recovery, and camera eligibility remain unproven.",
   "constructor_graph": {
     "generic_constructor_call_count": 1748,
     "generic_constructor_plt": 1392676,
@@ -167,9 +244,9 @@
       "report": "analysis/a6400-creative-style-menu-list-construction.json"
     }
   ],
-  "first_unresolved_boundary": "caution-provider-bound-creative-style-selected-ordinal-chain-and-viewsettingmenu-productaction-10-delivery",
+  "first_unresolved_boundary": "post-initialization-runtime-creative-style-selected-ordinal-chain-and-viewsettingmenu-productaction-10-delivery",
   "installable": false,
-  "narrative_sha256": "0ccdf8278eeea9b46dfbbc4bf57af4662a04e51334e62fb25726f92bbe010f61",
+  "narrative_sha256": "fb11c173c84f487d0923247512fca4e7bfbe75211f3c5a9630b4347273fbbbd8",
   "product_root_selection": {
     "backup_read_call_site": 2131546,
     "backup_record_id": 17236758,
@@ -473,7 +550,7 @@
     "viewsettingmenu_vtable_address_point": 9314928,
     "whole_program_absence_proven": false
   },
-  "readiness": "STATIC_CREATIVE_STYLE_PATH_WITH_CANDIDATE_RUNTIME_INITIALIZATION",
+  "readiness": "STATIC_CREATIVE_STYLE_PATH_WITH_CANDIDATE_INITIALIZATION_REFUTATION",
   "recovery_validated": false,
   "root_initialization": {
     "count_argument_register": "r2",
@@ -557,7 +634,7 @@
       2
     ]
   },
-  "schema_version": 3,
+  "schema_version": 4,
   "selected_child_mechanism": {
     "chained_call_count": 3,
     "final_child_returned_proven": true,
@@ -696,7 +773,7 @@
     ]
   },
   "summary": {
-    "canonical_export_sha256": "9c893b88d2471917007c065668ac152e4a810c2ce45202bdb4587b5101934c0b"
+    "canonical_export_sha256": "88ecbcd17eb610477d0356e4f53aa97546ad4caa4d6ed413fd6a53ade565960d"
   },
   "supporting_source": {
     "module": "lib/CautionConfig.so",

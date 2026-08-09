@@ -18,6 +18,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pmca.analysis.creative_style_selected_node_identity_boundary import (
+    CANDIDATE_INITIALIZATION_REFUTATION,
     CANDIDATE_LIFECYCLE,
     CONSTRUCTOR_GRAPH,
     DEPENDENCIES,
@@ -1039,6 +1040,149 @@ def _validate_selected_ordinal_writers(context, deps):
     return copy.deepcopy(expected)
 
 
+def _validate_candidate_initialization_refutation(view, caution, deps):
+    expected = CANDIDATE_INITIALIZATION_REFUTATION
+    constructor = expected["intermediate_constructor"]
+    vptr = expected["candidate_generic_vptr"]
+    loop = expected["parent_loop"]
+    state_test = expected["candidate_generic_state_test"]
+    try:
+        graph = _validate_constructor_graph(view, deps)
+        if (
+            graph["path_constructors"][2]["call_site"]
+            != constructor["call_site"]
+            or graph["path_constructors"][2]["node"]
+            != expected["intermediate_node"]
+            or STATIC_PATH["edges"][1]["target"]
+            != expected["intermediate_node"]
+            or graph["path_constructors"][1]["node"]
+            != expected["parent_node"]
+        ):
+            raise RuntimeError("candidate initialization path relation differs")
+
+        owner = constructor["candidate_provider_owner"]
+        _require_owner(
+            caution,
+            owner["start"],
+            owner["end"],
+            "candidate generic constructor",
+        )
+        dynsym = caution["elf"].get_section_by_name(".dynsym")
+        provider = dynsym.get_symbol(constructor["candidate_provider_symbol_index"])
+        if (
+            provider.name != constructor["candidate_provider_symbol"]
+            or provider["st_shndx"] == "SHN_UNDEF"
+            or (int(provider["st_value"]) & ~1) != owner["start"]
+            or int(provider["st_size"]) != owner["end"] - owner["start"]
+        ):
+            raise RuntimeError("candidate generic constructor symbol differs")
+
+        for site, mnemonic, operands in (
+            (0x7C7614, "ldr", "r5, [pc, #0x14]"),
+            (0x7C7618, "ldr", "r6, [pc, #0x14]"),
+            (0x7C761A, "add", "r5, pc"),
+            (0x7C761C, "ldr", "r5, [r5, r6]"),
+            (0x7C7620, "adds", "r5, #8"),
+            (0x7C7624, "str", "r5, [r0]"),
+        ):
+            _require_text(
+                caution,
+                deps,
+                site,
+                mnemonic,
+                operands,
+                "candidate generic constructor",
+            )
+        first = _instruction(caution["blob"], caution["mappings"], deps, 0x7C7614)
+        second = _instruction(caution["blob"], caution["mappings"], deps, 0x7C7618)
+        first_literal = _literal_address(first, deps)
+        second_literal = _literal_address(second, deps)
+        if (
+            first_literal != 0x7C762C
+            or second_literal != 0x7C7630
+            or _word(caution["blob"], caution["mappings"], first_literal)
+            != 0x344BAA
+            or _word(caution["blob"], caution["mappings"], second_literal)
+            != 0x37D38
+            or 0x7C761E
+            + _word(caution["blob"], caution["mappings"], first_literal)
+            + _word(caution["blob"], caution["mappings"], second_literal)
+            != vptr["got_cell"]
+        ):
+            raise RuntimeError("candidate generic constructor PIC differs")
+        relocation_index, relocation = caution["by_site"][vptr["got_cell"]]
+        vtable_symbol = dynsym.get_symbol(relocation["r_info_sym"])
+        if (
+            relocation_index != vptr["relocation_index"]
+            or relocation["r_info_type"] != vptr["relocation_type"]
+            or relocation["r_info_sym"] != vptr["symbol_index"]
+            or vtable_symbol.name != vptr["symbol"]
+            or int(vtable_symbol["st_value"]) != vptr["vtable_header"]
+            or int(vtable_symbol["st_size"]) != vptr["symbol_size"]
+            or vptr["vtable_header"] + 8 != vptr["address_point"]
+            or _word(caution["blob"], caution["mappings"], vptr["got_cell"])
+            != 0
+        ):
+            raise RuntimeError("candidate generic vptr relocation differs")
+
+        recursive_owner = loop["recursive_owner"]
+        _require_owner(
+            caution,
+            recursive_owner["start"],
+            recursive_owner["end"],
+            "candidate initialization parent loop",
+        )
+        for site, mnemonic, operands in (
+            (0x7C73BC, "ldr", "r2, [r3, r5]"),
+            (0x7C73C0, "ldr", "r0, [r3, r5]"),
+            (0x7C73C2, "movs", "r3, #1"),
+            (0x7C73C8, "str", "r3, [r0, #0x24]"),
+            (0x7C73F6, "ldr", "r0, [r3, r5]"),
+            (0x7C7402, "blx", "r6"),
+            (0x7C7408, "ldr", "r0, [r3, r5]"),
+            (0x7C740C, "ldr.w", "r3, [r3, #0x94]"),
+            (0x7C7410, "blx", "r3"),
+            (0x7C7412, "cbz", "r0, #0x7c7420"),
+            (0x7C741A, "ldr.w", "r3, [r3, #0xb8]"),
+            (0x7C741E, "blx", "r3"),
+        ):
+            _require_text(
+                caution,
+                deps,
+                site,
+                mnemonic,
+                operands,
+                "candidate initialization parent loop",
+            )
+
+        _validate_symbol_relocation(
+            caution, state_test, "candidate generic selected-state predicate"
+        )
+        for site, mnemonic, operands in (
+            (0x7C6F26, "ldr", "r0, [r0, #0x24]"),
+            (0x7C6F2A, "cmp", "r0, #2"),
+            (0x7C6F2E, "beq", "#0x7c6f40"),
+            (0x7C6F30, "cmp", "r0, #4"),
+            (0x7C6F32, "beq", "#0x7c6f44"),
+            (0x7C6F34, "sub.w", "r3, r0, #6"),
+            (0x7C6F38, "rsbs", "r0, r3, #0"),
+            (0x7C6F3A, "adc.w", "r0, r0, r3"),
+            (0x7C6F40, "movs", "r0, #1"),
+            (0x7C6F44, "movs", "r0, #1"),
+        ):
+            _require_text(
+                caution,
+                deps,
+                site,
+                mnemonic,
+                operands,
+                "candidate generic selected-state predicate",
+            )
+    except (AttributeError, IndexError, KeyError, RuntimeError, TypeError, ValueError) as exc:
+        raise RuntimeError("candidate initialization refutation differs") from exc
+    return copy.deepcopy(expected)
+
+
 def _written_registers(instruction):
     try:
         return set(instruction.regs_access()[1])
@@ -1420,6 +1564,9 @@ def _metadata_from_blobs(view_blob, caution_blob, deps):
     document["candidate_lifecycle"] = _validate_candidate_lifecycle(caution, deps)
     document["selected_ordinal_writers"] = _validate_selected_ordinal_writers(
         caution, deps
+    )
+    document["candidate_initialization_refutation"] = (
+        _validate_candidate_initialization_refutation(view, caution, deps)
     )
     document["productaction_delivery"] = _validate_productaction_delivery(
         view, deps

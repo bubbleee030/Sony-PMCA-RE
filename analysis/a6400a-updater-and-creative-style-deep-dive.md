@@ -561,9 +561,14 @@ the clamped cache update at `0x7c6c00`, the parent update at `0x7c70aa`, and
 three `-1` initialization/fallback writes at `0x7c7358`, `0x7c73ce`, and
 `0x7c7470`. The parent update is concrete: `setItemSelected` loads the selected
 child's one-based ordinal from `+0x20` and stores it into the resolved parent's
-`+0x18`. No source-derived chain proves that this operation selects the exact
-three Creative Style path children at runtime, so live ordinals `1 -> 5 -> 2`
-remain unproven.
+`+0x18`. Conditional on the pinned generic provider, recursive initialization
+sets the static index-4 intermediate child to state 1 before it tests that same
+child with the generic selected-state predicate. That predicate accepts only
+states 2, 4, and 6, so the intermediate ordinal 5 is not restored by this
+candidate initialization path and the exact `1 -> 5 -> 2` triplet is refuted
+for initialization alone. Later runtime callbacks or selection can still alter
+the state, and provider interposition remains unresolved; this is not a
+whole-runtime absence claim.
 
 The `ViewSettingMenu` vtable separately installs
 `ViewBaseProduct::ProductAction(int)` in slot 37 and the menu action dispatcher
@@ -583,14 +588,16 @@ immediate 10. None proves both a `ViewSettingMenu` receiver and selector value
 false. Noncanonical dispatch, runtime callbacks, cross-module delivery, and the
 decode-incomplete owner universe remain unresolved.
 
-No provider-bound three-level selected-state chain or accepted caller therefore
-proves that ordinals `1,5,2` are live when `ProductAction(10)` executes. Runtime
-provider binding and selected-node pointer identity also remain unproven.
+The candidate generic initialization path cannot make ordinals `1,5,2` live,
+and no accepted ProductAction caller supplies the missing runtime delivery.
+Post-initialization selection, a receiver-proven `ProductAction(10)` edge,
+runtime provider binding, and selected-node pointer identity remain unproven.
 Consequently process ID 42 activation, `ViewCreativeStyle` factory invocation,
 first-class Creative Look, processing/output behavior, installability,
 recovery, and camera-test eligibility remain false. The next safe experiment
-is the exact provider-bound three-level selection chain and a receiver-proven
-ProductAction delivery edge, not a firmware modification. The fail-closed record is
+is the exact post-initialization runtime Creative Style selected-ordinal chain
+and a receiver-proven `ViewSettingMenu` ProductAction selector-10 delivery edge,
+not a firmware modification. The fail-closed record is
 `analysis/a6400-creative-style-selected-node-identity-boundary.json`.
 
 ### Target-native Creative Style interaction surface

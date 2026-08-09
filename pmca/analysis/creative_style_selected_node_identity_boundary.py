@@ -413,6 +413,73 @@ SELECTED_ORDINAL_WRITERS = {
     "runtime_selected_ordinal_triplet_1_5_2_proven": False,
 }
 
+CANDIDATE_INITIALIZATION_REFUTATION = {
+    "scope": "candidate-generic-provider-recursive-initialization-only",
+    "required_one_based_ordinals": [1, 5, 2],
+    "blocking_level": 1,
+    "blocking_zero_based_index": 4,
+    "blocking_one_based_ordinal": 5,
+    "parent_node": 0xB152A8,
+    "intermediate_node": 0xB12364,
+    "intermediate_constructor": {
+        "call_site": 0x21EAFA,
+        "generic_constructor_plt": 0x154024,
+        "candidate_provider_symbol": (
+            "_ZN18CmnViewSettingNodeC1EPPS_iPK24CmnViewSettingProperties"
+        ),
+        "candidate_provider_symbol_index": 61_607,
+        "candidate_provider_owner": {
+            "start": 0x7C7610,
+            "end": 0x7C7634,
+            "complete": True,
+        },
+        "runtime_provider_binding_proven": False,
+    },
+    "candidate_generic_vptr": {
+        "vtable_header": 0xAB93F8,
+        "address_point": 0xAB9400,
+        "got_cell": 0xB43F00,
+        "relocation_index": 189_334,
+        "relocation_type": 21,
+        "symbol_index": 52_922,
+        "symbol": "_ZTV18CmnViewSettingNode",
+        "symbol_size": 268,
+        "vptr_store_site": 0x7C7624,
+    },
+    "parent_loop": {
+        "recursive_owner": {
+            "start": 0x7C732C,
+            "end": 0x7C744C,
+            "complete": True,
+        },
+        "child_state_field_offset": 0x24,
+        "child_state_initialization_site": 0x7C73C8,
+        "child_state_initial_value": 1,
+        "recursive_call_site": 0x7C7402,
+        "state_test_slot_offset": 0x94,
+        "state_test_call_site": 0x7C7410,
+        "set_selected_slot_offset": 0xB8,
+        "set_selected_call_site": 0x7C741E,
+    },
+    "candidate_generic_state_test": {
+        "cell": 0xAB9494,
+        "relocation_index": 47_783,
+        "relocation_type": 2,
+        "symbol_index": 59_850,
+        "symbol": "_ZN18CmnViewSettingNode14isItemSelectedEv",
+        "owner": {"start": 0x7C6F26, "end": 0x7C6F48, "complete": True},
+        "state_field_offset": 0x24,
+        "state_load_site": 0x7C6F26,
+        "selected_states": [2, 4, 6],
+        "state_1_selected": False,
+    },
+    "candidate_generic_state_1_blocks_parent_selection_proven": True,
+    "ordinal_5_selected_during_candidate_initialization_proven": False,
+    "exact_triplet_during_candidate_initialization_refuted": True,
+    "later_runtime_selection_or_interposition_unresolved": True,
+    "whole_runtime_absence_proven": False,
+}
+
 UNNAMED_PRODUCTACTION_CALLER_OWNER = {
     "kind": "unnamed-exidx-owner",
     "symbol_index": None,
@@ -583,6 +650,7 @@ CLAIMS = {
     "candidate_recursive_one_based_ordinal_assignment_found": True,
     "selected_ordinal_writer_inventory_found": True,
     "parent_selected_ordinal_from_child_one_based_field_found": True,
+    "candidate_initialization_triplet_1_5_2_refuted": True,
     "candidate_provider_conditional_ordinal_triplet_proven": False,
     "productaction_forwards_selector_to_slot_64_found": True,
     "runtime_constructor_provider_binding_proven": False,
@@ -598,9 +666,9 @@ CLAIMS = {
     "camera_test_eligible": False,
 }
 
-READINESS = "STATIC_CREATIVE_STYLE_PATH_WITH_CANDIDATE_RUNTIME_INITIALIZATION"
+READINESS = "STATIC_CREATIVE_STYLE_PATH_WITH_CANDIDATE_INITIALIZATION_REFUTATION"
 FIRST_UNRESOLVED_BOUNDARY = (
-    "caution-provider-bound-creative-style-selected-ordinal-chain-and-"
+    "post-initialization-runtime-creative-style-selected-ordinal-chain-and-"
     "viewsettingmenu-productaction-10-delivery"
 )
 CONCLUSION = (
@@ -611,9 +679,13 @@ CONCLUSION = (
     "semantics recursively assign one-based child ordinals and restore or choose "
     "generic selection. Five bounded selected-ordinal writes are source-derived; "
     "setItemSelected copies a selected child's one-based ordinal into its resolved "
-    "parent cache. ProductAction preserves its selector into slot 64, but all six "
-    "canonical callers are source-classified and rejected. The exact three-level "
-    "1, 5, and 2 selection chain, receiver-proven ProductAction selector 10 delivery, "
+    "parent cache. Conditional on the pinned generic provider, recursive "
+    "initialization leaves the static index-4 intermediate node in state 1; the "
+    "generic selected-state predicate accepts only states 2, 4, and 6, so the exact "
+    "1, 5, and 2 triplet is refuted for initialization alone. ProductAction preserves "
+    "its selector into slot 64, but all six canonical callers are source-classified "
+    "and rejected. Later runtime selection, receiver-proven ProductAction selector 10 "
+    "delivery, "
     "provider bindings, selected-node identity, process-ID 42 activation, "
     "ViewCreativeStyle factory invocation, first-class Creative Look, "
     "processing/output binding, installation, recovery, and camera eligibility "
@@ -621,7 +693,7 @@ CONCLUSION = (
 )
 
 EXPECTED_EXPORT = {
-    "schema_version": 3,
+    "schema_version": 4,
     "analysis_mode": "offline-static-creative-style-selected-node-identity-boundary",
     "source": SOURCE,
     "supporting_source": SUPPORTING_SOURCE,
@@ -634,6 +706,7 @@ EXPECTED_EXPORT = {
     "root_initialization": ROOT_INITIALIZATION,
     "candidate_lifecycle": CANDIDATE_LIFECYCLE,
     "selected_ordinal_writers": SELECTED_ORDINAL_WRITERS,
+    "candidate_initialization_refutation": CANDIDATE_INITIALIZATION_REFUTATION,
     "productaction_delivery": PRODUCTACTION_DELIVERY,
     "claims": CLAIMS,
     "readiness": READINESS,
@@ -659,7 +732,7 @@ def normalize_creative_style_selected_node_identity_boundary_export(document):
 
 def _report_from_export(export):
     return {
-        "schema_version": 3,
+        "schema_version": 4,
         "analysis_scope": "offline-static-creative-style-selected-node-identity-boundary",
         "camera_policy": "physically-disconnected",
         "camera_executed": False,
@@ -681,6 +754,9 @@ def _report_from_export(export):
         "candidate_lifecycle": copy.deepcopy(export["candidate_lifecycle"]),
         "selected_ordinal_writers": copy.deepcopy(
             export["selected_ordinal_writers"]
+        ),
+        "candidate_initialization_refutation": copy.deepcopy(
+            export["candidate_initialization_refutation"]
         ),
         "productaction_delivery": copy.deepcopy(export["productaction_delivery"]),
         "claims": copy.deepcopy(export["claims"]),

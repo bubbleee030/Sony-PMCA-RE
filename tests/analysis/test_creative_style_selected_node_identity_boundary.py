@@ -16,14 +16,55 @@ from pmca.analysis.creative_style_selected_node_identity_boundary import (
 
 
 class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
-    def test_schema_3_reports_source_derived_selected_ordinal_writers(self):
+    def test_schema_4_refutes_only_the_candidate_initialization_triplet(self):
+        """Break caught: initialization refutation may not become runtime absence."""
+        report = validate_creative_style_selected_node_identity_boundary_report(
+            build_creative_style_selected_node_identity_boundary_report(
+                EXPECTED_EXPORT
+            )
+        )
+        self.assertEqual(report["schema_version"], 4)
+        boundary = report["candidate_initialization_refutation"]
+        self.assertEqual(boundary["required_one_based_ordinals"], [1, 5, 2])
+        self.assertEqual(boundary["blocking_zero_based_index"], 4)
+        self.assertEqual(boundary["blocking_one_based_ordinal"], 5)
+        self.assertEqual(boundary["parent_node"], 0xB152A8)
+        self.assertEqual(boundary["intermediate_node"], 0xB12364)
+        self.assertEqual(
+            boundary["intermediate_constructor"]["call_site"], 0x21EAFA
+        )
+        self.assertEqual(
+            boundary["candidate_generic_vptr"]["address_point"], 0xAB9400
+        )
+        self.assertEqual(
+            boundary["parent_loop"]["child_state_initialization_site"],
+            0x7C73C8,
+        )
+        self.assertEqual(
+            boundary["candidate_generic_state_test"]["selected_states"],
+            [2, 4, 6],
+        )
+        self.assertFalse(
+            boundary["candidate_generic_state_test"]["state_1_selected"]
+        )
+        self.assertTrue(
+            boundary[
+                "exact_triplet_during_candidate_initialization_refuted"
+            ]
+        )
+        self.assertTrue(
+            boundary["later_runtime_selection_or_interposition_unresolved"]
+        )
+        self.assertFalse(boundary["whole_runtime_absence_proven"])
+
+    def test_schema_4_reports_source_derived_selected_ordinal_writers(self):
         """Break caught: selected-ordinal writes may not remain asserted lifecycle prose."""
         report = validate_creative_style_selected_node_identity_boundary_report(
             build_creative_style_selected_node_identity_boundary_report(
                 EXPECTED_EXPORT
             )
         )
-        self.assertEqual(report["schema_version"], 3)
+        self.assertEqual(report["schema_version"], 4)
         writers = report["selected_ordinal_writers"]
         self.assertEqual(writers["field_offset"], 0x18)
         self.assertEqual(
@@ -106,7 +147,7 @@ class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
                 EXPECTED_EXPORT
             )
         )
-        self.assertEqual(report["schema_version"], 3)
+        self.assertEqual(report["schema_version"], 4)
         self.assertEqual(report["static_path"]["zero_based_indices"], [0, 4, 1])
         self.assertEqual(
             report["runtime_selection"]["required_one_based_ordinals"],
@@ -180,7 +221,7 @@ class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
         self.assertEqual(
             report["first_unresolved_boundary"],
             (
-                "caution-provider-bound-creative-style-selected-ordinal-chain-"
+                "post-initialization-runtime-creative-style-selected-ordinal-chain-"
                 "and-viewsettingmenu-productaction-10-delivery"
             ),
         )
@@ -591,6 +632,80 @@ class CreativeStyleSelectedNodeIdentityBoundaryExporterTests(unittest.TestCase):
                     RuntimeError
                 ):
                     lifecycle_validator(mutated, deps)
+
+    def test_candidate_initialization_refutation_is_source_derived(self):
+        """Break caught: ordinal-5 initialization refutation may not be asserted."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        validator = getattr(
+            exporter, "_validate_candidate_initialization_refutation", None
+        )
+        self.assertTrue(callable(validator))
+        view, caution, deps = self._real_contexts()
+        self.assertEqual(
+            validator(view, caution, deps),
+            EXPECTED_EXPORT["candidate_initialization_refutation"],
+        )
+
+    def test_candidate_initialization_refutation_source_mutations_are_rejected(self):
+        """Break caught: vptr/state-test drift must invalidate the refutation."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        validator = getattr(
+            exporter, "_validate_candidate_initialization_refutation", None
+        )
+        self.assertTrue(callable(validator))
+        view, caution, deps = self._real_contexts()
+        for site in (0x21EAFA,):
+            mutated = self._mutated_blob_context(view, site)
+            with self.subTest(source="view", site=f"{site:#x}"), self.assertRaises(
+                RuntimeError
+            ):
+                validator(mutated, caution, deps)
+
+        for site in (
+            0x7C7614,
+            0x7C7618,
+            0x7C761A,
+            0x7C761C,
+            0x7C7620,
+            0x7C7624,
+            0x7C73C8,
+            0x7C73C0,
+            0x7C73C2,
+            0x7C73BC,
+            0x7C73F6,
+            0x7C7402,
+            0x7C7408,
+            0x7C740C,
+            0x7C7410,
+            0x7C7412,
+            0x7C741A,
+            0x7C741E,
+            0x7C6F26,
+            0x7C6F2A,
+            0x7C6F2E,
+            0x7C6F30,
+            0x7C6F32,
+            0x7C6F34,
+            0x7C6F38,
+            0x7C6F3A,
+            0x7C6F40,
+            0x7C6F44,
+        ):
+            mutated = self._mutated_blob_context(caution, site)
+            with self.subTest(
+                source="caution", site=f"{site:#x}"
+            ), self.assertRaises(RuntimeError):
+                validator(view, mutated, deps)
+
+        for cell in (0xB43F00, 0xAB9494):
+            index, relocation = caution["by_site"][cell]
+            mutated = dict(caution)
+            mutated["by_site"] = dict(caution["by_site"])
+            mutated["by_site"][cell] = (index + 1, relocation)
+            with self.subTest(cell=f"{cell:#x}"), self.assertRaises(RuntimeError):
+                validator(view, mutated, deps)
 
     def test_selected_ordinal_writer_inventory_is_source_derived(self):
         """Break caught: writer roles may not be emitted without decoding their stores."""
