@@ -17,6 +17,7 @@ from pmca.experience.creative_look import (
     load_experience,
     save_experience,
 )
+from pmca.experience.creative_look_web import write_creative_look_html
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -45,6 +46,10 @@ def _parser() -> argparse.ArgumentParser:
 
     demo = commands.add_parser("demo", allow_abbrev=False)
     demo.add_argument("--output", required=True, type=Path)
+
+    web = commands.add_parser("web", allow_abbrev=False)
+    web.add_argument("--state", required=True, type=Path)
+    web.add_argument("--output", required=True, type=Path)
     return parser
 
 
@@ -148,6 +153,15 @@ def _demo(args: argparse.Namespace) -> None:
     )
 
 
+def _web(args: argparse.Namespace) -> None:
+    experience = load_experience(args.state)
+    write_creative_look_html(args.output, experience)
+    print(
+        f"web={args.output} orientation={experience.orientation.value} "
+        "offline_only=true processing_binding=UNBOUND_TARGET"
+    )
+
+
 def main(argv=None) -> int:
     args = _parser().parse_args(argv)
     handlers = {
@@ -156,6 +170,7 @@ def main(argv=None) -> int:
         "frame": _frame,
         "touch": _touch,
         "demo": _demo,
+        "web": _web,
     }
     try:
         handlers[args.command](args)

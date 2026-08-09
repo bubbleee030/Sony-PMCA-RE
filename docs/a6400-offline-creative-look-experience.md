@@ -65,6 +65,24 @@ Generate the complete deterministic demo snapshot:
 The checked example is
 `analysis/a6400-creative-look-offline-experience-demo.json`.
 
+Generate the self-contained offline touch UI:
+
+```powershell
+.\.venv\Scripts\python.exe .\creative_look_experience.py web `
+  --state .\creative-look-state.json `
+  --output .\creative-look-offline.html
+```
+
+Open the resulting HTML in a browser. It contains no external scripts, fonts,
+images, stylesheets, forms, or network requests. The browser prototype supports
+the full catalog, Custom-base workflow, all eight axis pickers, reset, the three
+orientations, restriction test controls, local persistence, and strict JSON
+import/export. Its swatches are navigation aids only and are explicitly not
+Sony color-output references.
+
+The deterministic checked prototype is
+`analysis/a6400-creative-look-offline-ui.html`.
+
 ## Deliberate boundary
 
 The implementation proves the offline product workflow and persistence model;
