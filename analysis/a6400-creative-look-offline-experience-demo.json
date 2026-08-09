@@ -1,0 +1,1164 @@
+{
+  "schema_version": 1,
+  "offline_only": true,
+  "sample_values_are_product_demo_only": true,
+  "processing_binding": "UNBOUND_TARGET",
+  "catalog_frames": {
+    "landscape": {
+      "orientation": "landscape",
+      "screen": "catalog",
+      "coordinate_space": "offline_prototype_logical_units",
+      "viewport": {
+        "width": 1600,
+        "height": 900
+      },
+      "columns": 6,
+      "elements": [
+        {
+          "id": "look:ST",
+          "kind": "look",
+          "rect": {
+            "x": 40.0,
+            "y": 22.5,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "ST",
+          "modified": false
+        },
+        {
+          "id": "look:PT",
+          "kind": "look",
+          "rect": {
+            "x": 296.533333,
+            "y": 22.5,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "PT",
+          "modified": false
+        },
+        {
+          "id": "look:NT",
+          "kind": "look",
+          "rect": {
+            "x": 553.066667,
+            "y": 22.5,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "NT",
+          "modified": false
+        },
+        {
+          "id": "look:VV",
+          "kind": "look",
+          "rect": {
+            "x": 809.6,
+            "y": 22.5,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "VV",
+          "modified": false
+        },
+        {
+          "id": "look:VV2",
+          "kind": "look",
+          "rect": {
+            "x": 1066.133333,
+            "y": 22.5,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "VV2",
+          "modified": false
+        },
+        {
+          "id": "look:FL",
+          "kind": "look",
+          "rect": {
+            "x": 1322.666667,
+            "y": 22.5,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "FL",
+          "modified": false
+        },
+        {
+          "id": "look:FL2",
+          "kind": "look",
+          "rect": {
+            "x": 40.0,
+            "y": 311.1,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "FL2",
+          "modified": false
+        },
+        {
+          "id": "look:FL3",
+          "kind": "look",
+          "rect": {
+            "x": 296.533333,
+            "y": 311.1,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "FL3",
+          "modified": false
+        },
+        {
+          "id": "look:IN",
+          "kind": "look",
+          "rect": {
+            "x": 553.066667,
+            "y": 311.1,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "IN",
+          "modified": false
+        },
+        {
+          "id": "look:SH",
+          "kind": "look",
+          "rect": {
+            "x": 809.6,
+            "y": 311.1,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "SH",
+          "modified": false
+        },
+        {
+          "id": "look:BW",
+          "kind": "look",
+          "rect": {
+            "x": 1066.133333,
+            "y": 311.1,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "BW",
+          "modified": false
+        },
+        {
+          "id": "look:SE",
+          "kind": "look",
+          "rect": {
+            "x": 1322.666667,
+            "y": 311.1,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "SE",
+          "modified": false
+        },
+        {
+          "id": "look:Custom1",
+          "kind": "look",
+          "rect": {
+            "x": 40.0,
+            "y": 599.7,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom2",
+          "kind": "look",
+          "rect": {
+            "x": 296.533333,
+            "y": 599.7,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom3",
+          "kind": "look",
+          "rect": {
+            "x": 553.066667,
+            "y": 599.7,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom4",
+          "kind": "look",
+          "rect": {
+            "x": 809.6,
+            "y": 599.7,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom5",
+          "kind": "look",
+          "rect": {
+            "x": 1066.133333,
+            "y": 599.7,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom6",
+          "kind": "look",
+          "rect": {
+            "x": 1322.666667,
+            "y": 599.7,
+            "width": 237.333333,
+            "height": 277.8
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        }
+      ]
+    },
+    "portrait_shutter_up": {
+      "orientation": "portrait_shutter_up",
+      "screen": "catalog",
+      "coordinate_space": "offline_prototype_logical_units",
+      "viewport": {
+        "width": 900,
+        "height": 1600
+      },
+      "columns": 3,
+      "elements": [
+        {
+          "id": "look:ST",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 40.0,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "ST",
+          "modified": false
+        },
+        {
+          "id": "look:PT",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 40.0,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "PT",
+          "modified": false
+        },
+        {
+          "id": "look:NT",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 40.0,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "NT",
+          "modified": false
+        },
+        {
+          "id": "look:VV",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 296.533333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "VV",
+          "modified": false
+        },
+        {
+          "id": "look:VV2",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 296.533333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "VV2",
+          "modified": false
+        },
+        {
+          "id": "look:FL",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 296.533333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "FL",
+          "modified": false
+        },
+        {
+          "id": "look:FL2",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 553.066667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "FL2",
+          "modified": false
+        },
+        {
+          "id": "look:FL3",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 553.066667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "FL3",
+          "modified": false
+        },
+        {
+          "id": "look:IN",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 553.066667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "IN",
+          "modified": false
+        },
+        {
+          "id": "look:SH",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 809.6,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "SH",
+          "modified": false
+        },
+        {
+          "id": "look:BW",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 809.6,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "BW",
+          "modified": false
+        },
+        {
+          "id": "look:SE",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 809.6,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "SE",
+          "modified": false
+        },
+        {
+          "id": "look:Custom1",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 1066.133333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom2",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 1066.133333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom3",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 1066.133333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom4",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 1322.666667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom5",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 1322.666667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom6",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 1322.666667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        }
+      ]
+    },
+    "portrait_shutter_down": {
+      "orientation": "portrait_shutter_down",
+      "screen": "catalog",
+      "coordinate_space": "offline_prototype_logical_units",
+      "viewport": {
+        "width": 900,
+        "height": 1600
+      },
+      "columns": 3,
+      "elements": [
+        {
+          "id": "look:ST",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 40.0,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "ST",
+          "modified": false
+        },
+        {
+          "id": "look:PT",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 40.0,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "PT",
+          "modified": false
+        },
+        {
+          "id": "look:NT",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 40.0,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "NT",
+          "modified": false
+        },
+        {
+          "id": "look:VV",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 296.533333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "VV",
+          "modified": false
+        },
+        {
+          "id": "look:VV2",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 296.533333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "VV2",
+          "modified": false
+        },
+        {
+          "id": "look:FL",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 296.533333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "FL",
+          "modified": false
+        },
+        {
+          "id": "look:FL2",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 553.066667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "FL2",
+          "modified": false
+        },
+        {
+          "id": "look:FL3",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 553.066667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "FL3",
+          "modified": false
+        },
+        {
+          "id": "look:IN",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 553.066667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "IN",
+          "modified": false
+        },
+        {
+          "id": "look:SH",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 809.6,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "SH",
+          "modified": false
+        },
+        {
+          "id": "look:BW",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 809.6,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "BW",
+          "modified": false
+        },
+        {
+          "id": "look:SE",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 809.6,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": "SE",
+          "modified": false
+        },
+        {
+          "id": "look:Custom1",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 1066.133333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom2",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 1066.133333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom3",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 1066.133333,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom4",
+          "kind": "look",
+          "rect": {
+            "x": 22.5,
+            "y": 1322.666667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom5",
+          "kind": "look",
+          "rect": {
+            "x": 311.1,
+            "y": 1322.666667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        },
+        {
+          "id": "look:Custom6",
+          "kind": "look",
+          "rect": {
+            "x": 599.7,
+            "y": 1322.666667,
+            "width": 277.8,
+            "height": 237.333333
+          },
+          "enabled": true,
+          "reason": null,
+          "value": null,
+          "modified": false
+        }
+      ]
+    }
+  },
+  "sample_state": {
+    "schema_version": 1,
+    "offline_only": true,
+    "target": "ILCE-6400",
+    "reference": "ILCE-7M5",
+    "processing_binding": "UNBOUND_TARGET",
+    "selected_look": "Custom1",
+    "screen": "editor",
+    "orientation": "portrait_shutter_up",
+    "editing_axis": null,
+    "custom_bases": {
+      "Custom1": "VV",
+      "Custom2": null,
+      "Custom3": null,
+      "Custom4": null,
+      "Custom5": null,
+      "Custom6": null
+    },
+    "adjustments": {
+      "ST": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "PT": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "NT": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "VV": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "VV2": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "FL": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "FL2": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "FL3": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "IN": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "SH": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "BW": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "SE": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "Custom1": {
+        "contrast": 3,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": 2
+      },
+      "Custom2": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "Custom3": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "Custom4": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "Custom5": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      },
+      "Custom6": {
+        "contrast": null,
+        "highlights": null,
+        "shadows": null,
+        "fade": null,
+        "saturation": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "clarity": null
+      }
+    },
+    "modes": {
+      "intelligent_auto": false,
+      "picture_profile_not_off": false,
+      "flexible_iso_log": false,
+      "movie_mode": false
+    },
+    "safety": {
+      "recovery_validated": false,
+      "camera_test_eligible": false,
+      "installable": false
+    }
+  },
+  "sample_editor_frame": {
+    "orientation": "portrait_shutter_up",
+    "screen": "editor",
+    "coordinate_space": "offline_prototype_logical_units",
+    "viewport": {
+      "width": 900,
+      "height": 1600
+    },
+    "columns": 1,
+    "elements": [
+      {
+        "id": "axis:contrast",
+        "kind": "axis",
+        "rect": {
+          "x": 22.5,
+          "y": 40.0,
+          "width": 855.0,
+          "height": 134.72
+        },
+        "enabled": true,
+        "reason": null,
+        "value": 3,
+        "modified": true
+      },
+      {
+        "id": "axis:highlights",
+        "kind": "axis",
+        "rect": {
+          "x": 22.5,
+          "y": 193.92,
+          "width": 855.0,
+          "height": 134.72
+        },
+        "enabled": true,
+        "reason": null,
+        "value": null,
+        "modified": false
+      },
+      {
+        "id": "axis:shadows",
+        "kind": "axis",
+        "rect": {
+          "x": 22.5,
+          "y": 347.84,
+          "width": 855.0,
+          "height": 134.72
+        },
+        "enabled": true,
+        "reason": null,
+        "value": null,
+        "modified": false
+      },
+      {
+        "id": "axis:fade",
+        "kind": "axis",
+        "rect": {
+          "x": 22.5,
+          "y": 501.76,
+          "width": 855.0,
+          "height": 134.72
+        },
+        "enabled": true,
+        "reason": null,
+        "value": null,
+        "modified": false
+      },
+      {
+        "id": "axis:saturation",
+        "kind": "axis",
+        "rect": {
+          "x": 22.5,
+          "y": 655.68,
+          "width": 855.0,
+          "height": 134.72
+        },
+        "enabled": true,
+        "reason": null,
+        "value": null,
+        "modified": false
+      },
+      {
+        "id": "axis:sharpness",
+        "kind": "axis",
+        "rect": {
+          "x": 22.5,
+          "y": 809.6,
+          "width": 855.0,
+          "height": 134.72
+        },
+        "enabled": true,
+        "reason": null,
+        "value": null,
+        "modified": false
+      },
+      {
+        "id": "axis:sharpness_range",
+        "kind": "axis",
+        "rect": {
+          "x": 22.5,
+          "y": 963.52,
+          "width": 855.0,
+          "height": 134.72
+        },
+        "enabled": true,
+        "reason": null,
+        "value": null,
+        "modified": false
+      },
+      {
+        "id": "axis:clarity",
+        "kind": "axis",
+        "rect": {
+          "x": 22.5,
+          "y": 1117.44,
+          "width": 855.0,
+          "height": 134.72
+        },
+        "enabled": true,
+        "reason": null,
+        "value": 2,
+        "modified": true
+      },
+      {
+        "id": "action:reset",
+        "kind": "action",
+        "rect": {
+          "x": 22.5,
+          "y": 1271.36,
+          "width": 855.0,
+          "height": 134.72
+        },
+        "enabled": true,
+        "reason": null,
+        "value": null,
+        "modified": false
+      },
+      {
+        "id": "action:catalog",
+        "kind": "action",
+        "rect": {
+          "x": 22.5,
+          "y": 1425.28,
+          "width": 855.0,
+          "height": 134.72
+        },
+        "enabled": true,
+        "reason": null,
+        "value": null,
+        "modified": false
+      }
+    ]
+  }
+}
