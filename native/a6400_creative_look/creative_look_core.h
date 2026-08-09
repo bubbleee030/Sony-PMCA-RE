@@ -36,7 +36,9 @@ typedef enum cl_result {
     CL_ERR_AXIS = -5,
     CL_ERR_VALUE = -6,
     CL_ERR_RESTRICTED = -7,
-    CL_ERR_BLOB = -8
+    CL_ERR_BLOB = -8,
+    CL_ERR_NO_HIT = -9,
+    CL_ERR_ADAPTER = -10
 } cl_result;
 
 typedef enum cl_screen {

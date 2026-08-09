@@ -14,6 +14,11 @@ It implements:
 - modified markers, per-Look reset, and the complete restriction matrix; and
 - a strict 164-byte, versioned, CRC-32-protected persistence blob.
 
+`creative_look_view.c` adds a fixed 20-element presentation frame, integer
+layout in logical milli-units, stale-frame-resistant touch dispatch, and
+caller-owned presentation/storage callbacks. It remains allocation-free and
+does not name or link any Sony class, event, storage record, or processor.
+
 The runtime state is 155 bytes. It performs no allocation, file I/O, dynamic
 loading, networking, USB access, image processing, or firmware operation.
 
@@ -38,12 +43,14 @@ can consume or emit the blob on camera.
 
 ## Integration boundary
 
-The core is the native product-state layer only. A future target adapter still
-needs to bind:
+The core and view adapter are the portable product-state and interaction
+layers only. A future target integration still needs to bind:
 
 1. the α6400 view/factory lifecycle to this state;
-2. concrete touch and orientation events to its transition functions;
-3. a proven target persistence record to `cl_encode`/`cl_decode`; and
+2. concrete target touch/orientation delivery to `cl_view_touch` and
+   `cl_view_present`;
+3. a proven target persistence record to `cl_storage_load`/`cl_storage_save`;
+   and
 4. the selected Look and eight axes to live-view, still-JPEG, and movie
    processing consumers.
 
@@ -58,7 +65,9 @@ No camera build, package, or test is authorized by this source.
 
 ## Offline verification
 
-`tests/analysis/test_creative_look_native_core.py` compiles the source twice:
-as a host shared library for behavioral conformance and as a freestanding C99
-object with warnings treated as errors. It then compares the native transitions
-to the Python reference model and mutation-tests the persistence decoder.
+`tests/analysis/test_creative_look_native_core.py` and
+`tests/analysis/test_creative_look_native_view.py` compile the sources as a
+host shared library and as freestanding C99 objects with warnings treated as
+errors. They compare transitions and all four native frames against the Python
+reference model, drive touch-only interaction, exercise adapter failures, and
+mutation-test the persistence decoder.
