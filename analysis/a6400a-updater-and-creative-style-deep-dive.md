@@ -618,6 +618,22 @@ immediate 10. None proves both a `ViewSettingMenu` receiver and selector value
 false. Noncanonical dispatch, runtime callbacks, cross-module delivery, and the
 decode-incomplete owner universe remain unresolved.
 
+The follow-on cross-ELF scan widens only that canonical negative universe. It
+starts from the authenticated inventory of 324 ELF files; 222 expose usable
+ARM EXIDX ownership and 102 do not. Across 195,837 fully decoded owners it
+finds 111 canonical receiver-vptr to slot-37 register transfers. The only
+selectors that remain statically live as immediates at those calls are `0`,
+`0`, and `1`, all in `libmpr.so` owners; selector `10` does not occur.
+Within VU2, the two decoded inbound routes to helpers at `0x3110bc` and
+`0x3112dc` come from slot 36 of the distinct RTTI-backed
+`AfImplForOrientationRegisterAF` table at address point `0x8e6228`, not the
+`ViewSettingMenu` table at `0x8e2270`. The remaining helper at `0x310e30` has
+neither a decoded direct inbound edge nor relocation-backed publication. This
+does not establish whole-runtime absence: 13,885 owners remain incomplete,
+the 102 no-EXIDX files are excluded, and noncanonical or runtime-indirect
+dispatch is outside the scan. The fail-closed record is
+`analysis/a6400-creative-style-productaction-delivery-boundary.json`.
+
 The candidate generic initialization path cannot make ordinals `1,5,2` live,
 but the typed persistence route explains how later selection could establish
 them if the effective stored indices are `0,4,1`. Those runtime values and the
@@ -630,8 +646,10 @@ first-class Creative Look, processing/output behavior, installability,
 recovery, and camera-test eligibility remain false. The next safe experiment
 is the runtime source/delivery of `ViewSettingMenu` selector 0 with effective
 backup indices `0,4,1`, together with a receiver-proven ProductAction
-selector-10 delivery edge, not a firmware modification. The fail-closed record is
-`analysis/a6400-creative-style-selected-node-identity-boundary.json`.
+selector-10 delivery edge through a noncanonical, decode-incomplete, or
+runtime-indirect path, not a firmware modification. The fail-closed records are
+`analysis/a6400-creative-style-selected-node-identity-boundary.json` and
+`analysis/a6400-creative-style-productaction-delivery-boundary.json`.
 
 ### Target-native Creative Style interaction surface
 

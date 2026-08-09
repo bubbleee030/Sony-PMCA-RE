@@ -1,0 +1,235 @@
+{
+  "analysis_scope": "offline-static-creative-style-productaction-delivery-boundary",
+  "camera_executed": false,
+  "camera_policy": "physically-disconnected",
+  "camera_test_eligible": false,
+  "canonical_slot37_scan": {
+    "call_modules": [
+      {
+        "canonical_call_count": 51,
+        "complete_owner_count": 15952,
+        "incomplete_owner_count": 333,
+        "module": "bin/orb-server"
+      },
+      {
+        "canonical_call_count": 3,
+        "complete_owner_count": 6469,
+        "incomplete_owner_count": 741,
+        "module": "lib/CautionConfig.so"
+      },
+      {
+        "canonical_call_count": 1,
+        "complete_owner_count": 841,
+        "incomplete_owner_count": 22,
+        "module": "lib/libBizFw.so"
+      },
+      {
+        "canonical_call_count": 28,
+        "complete_owner_count": 33110,
+        "incomplete_owner_count": 3732,
+        "module": "lib/libmpr.so"
+      },
+      {
+        "canonical_call_count": 22,
+        "complete_owner_count": 56271,
+        "incomplete_owner_count": 3343,
+        "module": "lib/libObj.so"
+      },
+      {
+        "canonical_call_count": 6,
+        "complete_owner_count": 28869,
+        "incomplete_owner_count": 1594,
+        "module": "lib/viewUnified2.so"
+      }
+    ],
+    "canonical_call_count": 111,
+    "complete_owner_count": 195837,
+    "excluded_file_count": 102,
+    "excluded_reason_counts": {
+      "kernel-module-without-usable-arm-exidx": 101,
+      "shared-object-without-usable-arm-exidx": 1
+    },
+    "excluded_records_sha256": "d8b68f50d377b03b731b4150c1544780e6b5e0bde88b28111c1a2e96237deeef",
+    "exidx_scanned_file_count": 222,
+    "incomplete_owner_count": 13885,
+    "incomplete_owner_dispatch_scanned": false,
+    "known_selector_calls": [
+      {
+        "call_site": 7561968,
+        "module": "lib/libmpr.so",
+        "owner_end": 7562152,
+        "owner_start": 7561864,
+        "selector": 0,
+        "slot_load_site": 7561964,
+        "vptr_load_site": 7561962
+      },
+      {
+        "call_site": 8128854,
+        "module": "lib/libmpr.so",
+        "owner_end": 8129028,
+        "owner_start": 8128744,
+        "selector": 0,
+        "slot_load_site": 8128850,
+        "vptr_load_site": 8128848
+      },
+      {
+        "call_site": 8128992,
+        "module": "lib/libmpr.so",
+        "owner_end": 8129028,
+        "owner_start": 8128744,
+        "selector": 1,
+        "slot_load_site": 8128988,
+        "vptr_load_site": 8128986
+      }
+    ],
+    "known_selector_calls_sha256": "289eaac4a75dcaca96a5d86525af6f70a7dd907b6abf03598cc62bb8a838bb2f",
+    "known_selector_histogram": {
+      "0": 2,
+      "1": 1
+    },
+    "noncanonical_dispatch_scanned": false,
+    "runtime_indirect_dispatch_scanned": false,
+    "scope": "authenticated-inventory-elf-files-with-usable-arm-exidx-and-fully-decoded-thumb-owners-canonical-vptr-slot37-blx-shape",
+    "selector_10_call_count": 0,
+    "unknown_selector_count": 108,
+    "whole_elf_universe_absence_proven": false
+  },
+  "claims": {
+    "af_orientation_false_lead_identified": true,
+    "canonical_cross_elf_productaction_inventory_found": true,
+    "first_class_creative_look_proven": false,
+    "known_selector_10_call_found": false,
+    "process_id_42_activation_proven": false,
+    "processing_output_binding_proven": false,
+    "productaction_selector_10_delivery_proven": false,
+    "runtime_creative_style_selection_proven": false,
+    "viewcreativestyle_factory_invocation_proven": false,
+    "viewsettingmenu_receiver_proven": false,
+    "whole_runtime_absence_proven": false
+  },
+  "conclusion": "Across the authenticated 324-ELF inventory, 222 files expose usable ARM EXIDX ownership. Their 195,837 fully decoded owners contain 111 canonical receiver-vptr to slot-37 register transfers; the only statically live immediate selectors are 0, 0, and 1 in libmpr owners, never selector 10. In viewUnified2, two direct helper routes are reached through slot 36 of the distinct AfImplForOrientationRegisterAF table, while the remaining helper has no decoded direct inbound or relocation-backed publication. This canonical bounded scan does not prove whole-runtime absence: 102 ELF files lack usable EXIDX ownership, 13,885 owners are incomplete, and noncanonical or runtime-indirect dispatch remains unresolved. A ViewSettingMenu receiver carrying ProductAction selector 10, runtime Creative Style selection, process-ID 42 activation, ViewCreativeStyle factory invocation, first-class Creative Look, processing/output binding, installation, recovery, and camera eligibility remain unproven.",
+  "dependencies": {
+    "orientation_object_table": {
+      "af_address_point": 9331240,
+      "canonical_export_sha256": "86daf8ed9640fac1825c1076a21b0252a59b2619024af031d036fe31816ddcd4",
+      "report": "analysis/a6400-orientation-object-table-boundary.json",
+      "widget_address_point_match_count": 0
+    },
+    "selected_node_identity": {
+      "canonical_export_sha256": "dee95f6e6e33e48a0beb3aff1b0cbe33331b91ce6bb38002fc1b56bcb87aa7c6",
+      "report": "analysis/a6400-creative-style-selected-node-identity-boundary.json",
+      "schema_version": 5,
+      "viewsettingmenu_productaction_10_delivery_proven": false
+    }
+  },
+  "first_unresolved_boundary": "noncanonical-or-incomplete-owner-or-runtime-indirect-viewsettingmenu-receiver-productaction-selector-10-delivery",
+  "installable": false,
+  "productaction_interface": {
+    "forwarded_slot": 64,
+    "forwarded_slot_offset": 256,
+    "module": "lib/viewUnified2.so",
+    "module_sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+    "module_size": 11530552,
+    "productaction_end": 3085150,
+    "productaction_entry": 3085136,
+    "productaction_symbol": "_ZN15ViewBaseProduct13ProductActionEi",
+    "productaction_symbol_index": 2323,
+    "required_selector": 10,
+    "viewsettingmenu_address_point": 9314928,
+    "viewsettingmenu_slot37_cell": 9315076
+  },
+  "readiness": "BOUNDED_CANONICAL_PRODUCTACTION_SELECTOR_10_NOT_FOUND",
+  "recovery_validated": false,
+  "schema_version": 1,
+  "summary": {
+    "canonical_call_count": 111,
+    "canonical_export_sha256": "a3c72c7b8cccb181dc46e82184ae2009b1a0e27e67093a03a1a86c841589eac8",
+    "elf_file_count": 324,
+    "exidx_scanned_file_count": 222,
+    "selector_10_call_count": 0
+  },
+  "vu2_direct_caller_classification": {
+    "af_slot36_route": {
+      "address_point": 9331240,
+      "address_points_equal": false,
+      "cell": 9331384,
+      "direct_tail_routes": [
+        {
+          "site": 3221706,
+          "target": 3216092
+        },
+        {
+          "site": 3221818,
+          "target": 3215548
+        }
+      ],
+      "owner": {
+        "end": 3221884,
+        "start": 3221612
+      },
+      "relocation_index": 20028,
+      "relocation_type": 23,
+      "slot": 36,
+      "slot_offset": 144,
+      "target": 3221612,
+      "type_name": "AfImplForOrientationRegisterAF",
+      "viewsettingmenu_address_point": 9314928,
+      "viewsettingmenu_receiver_proven": false
+    },
+    "large_helpers": [
+      {
+        "decoded_direct_inbound_count": 0,
+        "defined_symbol_count": 0,
+        "end": 3215548,
+        "receiver_origin": "entry-r0",
+        "relative_address_taken_count": 0,
+        "start": 3214896,
+        "viewsettingmenu_identity_proven": false
+      },
+      {
+        "decoded_direct_inbound_count": 1,
+        "defined_symbol_count": 0,
+        "end": 3216092,
+        "receiver_origin": "af-slot36-route-entry-r0",
+        "relative_address_taken_count": 0,
+        "start": 3215548,
+        "viewsettingmenu_identity_proven": false
+      },
+      {
+        "decoded_direct_inbound_count": 1,
+        "defined_symbol_count": 0,
+        "end": 3216660,
+        "receiver_origin": "af-slot36-route-entry-r0",
+        "relative_address_taken_count": 0,
+        "start": 3216092,
+        "viewsettingmenu_identity_proven": false
+      }
+    ],
+    "productaction_parent_owner": {
+      "defined_symbol_count": 0,
+      "direct_inbound_calls": [
+        {
+          "owner_end": 3215548,
+          "owner_start": 3214896,
+          "site": 3215486
+        },
+        {
+          "owner_end": 3216092,
+          "owner_start": 3215548,
+          "site": 3216032
+        },
+        {
+          "owner_end": 3216660,
+          "owner_start": 3216092,
+          "site": 3216582
+        }
+      ],
+      "end": 3214896,
+      "relative_address_taken_count": 0,
+      "selector_origin": "call-clobbered-before-each-slot37-transfer",
+      "start": 3214552
+    },
+    "vu2_direct_inbound_scan_complete": false,
+    "vu2_incomplete_owner_count": 1594
+  }
+}
