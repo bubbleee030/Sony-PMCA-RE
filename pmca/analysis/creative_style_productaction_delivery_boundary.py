@@ -317,6 +317,151 @@ PRODUCTACTION_SYMBOL_PUBLICATION = {
     "cross_module_provider_binding_proven": False,
     "publication_proves_invocation": False,
 }
+TYPED_PRODUCTACTION_PUBLICATIONS = {
+    "scope": "all-productaction-abs32-cells-derived-primary-vtable-and-slot64-relations",
+    "record_count": 186,
+    "records_sha256": "6b061f8136480b242cb12f9a642ffceee8d6edb069354fbb3800ad7db50b42b6",
+    "zero_offset_to_top_count": 186,
+    "rtti_name_resolved_count": 186,
+    "rtti_header_relative_count": 184,
+    "rtti_header_abs32_count": 2,
+    "slot64_cell_count": 186,
+    "slot64_relative_count": 184,
+    "slot64_abs32_count": 2,
+    "viewsettingmenu": {
+        "module": "lib/viewUnified2.so",
+        "product_cell": 0x8E2304,
+        "address_point": 0x8E2270,
+        "header": 0x8E2268,
+        "offset_to_top": 0,
+        "rtti": 0x8E2434,
+        "rtti_rel_type": 23,
+        "rtti_symbol": None,
+        "type_name": "15ViewSettingMenu",
+        "slot64_cell": 0x8E2370,
+        "slot64_raw": 0x21355F,
+        "slot64_rel_type": 23,
+        "slot64_symbol": None,
+    },
+    "viewcreativestyle": {
+        "module": "lib/viewUnified2.so",
+        "product_cell": 0x93ED54,
+        "address_point": 0x93ECC0,
+        "header": 0x93ECB8,
+        "offset_to_top": 0,
+        "rtti": 0x93EC9C,
+        "rtti_rel_type": 23,
+        "rtti_symbol": None,
+        "type_name": "17ViewCreativeStyle",
+        "slot64_cell": 0x93EDC0,
+        "slot64_raw": 0x5D058D,
+        "slot64_rel_type": 23,
+        "slot64_symbol": None,
+    },
+    "typed_publication_proves_invocation": False,
+}
+WIDENED_BASIC_BLOCK_SLOT37_SCAN = {
+    "scope": (
+        "same-authenticated-exidx-fully-decoded-owner-universe-whole-basic-block-"
+        "receiver-vptr-slot37-blx-def-use"
+    ),
+    "complete_owner_count": 195_837,
+    "incomplete_owner_count": 13_885,
+    "call_count": 112,
+    "call_records_sha256": "bd40f4fd0ab6b4e380b92a7d2839aac39b62a51cea366d174ea3cb4fdd090a45",
+    "explicit_selector_candidate_count": 8,
+    "explicit_selector_candidates_sha256": (
+        "4a13e58b0832018c2e5584c9c84f7b3822a01ec7fe7d2a19da71b3872d74e218"
+    ),
+    "explicit_selector_histogram": {
+        "0": 2,
+        "1": 1,
+        "4": 1,
+        "16": 2,
+        "4103": 1,
+        "4138": 1,
+    },
+    "selector_10_candidate_count": 0,
+    "intervening_call_candidate_count": 5,
+    "intervening_call_preservation_validated_count": 0,
+    "additional_call": {
+        "module": "lib/libObj.so",
+        "owner_start": 0x1405E8,
+        "owner_end": 0x140824,
+        "vptr_load_site": 0x140638,
+        "slot_load_site": 0x14065A,
+        "call_site": 0x140664,
+        "selector_candidate_source_site": 0x14062C,
+        "selector_candidate": 16,
+        "intervening_call_site": 0x140634,
+        "intervening_call_target": 0x107AC8,
+        "receiver_type": "N9OBJEFFECT24SequenceDecodeBackgroundE",
+        "receiver_address_point": 0x131F4D0,
+        "viewsettingmenu_receiver": False,
+        "accepted": False,
+    },
+    "non_basic_block_or_runtime_indirect_scanned": False,
+    "whole_runtime_absence_proven": False,
+}
+VIEWSETTINGMENU_FACTORY_AVAILABILITY = {
+    "module": "lib/viewUnified2.so",
+    "factory_symbol": "ViewSettingMenuToInstance",
+    "factory_symbol_index": 3_053,
+    "factory_entry": 0x205574,
+    "factory_end": 0x205598,
+    "allocation_size": 0x3D0,
+    "allocation_size_site": 0x205576,
+    "allocation_call_site": 0x20557E,
+    "allocation_symbol": "_Znwj",
+    "constructor_call_site": 0x205586,
+    "constructor_entry": 0x204C90,
+    "constructor_end": 0x204D08,
+    "direct_factory_call_count": 0,
+    "relative_factory_publication_count": 0,
+    "vptr_store": {
+        "pic_base_load_site": 0x204C96,
+        "pic_base_literal_cell": 0x204D00,
+        "pic_base_literal_word": 0x73F9FC,
+        "pic_base_add_site": 0x204CA0,
+        "pic_base": 0x9446A0,
+        "got_offset_load_site": 0x204C9E,
+        "got_offset_literal_cell": 0x204D04,
+        "got_offset": 0x2668,
+        "got_cell": 0x946D08,
+        "got_relocation_index": 54_506,
+        "vtable_header": 0x8E2268,
+        "address_point": 0x8E2270,
+        "store_site": 0x204CB2,
+    },
+    "registration_row": {
+        "owner": {"start": 0x40B9D4, "end": 0x40F1EC},
+        "alias_load_site": 0x40D1C4,
+        "alias_literal_cell": 0x40D704,
+        "alias_literal_word": 0x3A11EE,
+        "alias_add_site": 0x40D1C8,
+        "alias_address": 0x7AE3BA,
+        "alias": "view/SETTINGMENUX",
+        "get_call_site": 0x40D1CA,
+        "component_load_site": 0x40D1CE,
+        "component_literal_cell": 0x40D708,
+        "component_literal_word": 0x3A11F2,
+        "component_add_site": 0x40D1D6,
+        "component_address": 0x7AE3CC,
+        "component": "viewSettingMenu.so",
+        "factory_load_site": 0x40D1D2,
+        "factory_literal_cell": 0x40D70C,
+        "factory_literal_word": 0x3A1203,
+        "factory_add_site": 0x40D1D8,
+        "factory_address": 0x7AE3DF,
+        "factory": "ViewSettingMenuToInstance",
+        "id_to_key_site": 0x40D1DA,
+        "receiver_site": 0x40D1DC,
+        "add_call_site": 0x40D1DE,
+        "component_file_match_count": 0,
+    },
+    "runtime_registration_invocation_proven": False,
+    "runtime_factory_invocation_proven": False,
+}
 VU2_DIRECT_CALLER_CLASSIFICATION = {
     "productaction_parent_owner": {
         "start": 0x310CD8,
@@ -397,12 +542,16 @@ CLAIMS = {
     "productaction_abs32_publications_found": True,
     "productaction_plt_or_glob_dat_binding_found": False,
     "direct_productaction_call_found": False,
+    "typed_productaction_primary_vtables_found": True,
+    "widened_basic_block_selector_10_candidate_found": False,
+    "viewsettingmenu_local_factory_and_constructor_found": True,
+    "viewsettingmenu_runtime_factory_invocation_proven": False,
 }
 FIRST_UNRESOLVED_BOUNDARY = (
     "noncanonical-or-incomplete-owner-or-runtime-indirect-viewsettingmenu-"
     "receiver-productaction-selector-10-delivery"
 )
-READINESS = "BOUNDED_CANONICAL_SLOT37_AND_SLOT64_SELECTOR_10_NOT_FOUND"
+READINESS = "TYPED_PUBLICATION_AND_WIDENED_BASIC_BLOCK_SELECTOR_10_NOT_FOUND"
 CONCLUSION = (
     "Across the authenticated 324-ELF inventory, 222 files expose usable ARM EXIDX ownership. "
     "Their 195,837 fully decoded owners contain 111 canonical receiver-vptr to slot-37 register "
@@ -411,7 +560,13 @@ CONCLUSION = (
     "their twelve live immediates are 0, 6, 15, 16, 18, 19, 191, or 262, again never 10. "
     "Seven viewUnified modules publish ProductAction through 186 R_ARM_ABS32 cells, but expose "
     "no PLT/GLOB_DAT binding and no decoded direct call to the VU2 wrapper; publication is not "
-    "invocation. In viewUnified2, two direct helper routes are reached through "
+    "invocation. All 186 cells derive zero-offset RTTI-backed primary vtables with concrete "
+    "slot-64 cells. A whole-basic-block def-use scan expands slot-37 transfers from 111 to 112; "
+    "eight explicit selector candidates are 0, 0, 1, 4, 16, 16, 4103, or 4138, never 10. "
+    "The sole new transfer is a SequenceDecodeBackground receiver, not ViewSettingMenu. "
+    "VU2 defines ViewSettingMenuToInstance, its constructor installs address point 0x8e2270, "
+    "and a view/SETTINGMENUX registration row names the factory, but no runtime registration or "
+    "factory invocation is proven. In viewUnified2, two direct helper routes are reached through "
     "slot 36 of the distinct AfImplForOrientationRegisterAF table, while the remaining helper "
     "has no decoded direct inbound or relocation-backed publication. This canonical bounded scan "
     "does not prove whole-runtime absence: 102 ELF files lack usable EXIDX ownership, 13,885 "
@@ -423,7 +578,7 @@ CONCLUSION = (
 )
 
 EXPECTED_RAW_EXPORT = {
-    "schema_version": 2,
+    "schema_version": 3,
     "analysis_mode": {
         "read_only": True,
         "static_elf_analysis": True,
@@ -435,6 +590,9 @@ EXPECTED_RAW_EXPORT = {
     "canonical_slot37_scan": CANONICAL_SLOT37_SCAN,
     "direct_slot64_scan": DIRECT_SLOT64_SCAN,
     "productaction_symbol_publication": PRODUCTACTION_SYMBOL_PUBLICATION,
+    "typed_productaction_publications": TYPED_PRODUCTACTION_PUBLICATIONS,
+    "widened_basic_block_slot37_scan": WIDENED_BASIC_BLOCK_SLOT37_SCAN,
+    "viewsettingmenu_factory_availability": VIEWSETTINGMENU_FACTORY_AVAILABILITY,
     "vu2_direct_caller_classification": VU2_DIRECT_CALLER_CLASSIFICATION,
     "claims": CLAIMS,
     "first_unresolved_boundary": FIRST_UNRESOLVED_BOUNDARY,
@@ -500,6 +658,24 @@ def normalize_creative_style_productaction_delivery_boundary_export(document):
         raise CreativeStyleProductActionDeliveryBoundaryError(
             "direct slot-64 or ProductAction publication inventory is inconsistent"
         )
+    typed = document["typed_productaction_publications"]
+    widened = document["widened_basic_block_slot37_scan"]
+    availability = document["viewsettingmenu_factory_availability"]
+    if (
+        typed["record_count"] != publications["abs32_publication_cell_count"]
+        or typed["rtti_header_relative_count"] + typed["rtti_header_abs32_count"]
+        != typed["record_count"]
+        or typed["slot64_relative_count"] + typed["slot64_abs32_count"]
+        != typed["slot64_cell_count"]
+        or sum(widened["explicit_selector_histogram"].values())
+        != widened["explicit_selector_candidate_count"]
+        or widened["selector_10_candidate_count"] != 0
+        or availability["vptr_store"]["address_point"]
+        != typed["viewsettingmenu"]["address_point"]
+    ):
+        raise CreativeStyleProductActionDeliveryBoundaryError(
+            "typed ProductAction or widened delivery inventory is inconsistent"
+        )
     return copy.deepcopy(document)
 
 
@@ -508,7 +684,7 @@ def build_creative_style_productaction_delivery_boundary_report(document):
 
     raw = normalize_creative_style_productaction_delivery_boundary_export(document)
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "analysis_scope": "offline-static-creative-style-productaction-delivery-boundary",
         "camera_policy": "physically-disconnected",
         "camera_executed": False,
@@ -533,6 +709,12 @@ def build_creative_style_productaction_delivery_boundary_report(document):
             "productaction_abs32_publication_cell_count": raw[
                 "productaction_symbol_publication"
             ]["abs32_publication_cell_count"],
+            "typed_productaction_vtable_count": raw[
+                "typed_productaction_publications"
+            ]["record_count"],
+            "widened_slot37_call_count": raw[
+                "widened_basic_block_slot37_scan"
+            ]["call_count"],
         },
         "dependencies": copy.deepcopy(raw["dependencies"]),
         "productaction_interface": copy.deepcopy(raw["productaction_interface"]),
@@ -540,6 +722,15 @@ def build_creative_style_productaction_delivery_boundary_report(document):
         "direct_slot64_scan": copy.deepcopy(raw["direct_slot64_scan"]),
         "productaction_symbol_publication": copy.deepcopy(
             raw["productaction_symbol_publication"]
+        ),
+        "typed_productaction_publications": copy.deepcopy(
+            raw["typed_productaction_publications"]
+        ),
+        "widened_basic_block_slot37_scan": copy.deepcopy(
+            raw["widened_basic_block_slot37_scan"]
+        ),
+        "viewsettingmenu_factory_availability": copy.deepcopy(
+            raw["viewsettingmenu_factory_availability"]
         ),
         "vu2_direct_caller_classification": copy.deepcopy(
             raw["vu2_direct_caller_classification"]

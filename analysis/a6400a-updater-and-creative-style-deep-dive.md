@@ -646,6 +646,24 @@ cross-module provider binding. Receiver identity was not established for the
 50 direct slot-64 calls, so this extension remains a canonical bounded
 negative rather than a whole-runtime absence claim.
 
+Resolving the publication geometry further shows that all 186 cells belong to
+186 zero-offset RTTI-backed primary vtables, each with a concrete slot-64 cell.
+The typed set includes `ViewSettingMenu` at address point `0x8e2270` and
+`ViewCreativeStyle` at `0x93ecc0`. Expanding slot-37 matching from the short
+instruction window to whole-basic-block def-use yields 112 whole-basic-block slot-37 transfers.
+Eight explicit selector candidates are `0`, `0`, `1`, `4`, `16`, `16`,
+`4103`, and `4138`; none is selector `10`. The sole newly admitted transfer is
+a `SequenceDecodeBackground` receiver, not a `ViewSettingMenu` receiver.
+
+VU2 also defines `ViewSettingMenuToInstance`: its local factory allocates
+`0x3d0` bytes, calls the local constructor, and that constructor installs the
+exact `ViewSettingMenu` address point. The static registration owner contains
+the complete `view/SETTINGMENUX`, `viewSettingMenu.so`, and
+`ViewSettingMenuToInstance` row. The named component file is absent from the
+authenticated filesystem, and no direct factory caller, runtime registration,
+loader selection, or factory invocation is proven. This is typed lifecycle
+availability, not ProductAction delivery.
+
 The candidate generic initialization path cannot make ordinals `1,5,2` live,
 but the typed persistence route explains how later selection could establish
 them if the effective stored indices are `0,4,1`. Those runtime values and the

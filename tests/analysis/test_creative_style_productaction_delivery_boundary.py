@@ -24,7 +24,7 @@ class CreativeStyleProductActionDeliveryBoundaryContractTests(unittest.TestCase)
         document = normalize_creative_style_productaction_delivery_boundary_export(
             copy.deepcopy(EXPECTED_RAW_EXPORT)
         )
-        self.assertEqual(document["schema_version"], 2)
+        self.assertEqual(document["schema_version"], 3)
         scan = document["canonical_slot37_scan"]
         self.assertEqual(document["firmware_inventory"]["elf_file_count"], 324)
         self.assertEqual(scan["exidx_scanned_file_count"], 222)
@@ -64,6 +64,36 @@ class CreativeStyleProductActionDeliveryBoundaryContractTests(unittest.TestCase)
         self.assertEqual(publications["direct_call_count"], 0)
         self.assertFalse(publications["cross_module_provider_binding_proven"])
 
+        typed = document["typed_productaction_publications"]
+        self.assertEqual(typed["record_count"], 186)
+        self.assertEqual(typed["zero_offset_to_top_count"], 186)
+        self.assertEqual(typed["rtti_name_resolved_count"], 186)
+        self.assertEqual(typed["rtti_header_relative_count"], 184)
+        self.assertEqual(typed["rtti_header_abs32_count"], 2)
+        self.assertEqual(typed["slot64_relative_count"], 184)
+        self.assertEqual(typed["slot64_abs32_count"], 2)
+        self.assertEqual(typed["viewsettingmenu"]["type_name"], "15ViewSettingMenu")
+        self.assertEqual(typed["viewsettingmenu"]["address_point"], 0x8E2270)
+        self.assertEqual(typed["viewcreativestyle"]["address_point"], 0x93ECC0)
+
+        widened = document["widened_basic_block_slot37_scan"]
+        self.assertEqual(widened["call_count"], 112)
+        self.assertEqual(widened["explicit_selector_candidate_count"], 8)
+        self.assertEqual(
+            widened["explicit_selector_histogram"],
+            {"0": 2, "1": 1, "4": 1, "16": 2, "4103": 1, "4138": 1},
+        )
+        self.assertEqual(widened["selector_10_candidate_count"], 0)
+        self.assertEqual(widened["intervening_call_candidate_count"], 5)
+
+        availability = document["viewsettingmenu_factory_availability"]
+        self.assertEqual(availability["factory_entry"], 0x205574)
+        self.assertEqual(availability["allocation_size"], 0x3D0)
+        self.assertEqual(availability["constructor_entry"], 0x204C90)
+        self.assertEqual(availability["vptr_store"]["address_point"], 0x8E2270)
+        self.assertEqual(availability["registration_row"]["alias"], "view/SETTINGMENUX")
+        self.assertFalse(availability["runtime_factory_invocation_proven"])
+
     def test_contract_rejects_promoted_or_widened_claims(self):
         from pmca.analysis.creative_style_productaction_delivery_boundary import (
             CreativeStyleProductActionDeliveryBoundaryError,
@@ -80,6 +110,9 @@ class CreativeStyleProductActionDeliveryBoundaryContractTests(unittest.TestCase)
             lambda value: value["direct_slot64_scan"].__setitem__("selector_10_call_count", 1),
             lambda value: value["productaction_symbol_publication"].__setitem__("direct_call_count", 1),
             lambda value: value["productaction_symbol_publication"].__setitem__("cross_module_provider_binding_proven", True),
+            lambda value: value["typed_productaction_publications"].__setitem__("record_count", 185),
+            lambda value: value["widened_basic_block_slot37_scan"].__setitem__("selector_10_candidate_count", 1),
+            lambda value: value["viewsettingmenu_factory_availability"].__setitem__("runtime_factory_invocation_proven", True),
         )
         for mutate in mutations:
             candidate = copy.deepcopy(EXPECTED_RAW_EXPORT)
@@ -113,6 +146,9 @@ class CreativeStyleProductActionDeliveryBoundaryContractTests(unittest.TestCase)
             "a6400-creative-style-productaction-delivery-boundary.json",
             "50 canonical direct slot-64 transfers",
             "186 `R_ARM_ABS32` publication cells",
+            "186 zero-offset RTTI-backed primary vtables",
+            "112 whole-basic-block slot-37 transfers",
+            "view/SETTINGMENUX",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, prose)
@@ -153,6 +189,10 @@ class CreativeStyleProductActionDeliveryBoundaryExporterTests(unittest.TestCase)
                 {"site": 0x3128CA, "owner_start": 0x31286C, "owner_end": 0x31297C}
             ],
             0x2F1350: [],
+            0x205574: [],
+            0x204C90: [
+                {"site": 0x205586, "owner_start": 0x205574, "owner_end": 0x205598}
+            ],
         }
         deps = exporter._dependencies()
         baseline = exporter.SOURCE_PATH.read_bytes()
@@ -172,6 +212,58 @@ class CreativeStyleProductActionDeliveryBoundaryExporterTests(unittest.TestCase)
                 exporter._validate_vu2_structure(
                     bytes(mutated), deps, copy.deepcopy(direct_edges)
                 )
+
+    def test_typed_publication_factory_and_false_lead_mutations_fail_closed(self):
+        exporter = self._load()
+        libobj_path = exporter.FIRMWARE_ROOT / "lib/libObj.so"
+        if not exporter.SOURCE_PATH.is_file() or not libobj_path.is_file():
+            self.skipTest("pinned VU2/libObj sources are unavailable")
+
+        import io
+
+        deps = exporter._dependencies()
+
+        def mutate_at(blob, mappings, site):
+            candidate = bytearray(blob)
+            start, _end, file_start = next(
+                item for item in mappings if item[0] <= site < item[1]
+            )
+            candidate[file_start + site - start] ^= 1
+            return bytes(candidate)
+
+        view = exporter.SOURCE_PATH.read_bytes()
+        view_elf = deps["ELFFile"](io.BytesIO(view))
+        view_mappings = exporter._mappings(view_elf)
+
+        typed_mutation = mutate_at(view, view_mappings, 0x8E226C)
+        typed_elf = deps["ELFFile"](io.BytesIO(typed_mutation))
+        with self.assertRaises(RuntimeError):
+            exporter._productaction_publication(
+                typed_elf,
+                "lib/viewUnified2.so",
+                typed_mutation,
+                exporter._mappings(typed_elf),
+            )
+
+        direct_edges = {
+            0x205574: [],
+            0x204C90: [
+                {"site": 0x205586, "owner_start": 0x205574, "owner_end": 0x205598}
+            ],
+        }
+        factory_mutation = mutate_at(view, view_mappings, 0x205576)
+        with self.assertRaises(RuntimeError):
+            exporter._validate_viewsettingmenu_factory(
+                factory_mutation, deps, copy.deepcopy(direct_edges)
+            )
+
+        libobj = libobj_path.read_bytes()
+        libobj_elf = deps["ELFFile"](io.BytesIO(libobj))
+        false_lead_mutation = mutate_at(
+            libobj, exporter._mappings(libobj_elf), 0x14062C
+        )
+        with self.assertRaises(RuntimeError):
+            exporter._validate_sequence_false_lead(deps, false_lead_mutation)
 
 
 if __name__ == "__main__":
