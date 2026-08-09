@@ -1216,6 +1216,158 @@ def _canonical_slot_37_calls(context, deps):
     return calls, complete_count, incomplete_count
 
 
+def _defined_symbols_covering(context, address):
+    dynsym = context["elf"].get_section_by_name(".dynsym")
+    if dynsym is None:
+        raise RuntimeError("ProductAction caller provenance dynsym is missing")
+    records = []
+    for index, symbol in enumerate(dynsym.iter_symbols()):
+        start = int(symbol["st_value"]) & ~1
+        size = int(symbol["st_size"])
+        if size and start <= address < start + size:
+            records.append(
+                {
+                    "kind": "defined-dynsym",
+                    "symbol_index": index,
+                    "symbol": symbol.name,
+                    "start": start,
+                    "end": start + size,
+                }
+            )
+    return records
+
+
+def _relative_address_taken_records(context, start, end):
+    records = []
+    for index, relocation in enumerate(context["rels"]):
+        if (
+            relocation.entry["r_info_type"] != 23
+            or relocation.entry["r_info_sym"] != 0
+        ):
+            continue
+        cell = relocation.entry["r_offset"]
+        target = _word(context["blob"], context["mappings"], cell) & ~1
+        if start <= target < end:
+            records.append(
+                {
+                    "cell": cell,
+                    "relocation_index": index,
+                    "relocation_type": 23,
+                    "target": target,
+                }
+            )
+    return records
+
+
+def _classify_productaction_callers(context, deps, calls):
+    try:
+        for site, mnemonic, operands in (
+            (0x310CDE, "mov", "r4, r0"),
+            (0x310CF0, "blx", "r3"),
+            (0x35F670, "bl", "#0x35f424"),
+            (0x3E11DE, "mov", "r5, r2"),
+            (0x3E12FC, "bl", "#0x3e0454"),
+            (0x3E1300, "mov", "sb, r0"),
+            (0x3E131A, "mov", "r1, sb"),
+        ):
+            _require_text(
+                context,
+                deps,
+                site,
+                mnemonic,
+                operands,
+                "ProductAction caller provenance",
+            )
+
+        unnamed_310 = _defined_symbols_covering(context, 0x310CD8)
+        af_symbols = _defined_symbols_covering(context, 0x35F66C)
+        unnamed_3e = _defined_symbols_covering(context, 0x3E11D4)
+        if unnamed_310 or unnamed_3e or af_symbols != [
+            {
+                "kind": "defined-dynsym",
+                "symbol_index": 1_718,
+                "symbol": (
+                    "_ZN27CmnWrpOrientationRegisterAF26"
+                    "getRecallRegisteredAfFrameEv"
+                ),
+                "start": 0x35F66C,
+                "end": 0x35F67E,
+            }
+        ]:
+            raise RuntimeError("ProductAction caller provenance symbol differs")
+
+        owner_records = {}
+        for start, end in (
+            (0x310CD8, 0x310E30),
+            (0x35F66C, 0x35F67E),
+            (0x3E11D4, 0x3E134C),
+        ):
+            owner_records[start] = _relative_address_taken_records(
+                context, start, end
+            )
+
+        for call in calls:
+            owner_start = call["owner"]["start"]
+            call_site = call["call_site"]
+            if owner_start == 0x310CD8:
+                call.update(
+                    {
+                        "receiver_origin": "entry-r0-preserved-r4",
+                        "selector_origin": "call-clobbered",
+                        "owner_identity": {
+                            "kind": "unnamed-exidx-owner",
+                            "symbol_index": None,
+                            "symbol": None,
+                        },
+                        "address_taken_records": owner_records[owner_start],
+                        "rejection_reason": (
+                            "receiver-untyped-and-selector-call-clobbered"
+                        ),
+                    }
+                )
+            elif call_site == 0x35F67A:
+                call.update(
+                    {
+                        "receiver_origin": "helper-return-0x35f670",
+                        "selector_origin": "call-clobbered",
+                        "owner_identity": {
+                            "kind": "defined-dynsym",
+                            "symbol_index": 1_718,
+                            "symbol": (
+                                "_ZN27CmnWrpOrientationRegisterAF26"
+                                "getRecallRegisteredAfFrameEv"
+                            ),
+                        },
+                        "address_taken_records": owner_records[owner_start],
+                        "rejection_reason": (
+                            "af-helper-return-receiver-and-"
+                            "selector-call-clobbered"
+                        ),
+                    }
+                )
+            elif call_site == 0x3E1328:
+                call.update(
+                    {
+                        "receiver_origin": "entry-r2-preserved-r5",
+                        "selector_origin": "helper-return-0x3e12fc",
+                        "owner_identity": {
+                            "kind": "unnamed-exidx-owner",
+                            "symbol_index": None,
+                            "symbol": None,
+                        },
+                        "address_taken_records": owner_records[owner_start],
+                        "rejection_reason": (
+                            "entry-r2-receiver-and-helper-return-selector"
+                        ),
+                    }
+                )
+            else:
+                raise RuntimeError("ProductAction caller provenance owner differs")
+    except (KeyError, RuntimeError, TypeError, ValueError) as exc:
+        raise RuntimeError("ProductAction caller provenance differs") from exc
+    return calls
+
+
 def _validate_productaction_scan_result(document):
     if document != PRODUCTACTION_DELIVERY:
         raise RuntimeError("bounded ProductAction delivery inventory differs")
@@ -1225,6 +1377,7 @@ def _validate_productaction_scan_result(document):
 def _validate_productaction_delivery(context, deps):
     document = _validate_productaction_interface(context, deps)
     calls, complete_count, incomplete_count = _canonical_slot_37_calls(context, deps)
+    calls = _classify_productaction_callers(context, deps, calls)
     document.update(
         {
             "fully_decoded_owner_count": complete_count,
@@ -1236,6 +1389,9 @@ def _validate_productaction_delivery(context, deps):
                 item["receiver_identity_proven"] for item in calls
             ),
             "selector_10_proven": any(item["selector_10_proven"] for item in calls),
+            "unresolved_universes": copy.deepcopy(
+                PRODUCTACTION_DELIVERY["unresolved_universes"]
+            ),
             "whole_program_absence_proven": False,
         }
     )

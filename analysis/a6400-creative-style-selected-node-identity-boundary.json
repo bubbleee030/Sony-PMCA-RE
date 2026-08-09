@@ -284,85 +284,146 @@
     "canonical_slot_37_calls": [
       {
         "accepted": false,
+        "address_taken_records": [],
         "call_site": 3214598,
         "owner": {
           "complete": true,
           "end": 3214896,
           "start": 3214552
         },
+        "owner_identity": {
+          "kind": "unnamed-exidx-owner",
+          "symbol": null,
+          "symbol_index": null
+        },
         "receiver_identity_proven": false,
+        "receiver_origin": "entry-r0-preserved-r4",
         "receiver_register": "r4",
+        "rejection_reason": "receiver-untyped-and-selector-call-clobbered",
         "selector_10_proven": false,
+        "selector_origin": "call-clobbered",
         "slot_load_site": 3214594,
         "vptr_load_site": 3214590
       },
       {
         "accepted": false,
+        "address_taken_records": [],
         "call_site": 3214708,
         "owner": {
           "complete": true,
           "end": 3214896,
           "start": 3214552
         },
+        "owner_identity": {
+          "kind": "unnamed-exidx-owner",
+          "symbol": null,
+          "symbol_index": null
+        },
         "receiver_identity_proven": false,
+        "receiver_origin": "entry-r0-preserved-r4",
         "receiver_register": "r4",
+        "rejection_reason": "receiver-untyped-and-selector-call-clobbered",
         "selector_10_proven": false,
+        "selector_origin": "call-clobbered",
         "slot_load_site": 3214704,
         "vptr_load_site": 3214700
       },
       {
         "accepted": false,
+        "address_taken_records": [],
         "call_site": 3214754,
         "owner": {
           "complete": true,
           "end": 3214896,
           "start": 3214552
         },
+        "owner_identity": {
+          "kind": "unnamed-exidx-owner",
+          "symbol": null,
+          "symbol_index": null
+        },
         "receiver_identity_proven": false,
+        "receiver_origin": "entry-r0-preserved-r4",
         "receiver_register": "r4",
+        "rejection_reason": "receiver-untyped-and-selector-call-clobbered",
         "selector_10_proven": false,
+        "selector_origin": "call-clobbered",
         "slot_load_site": 3214750,
         "vptr_load_site": 3214746
       },
       {
         "accepted": false,
+        "address_taken_records": [],
         "call_site": 3214800,
         "owner": {
           "complete": true,
           "end": 3214896,
           "start": 3214552
         },
+        "owner_identity": {
+          "kind": "unnamed-exidx-owner",
+          "symbol": null,
+          "symbol_index": null
+        },
         "receiver_identity_proven": false,
+        "receiver_origin": "entry-r0-preserved-r4",
         "receiver_register": "r4",
+        "rejection_reason": "receiver-untyped-and-selector-call-clobbered",
         "selector_10_proven": false,
+        "selector_origin": "call-clobbered",
         "slot_load_site": 3214796,
         "vptr_load_site": 3214792
       },
       {
         "accepted": false,
+        "address_taken_records": [],
         "call_site": 3536506,
         "owner": {
           "complete": true,
           "end": 3536510,
           "start": 3536492
         },
+        "owner_identity": {
+          "kind": "defined-dynsym",
+          "symbol": "_ZN27CmnWrpOrientationRegisterAF26getRecallRegisteredAfFrameEv",
+          "symbol_index": 1718
+        },
         "receiver_identity_proven": false,
+        "receiver_origin": "helper-return-0x35f670",
         "receiver_register": "r0",
+        "rejection_reason": "af-helper-return-receiver-and-selector-call-clobbered",
         "selector_10_proven": false,
+        "selector_origin": "call-clobbered",
         "slot_load_site": 3536502,
         "vptr_load_site": 3536500
       },
       {
         "accepted": false,
+        "address_taken_records": [
+          {
+            "cell": 9352280,
+            "relocation_index": 23651,
+            "relocation_type": 23,
+            "target": 4067796
+          }
+        ],
         "call_site": 4068136,
         "owner": {
           "complete": true,
           "end": 4068172,
           "start": 4067796
         },
+        "owner_identity": {
+          "kind": "unnamed-exidx-owner",
+          "symbol": null,
+          "symbol_index": null
+        },
         "receiver_identity_proven": false,
+        "receiver_origin": "entry-r2-preserved-r5",
         "receiver_register": "r5",
+        "rejection_reason": "entry-r2-receiver-and-helper-return-selector",
         "selector_10_proven": false,
+        "selector_origin": "helper-return-0x3e12fc",
         "slot_load_site": 4068130,
         "vptr_load_site": 4068120
       }
@@ -403,6 +464,12 @@
       "relocation_type": 23,
       "target": 2176350
     },
+    "unresolved_universes": [
+      "decode-incomplete-or-terminal-exidx-owners",
+      "noncanonical-virtual-dispatch",
+      "indirect-callback-or-runtime-initialized-receiver",
+      "cross-module-or-loader-mediated-delivery"
+    ],
     "viewsettingmenu_vtable_address_point": 9314928,
     "whole_program_absence_proven": false
   },
@@ -629,7 +696,7 @@
     ]
   },
   "summary": {
-    "canonical_export_sha256": "5d999442a84df007ad636fc915cb7203aae3310a1cde167800c5df018ce51517"
+    "canonical_export_sha256": "9fcd3e9f7bbdb47dd5fa9dc3b3250f73e06ec14d5c01d93753c63f9a1dff7e0d"
   },
   "supporting_source": {
     "module": "lib/CautionConfig.so",

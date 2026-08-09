@@ -413,6 +413,17 @@ SELECTED_ORDINAL_WRITERS = {
     "runtime_selected_ordinal_triplet_1_5_2_proven": False,
 }
 
+UNNAMED_PRODUCTACTION_CALLER_OWNER = {
+    "kind": "unnamed-exidx-owner",
+    "symbol_index": None,
+    "symbol": None,
+}
+AF_PRODUCTACTION_CALLER_OWNER = {
+    "kind": "defined-dynsym",
+    "symbol_index": 1_718,
+    "symbol": "_ZN27CmnWrpOrientationRegisterAF26getRecallRegisteredAfFrameEv",
+}
+
 CANONICAL_SLOT_37_CALLS = [
     {
         "owner": {"start": 0x310CD8, "end": 0x310E30, "complete": True},
@@ -420,6 +431,11 @@ CANONICAL_SLOT_37_CALLS = [
         "slot_load_site": 0x310D02,
         "call_site": 0x310D06,
         "receiver_register": "r4",
+        "receiver_origin": "entry-r0-preserved-r4",
+        "selector_origin": "call-clobbered",
+        "owner_identity": UNNAMED_PRODUCTACTION_CALLER_OWNER,
+        "address_taken_records": [],
+        "rejection_reason": "receiver-untyped-and-selector-call-clobbered",
         "receiver_identity_proven": False,
         "selector_10_proven": False,
         "accepted": False,
@@ -430,6 +446,11 @@ CANONICAL_SLOT_37_CALLS = [
         "slot_load_site": 0x310D70,
         "call_site": 0x310D74,
         "receiver_register": "r4",
+        "receiver_origin": "entry-r0-preserved-r4",
+        "selector_origin": "call-clobbered",
+        "owner_identity": UNNAMED_PRODUCTACTION_CALLER_OWNER,
+        "address_taken_records": [],
+        "rejection_reason": "receiver-untyped-and-selector-call-clobbered",
         "receiver_identity_proven": False,
         "selector_10_proven": False,
         "accepted": False,
@@ -440,6 +461,11 @@ CANONICAL_SLOT_37_CALLS = [
         "slot_load_site": 0x310D9E,
         "call_site": 0x310DA2,
         "receiver_register": "r4",
+        "receiver_origin": "entry-r0-preserved-r4",
+        "selector_origin": "call-clobbered",
+        "owner_identity": UNNAMED_PRODUCTACTION_CALLER_OWNER,
+        "address_taken_records": [],
+        "rejection_reason": "receiver-untyped-and-selector-call-clobbered",
         "receiver_identity_proven": False,
         "selector_10_proven": False,
         "accepted": False,
@@ -450,6 +476,11 @@ CANONICAL_SLOT_37_CALLS = [
         "slot_load_site": 0x310DCC,
         "call_site": 0x310DD0,
         "receiver_register": "r4",
+        "receiver_origin": "entry-r0-preserved-r4",
+        "selector_origin": "call-clobbered",
+        "owner_identity": UNNAMED_PRODUCTACTION_CALLER_OWNER,
+        "address_taken_records": [],
+        "rejection_reason": "receiver-untyped-and-selector-call-clobbered",
         "receiver_identity_proven": False,
         "selector_10_proven": False,
         "accepted": False,
@@ -460,6 +491,13 @@ CANONICAL_SLOT_37_CALLS = [
         "slot_load_site": 0x35F676,
         "call_site": 0x35F67A,
         "receiver_register": "r0",
+        "receiver_origin": "helper-return-0x35f670",
+        "selector_origin": "call-clobbered",
+        "owner_identity": AF_PRODUCTACTION_CALLER_OWNER,
+        "address_taken_records": [],
+        "rejection_reason": (
+            "af-helper-return-receiver-and-selector-call-clobbered"
+        ),
         "receiver_identity_proven": False,
         "selector_10_proven": False,
         "accepted": False,
@@ -470,6 +508,18 @@ CANONICAL_SLOT_37_CALLS = [
         "slot_load_site": 0x3E1322,
         "call_site": 0x3E1328,
         "receiver_register": "r5",
+        "receiver_origin": "entry-r2-preserved-r5",
+        "selector_origin": "helper-return-0x3e12fc",
+        "owner_identity": UNNAMED_PRODUCTACTION_CALLER_OWNER,
+        "address_taken_records": [
+            {
+                "cell": 0x8EB458,
+                "relocation_index": 23_651,
+                "relocation_type": 23,
+                "target": 0x3E11D4,
+            }
+        ],
+        "rejection_reason": "entry-r2-receiver-and-helper-return-selector",
         "receiver_identity_proven": False,
         "selector_10_proven": False,
         "accepted": False,
@@ -515,6 +565,12 @@ PRODUCTACTION_DELIVERY = {
     "accepted_candidates": [],
     "receiver_identity_proven": False,
     "selector_10_proven": False,
+    "unresolved_universes": [
+        "decode-incomplete-or-terminal-exidx-owners",
+        "noncanonical-virtual-dispatch",
+        "indirect-callback-or-runtime-initialized-receiver",
+        "cross-module-or-loader-mediated-delivery",
+    ],
     "whole_program_absence_proven": False,
 }
 

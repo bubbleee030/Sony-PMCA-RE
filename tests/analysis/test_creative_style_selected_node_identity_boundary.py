@@ -53,6 +53,52 @@ class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
             writers["runtime_selected_ordinal_triplet_1_5_2_proven"]
         )
 
+    def test_productaction_candidates_explain_each_bounded_rejection(self):
+        """Break caught: rejected callers may not remain unexplained booleans."""
+        report = validate_creative_style_selected_node_identity_boundary_report(
+            build_creative_style_selected_node_identity_boundary_report(
+                EXPECTED_EXPORT
+            )
+        )
+        delivery = report["productaction_delivery"]
+        calls = delivery["canonical_slot_37_calls"]
+        self.assertEqual(
+            [item["rejection_reason"] for item in calls],
+            [
+                "receiver-untyped-and-selector-call-clobbered",
+                "receiver-untyped-and-selector-call-clobbered",
+                "receiver-untyped-and-selector-call-clobbered",
+                "receiver-untyped-and-selector-call-clobbered",
+                "af-helper-return-receiver-and-selector-call-clobbered",
+                "entry-r2-receiver-and-helper-return-selector",
+            ],
+        )
+        self.assertEqual(
+            calls[4]["owner_identity"],
+            {
+                "kind": "defined-dynsym",
+                "symbol_index": 1718,
+                "symbol": (
+                    "_ZN27CmnWrpOrientationRegisterAF26"
+                    "getRecallRegisteredAfFrameEv"
+                ),
+            },
+        )
+        self.assertEqual(calls[4]["receiver_origin"], "helper-return-0x35f670")
+        self.assertEqual(calls[4]["selector_origin"], "call-clobbered")
+        self.assertEqual(calls[5]["receiver_origin"], "entry-r2-preserved-r5")
+        self.assertEqual(calls[5]["selector_origin"], "helper-return-0x3e12fc")
+        self.assertEqual(delivery["accepted_candidates"], [])
+        self.assertEqual(
+            delivery["unresolved_universes"],
+            [
+                "decode-incomplete-or-terminal-exidx-owners",
+                "noncanonical-virtual-dispatch",
+                "indirect-callback-or-runtime-initialized-receiver",
+                "cross-module-or-loader-mediated-delivery",
+            ],
+        )
+
     def test_exact_static_path_is_positive_but_runtime_selection_is_false(self):
         """Break caught: static membership may not become runtime selection."""
         report = validate_creative_style_selected_node_identity_boundary_report(
@@ -395,7 +441,7 @@ class CreativeStyleSelectedNodeIdentityBoundaryExporterTests(unittest.TestCase):
                 _validate_runtime_selection(mutated, deps)
 
     def test_root_initialization_and_candidate_lifecycle_are_source_derived(self):
-        """Break caught: schema-2 positives may not be unvalidated constants."""
+        """Break caught: root/lifecycle positives may not be unvalidated constants."""
         import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
 
         root_validator = getattr(exporter, "_validate_root_initialization", None)
@@ -716,7 +762,22 @@ class CreativeStyleSelectedNodeIdentityBoundaryExporterTests(unittest.TestCase):
         self.assertEqual(actual["fully_decoded_owner_count"], 28_869)
         self.assertEqual(actual["incomplete_or_terminal_owner_count"], 1_594)
         self.assertEqual(
-            actual["canonical_slot_37_calls"],
+            [
+                {
+                    key: item[key]
+                    for key in (
+                        "owner",
+                        "vptr_load_site",
+                        "slot_load_site",
+                        "call_site",
+                        "receiver_register",
+                        "receiver_identity_proven",
+                        "selector_10_proven",
+                        "accepted",
+                    )
+                }
+                for item in actual["canonical_slot_37_calls"]
+            ],
             [
                 {
                     "owner": {"start": 0x310CD8, "end": 0x310E30, "complete": True},
@@ -782,6 +843,53 @@ class CreativeStyleSelectedNodeIdentityBoundaryExporterTests(unittest.TestCase):
         )
         self.assertEqual(actual["accepted_candidates"], [])
         self.assertFalse(actual["whole_program_absence_proven"])
+
+    def test_productaction_caller_provenance_source_mutations_are_rejected(self):
+        """Break caught: caller rejection reasons must fail when their dataflow drifts."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        validator = getattr(exporter, "_validate_productaction_delivery", None)
+        self.assertTrue(callable(validator))
+        view, _caution, deps = self._real_contexts()
+        for site in (0x310CDE, 0x35F670, 0x3E11DE, 0x3E1300, 0x3E131A):
+            mutated = self._mutated_blob_context(view, site)
+            with self.subTest(site=f"{site:#x}"), self.assertRaisesRegex(
+                RuntimeError, "ProductAction caller provenance"
+            ):
+                validator(mutated, deps)
+
+        real_elf = view["elf"]
+
+        class SymbolProxy:
+            def __init__(self, real):
+                self.real = real
+                self.name = "wrongAfWrapper"
+
+            def __getitem__(self, key):
+                return self.real[key]
+
+        class DynsymProxy:
+            def get_symbol(self, index):
+                real = real_elf.get_section_by_name(".dynsym").get_symbol(index)
+                return SymbolProxy(real) if index == 1718 else real
+
+            def iter_symbols(self):
+                real_dynsym = real_elf.get_section_by_name(".dynsym")
+                for index, real in enumerate(real_dynsym.iter_symbols()):
+                    yield SymbolProxy(real) if index == 1718 else real
+
+        class ElfProxy:
+            def get_section_by_name(self, name):
+                if name == ".dynsym":
+                    return DynsymProxy()
+                return real_elf.get_section_by_name(name)
+
+        mutated = dict(view)
+        mutated["elf"] = ElfProxy()
+        with self.assertRaisesRegex(
+            RuntimeError, "ProductAction caller provenance"
+        ):
+            validator(mutated, deps)
 
     def test_productaction_delivery_scan_drift_and_promotion_are_rejected(self):
         """Break caught: scan drift or a fabricated selector-10 receiver must fail."""
