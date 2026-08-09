@@ -94,11 +94,13 @@
   "claims": {
     "camera_test_eligible": false,
     "candidate_get_selected_item_semantics_found": true,
+    "candidate_provider_conditional_ordinal_triplet_proven": false,
     "candidate_recursive_one_based_ordinal_assignment_found": true,
     "creative_style_static_selected_child_path_0_4_1_found": true,
     "default_product_root_constructor_found": true,
     "first_class_creative_look_proven": false,
     "installable": false,
+    "parent_selected_ordinal_from_child_one_based_field_found": true,
     "process_id_42_activation_accepted": false,
     "processing_or_output_binding_proven": false,
     "product_root_selector_found": true,
@@ -107,6 +109,7 @@
     "runtime_constructor_provider_binding_proven": false,
     "runtime_selected_node_is_creative_style_root_proven": false,
     "runtime_selected_ordinal_triplet_1_5_2_proven": false,
+    "selected_ordinal_writer_inventory_found": true,
     "viewcreative_style_factory_invocation_proven": false,
     "viewsettingmenu_product_root_init_call_found": true,
     "viewsettingmenu_productaction_10_delivery_proven": false
@@ -487,7 +490,7 @@
       2
     ]
   },
-  "schema_version": 2,
+  "schema_version": 3,
   "selected_child_mechanism": {
     "chained_call_count": 3,
     "final_child_returned_proven": true,
@@ -499,6 +502,90 @@
     "root_field_offset": 416,
     "same_result_to_next_receiver_proven": true,
     "virtual_slot_offset": 40
+  },
+  "selected_ordinal_writers": {
+    "candidate_provider_conditional_ordinal_triplet_proven": false,
+    "field_offset": 24,
+    "parent_selected_ordinal_from_child_one_based_field_proven": true,
+    "runtime_selected_ordinal_triplet_1_5_2_proven": false,
+    "typed_owner_inventory_complete": true,
+    "writers": [
+      {
+        "destination_identity": "this",
+        "destination_register": "r4",
+        "owner": {
+          "complete": true,
+          "end": 8154134,
+          "start": 8154066
+        },
+        "role": "selected-item-cache-clamp",
+        "site": 8154112,
+        "source_field_offset": null,
+        "source_identity": "positive-count-clamped-selected-ordinal",
+        "source_register": "r3",
+        "typed_lifecycle_path": true
+      },
+      {
+        "destination_identity": "resolved-super-item",
+        "destination_register": "r3",
+        "owner": {
+          "complete": true,
+          "end": 8155354,
+          "start": 8155226
+        },
+        "role": "parent-selected-ordinal-from-child-one-based-field",
+        "site": 8155306,
+        "source_field_offset": 32,
+        "source_identity": "selected-child-one-based-ordinal",
+        "source_register": "r2",
+        "typed_lifecycle_path": true
+      },
+      {
+        "destination_identity": "this",
+        "destination_register": "r0",
+        "owner": {
+          "complete": true,
+          "end": 8156236,
+          "start": 8155948
+        },
+        "role": "root-default-minus-one",
+        "site": 8155992,
+        "source_field_offset": null,
+        "source_identity": "minus-one",
+        "source_register": "r3",
+        "typed_lifecycle_path": true
+      },
+      {
+        "destination_identity": "resolved-child",
+        "destination_register": "r0",
+        "owner": {
+          "complete": true,
+          "end": 8156236,
+          "start": 8155948
+        },
+        "role": "child-default-minus-one",
+        "site": 8156110,
+        "source_field_offset": null,
+        "source_identity": "minus-one",
+        "source_register": "r3",
+        "typed_lifecycle_path": true
+      },
+      {
+        "destination_identity": "this",
+        "destination_register": "r4",
+        "owner": {
+          "complete": true,
+          "end": 8156282,
+          "start": 8156236
+        },
+        "role": "fallback-missing-child-minus-one",
+        "site": 8156272,
+        "source_field_offset": null,
+        "source_identity": "minus-one",
+        "source_register": "r3",
+        "typed_lifecycle_path": true
+      }
+    ]
   },
   "source": {
     "module": "lib/viewUnified2.so",
@@ -542,7 +629,7 @@
     ]
   },
   "summary": {
-    "canonical_export_sha256": "3a354698c06fd6fef2527b272c317e4c19ec2de0e9798738452958e7743026d9"
+    "canonical_export_sha256": "5d999442a84df007ad636fc915cb7203aae3310a1cde167800c5df018ce51517"
   },
   "supporting_source": {
     "module": "lib/CautionConfig.so",

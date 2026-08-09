@@ -16,6 +16,43 @@ from pmca.analysis.creative_style_selected_node_identity_boundary import (
 
 
 class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
+    def test_schema_3_reports_source_derived_selected_ordinal_writers(self):
+        """Break caught: selected-ordinal writes may not remain asserted lifecycle prose."""
+        report = validate_creative_style_selected_node_identity_boundary_report(
+            build_creative_style_selected_node_identity_boundary_report(
+                EXPECTED_EXPORT
+            )
+        )
+        self.assertEqual(report["schema_version"], 3)
+        writers = report["selected_ordinal_writers"]
+        self.assertEqual(writers["field_offset"], 0x18)
+        self.assertEqual(
+            [item["site"] for item in writers["writers"]],
+            [0x7C6C00, 0x7C70AA, 0x7C7358, 0x7C73CE, 0x7C7470],
+        )
+        self.assertEqual(
+            [item["role"] for item in writers["writers"]],
+            [
+                "selected-item-cache-clamp",
+                "parent-selected-ordinal-from-child-one-based-field",
+                "root-default-minus-one",
+                "child-default-minus-one",
+                "fallback-missing-child-minus-one",
+            ],
+        )
+        self.assertTrue(writers["typed_owner_inventory_complete"])
+        self.assertTrue(
+            writers[
+                "parent_selected_ordinal_from_child_one_based_field_proven"
+            ]
+        )
+        self.assertFalse(
+            writers["candidate_provider_conditional_ordinal_triplet_proven"]
+        )
+        self.assertFalse(
+            writers["runtime_selected_ordinal_triplet_1_5_2_proven"]
+        )
+
     def test_exact_static_path_is_positive_but_runtime_selection_is_false(self):
         """Break caught: static membership may not become runtime selection."""
         report = validate_creative_style_selected_node_identity_boundary_report(
@@ -23,7 +60,7 @@ class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
                 EXPECTED_EXPORT
             )
         )
-        self.assertEqual(report["schema_version"], 2)
+        self.assertEqual(report["schema_version"], 3)
         self.assertEqual(report["static_path"]["zero_based_indices"], [0, 4, 1])
         self.assertEqual(
             report["runtime_selection"]["required_one_based_ordinals"],
@@ -505,6 +542,45 @@ class CreativeStyleSelectedNodeIdentityBoundaryExporterTests(unittest.TestCase):
                     RuntimeError
                 ):
                     lifecycle_validator(mutated, deps)
+
+    def test_selected_ordinal_writer_inventory_is_source_derived(self):
+        """Break caught: writer roles may not be emitted without decoding their stores."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        validator = getattr(exporter, "_validate_selected_ordinal_writers", None)
+        self.assertTrue(callable(validator))
+        _view, caution, deps = self._real_contexts()
+        self.assertEqual(
+            validator(caution, deps), EXPECTED_EXPORT["selected_ordinal_writers"]
+        )
+
+    def test_selected_ordinal_writer_source_mutations_are_rejected(self):
+        """Break caught: a wrong writer receiver or value producer must fail closed."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        validator = getattr(exporter, "_validate_selected_ordinal_writers", None)
+        self.assertTrue(callable(validator))
+        _view, caution, deps = self._real_contexts()
+        sites = (
+            0x7C6BFA,
+            0x7C6BFC,
+            0x7C6C00,
+            0x7C70A4,
+            0x7C70A6,
+            0x7C70AA,
+            0x7C734E,
+            0x7C7358,
+            0x7C73CA,
+            0x7C73CE,
+            0x7C746C,
+            0x7C7470,
+        )
+        for site in sites:
+            mutated = self._mutated_blob_context(caution, site)
+            with self.subTest(site=f"{site:#x}"), self.assertRaisesRegex(
+                RuntimeError, "selected-ordinal writer"
+            ):
+                validator(mutated, deps)
 
     def test_productaction_interface_is_source_derived(self):
         """Break caught: ProductAction forwarding may not be an asserted constant."""

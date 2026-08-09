@@ -26,6 +26,7 @@ from pmca.analysis.creative_style_selected_node_identity_boundary import (
     PRODUCT_ROOT_SELECTION,
     ROOT_INITIALIZATION,
     RUNTIME_SELECTION,
+    SELECTED_ORDINAL_WRITERS,
     SELECTED_CHILD_MECHANISM,
     SOURCE,
     STATIC_PATH,
@@ -973,6 +974,71 @@ def _validate_candidate_lifecycle(context, deps):
     return copy.deepcopy(expected)
 
 
+def _validate_selected_ordinal_writers(context, deps):
+    expected = SELECTED_ORDINAL_WRITERS
+    owners = (
+        (0x7C6BD2, 0x7C6C16),
+        (0x7C705A, 0x7C70DA),
+        (0x7C732C, 0x7C744C),
+        (0x7C744C, 0x7C747A),
+    )
+    required = (
+        (0x7C6BFA, "it", "ge"),
+        (0x7C6BFC, "mov", "r3, r2"),
+        (0x7C6C00, "str", "r3, [r4, #0x18]"),
+        (0x7C70A4, "ldr", "r2, [r4, #0x20]"),
+        (0x7C70A6, "ldr", "r3, [r7, #4]"),
+        (0x7C70AA, "str", "r2, [r3, #0x18]"),
+        (0x7C734E, "subs", "r3, #1"),
+        (0x7C7358, "str", "r3, [r0, #0x18]"),
+        (0x7C73CA, "subs", "r3, #2"),
+        (0x7C73CE, "str", "r3, [r0, #0x18]"),
+        (0x7C746C, "mov.w", "r3, #-1"),
+        (0x7C7470, "str", "r3, [r4, #0x18]"),
+    )
+    try:
+        decoder = deps["Cs"](deps["arch"], deps["mode"])
+        decoder.detail = True
+        sites = []
+        for start, end in owners:
+            _require_owner(context, start, end, "selected-ordinal writer")
+            items = list(
+                decoder.disasm(
+                    _at(context["blob"], context["mappings"], start, end - start),
+                    start,
+                )
+            )
+            if (
+                not items
+                or items[0].address != start
+                or items[-1].address + items[-1].size != end
+            ):
+                raise RuntimeError("selected-ordinal writer owner decode differs")
+            for item in items:
+                if (
+                    item.id == deps["str"]
+                    and len(item.operands) >= 2
+                    and item.operands[1].type == deps["mem"]
+                    and item.operands[1].mem.index == 0
+                    and item.operands[1].mem.disp == expected["field_offset"]
+                ):
+                    sites.append(item.address & ~1)
+        if sites != [record["site"] for record in expected["writers"]]:
+            raise RuntimeError("selected-ordinal writer inventory differs")
+        for site, mnemonic, operands in required:
+            _require_text(
+                context,
+                deps,
+                site,
+                mnemonic,
+                operands,
+                "selected-ordinal writer",
+            )
+    except (KeyError, RuntimeError, ValueError) as exc:
+        raise RuntimeError("selected-ordinal writer evidence differs") from exc
+    return copy.deepcopy(expected)
+
+
 def _written_registers(instruction):
     try:
         return set(instruction.regs_access()[1])
@@ -1196,6 +1262,9 @@ def _metadata_from_blobs(view_blob, caution_blob, deps):
     document["runtime_selection"] = _validate_runtime_selection(caution, deps)
     document["root_initialization"] = _validate_root_initialization(view, deps)
     document["candidate_lifecycle"] = _validate_candidate_lifecycle(caution, deps)
+    document["selected_ordinal_writers"] = _validate_selected_ordinal_writers(
+        caution, deps
+    )
     document["productaction_delivery"] = _validate_productaction_delivery(
         view, deps
     )

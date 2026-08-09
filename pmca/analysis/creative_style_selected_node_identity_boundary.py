@@ -348,6 +348,71 @@ CANDIDATE_LIFECYCLE = {
     "live_selected_ordinal_triplet_1_5_2_proven": False,
 }
 
+SELECTED_ORDINAL_WRITERS = {
+    "field_offset": 0x18,
+    "writers": [
+        {
+            "site": 0x7C6C00,
+            "owner": {"start": 0x7C6BD2, "end": 0x7C6C16, "complete": True},
+            "destination_identity": "this",
+            "destination_register": "r4",
+            "source_identity": "positive-count-clamped-selected-ordinal",
+            "source_register": "r3",
+            "source_field_offset": None,
+            "role": "selected-item-cache-clamp",
+            "typed_lifecycle_path": True,
+        },
+        {
+            "site": 0x7C70AA,
+            "owner": {"start": 0x7C705A, "end": 0x7C70DA, "complete": True},
+            "destination_identity": "resolved-super-item",
+            "destination_register": "r3",
+            "source_identity": "selected-child-one-based-ordinal",
+            "source_register": "r2",
+            "source_field_offset": 0x20,
+            "role": "parent-selected-ordinal-from-child-one-based-field",
+            "typed_lifecycle_path": True,
+        },
+        {
+            "site": 0x7C7358,
+            "owner": {"start": 0x7C732C, "end": 0x7C744C, "complete": True},
+            "destination_identity": "this",
+            "destination_register": "r0",
+            "source_identity": "minus-one",
+            "source_register": "r3",
+            "source_field_offset": None,
+            "role": "root-default-minus-one",
+            "typed_lifecycle_path": True,
+        },
+        {
+            "site": 0x7C73CE,
+            "owner": {"start": 0x7C732C, "end": 0x7C744C, "complete": True},
+            "destination_identity": "resolved-child",
+            "destination_register": "r0",
+            "source_identity": "minus-one",
+            "source_register": "r3",
+            "source_field_offset": None,
+            "role": "child-default-minus-one",
+            "typed_lifecycle_path": True,
+        },
+        {
+            "site": 0x7C7470,
+            "owner": {"start": 0x7C744C, "end": 0x7C747A, "complete": True},
+            "destination_identity": "this",
+            "destination_register": "r4",
+            "source_identity": "minus-one",
+            "source_register": "r3",
+            "source_field_offset": None,
+            "role": "fallback-missing-child-minus-one",
+            "typed_lifecycle_path": True,
+        },
+    ],
+    "typed_owner_inventory_complete": True,
+    "parent_selected_ordinal_from_child_one_based_field_proven": True,
+    "candidate_provider_conditional_ordinal_triplet_proven": False,
+    "runtime_selected_ordinal_triplet_1_5_2_proven": False,
+}
+
 CANONICAL_SLOT_37_CALLS = [
     {
         "owner": {"start": 0x310CD8, "end": 0x310E30, "complete": True},
@@ -460,6 +525,9 @@ CLAIMS = {
     "candidate_get_selected_item_semantics_found": True,
     "viewsettingmenu_product_root_init_call_found": True,
     "candidate_recursive_one_based_ordinal_assignment_found": True,
+    "selected_ordinal_writer_inventory_found": True,
+    "parent_selected_ordinal_from_child_one_based_field_found": True,
+    "candidate_provider_conditional_ordinal_triplet_proven": False,
     "productaction_forwards_selector_to_slot_64_found": True,
     "runtime_constructor_provider_binding_proven": False,
     "runtime_selected_ordinal_triplet_1_5_2_proven": False,
@@ -493,7 +561,7 @@ CONCLUSION = (
 )
 
 EXPECTED_EXPORT = {
-    "schema_version": 2,
+    "schema_version": 3,
     "analysis_mode": "offline-static-creative-style-selected-node-identity-boundary",
     "source": SOURCE,
     "supporting_source": SUPPORTING_SOURCE,
@@ -505,6 +573,7 @@ EXPECTED_EXPORT = {
     "runtime_selection": RUNTIME_SELECTION,
     "root_initialization": ROOT_INITIALIZATION,
     "candidate_lifecycle": CANDIDATE_LIFECYCLE,
+    "selected_ordinal_writers": SELECTED_ORDINAL_WRITERS,
     "productaction_delivery": PRODUCTACTION_DELIVERY,
     "claims": CLAIMS,
     "readiness": READINESS,
@@ -530,7 +599,7 @@ def normalize_creative_style_selected_node_identity_boundary_export(document):
 
 def _report_from_export(export):
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "analysis_scope": "offline-static-creative-style-selected-node-identity-boundary",
         "camera_policy": "physically-disconnected",
         "camera_executed": False,
@@ -550,6 +619,9 @@ def _report_from_export(export):
         "runtime_selection": copy.deepcopy(export["runtime_selection"]),
         "root_initialization": copy.deepcopy(export["root_initialization"]),
         "candidate_lifecycle": copy.deepcopy(export["candidate_lifecycle"]),
+        "selected_ordinal_writers": copy.deepcopy(
+            export["selected_ordinal_writers"]
+        ),
         "productaction_delivery": copy.deepcopy(export["productaction_delivery"]),
         "claims": copy.deepcopy(export["claims"]),
         "readiness": export["readiness"],
