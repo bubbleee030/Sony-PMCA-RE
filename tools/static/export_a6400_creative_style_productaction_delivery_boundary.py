@@ -18,9 +18,11 @@ if str(ROOT) not in sys.path:
 from pmca.analysis.creative_style_productaction_delivery_boundary import (
     CANONICAL_SLOT37_SCAN,
     DEPENDENCIES,
+    DIRECT_SLOT64_SCAN,
     EXPECTED_RAW_EXPORT,
     FIRMWARE_INVENTORY,
     PRODUCTACTION_INTERFACE,
+    PRODUCTACTION_SYMBOL_PUBLICATION,
     VU2_DIRECT_CALLER_CLASSIFICATION,
     build_creative_style_productaction_delivery_boundary_report,
     normalize_creative_style_productaction_delivery_boundary_export,
@@ -113,10 +115,19 @@ def _canonical_calls(blob, elf, deps, exidx):
     mappings = _mappings(elf)
     decoder = deps["Cs"](deps["arch"], deps["mode"])
     decoder.detail = True
-    calls = []
+    calls = {0x94: [], 0x100: []}
     complete_count = 0
     incomplete_count = 0
-    direct_edges = {target: [] for target in (0x310CD8, 0x310E30, 0x3110BC, 0x3112DC)}
+    direct_edges = {
+        target: []
+        for target in (
+            0x310CD8,
+            0x310E30,
+            0x3110BC,
+            0x3112DC,
+            PRODUCTACTION_INTERFACE["productaction_entry"],
+        )
+    }
     for start, end in exidx:
         items = list(decoder.disasm(_at(blob, mappings, start, end - start), start))
         for item in items:
@@ -149,6 +160,7 @@ def _canonical_calls(blob, elf, deps, exidx):
                 continue
             call_register = call.operands[0].reg
             slot_index = None
+            slot_offset = None
             for candidate_index in range(
                 call_index - 1, max(-1, call_index - 7), -1
             ):
@@ -162,9 +174,10 @@ def _canonical_calls(blob, elf, deps, exidx):
                     and candidate.operands[0].reg == call_register
                     and candidate.operands[1].type == deps["mem"]
                     and candidate.operands[1].mem.index == 0
-                    and candidate.operands[1].mem.disp == 0x94
+                    and candidate.operands[1].mem.disp in calls
                 ):
                     slot_index = candidate_index
+                    slot_offset = candidate.operands[1].mem.disp
                 break
             if slot_index is None:
                 continue
@@ -189,7 +202,7 @@ def _canonical_calls(blob, elf, deps, exidx):
                 break
             if vptr_index is None:
                 continue
-            calls.append(
+            calls[slot_offset].append(
                 {
                     "owner_start": start,
                     "owner_end": end,
@@ -204,18 +217,85 @@ def _canonical_calls(blob, elf, deps, exidx):
     return calls, complete_count, incomplete_count, direct_edges
 
 
+def _productaction_publication(elf, relative):
+    dynsym = elf.get_section_by_name(".dynsym")
+    if dynsym is None:
+        return None
+    matches = [
+        (index, symbol)
+        for index, symbol in enumerate(dynsym.iter_symbols())
+        if symbol.name == PRODUCTACTION_SYMBOL_PUBLICATION["symbol"]
+    ]
+    if not matches:
+        return None
+    if len(matches) != 1:
+        raise RuntimeError("ProductAction dynamic symbol inventory differs")
+    symbol_index, symbol = matches[0]
+    records = []
+    for section_name in (".rel.dyn", ".rel.plt"):
+        section = elf.get_section_by_name(section_name)
+        if section is None:
+            continue
+        for relocation_index, relocation in enumerate(section.iter_relocations()):
+            if relocation["r_info_sym"] != symbol_index:
+                continue
+            records.append(
+                {
+                    "module": relative,
+                    "section": section_name,
+                    "relocation_index": relocation_index,
+                    "cell": relocation["r_offset"],
+                    "relocation_type": relocation["r_info_type"],
+                    "symbol_index": symbol_index,
+                }
+            )
+    dynamic = elf.get_section_by_name(".dynamic")
+    needed = [] if dynamic is None else [
+        tag.needed
+        for tag in dynamic.iter_tags()
+        if tag.entry.d_tag == "DT_NEEDED"
+    ]
+    if not records:
+        raise RuntimeError("ProductAction publication records are missing")
+    return (
+        {
+            "module": relative,
+            "symbol_index": symbol_index,
+            "defined": symbol["st_shndx"] != "SHN_UNDEF",
+            "symbol_value": symbol["st_value"],
+            "symbol_size": symbol["st_size"],
+            "abs32_cell_count": sum(
+                item["relocation_type"] == 2 for item in records
+            ),
+            "first_relocation_index": records[0]["relocation_index"],
+            "last_relocation_index": records[-1]["relocation_index"],
+            "first_cell": records[0]["cell"],
+            "last_cell": records[-1]["cell"],
+            "needed_viewunified2": "viewUnified2.so" in needed,
+        },
+        records,
+    )
+
+
 def _scan_inventory(deps, elf_paths):
-    call_modules = []
+    call_modules = {0x94: [], 0x100: []}
     excluded = []
-    known_selector_calls = []
+    known_selector_calls = {0x94: [], 0x100: []}
     complete_owner_count = 0
     incomplete_owner_count = 0
-    canonical_call_count = 0
+    canonical_call_count = {0x94: 0, 0x100: 0}
     vu2_direct_edges = None
+    publication_modules = []
+    publication_records = []
     for relative in elf_paths:
         path = FIRMWARE_ROOT / relative
         blob = path.read_bytes()
         elf = deps["ELFFile"](io.BytesIO(blob))
+        publication = _productaction_publication(elf, relative)
+        if publication is not None:
+            module, records = publication
+            publication_modules.append(module)
+            publication_records.extend(records)
         if elf.get_section_by_name(".ARM.exidx") is None:
             excluded.append({"module": relative, "reason": "missing-arm-exidx"})
             continue
@@ -228,21 +308,25 @@ def _scan_inventory(deps, elf_paths):
         )
         complete_owner_count += complete
         incomplete_owner_count += incomplete
-        canonical_call_count += len(calls)
+        for offset in canonical_call_count:
+            canonical_call_count[offset] += len(calls[offset])
         if relative == "lib/viewUnified2.so":
             vu2_direct_edges = direct_edges
-        if calls:
-            call_modules.append(
-                {
-                    "module": relative,
-                    "complete_owner_count": complete,
-                    "incomplete_owner_count": incomplete,
-                    "canonical_call_count": len(calls),
-                }
-            )
-        for call in calls:
-            if call["selector"] is not None:
-                known_selector_calls.append({"module": relative, **call})
+        for offset in calls:
+            if calls[offset]:
+                call_modules[offset].append(
+                    {
+                        "module": relative,
+                        "complete_owner_count": complete,
+                        "incomplete_owner_count": incomplete,
+                        "canonical_call_count": len(calls[offset]),
+                    }
+                )
+            for call in calls[offset]:
+                if call["selector"] is not None:
+                    known_selector_calls[offset].append(
+                        {"module": relative, **call}
+                    )
 
     if vu2_direct_edges is None:
         raise RuntimeError("viewUnified2 direct-edge scan is missing")
@@ -254,10 +338,10 @@ def _scan_inventory(deps, elf_paths):
             not item["module"].endswith(".ko") for item in excluded
         ),
     }
-    histogram = {}
-    for call in known_selector_calls:
+    histogram = {0x94: {}, 0x100: {}}
+    for call in known_selector_calls[0x94]:
         key = str(call["selector"])
-        histogram[key] = histogram.get(key, 0) + 1
+        histogram[0x94][key] = histogram[0x94].get(key, 0) + 1
     scan = {
         "scope": CANONICAL_SLOT37_SCAN["scope"],
         "exidx_scanned_file_count": len(elf_paths) - len(excluded),
@@ -266,21 +350,70 @@ def _scan_inventory(deps, elf_paths):
         "excluded_records_sha256": _digest(excluded),
         "complete_owner_count": complete_owner_count,
         "incomplete_owner_count": incomplete_owner_count,
-        "call_modules": call_modules,
-        "canonical_call_count": canonical_call_count,
-        "known_selector_calls": known_selector_calls,
-        "known_selector_calls_sha256": _digest(known_selector_calls),
-        "known_selector_histogram": histogram,
-        "unknown_selector_count": canonical_call_count - len(known_selector_calls),
+        "call_modules": call_modules[0x94],
+        "canonical_call_count": canonical_call_count[0x94],
+        "known_selector_calls": known_selector_calls[0x94],
+        "known_selector_calls_sha256": _digest(known_selector_calls[0x94]),
+        "known_selector_histogram": histogram[0x94],
+        "unknown_selector_count": canonical_call_count[0x94] - len(known_selector_calls[0x94]),
         "selector_10_call_count": sum(
-            call["selector"] == 10 for call in known_selector_calls
+            call["selector"] == 10 for call in known_selector_calls[0x94]
         ),
         "noncanonical_dispatch_scanned": False,
         "incomplete_owner_dispatch_scanned": False,
         "runtime_indirect_dispatch_scanned": False,
         "whole_elf_universe_absence_proven": False,
     }
-    return scan, vu2_direct_edges
+    slot64_histogram = {}
+    for call in known_selector_calls[0x100]:
+        key = str(call["selector"])
+        slot64_histogram[key] = slot64_histogram.get(key, 0) + 1
+    slot64 = {
+        "scope": DIRECT_SLOT64_SCAN["scope"],
+        "slot": 64,
+        "slot_offset": 0x100,
+        "complete_owner_count": complete_owner_count,
+        "incomplete_owner_count": incomplete_owner_count,
+        "call_modules": call_modules[0x100],
+        "canonical_call_count": canonical_call_count[0x100],
+        "known_selector_calls": known_selector_calls[0x100],
+        "known_selector_calls_sha256": _digest(known_selector_calls[0x100]),
+        "known_selector_call_count": len(known_selector_calls[0x100]),
+        "known_selector_histogram": slot64_histogram,
+        "unknown_selector_count": canonical_call_count[0x100]
+        - len(known_selector_calls[0x100]),
+        "selector_10_call_count": sum(
+            call["selector"] == 10 for call in known_selector_calls[0x100]
+        ),
+        "receiver_identity_analysis_performed": False,
+        "whole_runtime_absence_proven": False,
+    }
+    publication_result = {
+        "symbol": PRODUCTACTION_SYMBOL_PUBLICATION["symbol"],
+        "module_count": len(publication_modules),
+        "modules": publication_modules,
+        "abs32_publication_cell_count": sum(
+            item["relocation_type"] == 2 for item in publication_records
+        ),
+        "publication_records_sha256": _digest(publication_records),
+        "glob_dat_cell_count": sum(
+            item["relocation_type"] == 21 for item in publication_records
+        ),
+        "plt_relocation_count": sum(
+            item["section"] == ".rel.plt" for item in publication_records
+        ),
+        "importer_needed_viewunified2_count": sum(
+            item["needed_viewunified2"]
+            for item in publication_modules
+            if not item["defined"]
+        ),
+        "direct_call_count": len(
+            vu2_direct_edges[PRODUCTACTION_INTERFACE["productaction_entry"]]
+        ),
+        "cross_module_provider_binding_proven": False,
+        "publication_proves_invocation": False,
+    }
+    return scan, slot64, publication_result, vu2_direct_edges
 
 
 def _require_direct(context, deps, site, target, label):
@@ -349,6 +482,7 @@ def _validate_vu2_structure(blob, deps, direct_edges):
         0x3112DC: [
             {"site": 0x3128CA, "owner_start": 0x31286C, "owner_end": 0x31297C}
         ],
+        PRODUCTACTION_INTERFACE["productaction_entry"]: [],
     }
     if direct_edges != expected_edges:
         raise RuntimeError("ProductAction direct inbound inventory differs")
@@ -394,7 +528,7 @@ def build_raw_export():
         )
         for relative in elf_paths
     }
-    scan, direct_edges = _scan_inventory(deps, elf_paths)
+    scan, slot64, publication, direct_edges = _scan_inventory(deps, elf_paths)
     classification = _validate_vu2_classification(deps, direct_edges)
     if source_snapshot != {
         relative: (
@@ -407,6 +541,8 @@ def build_raw_export():
     document = copy.deepcopy(EXPECTED_RAW_EXPORT)
     document["firmware_inventory"] = inventory_before
     document["canonical_slot37_scan"] = scan
+    document["direct_slot64_scan"] = slot64
+    document["productaction_symbol_publication"] = publication
     document["vu2_direct_caller_classification"] = classification
     return normalize_creative_style_productaction_delivery_boundary_export(document)
 

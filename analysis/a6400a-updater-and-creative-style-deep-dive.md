@@ -634,6 +634,18 @@ the 102 no-EXIDX files are excluded, and noncanonical or runtime-indirect
 dispatch is outside the scan. The fail-closed record is
 `analysis/a6400-creative-style-productaction-delivery-boundary.json`.
 
+The same bounded owner universe also contains 50 canonical direct slot-64 transfers.
+Twelve have statically live immediate selectors—`0`, `6`, `15`,
+`16`, `18`, `19`, `191`, or `262`—and none carries selector `10`; the other
+38 retain unresolved selector provenance. A separate dynamic-symbol audit
+finds the ProductAction interface in VU2 through VU8 and inventories 186 `R_ARM_ABS32` publication cells,
+but no corresponding PLT or `GLOB_DAT`
+binding and no decoded direct call to VU2's ProductAction wrapper. These cells
+publish interface entries, mostly in vtables; they do not prove invocation or
+cross-module provider binding. Receiver identity was not established for the
+50 direct slot-64 calls, so this extension remains a canonical bounded
+negative rather than a whole-runtime absence claim.
+
 The candidate generic initialization path cannot make ordinals `1,5,2` live,
 but the typed persistence route explains how later selection could establish
 them if the effective stored indices are `0,4,1`. Those runtime values and the

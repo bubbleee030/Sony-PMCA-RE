@@ -24,6 +24,7 @@ class CreativeStyleProductActionDeliveryBoundaryContractTests(unittest.TestCase)
         document = normalize_creative_style_productaction_delivery_boundary_export(
             copy.deepcopy(EXPECTED_RAW_EXPORT)
         )
+        self.assertEqual(document["schema_version"], 2)
         scan = document["canonical_slot37_scan"]
         self.assertEqual(document["firmware_inventory"]["elf_file_count"], 324)
         self.assertEqual(scan["exidx_scanned_file_count"], 222)
@@ -46,6 +47,23 @@ class CreativeStyleProductActionDeliveryBoundaryContractTests(unittest.TestCase)
         self.assertFalse(document["claims"]["viewsettingmenu_receiver_proven"])
         self.assertFalse(document["claims"]["productaction_selector_10_delivery_proven"])
 
+        slot64 = document["direct_slot64_scan"]
+        self.assertEqual(slot64["canonical_call_count"], 50)
+        self.assertEqual(slot64["known_selector_call_count"], 12)
+        self.assertEqual(slot64["unknown_selector_count"], 38)
+        self.assertEqual(slot64["selector_10_call_count"], 0)
+        self.assertEqual(
+            slot64["known_selector_histogram"],
+            {"0": 1, "6": 1, "15": 2, "16": 2, "18": 2, "19": 2, "191": 1, "262": 1},
+        )
+        publications = document["productaction_symbol_publication"]
+        self.assertEqual(publications["module_count"], 7)
+        self.assertEqual(publications["abs32_publication_cell_count"], 186)
+        self.assertEqual(publications["glob_dat_cell_count"], 0)
+        self.assertEqual(publications["plt_relocation_count"], 0)
+        self.assertEqual(publications["direct_call_count"], 0)
+        self.assertFalse(publications["cross_module_provider_binding_proven"])
+
     def test_contract_rejects_promoted_or_widened_claims(self):
         from pmca.analysis.creative_style_productaction_delivery_boundary import (
             CreativeStyleProductActionDeliveryBoundaryError,
@@ -59,6 +77,9 @@ class CreativeStyleProductActionDeliveryBoundaryContractTests(unittest.TestCase)
             lambda value: value["vu2_direct_caller_classification"]["af_slot36_route"].__setitem__("type_name", "ViewSettingMenu"),
             lambda value: value["claims"].__setitem__("productaction_selector_10_delivery_proven", True),
             lambda value: value["claims"].__setitem__("runtime_creative_style_selection_proven", True),
+            lambda value: value["direct_slot64_scan"].__setitem__("selector_10_call_count", 1),
+            lambda value: value["productaction_symbol_publication"].__setitem__("direct_call_count", 1),
+            lambda value: value["productaction_symbol_publication"].__setitem__("cross_module_provider_binding_proven", True),
         )
         for mutate in mutations:
             candidate = copy.deepcopy(EXPECTED_RAW_EXPORT)
@@ -90,6 +111,8 @@ class CreativeStyleProductActionDeliveryBoundaryContractTests(unittest.TestCase)
             "AfImplForOrientationRegisterAF",
             "does not establish whole-runtime absence",
             "a6400-creative-style-productaction-delivery-boundary.json",
+            "50 canonical direct slot-64 transfers",
+            "186 `R_ARM_ABS32` publication cells",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, prose)
@@ -129,6 +152,7 @@ class CreativeStyleProductActionDeliveryBoundaryExporterTests(unittest.TestCase)
             0x3112DC: [
                 {"site": 0x3128CA, "owner_start": 0x31286C, "owner_end": 0x31297C}
             ],
+            0x2F1350: [],
         }
         deps = exporter._dependencies()
         baseline = exporter.SOURCE_PATH.read_bytes()

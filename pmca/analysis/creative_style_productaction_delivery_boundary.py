@@ -146,6 +146,177 @@ CANONICAL_SLOT37_SCAN = {
     "runtime_indirect_dispatch_scanned": False,
     "whole_elf_universe_absence_proven": False,
 }
+DIRECT_SLOT64_KNOWN_SELECTOR_CALLS = [
+    {
+        "module": "lib/libmpr.so",
+        "owner_start": 0x3965DC,
+        "owner_end": 0x396690,
+        "vptr_load_site": 0x396670,
+        "slot_load_site": 0x396672,
+        "call_site": 0x396676,
+        "selector": 0,
+    },
+    {
+        "module": "lib/libObj.so",
+        "owner_start": 0x799170,
+        "owner_end": 0x7991D8,
+        "vptr_load_site": 0x7991A6,
+        "slot_load_site": 0x7991B0,
+        "call_site": 0x7991BA,
+        "selector": 6,
+    },
+    {
+        "module": "lib/viewUnified2.so",
+        "owner_start": 0x5FD080,
+        "owner_end": 0x5FD0BA,
+        "vptr_load_site": 0x5FD09E,
+        "slot_load_site": 0x5FD0A4,
+        "call_site": 0x5FD0A8,
+        "selector": 191,
+    },
+    {
+        "module": "lib/viewUnified2.so",
+        "owner_start": 0x5FD080,
+        "owner_end": 0x5FD0BA,
+        "vptr_load_site": 0x5FD0AA,
+        "slot_load_site": 0x5FD0B2,
+        "call_site": 0x5FD0B6,
+        "selector": 262,
+    },
+    *[
+        {
+            "module": "lib/viewUnified4.so",
+            "owner_start": owner_start,
+            "owner_end": owner_end,
+            "vptr_load_site": vptr,
+            "slot_load_site": slot,
+            "call_site": call,
+            "selector": selector,
+        }
+        for owner_start, owner_end, vptr, slot, call, selector in (
+            (0x1130DE, 0x113162, 0x1130FC, 0x113100, 0x113104, 19),
+            (0x1130DE, 0x113162, 0x113106, 0x11310C, 0x113110, 15),
+            (0x1130DE, 0x113162, 0x113112, 0x113118, 0x11311C, 16),
+            (0x1130DE, 0x113162, 0x113150, 0x113154, 0x113158, 18),
+            (0x12E6F2, 0x12E776, 0x12E710, 0x12E714, 0x12E718, 19),
+            (0x12E6F2, 0x12E776, 0x12E71A, 0x12E720, 0x12E724, 15),
+            (0x12E6F2, 0x12E776, 0x12E726, 0x12E72C, 0x12E730, 16),
+            (0x12E6F2, 0x12E776, 0x12E764, 0x12E768, 0x12E76C, 18),
+        )
+    ],
+]
+DIRECT_SLOT64_SCAN = {
+    "scope": (
+        "same-authenticated-exidx-fully-decoded-owner-universe-canonical-"
+        "receiver-vptr-slot64-blx-shape"
+    ),
+    "slot": 64,
+    "slot_offset": 0x100,
+    "complete_owner_count": 195_837,
+    "incomplete_owner_count": 13_885,
+    "call_modules": [
+        {
+            "module": "lib/CautionConfig.so",
+            "complete_owner_count": 6_469,
+            "incomplete_owner_count": 741,
+            "canonical_call_count": 1,
+        },
+        {
+            "module": "lib/libmpr.so",
+            "complete_owner_count": 33_110,
+            "incomplete_owner_count": 3_732,
+            "canonical_call_count": 20,
+        },
+        {
+            "module": "lib/libObj.so",
+            "complete_owner_count": 56_271,
+            "incomplete_owner_count": 3_343,
+            "canonical_call_count": 16,
+        },
+        {
+            "module": "lib/viewUnified2.so",
+            "complete_owner_count": 28_869,
+            "incomplete_owner_count": 1_594,
+            "canonical_call_count": 5,
+        },
+        {
+            "module": "lib/viewUnified4.so",
+            "complete_owner_count": 7_247,
+            "incomplete_owner_count": 715,
+            "canonical_call_count": 8,
+        },
+    ],
+    "canonical_call_count": 50,
+    "known_selector_calls": DIRECT_SLOT64_KNOWN_SELECTOR_CALLS,
+    "known_selector_calls_sha256": (
+        "a5716084cadcb3e26dbb998d70463c365588cf8e16e1c4765068b8b5834b077d"
+    ),
+    "known_selector_call_count": 12,
+    "known_selector_histogram": {
+        "0": 1,
+        "6": 1,
+        "15": 2,
+        "16": 2,
+        "18": 2,
+        "19": 2,
+        "191": 1,
+        "262": 1,
+    },
+    "unknown_selector_count": 38,
+    "selector_10_call_count": 0,
+    "receiver_identity_analysis_performed": False,
+    "whole_runtime_absence_proven": False,
+}
+PRODUCTACTION_PUBLICATION_MODULES = [
+    {
+        "module": module,
+        "symbol_index": symbol_index,
+        "defined": defined,
+        "symbol_value": symbol_value,
+        "symbol_size": symbol_size,
+        "abs32_cell_count": cell_count,
+        "first_relocation_index": first_index,
+        "last_relocation_index": last_index,
+        "first_cell": first_cell,
+        "last_cell": last_cell,
+        "needed_viewunified2": False,
+    }
+    for (
+        module,
+        symbol_index,
+        defined,
+        symbol_value,
+        symbol_size,
+        cell_count,
+        first_index,
+        last_index,
+        first_cell,
+        last_cell,
+    ) in (
+        ("lib/viewUnified2.so", 2323, True, 0x2F1351, 14, 32, 86850, 86881, 0x8DC3C4, 0x9444CC),
+        ("lib/viewUnified3.so", 156, False, 0, 0, 24, 7583, 7606, 0xA0C84, 0xA889C),
+        ("lib/viewUnified4.so", 952, False, 0, 0, 68, 26826, 26893, 0x262B04, 0x27E58C),
+        ("lib/viewUnified5.so", 138, False, 0, 0, 19, 6579, 6597, 0xA24FC, 0xA915C),
+        ("lib/viewUnified6.so", 110, False, 0, 0, 20, 6217, 6236, 0x7E42C, 0x8478C),
+        ("lib/viewUnified7.so", 199, False, 0, 0, 11, 3408, 3418, 0x6E7BC, 0x71914),
+        ("lib/viewUnified8.so", 89, False, 0, 0, 12, 2332, 2343, 0x44544, 0x47EEC),
+    )
+]
+PRODUCTACTION_SYMBOL_PUBLICATION = {
+    "symbol": "_ZN15ViewBaseProduct13ProductActionEi",
+    "module_count": 7,
+    "modules": PRODUCTACTION_PUBLICATION_MODULES,
+    "abs32_publication_cell_count": 186,
+    "publication_records_sha256": (
+        "a7710b5f866b933f0f91156ab0d693d01cd49d9be74454f969d2416f9ac3df31"
+    ),
+    "glob_dat_cell_count": 0,
+    "plt_relocation_count": 0,
+    "importer_needed_viewunified2_count": 0,
+    "direct_call_count": 0,
+    "cross_module_provider_binding_proven": False,
+    "publication_proves_invocation": False,
+}
 VU2_DIRECT_CALLER_CLASSIFICATION = {
     "productaction_parent_owner": {
         "start": 0x310CD8,
@@ -221,17 +392,26 @@ CLAIMS = {
     "viewcreativestyle_factory_invocation_proven": False,
     "first_class_creative_look_proven": False,
     "processing_output_binding_proven": False,
+    "canonical_direct_slot64_inventory_found": True,
+    "direct_slot64_selector_10_found": False,
+    "productaction_abs32_publications_found": True,
+    "productaction_plt_or_glob_dat_binding_found": False,
+    "direct_productaction_call_found": False,
 }
 FIRST_UNRESOLVED_BOUNDARY = (
     "noncanonical-or-incomplete-owner-or-runtime-indirect-viewsettingmenu-"
     "receiver-productaction-selector-10-delivery"
 )
-READINESS = "BOUNDED_CANONICAL_PRODUCTACTION_SELECTOR_10_NOT_FOUND"
+READINESS = "BOUNDED_CANONICAL_SLOT37_AND_SLOT64_SELECTOR_10_NOT_FOUND"
 CONCLUSION = (
     "Across the authenticated 324-ELF inventory, 222 files expose usable ARM EXIDX ownership. "
     "Their 195,837 fully decoded owners contain 111 canonical receiver-vptr to slot-37 register "
     "transfers; the only statically live immediate selectors are 0, 0, and 1 in libmpr owners, "
-    "never selector 10. In viewUnified2, two direct helper routes are reached through "
+    "never selector 10. The same owner universe contains 50 canonical direct slot-64 transfers; "
+    "their twelve live immediates are 0, 6, 15, 16, 18, 19, 191, or 262, again never 10. "
+    "Seven viewUnified modules publish ProductAction through 186 R_ARM_ABS32 cells, but expose "
+    "no PLT/GLOB_DAT binding and no decoded direct call to the VU2 wrapper; publication is not "
+    "invocation. In viewUnified2, two direct helper routes are reached through "
     "slot 36 of the distinct AfImplForOrientationRegisterAF table, while the remaining helper "
     "has no decoded direct inbound or relocation-backed publication. This canonical bounded scan "
     "does not prove whole-runtime absence: 102 ELF files lack usable EXIDX ownership, 13,885 "
@@ -243,7 +423,7 @@ CONCLUSION = (
 )
 
 EXPECTED_RAW_EXPORT = {
-    "schema_version": 1,
+    "schema_version": 2,
     "analysis_mode": {
         "read_only": True,
         "static_elf_analysis": True,
@@ -253,6 +433,8 @@ EXPECTED_RAW_EXPORT = {
     "dependencies": DEPENDENCIES,
     "productaction_interface": PRODUCTACTION_INTERFACE,
     "canonical_slot37_scan": CANONICAL_SLOT37_SCAN,
+    "direct_slot64_scan": DIRECT_SLOT64_SCAN,
+    "productaction_symbol_publication": PRODUCTACTION_SYMBOL_PUBLICATION,
     "vu2_direct_caller_classification": VU2_DIRECT_CALLER_CLASSIFICATION,
     "claims": CLAIMS,
     "first_unresolved_boundary": FIRST_UNRESOLVED_BOUNDARY,
@@ -300,6 +482,24 @@ def normalize_creative_style_productaction_delivery_boundary_export(document):
         raise CreativeStyleProductActionDeliveryBoundaryError(
             "ProductAction delivery inventory is inconsistent"
         )
+    slot64 = document["direct_slot64_scan"]
+    publications = document["productaction_symbol_publication"]
+    if (
+        slot64["known_selector_calls_sha256"]
+        != _digest(slot64["known_selector_calls"])
+        or slot64["known_selector_call_count"]
+        + slot64["unknown_selector_count"]
+        != slot64["canonical_call_count"]
+        or sum(slot64["known_selector_histogram"].values())
+        != slot64["known_selector_call_count"]
+        or sum(item["canonical_call_count"] for item in slot64["call_modules"])
+        != slot64["canonical_call_count"]
+        or sum(item["abs32_cell_count"] for item in publications["modules"])
+        != publications["abs32_publication_cell_count"]
+    ):
+        raise CreativeStyleProductActionDeliveryBoundaryError(
+            "direct slot-64 or ProductAction publication inventory is inconsistent"
+        )
     return copy.deepcopy(document)
 
 
@@ -308,7 +508,7 @@ def build_creative_style_productaction_delivery_boundary_report(document):
 
     raw = normalize_creative_style_productaction_delivery_boundary_export(document)
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "analysis_scope": "offline-static-creative-style-productaction-delivery-boundary",
         "camera_policy": "physically-disconnected",
         "camera_executed": False,
@@ -327,10 +527,20 @@ def build_creative_style_productaction_delivery_boundary_report(document):
             "selector_10_call_count": raw["canonical_slot37_scan"][
                 "selector_10_call_count"
             ],
+            "direct_slot64_call_count": raw["direct_slot64_scan"][
+                "canonical_call_count"
+            ],
+            "productaction_abs32_publication_cell_count": raw[
+                "productaction_symbol_publication"
+            ]["abs32_publication_cell_count"],
         },
         "dependencies": copy.deepcopy(raw["dependencies"]),
         "productaction_interface": copy.deepcopy(raw["productaction_interface"]),
         "canonical_slot37_scan": copy.deepcopy(raw["canonical_slot37_scan"]),
+        "direct_slot64_scan": copy.deepcopy(raw["direct_slot64_scan"]),
+        "productaction_symbol_publication": copy.deepcopy(
+            raw["productaction_symbol_publication"]
+        ),
         "vu2_direct_caller_classification": copy.deepcopy(
             raw["vu2_direct_caller_classification"]
         ),
