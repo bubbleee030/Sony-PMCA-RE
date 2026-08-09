@@ -600,7 +600,8 @@ CLAIMS = {
 
 READINESS = "STATIC_CREATIVE_STYLE_PATH_WITH_CANDIDATE_RUNTIME_INITIALIZATION"
 FIRST_UNRESOLVED_BOUNDARY = (
-    "viewsettingmenu-live-selected-ordinals-1-5-2-and-productaction-10-delivery"
+    "caution-provider-bound-creative-style-selected-ordinal-chain-and-"
+    "viewsettingmenu-productaction-10-delivery"
 )
 CONCLUSION = (
     "The authenticated viewUnified2 source proves a default product-root "
@@ -608,8 +609,11 @@ CONCLUSION = (
     "at the Creative Style root symbol. ViewSettingMenu passes the selected product "
     "root through the typed initialization slot, and candidate CautionConfig base "
     "semantics recursively assign one-based child ordinals and restore or choose "
-    "generic selection. ProductAction preserves its selector into slot 64. The live "
-    "ordinal triplet 1, 5, and 2, receiver-proven ProductAction selector 10 delivery, "
+    "generic selection. Five bounded selected-ordinal writes are source-derived; "
+    "setItemSelected copies a selected child's one-based ordinal into its resolved "
+    "parent cache. ProductAction preserves its selector into slot 64, but all six "
+    "canonical callers are source-classified and rejected. The exact three-level "
+    "1, 5, and 2 selection chain, receiver-proven ProductAction selector 10 delivery, "
     "provider bindings, selected-node identity, process-ID 42 activation, "
     "ViewCreativeStyle factory invocation, first-class Creative Look, "
     "processing/output binding, installation, recovery, and camera eligibility "

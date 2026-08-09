@@ -114,7 +114,7 @@
     "viewsettingmenu_product_root_init_call_found": true,
     "viewsettingmenu_productaction_10_delivery_proven": false
   },
-  "conclusion": "The authenticated viewUnified2 source proves a default product-root constructor graph whose relocation-backed child indices 0, 4, and 1 end at the Creative Style root symbol. ViewSettingMenu passes the selected product root through the typed initialization slot, and candidate CautionConfig base semantics recursively assign one-based child ordinals and restore or choose generic selection. ProductAction preserves its selector into slot 64. The live ordinal triplet 1, 5, and 2, receiver-proven ProductAction selector 10 delivery, provider bindings, selected-node identity, process-ID 42 activation, ViewCreativeStyle factory invocation, first-class Creative Look, processing/output binding, installation, recovery, and camera eligibility remain unproven.",
+  "conclusion": "The authenticated viewUnified2 source proves a default product-root constructor graph whose relocation-backed child indices 0, 4, and 1 end at the Creative Style root symbol. ViewSettingMenu passes the selected product root through the typed initialization slot, and candidate CautionConfig base semantics recursively assign one-based child ordinals and restore or choose generic selection. Five bounded selected-ordinal writes are source-derived; setItemSelected copies a selected child's one-based ordinal into its resolved parent cache. ProductAction preserves its selector into slot 64, but all six canonical callers are source-classified and rejected. The exact three-level 1, 5, and 2 selection chain, receiver-proven ProductAction selector 10 delivery, provider bindings, selected-node identity, process-ID 42 activation, ViewCreativeStyle factory invocation, first-class Creative Look, processing/output binding, installation, recovery, and camera eligibility remain unproven.",
   "constructor_graph": {
     "generic_constructor_call_count": 1748,
     "generic_constructor_plt": 1392676,
@@ -167,9 +167,9 @@
       "report": "analysis/a6400-creative-style-menu-list-construction.json"
     }
   ],
-  "first_unresolved_boundary": "viewsettingmenu-live-selected-ordinals-1-5-2-and-productaction-10-delivery",
+  "first_unresolved_boundary": "caution-provider-bound-creative-style-selected-ordinal-chain-and-viewsettingmenu-productaction-10-delivery",
   "installable": false,
-  "narrative_sha256": "1f7567baa23f7db52de2cac86398fffc62dc4e8582092a7374672b6e556057c9",
+  "narrative_sha256": "0ccdf8278eeea9b46dfbbc4bf57af4662a04e51334e62fb25726f92bbe010f61",
   "product_root_selection": {
     "backup_read_call_site": 2131546,
     "backup_record_id": 17236758,
@@ -696,7 +696,7 @@
     ]
   },
   "summary": {
-    "canonical_export_sha256": "9fcd3e9f7bbdb47dd5fa9dc3b3250f73e06ec14d5c01d93753c63f9a1dff7e0d"
+    "canonical_export_sha256": "9c893b88d2471917007c065668ac152e4a810c2ce45202bdb4587b5101934c0b"
   },
   "supporting_source": {
     "module": "lib/CautionConfig.so",

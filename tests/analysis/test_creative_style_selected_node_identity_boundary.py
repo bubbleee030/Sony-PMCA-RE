@@ -179,7 +179,10 @@ class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
         )
         self.assertEqual(
             report["first_unresolved_boundary"],
-            "viewsettingmenu-live-selected-ordinals-1-5-2-and-productaction-10-delivery",
+            (
+                "caution-provider-bound-creative-style-selected-ordinal-chain-"
+                "and-viewsettingmenu-productaction-10-delivery"
+            ),
         )
 
     def test_export_rejects_claim_path_ordinal_dependency_and_boundary_mutations(self):

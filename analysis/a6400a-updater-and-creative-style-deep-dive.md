@@ -555,9 +555,15 @@ and `cmnViewSettingNodesNumOfRootDefault` GOT relocations. Candidate
 `CautionConfig.so` lifecycle implementations assign each child a one-based
 ordinal at `+0x20`, carry generic selection state through `+0x18` and `+0x24`,
 recurse through `vptr+0xf8`, restore selected children through `vptr+0xb8`, and
-fall back to selectable child one through `vptr+0x38`. These are candidate
-provider semantics, not proof that the live menu selected ordinals are
-`1 -> 5 -> 2`.
+fall back to selectable child one through `vptr+0x38`. A source-derived inventory
+of four typed owners finds exactly five writes to the selected-ordinal field:
+the clamped cache update at `0x7c6c00`, the parent update at `0x7c70aa`, and
+three `-1` initialization/fallback writes at `0x7c7358`, `0x7c73ce`, and
+`0x7c7470`. The parent update is concrete: `setItemSelected` loads the selected
+child's one-based ordinal from `+0x20` and stores it into the resolved parent's
+`+0x18`. No source-derived chain proves that this operation selects the exact
+three Creative Style path children at runtime, so live ordinals `1 -> 5 -> 2`
+remain unproven.
 
 The `ViewSettingMenu` vtable separately installs
 `ViewBaseProduct::ProductAction(int)` in slot 37 and the menu action dispatcher
@@ -566,18 +572,25 @@ EXIDX owner `[0x2f12ec,0x2f135e)`; all six function instructions preserve the
 incoming `r1` selector while forwarding the receiver through `vptr+0x100`.
 A function-aware scan covers 28,869 fully decoded EXIDX owners, leaves 1,594
 incomplete or terminal owners outside the negative universe, and inventories
-six canonical slot-37 calls. None proves both a `ViewSettingMenu` receiver and
-selector value 10, so the accepted set remains empty and whole-program absence
-is explicitly false.
+six canonical slot-37 calls. Four calls in owner `[0x310cd8,0x310e30)` retain
+an untyped entry receiver after calls that invalidate selector provenance. The
+named AF wrapper at `[0x35f66c,0x35f67e)` dispatches on a helper-return receiver
+with a call-clobbered selector. The remaining owner `[0x3e11d4,0x3e134c)` is
+address-taken by relative relocation 23651, but its receiver is preserved from
+entry `r2` and its selector is a helper return captured at `0x3e1300`, not
+immediate 10. None proves both a `ViewSettingMenu` receiver and selector value
+10, so the accepted set remains empty and whole-program absence is explicitly
+false. Noncanonical dispatch, runtime callbacks, cross-module delivery, and the
+decode-incomplete owner universe remain unresolved.
 
-No static event, selected-state writer, or caller provenance therefore proves
-that ordinals `1,5,2` are live when `ProductAction(10)` executes. Runtime
+No provider-bound three-level selected-state chain or accepted caller therefore
+proves that ordinals `1,5,2` are live when `ProductAction(10)` executes. Runtime
 provider binding and selected-node pointer identity also remain unproven.
 Consequently process ID 42 activation, `ViewCreativeStyle` factory invocation,
 first-class Creative Look, processing/output behavior, installability,
 recovery, and camera-test eligibility remain false. The next safe experiment
-is live selected-ordinal and receiver-proven ProductAction delivery provenance,
-not a firmware modification. The fail-closed record is
+is the exact provider-bound three-level selection chain and a receiver-proven
+ProductAction delivery edge, not a firmware modification. The fail-closed record is
 `analysis/a6400-creative-style-selected-node-identity-boundary.json`.
 
 ### Target-native Creative Style interaction surface
