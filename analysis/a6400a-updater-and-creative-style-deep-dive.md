@@ -570,6 +570,36 @@ for initialization alone. Later runtime callbacks or selection can still alter
 the state, and provider interposition remains unresolved; this is not a
 whole-runtime absence claim.
 
+The post-initialization follow-up now proves a typed, conditional persistence
+roundtrip without promoting the stored values to runtime facts. Slot-64
+selector 0 enters the owner at `0x2114fc`, performs the existing preselection
+step, and tails into the selection driver. One bounded branch in that driver
+calls the restore helper at `0x208180`. The helper reads three 16-bit backup
+records through the `ViewBaseForMR::Bkup_Read` interface: `0x01070910`,
+`0x01070b74`, and `0x01070b75` in call order. It presents them to the resolver
+in the reverse structural order `0x01070b75`, `0x01070b74`, `0x01070910`; a raw
+zero in the third value is normalized to one. The resolver starts at the
+product root in `ViewSettingMenu+0x1a0` and performs three successive virtual
+`getSubItemByIndex` calls. If the result is non-null, the ancestor helper calls
+`setItemSelected` on the leaf and then on each parent until it reaches that
+same product root. Effective indices `0,4,1` would therefore select the exact
+static Creative Style path and populate the candidate one-based caches through
+ordinary selection rather than initialization.
+
+The save side is symmetric and independently typed. `ViewSettingMenu` vtable
+slot 57 points to owner `[0x210e70,0x210fe4)`, which calls three current-index
+helpers at `0x2081de`, `0x2081e6`, and `0x2081ee`, then writes the results back
+through the `ViewBaseForMR::Bkup_Write` slot. The writer stores the third,
+second, and first structural positions under `0x01070910`, `0x01070b74`, and
+`0x01070b75`, respectively, so the same IDs and positions roundtrip exactly.
+The relevant candidate `CmnViewSettingNode` vtable cells for parent lookup,
+indexed child lookup, selected-index lookup, and `setItemSelected` are pinned
+to their defined `CautionConfig.so` implementations. Runtime interposition is
+still possible, however, and neither selector-0 restore invocation, slot-57
+save invocation, nor the effective backup values `0,4,1` are proven. This is a
+conditional persistence mechanism, not evidence that the camera currently
+selects Creative Style through it.
+
 The `ViewSettingMenu` vtable separately installs
 `ViewBaseProduct::ProductAction(int)` in slot 37 and the menu action dispatcher
 in slot 64. Dynsym 2323 has exact function range `[0x2f1350,0x2f135e)` inside
@@ -589,15 +619,18 @@ false. Noncanonical dispatch, runtime callbacks, cross-module delivery, and the
 decode-incomplete owner universe remain unresolved.
 
 The candidate generic initialization path cannot make ordinals `1,5,2` live,
-and no accepted ProductAction caller supplies the missing runtime delivery.
-Post-initialization selection, a receiver-proven `ProductAction(10)` edge,
-runtime provider binding, and selected-node pointer identity remain unproven.
+but the typed persistence route explains how later selection could establish
+them if the effective stored indices are `0,4,1`. Those runtime values and the
+selector-0 invocation are not established, and no accepted ProductAction
+caller supplies the other required runtime delivery. A receiver-proven
+`ProductAction(10)` edge, runtime provider binding, and selected-node pointer
+identity therefore remain unproven.
 Consequently process ID 42 activation, `ViewCreativeStyle` factory invocation,
 first-class Creative Look, processing/output behavior, installability,
 recovery, and camera-test eligibility remain false. The next safe experiment
-is the exact post-initialization runtime Creative Style selected-ordinal chain
-and a receiver-proven `ViewSettingMenu` ProductAction selector-10 delivery edge,
-not a firmware modification. The fail-closed record is
+is the runtime source/delivery of `ViewSettingMenu` selector 0 with effective
+backup indices `0,4,1`, together with a receiver-proven ProductAction
+selector-10 delivery edge, not a firmware modification. The fail-closed record is
 `analysis/a6400-creative-style-selected-node-identity-boundary.json`.
 
 ### Target-native Creative Style interaction surface

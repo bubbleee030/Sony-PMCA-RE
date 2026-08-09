@@ -16,14 +16,46 @@ from pmca.analysis.creative_style_selected_node_identity_boundary import (
 
 
 class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
-    def test_schema_4_refutes_only_the_candidate_initialization_triplet(self):
+    def test_schema_5_bounds_the_persisted_selection_roundtrip(self):
+        """Break caught: persisted indices may not become runtime selection."""
+        report = validate_creative_style_selected_node_identity_boundary_report(
+            build_creative_style_selected_node_identity_boundary_report(
+                EXPECTED_EXPORT
+            )
+        )
+        self.assertEqual(report["schema_version"], 5)
+        roundtrip = report["persisted_selection_roundtrip"]
+        self.assertEqual(roundtrip["required_effective_indices"], [0, 4, 1])
+        self.assertEqual(
+            roundtrip["restore"]["backup_ids_in_resolver_order"],
+            [0x01070B75, 0x01070B74, 0x01070910],
+        )
+        self.assertEqual(roundtrip["restore"]["dispatcher_selector"], 0)
+        self.assertEqual(roundtrip["restore"]["resolver_call_site"], 0x2081BA)
+        self.assertEqual(
+            roundtrip["restore"]["ancestor_selection_call_site"], 0x2081C4
+        )
+        self.assertTrue(roundtrip["restore"]["third_raw_zero_normalizes_to_one"])
+        self.assertEqual(roundtrip["save"]["viewsettingmenu_slot"], 57)
+        self.assertEqual(roundtrip["save"]["current_indices_call_site"], 0x210E8C)
+        self.assertEqual(roundtrip["save"]["backup_write_call_site"], 0x210E98)
+        self.assertTrue(roundtrip["same_three_ids_roundtrip_proven"])
+        self.assertTrue(roundtrip["effective_0_4_1_selects_static_path_proven"])
+        self.assertFalse(roundtrip["runtime_backup_values_0_4_1_proven"])
+        self.assertFalse(roundtrip["runtime_restore_invocation_proven"])
+        self.assertFalse(roundtrip["runtime_save_invocation_proven"])
+        self.assertFalse(roundtrip["runtime_creative_style_selection_proven"])
+        self.assertFalse(roundtrip["productaction_selector_10_delivery_proven"])
+        self.assertFalse(roundtrip["whole_runtime_absence_proven"])
+
+    def test_schema_5_refutes_only_the_candidate_initialization_triplet(self):
         """Break caught: initialization refutation may not become runtime absence."""
         report = validate_creative_style_selected_node_identity_boundary_report(
             build_creative_style_selected_node_identity_boundary_report(
                 EXPECTED_EXPORT
             )
         )
-        self.assertEqual(report["schema_version"], 4)
+        self.assertEqual(report["schema_version"], 5)
         boundary = report["candidate_initialization_refutation"]
         self.assertEqual(boundary["required_one_based_ordinals"], [1, 5, 2])
         self.assertEqual(boundary["blocking_zero_based_index"], 4)
@@ -57,14 +89,14 @@ class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
         )
         self.assertFalse(boundary["whole_runtime_absence_proven"])
 
-    def test_schema_4_reports_source_derived_selected_ordinal_writers(self):
+    def test_schema_5_reports_source_derived_selected_ordinal_writers(self):
         """Break caught: selected-ordinal writes may not remain asserted lifecycle prose."""
         report = validate_creative_style_selected_node_identity_boundary_report(
             build_creative_style_selected_node_identity_boundary_report(
                 EXPECTED_EXPORT
             )
         )
-        self.assertEqual(report["schema_version"], 4)
+        self.assertEqual(report["schema_version"], 5)
         writers = report["selected_ordinal_writers"]
         self.assertEqual(writers["field_offset"], 0x18)
         self.assertEqual(
@@ -147,7 +179,7 @@ class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
                 EXPECTED_EXPORT
             )
         )
-        self.assertEqual(report["schema_version"], 4)
+        self.assertEqual(report["schema_version"], 5)
         self.assertEqual(report["static_path"]["zero_based_indices"], [0, 4, 1])
         self.assertEqual(
             report["runtime_selection"]["required_one_based_ordinals"],
@@ -221,8 +253,8 @@ class CreativeStyleSelectedNodeIdentityBoundaryContractTests(unittest.TestCase):
         self.assertEqual(
             report["first_unresolved_boundary"],
             (
-                "post-initialization-runtime-creative-style-selected-ordinal-chain-"
-                "and-viewsettingmenu-productaction-10-delivery"
+                "runtime-viewsettingmenu-selector-0-delivery-with-effective-backup-"
+                "indices-0-4-1-and-productaction-10-delivery"
             ),
         )
 
@@ -705,6 +737,120 @@ class CreativeStyleSelectedNodeIdentityBoundaryExporterTests(unittest.TestCase):
             mutated["by_site"] = dict(caution["by_site"])
             mutated["by_site"][cell] = (index + 1, relocation)
             with self.subTest(cell=f"{cell:#x}"), self.assertRaises(RuntimeError):
+                validator(view, mutated, deps)
+
+    def test_persisted_selection_roundtrip_is_source_derived(self):
+        """Break caught: persisted restore/save structure may not be asserted."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        validator = getattr(
+            exporter, "_validate_persisted_selection_roundtrip", None
+        )
+        self.assertTrue(callable(validator))
+        view, caution, deps = self._real_contexts()
+        self.assertEqual(
+            validator(view, caution, deps),
+            EXPECTED_EXPORT["persisted_selection_roundtrip"],
+        )
+
+    def test_persisted_selection_roundtrip_source_mutations_are_rejected(self):
+        """Break caught: restore/save operands and interface cells must fail closed."""
+        import tools.static.export_a6400_creative_style_selected_node_identity_boundary as exporter
+
+        validator = exporter._validate_persisted_selection_roundtrip
+        view, caution, deps = self._real_contexts()
+        for site in (
+            0x21356A,
+            0x21356E,
+            0x213690,
+            0x2114FC,
+            0x211508,
+            0x211512,
+            0x2114E6,
+            0x206F8E,
+            0x208124,
+            0x208174,
+            0x20812C,
+            0x20815E,
+            0x208148,
+            0x20815A,
+            0x20815C,
+            0x20819C,
+            0x2081BA,
+            0x2081C4,
+            0x208082,
+            0x208096,
+            0x208098,
+            0x207F8E,
+            0x207F92,
+            0x207FBE,
+            0x207FC2,
+            0x8E2354,
+            0x210E8C,
+            0x210E98,
+            0x2081DE,
+            0x207FD8,
+            0x207FE4,
+            0x207FE6,
+            0x207FE8,
+            0x208002,
+            0x208010,
+            0x208012,
+            0x20801C,
+            0x20801E,
+            0x208020,
+            0x20803A,
+            0x20804C,
+            0x20804E,
+            0x208058,
+            0x20805A,
+            0x208066,
+            0x208068,
+            0x20806A,
+            0x2080D4,
+            0x2080DA,
+            0x20810C,
+            0x2080DC,
+            0x2080E0,
+            0x8E23D8,
+        ):
+            mutated = self._mutated_blob_context(view, site)
+            with self.subTest(source="view", site=f"{site:#x}"), self.assertRaisesRegex(
+                RuntimeError, "persisted selection roundtrip"
+            ):
+                validator(mutated, caution, deps)
+
+        for cell in (0xAB941C, 0xAB9420, 0xAB9428, 0xAB942C, 0xAB94B8):
+            mutated = self._mutated_blob_context(caution, cell)
+            with self.subTest(
+                source="caution", cell=f"{cell:#x}"
+            ), self.assertRaisesRegex(RuntimeError, "persisted selection roundtrip"):
+                validator(view, mutated, deps)
+
+        mutated = dict(view)
+        mutated["plt_symbols"] = dict(view["plt_symbols"])
+        mutated["plt_symbols"][0x1525B4] = "wrong"
+        with self.assertRaisesRegex(RuntimeError, "persisted selection roundtrip"):
+            validator(mutated, caution, deps)
+
+        for cell in (0x8E2354, 0x8E23D8):
+            index, relocation = view["by_site"][cell]
+            mutated = dict(view)
+            mutated["by_site"] = dict(view["by_site"])
+            mutated["by_site"][cell] = (index + 1, relocation)
+            with self.subTest(
+                source="view-relocation", cell=f"{cell:#x}"
+            ), self.assertRaisesRegex(RuntimeError, "persisted selection roundtrip"):
+                validator(mutated, caution, deps)
+
+        for cell in (0xAB941C, 0xAB9420, 0xAB9428, 0xAB942C, 0xAB94B8):
+            index, relocation = caution["by_site"][cell]
+            mutated = dict(caution)
+            mutated["by_site"] = dict(caution["by_site"])
+            mutated["by_site"][cell] = (index + 1, relocation)
+            with self.subTest(
+                source="caution-relocation", cell=f"{cell:#x}"
+            ), self.assertRaisesRegex(RuntimeError, "persisted selection roundtrip"):
                 validator(view, mutated, deps)
 
     def test_selected_ordinal_writer_inventory_is_source_derived(self):

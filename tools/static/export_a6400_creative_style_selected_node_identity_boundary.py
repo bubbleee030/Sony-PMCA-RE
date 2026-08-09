@@ -24,6 +24,7 @@ from pmca.analysis.creative_style_selected_node_identity_boundary import (
     DEPENDENCIES,
     EXPECTED_EXPORT,
     PRODUCTACTION_DELIVERY,
+    PERSISTED_SELECTION_ROUNDTRIP,
     PRODUCT_ROOT_SELECTION,
     ROOT_INITIALIZATION,
     RUNTIME_SELECTION,
@@ -116,6 +117,7 @@ def _dependencies():
             ARM_REG_R7,
             ARM_REG_R8,
             ARM_REG_R9,
+            ARM_REG_R10,
         )
         from tools.static.export_a6400_creative_style_view_model_binding import (
             _dependencies as base_dependencies,
@@ -157,6 +159,7 @@ def _dependencies():
             "r7": ARM_REG_R7,
             "r8": ARM_REG_R8,
             "r9": ARM_REG_R9,
+            "r10": ARM_REG_R10,
         }
     )
     return result
@@ -1183,6 +1186,491 @@ def _validate_candidate_initialization_refutation(view, caution, deps):
     return copy.deepcopy(expected)
 
 
+def _require_direct_call(context, deps, site, target, label):
+    item = _instruction(context["blob"], context["mappings"], deps, site)
+    if not item.group(deps["call_group"]) or _direct_target(item, deps) != target:
+        raise RuntimeError(label + " call differs")
+    return item
+
+
+def _validate_defined_symbol(context, symbol_index, symbol_name, symbol_range, label):
+    try:
+        symbol = context["elf"].get_section_by_name(".dynsym").get_symbol(
+            symbol_index
+        )
+    except (AttributeError, KeyError, TypeError) as exc:
+        raise RuntimeError(label + " symbol is missing") from exc
+    if (
+        symbol.name != symbol_name
+        or symbol["st_shndx"] == "SHN_UNDEF"
+        or (int(symbol["st_value"]) & ~1) != symbol_range["start"]
+        or int(symbol["st_size"])
+        != symbol_range["end"] - symbol_range["start"]
+    ):
+        raise RuntimeError(label + " symbol differs")
+
+
+def _validate_persisted_selection_roundtrip(view, caution, deps):
+    expected = PERSISTED_SELECTION_ROUNDTRIP
+    restore = expected["restore"]
+    save = expected["save"]
+    try:
+        if expected["required_effective_indices"] != STATIC_PATH["zero_based_indices"]:
+            raise RuntimeError("persisted path relation differs")
+
+        dispatcher = restore["dispatcher_owner"]
+        _require_owner(
+            view, dispatcher["start"], dispatcher["end"], "restore dispatcher"
+        )
+        _require_text(
+            view, deps, 0x213564, "cmp", "r1, #0x8e", "restore dispatcher"
+        )
+        table = _require_text(
+            view,
+            deps,
+            restore["table_branch_site"],
+            "tbh",
+            "[pc, r1, lsl #1]",
+            "restore dispatcher",
+        )
+        table_base = table.address + 4
+        if (
+            restore["table_entry_site"]
+            != table_base + restore["dispatcher_selector"] * 2
+            or int.from_bytes(
+                _at(
+                    view["blob"],
+                    view["mappings"],
+                    restore["table_entry_site"],
+                    2,
+                ),
+                "little",
+            )
+            != restore["table_entry_halfword"]
+            or table_base + restore["table_entry_halfword"] * 2
+            != restore["landing"]
+        ):
+            raise RuntimeError("restore selector-0 table entry differs")
+        _require_text(
+            view,
+            deps,
+            restore["landing"],
+            "pop.w",
+            "{r4, r5, r7, lr}",
+            "restore selector-0 landing",
+        )
+        tail = _instruction(
+            view["blob"], view["mappings"], deps, restore["tail_site"]
+        )
+        if tail.id != deps["b"] or _direct_target(tail, deps) != restore["tail_target"]:
+            raise RuntimeError("restore selector-0 tail differs")
+
+        handler = restore["selector_0_handler_owner"]
+        driver = restore["selection_driver_owner"]
+        _require_owner(view, handler["start"], handler["end"], "selector-0 handler")
+        _require_owner(view, driver["start"], driver["end"], "selection driver")
+        _require_text(
+            view,
+            deps,
+            restore["handler_root_load_site"],
+            "ldr.w",
+            "r3, [r0, #0x1a0]",
+            "selector-0 handler",
+        )
+        _require_direct_call(
+            view,
+            deps,
+            restore["handler_preselection_call_site"],
+            restore["handler_preselection_target"],
+            "selector-0 preselection",
+        )
+        handler_tail = _instruction(
+            view["blob"], view["mappings"], deps, restore["handler_tail_site"]
+        )
+        if (
+            handler_tail.id != deps["b"]
+            or _direct_target(handler_tail, deps) != restore["handler_tail_target"]
+        ):
+            raise RuntimeError("selector-0 selection-driver tail differs")
+        _require_direct_call(
+            view,
+            deps,
+            restore["conditional_restore_call_site"],
+            restore["conditional_restore_target"],
+            "conditional persisted restore",
+        )
+
+        for key in (
+            "restore_owner",
+            "backup_reader_owner",
+            "resolver_owner",
+            "ancestor_selection_owner",
+        ):
+            owner = restore[key]
+            _require_owner(view, owner["start"], owner["end"], key.replace("_", "-"))
+
+        wrapper = restore["backup_read_wrapper"]
+        owner = wrapper["owner"]
+        _require_owner(view, owner["start"], owner["end"], "backup-read wrapper")
+        wrapper_tail = _instruction(
+            view["blob"], view["mappings"], deps, wrapper["tail_site"]
+        )
+        if (
+            wrapper_tail.id != deps["b"]
+            or _direct_target(wrapper_tail, deps) != wrapper["interworking_gate"]
+        ):
+            raise RuntimeError("backup-read wrapper tail differs")
+        _require_text(
+            view,
+            deps,
+            wrapper["interworking_gate"],
+            "bx",
+            "pc",
+            "backup-read interworking gate",
+        )
+        if view["plt_symbols"].get(wrapper["plt"]) != wrapper["symbol"]:
+            raise RuntimeError("backup-read PLT symbol differs")
+        rel_plt = list(
+            view["elf"].get_section_by_name(".rel.plt").iter_relocations()
+        )
+        relocation = rel_plt[wrapper["relocation_index"]]
+        if (
+            relocation["r_offset"] != wrapper["got"]
+            or relocation["r_info_type"] != wrapper["relocation_type"]
+            or relocation["r_info_sym"] != wrapper["symbol_index"]
+            or _word(view["blob"], view["mappings"], wrapper["got"])
+            != wrapper["got_initial_value"]
+        ):
+            raise RuntimeError("backup-read PLT relocation differs")
+        _validate_defined_symbol(
+            view,
+            wrapper["symbol_index"],
+            wrapper["symbol"],
+            wrapper["candidate_provider_symbol_range"],
+            "backup-read candidate provider",
+        )
+        provider_owner = wrapper["candidate_provider_exidx_owner"]
+        _require_owner(
+            view,
+            provider_owner["start"],
+            provider_owner["end"],
+            "backup-read candidate provider",
+        )
+
+        for row, store_register in zip(
+            restore["backup_reads_in_call_order"],
+            (deps["r6"], deps["r5"], deps["r10"]),
+        ):
+            load = _instruction(
+                view["blob"], view["mappings"], deps, row["id_load_site"]
+            )
+            if load.id != deps["ldr"]:
+                raise RuntimeError("backup-read ID load differs")
+            _require_register(load, 0, deps["r1"], deps, "backup-read ID")
+            if _word(
+                view["blob"],
+                view["mappings"],
+                _literal_address(load, deps),
+            ) != row["backup_id"]:
+                raise RuntimeError("backup-read ID differs")
+            _require_direct_call(
+                view,
+                deps,
+                row["call_site"],
+                owner["start"],
+                "backup-read wrapper",
+            )
+            store = _instruction(
+                view["blob"], view["mappings"], deps, row["output_store_site"]
+            )
+            if store.id != deps["str"]:
+                raise RuntimeError("backup-read output store differs")
+            _require_register(store, 0, deps["r3"], deps, "backup-read output")
+            _require_memory(
+                store,
+                1,
+                store_register,
+                0,
+                deps,
+                "backup-read output",
+            )
+        if [
+            row["backup_id"]
+            for row in sorted(
+                restore["backup_reads_in_call_order"],
+                key=lambda item: item["resolver_position"],
+            )
+        ] != restore["backup_ids_in_resolver_order"]:
+            raise RuntimeError("backup-read resolver order differs")
+
+        for site, mnemonic, operands in (
+            (0x208186, "mov.w", "r3, #-1"),
+            (0x20818E, "str", "r3, [r7, #0xc]"),
+            (0x208194, "str", "r3, [r7, #8]"),
+            (0x208198, "str", "r3, [r7, #4]"),
+            (0x20819C, "bl", "#0x208118"),
+            (0x2081A2, "cmp.w", "r1, #-1"),
+            (0x2081AA, "cmp.w", "r2, #-1"),
+            (0x2081B2, "cmp.w", "r3, #-1"),
+            (0x2081BA, "bl", "#0x208078"),
+            (0x2081BE, "mov", "r1, r0"),
+            (0x2081C0, "cbz", "r0, #0x2081c8"),
+            (0x2081C4, "bl", "#0x207f7a"),
+            (0x208148, "cbnz", "r0, #0x20816a"),
+            (0x20814A, "cmp.w", "sb, #0"),
+            (0x20814E, "bne", "#0x20816a"),
+            (0x208150, "cmp.w", "r8, #0"),
+            (0x208154, "bne", "#0x20816a"),
+            (0x208156, "ldrh", "r3, [r7, #6]"),
+            (0x208158, "cmp", "r3, #0"),
+            (0x20815A, "it", "eq"),
+            (0x20815C, "movs", "r3, #1"),
+        ):
+            _require_text(view, deps, site, mnemonic, operands, "persisted restore")
+        if (
+            restore["success_result_check_sites"] != [0x208148, 0x20814A, 0x208150]
+            or restore["success_failure_branch_sites"]
+            != [0x208148, 0x20814E, 0x208154]
+            or restore["third_raw_zero_check_site"] != 0x208158
+            or restore["third_raw_zero_normalization_site"] != 0x20815C
+        ):
+            raise RuntimeError("persisted restore control-site map differs")
+
+        for record_name, slot in (
+            ("get_parent", 0x1C),
+            ("get_subitem_by_index", 0x20),
+            ("get_selected_item", 0x28),
+            ("get_index_selected_item", 0x2C),
+            ("set_item_selected", 0xB8),
+        ):
+            record = expected["candidate_generic_interfaces"][record_name]
+            if (
+                record["cell"]
+                != expected["candidate_generic_interfaces"]["vtable_address_point"]
+                + slot
+            ):
+                raise RuntimeError("candidate generic interface slot differs")
+            _validate_symbol_relocation(
+                caution, record, record_name.replace("_", "-")
+            )
+
+        for site, mnemonic, operands in (
+            (0x208082, "ldr.w", "r0, [r0, #0x1a0]"),
+            (0x208090, "ldr", "r3, [r0]"),
+            (0x208096, "ldr", "r3, [r3, #0x20]"),
+            (0x208098, "blx", "r3"),
+            (0x2080A0, "mov", "r1, r4"),
+            (0x2080A6, "ldr", "r3, [r3, #0x20]"),
+            (0x2080A8, "blx", "r3"),
+            (0x2080B0, "mov", "r1, r5"),
+            (0x2080B4, "ldr", "r4, [r3, #0x20]"),
+            (0x2080B6, "blx", "r4"),
+            (0x207F8E, "ldr.w", "r3, [r3, #0xb8]"),
+            (0x207F92, "blx", "r3"),
+            (0x207F9C, "ldr", "r3, [r3, #0x1c]"),
+            (0x207F9E, "blx", "r3"),
+            (0x207FA6, "ldr.w", "r3, [r3, #0xb8]"),
+            (0x207FAA, "blx", "r3"),
+            (0x207FB8, "ldr", "r3, [r3, #0x1c]"),
+            (0x207FBA, "blx", "r3"),
+            (0x207FBE, "ldr.w", "r3, [r4, #0x1a0]"),
+            (0x207FC2, "cmp", "r3, r0"),
+        ):
+            _require_text(view, deps, site, mnemonic, operands, "persisted resolver")
+        if (
+            restore["root_field_offset"] != 0x1A0
+            or restore["subitem_by_index_slot_offset"] != 0x20
+            or restore["subitem_by_index_call_sites"]
+            != [0x208098, 0x2080A8, 0x2080B6]
+            or restore["set_selected_slot_offset"] != 0xB8
+            or restore["set_selected_call_sites"] != [0x207F92, 0x207FAA]
+            or restore["get_parent_slot_offset"] != 0x1C
+            or restore["get_parent_call_sites"] != [0x207F9E, 0x207FBA]
+        ):
+            raise RuntimeError("persisted resolver site map differs")
+
+        if save["vtable_cell"] != PRODUCTACTION_DELIVERY[
+            "viewsettingmenu_vtable_address_point"
+        ] + save["viewsettingmenu_slot"] * 4:
+            raise RuntimeError("persisted-save vtable slot relation differs")
+        relocation_index, relocation = view["by_site"][save["vtable_cell"]]
+        if (
+            relocation_index != save["relocation_index"]
+            or relocation["r_info_type"] != save["relocation_type"]
+            or relocation["r_info_sym"] != 0
+            or _word(view["blob"], view["mappings"], save["vtable_cell"])
+            != save["target"] | 1
+        ):
+            raise RuntimeError("persisted-save vtable relocation differs")
+        for key in ("owner", "current_indices_owner", "backup_writer_owner"):
+            owner = save[key]
+            _require_owner(view, owner["start"], owner["end"], key.replace("_", "-"))
+        _require_direct_call(
+            view,
+            deps,
+            save["current_indices_call_site"],
+            save["current_indices_target"],
+            "current persisted indices",
+        )
+        _require_direct_call(
+            view,
+            deps,
+            save["backup_write_call_site"],
+            save["backup_write_target"],
+            "persisted backup writer",
+        )
+        for site, target in zip(
+            save["selected_index_helper_calls"],
+            save["selected_index_helper_targets"],
+        ):
+            _require_direct_call(view, deps, site, target, "selected-index helper")
+        for owner in save["selected_index_helper_owners"]:
+            _require_owner(
+                view,
+                owner["start"],
+                owner["end"],
+                "selected-index helper",
+            )
+        for site, mnemonic, operands in (
+            (0x207FD8, "ldr.w", "r0, [r0, #0x1a0]"),
+            (0x207FE4, "ldr", "r3, [r3, #0x2c]"),
+            (0x207FE6, "blx", "r3"),
+            (0x207FE8, "ldr", "r0, [r7, #4]"),
+            (0x208002, "ldr.w", "r0, [r0, #0x1a0]"),
+            (0x208010, "ldr", "r3, [r3, #0x28]"),
+            (0x208012, "blx", "r3"),
+            (0x20801C, "ldr", "r3, [r3, #0x2c]"),
+            (0x20801E, "blx", "r3"),
+            (0x208020, "ldr", "r0, [r7, #4]"),
+            (0x20803A, "ldr.w", "r0, [r0, #0x1a0]"),
+            (0x20804C, "ldr", "r3, [r3, #0x28]"),
+            (0x20804E, "blx", "r3"),
+            (0x208058, "ldr", "r3, [r3, #0x28]"),
+            (0x20805A, "blx", "r3"),
+            (0x208066, "ldr", "r3, [r3, #0x2c]"),
+            (0x208068, "blx", "r3"),
+            (0x20806A, "ldr", "r0, [r7, #0xc]"),
+        ):
+            _require_text(
+                view,
+                deps,
+                site,
+                mnemonic,
+                operands,
+                "selected-index helper",
+            )
+        if (
+            save["selected_item_slot_offset"] != 0x28
+            or save["selected_index_slot_offset"] != 0x2C
+        ):
+            raise RuntimeError("selected-index helper slot map differs")
+
+        write_interface = save["backup_write_interface"]
+        if (
+            write_interface["vtable_cell"]
+            != PRODUCTACTION_DELIVERY["viewsettingmenu_vtable_address_point"]
+            + write_interface["slot_offset"]
+        ):
+            raise RuntimeError("backup-write vtable slot relation differs")
+        write_index, write_relocation = view["by_site"][
+            write_interface["vtable_cell"]
+        ]
+        if (
+            write_index != write_interface["relocation_index"]
+            or write_relocation["r_info_type"]
+            != write_interface["relocation_type"]
+            or write_relocation["r_info_sym"] != write_interface["symbol_index"]
+            or _word(
+                view["blob"], view["mappings"], write_interface["vtable_cell"]
+            )
+            != 0
+        ):
+            raise RuntimeError("backup-write vtable relocation differs")
+        _validate_defined_symbol(
+            view,
+            write_interface["symbol_index"],
+            write_interface["symbol"],
+            write_interface["candidate_provider_symbol_range"],
+            "backup-write candidate provider",
+        )
+        provider_owner = write_interface["candidate_provider_exidx_owner"]
+        _require_owner(
+            view,
+            provider_owner["start"],
+            provider_owner["end"],
+            "backup-write candidate provider",
+        )
+
+        for row, slot_site in zip(
+            save["backup_writes_in_call_order"],
+            (0x2080DC, 0x2080EC, 0x2080FC),
+        ):
+            load = _instruction(
+                view["blob"], view["mappings"], deps, row["id_load_site"]
+            )
+            if load.id != deps["ldr"]:
+                raise RuntimeError("backup-write ID load differs")
+            _require_register(load, 0, deps["r1"], deps, "backup-write ID")
+            if _word(
+                view["blob"],
+                view["mappings"],
+                _literal_address(load, deps),
+            ) != row["backup_id"]:
+                raise RuntimeError("backup-write ID differs")
+            call = _instruction(
+                view["blob"], view["mappings"], deps, row["call_site"]
+            )
+            if call.id != deps["blx"]:
+                raise RuntimeError("backup-write virtual call differs")
+            _require_register(call, 0, deps["r3"], deps, "backup-write virtual call")
+            _require_text(
+                view,
+                deps,
+                slot_site,
+                "ldr.w",
+                "r3, [r3, #0x168]",
+                "backup-write virtual slot",
+            )
+            if row["source_position"] == 2:
+                _require_text(
+                    view,
+                    deps,
+                    0x2080D4,
+                    "str",
+                    "r3, [r2, #-0xc]!",
+                    "backup-write source",
+                )
+            elif row["source_position"] == 1:
+                _require_text(
+                    view,
+                    deps,
+                    0x2080CC,
+                    "str",
+                    "r2, [r7, #8]",
+                    "backup-write source",
+                )
+            else:
+                _require_text(
+                    view,
+                    deps,
+                    0x2080D2,
+                    "str",
+                    "r1, [r7, #0xc]",
+                    "backup-write source",
+                )
+        if [
+            row["backup_id"] for row in save["backup_writes_in_call_order"]
+        ] != [row["backup_id"] for row in restore["backup_reads_in_call_order"]]:
+            raise RuntimeError("persisted backup ID roundtrip differs")
+        if [
+            row["source_position"] for row in save["backup_writes_in_call_order"]
+        ] != [row["resolver_position"] for row in restore["backup_reads_in_call_order"]]:
+            raise RuntimeError("persisted backup position roundtrip differs")
+    except (AttributeError, IndexError, KeyError, RuntimeError, TypeError, ValueError) as exc:
+        raise RuntimeError("persisted selection roundtrip differs") from exc
+    return copy.deepcopy(expected)
+
+
 def _written_registers(instruction):
     try:
         return set(instruction.regs_access()[1])
@@ -1567,6 +2055,9 @@ def _metadata_from_blobs(view_blob, caution_blob, deps):
     )
     document["candidate_initialization_refutation"] = (
         _validate_candidate_initialization_refutation(view, caution, deps)
+    )
+    document["persisted_selection_roundtrip"] = (
+        _validate_persisted_selection_roundtrip(view, caution, deps)
     )
     document["productaction_delivery"] = _validate_productaction_delivery(
         view, deps
