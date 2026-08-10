@@ -146,20 +146,21 @@ def compile_freestanding_objects(directory, sources):
     return objects
 
 
+def compiler_linker():
+    compiler = strict_c99_command()[0]
+    completed = _run_checked([compiler, "-print-prog-name=ld"])
+    linker = completed.stdout.strip()
+    if not linker:
+        raise AssertionError("gcc did not report its matching linker")
+    return linker
+
+
 def link_relocatable(directory, name, objects):
     output = Path(directory) / f"{name}.o"
-    platform_flags = []
-    if os.name == "nt":
-        platform_flags = [
-            "-Wl,--disable-runtime-pseudo-reloc",
-            "-Wl,--defsym,_pei386_runtime_relocator=0",
-        ]
     _run_checked(
         [
-            strict_c99_command()[0],
+            compiler_linker(),
             "-r",
-            "-nostdlib",
-            *platform_flags,
             "-o",
             str(output),
             *(str(object_path) for object_path in objects),
@@ -171,7 +172,7 @@ def link_relocatable(directory, name, objects):
 def assert_no_undefined_symbols(object_path, label):
     symbol_tool = shutil.which("nm")
     if symbol_tool is None:
-        return
+        raise AssertionError("nm is required to verify undefined symbols")
     completed = _run_checked([symbol_tool, "-u", str(object_path)])
     if completed.stdout.strip():
         raise AssertionError(

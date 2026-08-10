@@ -1,6 +1,8 @@
 import ctypes
 import tempfile
 import unittest
+from pathlib import Path
+from unittest import mock
 
 from tests.analysis.creative_look_native_abi import (
     CORE_SOURCE,
@@ -105,11 +107,11 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             cls._temporary.name, "creative_look_bridge", sources
         )
         objects = compile_freestanding_objects(cls._temporary.name, sources)
-        combined_object = link_relocatable(
+        cls.combined_object = link_relocatable(
             cls._temporary.name, "creative_look_bridge", objects
         )
         assert_no_undefined_symbols(
-            combined_object, "native core/view/bridge"
+            cls.combined_object, "native core/view/bridge"
         )
 
         cls.library = ctypes.CDLL(str(cls.library_path))
@@ -147,6 +149,7 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
 
     def _host_manifest(self):
         manifest = IntegrationManifest()
+        ctypes.memset(ctypes.byref(manifest), 0xA5, ctypes.sizeof(manifest))
         self.assertEqual(
             self.library.cl_bridge_manifest_host(ctypes.byref(manifest)),
             CL_OK,
@@ -194,6 +197,18 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
     def test_host_manifest_is_ordered_simulated_and_safety_zero(self):
         self._require_exports()
         manifest = self._host_manifest()
+        expected_bytes = bytearray(228)
+        expected_bytes[0:2] = CL_BRIDGE_ABI_VERSION.to_bytes(
+            2, byteorder="little"
+        )
+        expected_bytes[3] = CL_BRIDGE_BINDING_COUNT
+        for index in range(CL_BRIDGE_BINDING_COUNT):
+            binding_offset = 4 + index * 36
+            expected_bytes[binding_offset] = index
+            expected_bytes[binding_offset + 2] = (
+                CL_BINDING_RUNTIME_HOST_SIMULATED
+            )
+        self.assertEqual(bytes(manifest), bytes(expected_bytes))
         self.assertEqual(manifest.abi_version, CL_BRIDGE_ABI_VERSION)
         self.assertEqual(
             manifest.execution_profile, CL_EXECUTION_PROFILE_OFFLINE_HOST
@@ -320,6 +335,40 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
 
     def test_bridge_contract_exports_are_present(self):
         self.assertEqual(self.missing_exports, [])
+
+    def test_undefined_symbol_gate_catches_real_unresolved_symbols(self):
+        directory = Path(self._temporary.name)
+        for index, symbol in enumerate(
+            ("_pei386_runtime_relocator", "cl_deliberately_unresolved")
+        ):
+            source = directory / f"unresolved-{index}.c"
+            source.write_text(
+                f"extern void {symbol}(void);\n"
+                f"void cl_call_unresolved_{index}(void) {{ {symbol}(); }}\n",
+                encoding="utf-8",
+            )
+            object_path = compile_freestanding_objects(directory, [source])[0]
+            combined = link_relocatable(
+                directory, f"unresolved-{index}", [object_path]
+            )
+            with self.subTest(symbol=symbol):
+                with self.assertRaisesRegex(
+                    AssertionError, "has undefined symbols"
+                ) as caught:
+                    assert_no_undefined_symbols(combined, "mutation object")
+                self.assertIn(symbol, str(caught.exception))
+
+    def test_undefined_symbol_gate_fails_when_nm_is_unavailable(self):
+        with mock.patch(
+            "tests.analysis.creative_look_native_abi.shutil.which",
+            return_value=None,
+        ):
+            with self.assertRaisesRegex(
+                AssertionError, "nm is required"
+            ):
+                assert_no_undefined_symbols(
+                    self.combined_object, "native core/view/bridge"
+                )
 
     def test_bridge_source_is_offline_and_has_one_direct_dependency(self):
         source = BRIDGE_C.read_text(encoding="utf-8")
