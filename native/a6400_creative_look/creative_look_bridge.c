@@ -77,7 +77,6 @@ static void cl_report_initialize(
 {
     size_t index;
 
-    cl_zero_bytes(report, sizeof(*report));
     report->transition_result = CL_OK;
     report->lifecycle_open_result = CL_CALLBACK_NOT_ATTEMPTED;
     report->lifecycle_close_result = CL_CALLBACK_NOT_ATTEMPTED;
@@ -87,12 +86,76 @@ static void cl_report_initialize(
     for (index = 0u; index < CL_BRIDGE_BINDING_COUNT; ++index) {
         report->sync_results[index] = CL_CALLBACK_NOT_ATTEMPTED;
     }
+    report->attempted = 0u;
+    report->succeeded = 0u;
+    report->failed = 0u;
+    report->state_committed = 0u;
+    report->reserved[0] = 0u;
+    report->reserved[1] = 0u;
     if (bridge != NULL) {
         report->state_revision = bridge->state_revision;
         report->processing_revision = bridge->processing_revision;
         report->dirty = bridge->dirty_mask;
         report->opened = bridge->opened;
+    } else {
+        report->state_revision = 0u;
+        report->processing_revision = 0u;
+        report->dirty = 0u;
+        report->opened = 0u;
     }
+}
+
+static int cl_state_changed(const cl_state *left, const cl_state *right)
+{
+    size_t look;
+    size_t axis;
+
+    if (left->selected_look != right->selected_look ||
+        left->screen != right->screen ||
+        left->orientation != right->orientation ||
+        left->editing_axis != right->editing_axis ||
+        left->modes != right->modes) {
+        return 1;
+    }
+    for (look = 0u; look < CL_CUSTOM_LOOK_COUNT; ++look) {
+        if (left->custom_bases[look] != right->custom_bases[look]) {
+            return 1;
+        }
+    }
+    for (look = 0u; look < CL_LOOK_COUNT; ++look) {
+        for (axis = 0u; axis < CL_AXIS_COUNT; ++axis) {
+            if (left->adjustments[look][axis] !=
+                right->adjustments[look][axis]) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+static int cl_processing_changed(const cl_state *left, const cl_state *right)
+{
+    size_t look;
+    size_t axis;
+
+    if (left->selected_look != right->selected_look ||
+        left->modes != right->modes) {
+        return 1;
+    }
+    for (look = 0u; look < CL_CUSTOM_LOOK_COUNT; ++look) {
+        if (left->custom_bases[look] != right->custom_bases[look]) {
+            return 1;
+        }
+    }
+    for (look = 0u; look < CL_LOOK_COUNT; ++look) {
+        for (axis = 0u; axis < CL_AXIS_COUNT; ++axis) {
+            if (left->adjustments[look][axis] !=
+                right->adjustments[look][axis]) {
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 static int cl_adapters_complete(const cl_bridge_adapters *adapters)
@@ -130,6 +193,15 @@ static void cl_update_retained_snapshot(cl_bridge *bridge)
     snapshot->output_mask = CL_BRIDGE_OUTPUT_MASK;
     snapshot->processing_revision = bridge->processing_revision;
     snapshot->state = bridge->state;
+}
+
+static void cl_synchronize_state(
+    cl_bridge *bridge,
+    cl_bridge_report *report
+)
+{
+    (void)bridge;
+    (void)report;
 }
 
 static int32_t cl_call_load(cl_bridge *bridge, uint8_t *blob)
@@ -196,17 +268,7 @@ static int32_t cl_bridge_input_sink(
     cl_bridge_report *report
 )
 {
-    cl_bridge *bridge = (cl_bridge *)context;
-
-    (void)event;
-    (void)report;
-    if (bridge == NULL) {
-        return CL_ERR_ARGUMENT;
-    }
-    if (bridge->busy != 0u) {
-        return CL_ERR_BUSY;
-    }
-    return CL_ERR_RESTRICTED;
+    return cl_bridge_handle_event((cl_bridge *)context, event, report);
 }
 
 static int32_t cl_call_attach(cl_bridge *bridge)
@@ -593,6 +655,156 @@ cl_result cl_bridge_close(cl_bridge *bridge, cl_bridge_report *report)
         result = CL_ERR_LIFECYCLE;
     }
     return cl_publish_report(bridge, report, &operation, result);
+}
+
+cl_result cl_bridge_handle_event(
+    cl_bridge *bridge,
+    const cl_input_event *event,
+    cl_bridge_report *report
+)
+{
+    cl_bridge_report operation;
+    cl_state candidate;
+    cl_result result;
+    int processing_change;
+
+    if (bridge == NULL) {
+        return CL_ERR_ARGUMENT;
+    }
+    if (bridge->initialization_marker !=
+        CL_BRIDGE_INITIALIZATION_MARKER) {
+        return CL_ERR_STATE;
+    }
+    if (bridge->busy != 0u) {
+        return CL_ERR_BUSY;
+    }
+    if (event == NULL || report == NULL) {
+        return CL_ERR_ARGUMENT;
+    }
+    if (bridge->opened == 0u || bridge->input_attached == 0u) {
+        return CL_ERR_NOT_OPEN;
+    }
+
+    cl_report_initialize(&operation, bridge);
+    if (event->reserved[0] != 0u || event->reserved[1] != 0u) {
+        operation.transition_result = CL_ERR_ARGUMENT;
+        return cl_publish_report(
+            bridge, report, &operation, CL_ERR_ARGUMENT
+        );
+    }
+    candidate = bridge->state;
+    if (event->kind == CL_INPUT_TOUCH) {
+        if (event->value != 0u) {
+            operation.transition_result = CL_ERR_ARGUMENT;
+            return cl_publish_report(
+                bridge, report, &operation, CL_ERR_ARGUMENT
+            );
+        }
+        result = cl_view_touch(&candidate, event->x, event->y);
+    } else if (event->kind == CL_INPUT_ORIENTATION) {
+        if (event->x != 0 || event->y != 0 ||
+            event->value > CL_ORIENTATION_PORTRAIT_SHUTTER_DOWN) {
+            operation.transition_result = CL_ERR_ARGUMENT;
+            return cl_publish_report(
+                bridge, report, &operation, CL_ERR_ARGUMENT
+            );
+        }
+        result = cl_set_orientation(&candidate, event->value);
+    } else {
+        operation.transition_result = CL_ERR_ARGUMENT;
+        return cl_publish_report(
+            bridge, report, &operation, CL_ERR_ARGUMENT
+        );
+    }
+    operation.transition_result = result;
+    if (result != CL_OK) {
+        return cl_publish_report(bridge, report, &operation, result);
+    }
+    if (!cl_state_changed(&bridge->state, &candidate)) {
+        return cl_publish_report(bridge, report, &operation, CL_OK);
+    }
+    processing_change = cl_processing_changed(&bridge->state, &candidate);
+    if (bridge->state_revision == UINT32_MAX ||
+        (processing_change && bridge->processing_revision == UINT32_MAX)) {
+        operation.transition_result = CL_ERR_REVISION;
+        return cl_publish_report(
+            bridge, report, &operation, CL_ERR_REVISION
+        );
+    }
+
+    bridge->state = candidate;
+    ++bridge->state_revision;
+    bridge->dirty_mask = (uint8_t)(bridge->dirty_mask |
+        CL_SYNC_PRESENTATION | CL_SYNC_PERSISTENCE);
+    if (processing_change) {
+        ++bridge->processing_revision;
+        bridge->dirty_mask = (uint8_t)(bridge->dirty_mask |
+            CL_SYNC_MODEL_REQUEST | CL_SYNC_LIVE_VIEW |
+            CL_SYNC_STILL_JPEG | CL_SYNC_MOVIE);
+        cl_update_retained_snapshot(bridge);
+    }
+    operation.state_committed = 1u;
+    cl_synchronize_state(bridge, &operation);
+    return cl_publish_report(bridge, report, &operation, CL_OK);
+}
+
+cl_result cl_bridge_set_mode(
+    cl_bridge *bridge,
+    uint8_t mode,
+    int enabled,
+    cl_bridge_report *report
+)
+{
+    cl_bridge_report operation;
+    cl_state candidate;
+    cl_result result;
+
+    if (bridge == NULL) {
+        return CL_ERR_ARGUMENT;
+    }
+    if (bridge->initialization_marker !=
+        CL_BRIDGE_INITIALIZATION_MARKER) {
+        return CL_ERR_STATE;
+    }
+    if (bridge->busy != 0u) {
+        return CL_ERR_BUSY;
+    }
+    if (report == NULL) {
+        return CL_ERR_ARGUMENT;
+    }
+    if (bridge->opened == 0u) {
+        return CL_ERR_NOT_OPEN;
+    }
+
+    cl_report_initialize(&operation, bridge);
+    candidate = bridge->state;
+    result = cl_set_mode(&candidate, mode, enabled);
+    operation.transition_result = result;
+    if (result != CL_OK) {
+        return cl_publish_report(bridge, report, &operation, result);
+    }
+    if (candidate.modes == bridge->state.modes) {
+        return cl_publish_report(bridge, report, &operation, CL_OK);
+    }
+    if (bridge->state_revision == UINT32_MAX ||
+        bridge->processing_revision == UINT32_MAX) {
+        operation.transition_result = CL_ERR_REVISION;
+        return cl_publish_report(
+            bridge, report, &operation, CL_ERR_REVISION
+        );
+    }
+
+    bridge->state = candidate;
+    ++bridge->state_revision;
+    ++bridge->processing_revision;
+    bridge->dirty_mask = (uint8_t)(bridge->dirty_mask |
+        CL_SYNC_PRESENTATION | CL_SYNC_PERSISTENCE |
+        CL_SYNC_MODEL_REQUEST | CL_SYNC_LIVE_VIEW |
+        CL_SYNC_STILL_JPEG | CL_SYNC_MOVIE);
+    cl_update_retained_snapshot(bridge);
+    operation.state_committed = 1u;
+    cl_synchronize_state(bridge, &operation);
+    return cl_publish_report(bridge, report, &operation, CL_OK);
 }
 
 const cl_state *cl_bridge_state(const cl_bridge *bridge)

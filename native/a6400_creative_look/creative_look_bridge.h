@@ -196,6 +196,12 @@ cl_result cl_bridge_init(
 );
 cl_result cl_bridge_open(cl_bridge *, cl_bridge_report *);
 cl_result cl_bridge_close(cl_bridge *, cl_bridge_report *);
+cl_result cl_bridge_handle_event(
+    cl_bridge *, const cl_input_event *, cl_bridge_report *
+);
+cl_result cl_bridge_set_mode(
+    cl_bridge *, uint8_t mode, int enabled, cl_bridge_report *
+);
 const cl_state *cl_bridge_state(const cl_bridge *);
 const cl_bridge_report *cl_bridge_last_report(const cl_bridge *);
 uint32_t cl_bridge_state_revision(const cl_bridge *);

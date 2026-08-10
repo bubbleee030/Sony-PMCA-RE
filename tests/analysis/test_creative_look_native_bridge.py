@@ -32,14 +32,18 @@ BRIDGE_H = NATIVE / "creative_look_bridge.h"
 BRIDGE_C = NATIVE / "creative_look_bridge.c"
 
 CL_OK = 0
+CL_ERR_ARGUMENT = -1
 CL_ERR_STATE = -2
+CL_ERR_MODE_UNAVAILABLE = -3
 CL_ERR_BLOB = -8
+CL_ERR_NO_HIT = -9
 CL_ERR_ADAPTER = -10
 CL_ERR_MANIFEST = -11
 CL_ERR_BINDING = -12
 CL_ERR_LIFECYCLE = -13
 CL_ERR_NOT_OPEN = -14
 CL_ERR_ALREADY_OPEN = -15
+CL_ERR_REVISION = -16
 CL_ERR_INPUT_ATTACHMENT = -17
 CL_ERR_REINIT_REQUIRED = -18
 CL_ERR_BUSY = -19
@@ -55,6 +59,19 @@ CL_BINDING_EVIDENCE_STATIC_CANDIDATE = 1
 CL_BINDING_EVIDENCE_STATIC_PROVEN = 2
 CL_BINDING_RUNTIME_DISABLED = 0
 CL_BINDING_RUNTIME_HOST_SIMULATED = 1
+CL_INPUT_TOUCH = 0
+CL_INPUT_ORIENTATION = 1
+CL_UI_KIND_LOOK = 0
+CL_UI_KIND_CUSTOM_BASE = 1
+CL_UI_KIND_AXIS = 2
+CL_UI_KIND_AXIS_VALUE = 3
+CL_UI_KIND_ACTION = 4
+CL_UI_ACTION_RESET = 5
+CL_UI_ACTION_CATALOG = 6
+CL_LOOK_VV = 3
+CL_LOOK_CUSTOM1 = 12
+CL_MODE_INTELLIGENT_AUTO = 0
+CL_MODE_MOVIE = 3
 
 
 class BindingRecord(ctypes.Structure):
@@ -222,6 +239,7 @@ class LifecycleFixture:
         reenter_on=None,
         reinit_on=None,
         deliver_on=None,
+        direct_event_on=None,
         raise_on=None,
     ):
         self.library = library
@@ -242,6 +260,7 @@ class LifecycleFixture:
         self.reenter_on = set(reenter_on or ())
         self.reinit_on = set(reinit_on or ())
         self.deliver_on = set(deliver_on or ())
+        self.direct_event_on = set(direct_event_on or ())
         self.raise_on = set(raise_on or ())
         self.calls = []
         self.presented_frames = []
@@ -255,10 +274,12 @@ class LifecycleFixture:
         self.reentry_observations = []
         self.reinit_observations = []
         self.delivery_observations = []
+        self.direct_event_observations = []
         self.bridge = Bridge()
 
         def load(_context, data, size):
             self.calls.append("load")
+            self._maybe_handle_event("load")
             self._maybe_reenter("load")
             self._maybe_reinitialize("load")
             if "load" in self.raise_on:
@@ -286,6 +307,7 @@ class LifecycleFixture:
                 NativeState.from_buffer_copy(state_pointer.contents)
             )
             self.resource_open = self.callback_results["open"] == 0
+            self._maybe_handle_event("open")
             self._maybe_reenter("open")
             self._maybe_reinitialize("open")
             return self.callback_results["open"]
@@ -302,6 +324,7 @@ class LifecycleFixture:
             self.presented_frames.append(
                 NativeFrame.from_buffer_copy(frame_pointer.contents)
             )
+            self._maybe_handle_event("present")
             self._maybe_reenter("present")
             self._maybe_reinitialize("present")
             return self.callback_results["present"]
@@ -313,6 +336,7 @@ class LifecycleFixture:
             succeeded = False
             try:
                 self._maybe_deliver("attach")
+                self._maybe_handle_event("attach")
                 self._maybe_reenter("attach")
                 self._maybe_reinitialize("attach")
                 if "attach" in self.raise_on:
@@ -329,6 +353,7 @@ class LifecycleFixture:
             self.calls.append("detach")
             try:
                 self._maybe_deliver("detach")
+                self._maybe_handle_event("detach")
                 self._maybe_reenter("detach")
                 self._maybe_reinitialize("detach")
                 if "detach" in self.raise_on:
@@ -477,6 +502,37 @@ class LifecycleFixture:
             (callback_name, result, before == bytes(report))
         )
 
+    def _maybe_handle_event(self, callback_name):
+        if callback_name not in self.direct_event_on:
+            return
+        report = BridgeReport()
+        ctypes.memset(ctypes.byref(report), 0x59, ctypes.sizeof(report))
+        before = bytes(report)
+        result = self.library.cl_bridge_handle_event(
+            ctypes.byref(self.bridge),
+            ctypes.byref(InputEvent(
+                0, 0, CL_INPUT_ORIENTATION, 1,
+                (ctypes.c_uint8 * 2)(0, 0),
+            )),
+            ctypes.byref(report),
+        )
+        self.direct_event_observations.append(
+            (callback_name, result, before == bytes(report))
+        )
+
+    def deliver(self, event, report=None):
+        if report is None:
+            report = BridgeReport()
+        self.assert_sink_attached()
+        result = self.sink(
+            self.sink_context, ctypes.byref(event), ctypes.byref(report)
+        )
+        return result, report
+
+    def assert_sink_attached(self):
+        if self.sink is None:
+            raise AssertionError("input sink is not attached")
+
 
 class CreativeLookNativeBridgeTests(unittest.TestCase):
     @classmethod
@@ -512,6 +568,8 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             "cl_bridge_init",
             "cl_bridge_open",
             "cl_bridge_close",
+            "cl_bridge_handle_event",
+            "cl_bridge_set_mode",
             "cl_bridge_state",
             "cl_bridge_last_report",
             "cl_bridge_state_revision",
@@ -552,6 +610,27 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             ctypes.POINTER(BridgeReport),
         ]
         cls.library.cl_bridge_close.restype = ctypes.c_int
+        cls.library.cl_bridge_handle_event.argtypes = [
+            ctypes.POINTER(Bridge),
+            ctypes.POINTER(InputEvent),
+            ctypes.POINTER(BridgeReport),
+        ]
+        cls.library.cl_bridge_handle_event.restype = ctypes.c_int
+        cls.library.cl_bridge_set_mode.argtypes = [
+            ctypes.POINTER(Bridge),
+            ctypes.c_uint8,
+            ctypes.c_int,
+            ctypes.POINTER(BridgeReport),
+        ]
+        cls.library.cl_bridge_set_mode.restype = ctypes.c_int
+        cls.library.cl_view_build.argtypes = [
+            ctypes.POINTER(NativeState), ctypes.POINTER(NativeFrame)
+        ]
+        cls.library.cl_view_build.restype = ctypes.c_int
+        cls.library.cl_view_touch.argtypes = [
+            ctypes.POINTER(NativeState), ctypes.c_int32, ctypes.c_int32
+        ]
+        cls.library.cl_view_touch.restype = ctypes.c_int
         cls.library.cl_bridge_state.argtypes = [ctypes.POINTER(Bridge)]
         cls.library.cl_bridge_state.restype = ctypes.POINTER(NativeState)
         cls.library.cl_bridge_last_report.argtypes = [ctypes.POINTER(Bridge)]
@@ -684,6 +763,359 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
         )
         self.assertEqual(
             bytes(state.adjustments), bytes([128] * (18 * 8))
+        )
+
+    def _event_for_element(
+        self, fixture, kind, primary=None, action=None, value=None, state=None
+    ):
+        frame = NativeFrame()
+        if state is None:
+            state = fixture.bridge.state
+        self.assertEqual(
+            self.library.cl_view_build(
+                ctypes.byref(state), ctypes.byref(frame)
+            ),
+            CL_OK,
+        )
+        element = next(
+            element
+            for element in frame.elements[:frame.count]
+            if element.kind == kind
+            and (primary is None or element.primary == primary)
+            and (action is None or element.action == action)
+            and (value is None or element.value == value)
+        )
+        return InputEvent(
+            element.x + 1,
+            element.y + 1,
+            CL_INPUT_TOUCH,
+            0,
+            (ctypes.c_uint8 * 2)(0, 0),
+        )
+
+    def _open_fixture(self, **arguments):
+        fixture = self._fixture(**arguments)
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(fixture.bridge), ctypes.byref(BridgeReport())
+            ),
+            CL_OK,
+        )
+        return fixture
+
+    def test_canonical_sink_touch_commits_selected_look_and_processing(self):
+        self._require_exports()
+        fixture = self._open_fixture()
+        frame = fixture.presented_frames[-1]
+        vv = next(
+            element
+            for element in frame.elements[:frame.count]
+            if element.kind == CL_UI_KIND_LOOK and element.primary == CL_LOOK_VV
+        )
+        event = InputEvent(
+            vv.x + 1, vv.y + 1, CL_INPUT_TOUCH, 0,
+            (ctypes.c_uint8 * 2)(0, 0),
+        )
+
+        report = BridgeReport()
+        ctypes.memset(ctypes.byref(report), 0x5A, ctypes.sizeof(report))
+        result, report = fixture.deliver(event, report)
+
+        self.assertEqual(result, CL_OK)
+        self.assertEqual(fixture.bridge.state.selected_look, CL_LOOK_VV)
+        self._assert_report(
+            report,
+            state_revision=2,
+            processing_revision=2,
+            dirty=0x3F,
+            state_committed=1,
+            opened=1,
+        )
+
+    def test_sink_flow_matches_direct_view_touch_for_editor_paths(self):
+        self._require_exports()
+        fixture = self._open_fixture()
+        direct_state = NativeState()
+        self.assertEqual(self.library.cl_init(ctypes.byref(direct_state)), CL_OK)
+        steps = (
+            (CL_UI_KIND_LOOK, CL_LOOK_VV, None, None),
+            (CL_UI_KIND_ACTION, None, CL_UI_ACTION_CATALOG, None),
+            (CL_UI_KIND_LOOK, CL_LOOK_CUSTOM1, None, None),
+            (CL_UI_KIND_CUSTOM_BASE, CL_LOOK_VV, None, None),
+            (CL_UI_KIND_AXIS, 0, None, None),
+            (CL_UI_KIND_AXIS_VALUE, 0, None, 0),
+            (CL_UI_KIND_ACTION, None, CL_UI_ACTION_RESET, None),
+            (CL_UI_KIND_ACTION, None, CL_UI_ACTION_CATALOG, None),
+        )
+
+        for kind, primary, action, value in steps:
+            with self.subTest(kind=kind, primary=primary, action=action):
+                event = self._event_for_element(
+                    fixture, kind, primary, action, value, direct_state
+                )
+                self.assertEqual(
+                    self.library.cl_view_touch(
+                        ctypes.byref(direct_state), event.x, event.y
+                    ),
+                    CL_OK,
+                )
+                self.assertEqual(fixture.deliver(event)[0], CL_OK)
+                self.assertEqual(
+                    bytes(fixture.bridge.state), bytes(direct_state)
+                )
+        self.assertEqual(fixture.calls, ["load", "open", "present", "attach"])
+
+    def test_processing_revision_tracks_look_base_axis_and_mode_only(self):
+        self._require_exports()
+        fixture = self._open_fixture()
+
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_CUSTOM1)
+            )[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_CUSTOM_BASE, CL_LOOK_VV)
+            )[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            fixture.deliver(self._event_for_element(fixture, CL_UI_KIND_AXIS, 0))[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_AXIS_VALUE, 0, value=0)
+            )[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            (fixture.bridge.state_revision, fixture.bridge.processing_revision),
+            (5, 4),
+        )
+
+        navigation = self._event_for_element(
+            fixture, CL_UI_KIND_ACTION, action=CL_UI_ACTION_CATALOG
+        )
+        self.assertEqual(fixture.deliver(navigation)[0], CL_OK)
+        orientation = InputEvent(
+            0, 0, CL_INPUT_ORIENTATION, 1, (ctypes.c_uint8 * 2)(0, 0)
+        )
+        self.assertEqual(fixture.deliver(orientation)[0], CL_OK)
+        self.assertEqual(
+            (fixture.bridge.state_revision, fixture.bridge.processing_revision),
+            (7, 4),
+        )
+
+        report = BridgeReport()
+        self.assertEqual(
+            self.library.cl_bridge_set_mode(
+                ctypes.byref(fixture.bridge), CL_MODE_MOVIE, 1,
+                ctypes.byref(report),
+            ),
+            CL_OK,
+        )
+        self._assert_report(
+            report,
+            state_revision=8,
+            processing_revision=5,
+            dirty=0x3F,
+            state_committed=1,
+            opened=1,
+        )
+
+    def test_invalid_restricted_and_no_hit_events_do_not_commit(self):
+        self._require_exports()
+        fixture = self._open_fixture()
+        before = (
+            bytes(fixture.bridge.state), fixture.bridge.state_revision,
+            fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+        )
+        cases = (
+            (InputEvent(0, 0, 99, 0, (ctypes.c_uint8 * 2)(0, 0)), CL_ERR_ARGUMENT),
+            (InputEvent(0, 0, CL_INPUT_TOUCH, 1, (ctypes.c_uint8 * 2)(0, 0)), CL_ERR_ARGUMENT),
+            (InputEvent(0, 0, CL_INPUT_TOUCH, 0, (ctypes.c_uint8 * 2)(1, 0)), CL_ERR_ARGUMENT),
+            (InputEvent(0, 0, CL_INPUT_ORIENTATION, 3, (ctypes.c_uint8 * 2)(0, 0)), CL_ERR_ARGUMENT),
+            (InputEvent(1, 0, CL_INPUT_ORIENTATION, 1, (ctypes.c_uint8 * 2)(0, 0)), CL_ERR_ARGUMENT),
+            (InputEvent(-1, -1, CL_INPUT_TOUCH, 0, (ctypes.c_uint8 * 2)(0, 0)), CL_ERR_NO_HIT),
+        )
+        for event, expected in cases:
+            with self.subTest(event=(event.kind, event.value, event.x, event.y)):
+                self.assertEqual(fixture.deliver(event)[0], expected)
+                self.assertEqual(
+                    (
+                        bytes(fixture.bridge.state), fixture.bridge.state_revision,
+                        fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+                    ),
+                    before,
+                )
+
+        self.assertEqual(
+            self.library.cl_bridge_set_mode(
+                ctypes.byref(fixture.bridge), CL_MODE_INTELLIGENT_AUTO, 1,
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+        before = (
+            bytes(fixture.bridge.state), fixture.bridge.state_revision,
+            fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+        )
+        restricted = self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_VV)
+        self.assertEqual(fixture.deliver(restricted)[0], CL_ERR_MODE_UNAVAILABLE)
+        self.assertEqual(
+            (
+                bytes(fixture.bridge.state), fixture.bridge.state_revision,
+                fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+            ),
+            before,
+        )
+
+    def test_captured_sink_rejects_after_close_and_callback_delivery_is_busy(self):
+        self._require_exports()
+        fixture = self._open_fixture()
+        retained_sink = fixture.sink
+        retained_context = fixture.sink_context
+        self.assertEqual(
+            self.library.cl_bridge_close(
+                ctypes.byref(fixture.bridge), ctypes.byref(BridgeReport())
+            ),
+            CL_OK,
+        )
+        report = BridgeReport()
+        self.assertEqual(
+            retained_sink(
+                retained_context,
+                ctypes.byref(InputEvent(0, 0, CL_INPUT_ORIENTATION, 1, (ctypes.c_uint8 * 2)(0, 0))),
+                ctypes.byref(report),
+            ),
+            CL_ERR_NOT_OPEN,
+        )
+
+        busy_fixture = self._fixture(deliver_on={"attach", "detach"})
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(busy_fixture.bridge), ctypes.byref(BridgeReport())
+            ),
+            CL_OK,
+        )
+        self.assertEqual(
+            self.library.cl_bridge_close(
+                ctypes.byref(busy_fixture.bridge), ctypes.byref(BridgeReport())
+            ),
+            CL_OK,
+        )
+        self.assertEqual(
+            busy_fixture.delivery_observations,
+            [("attach", CL_ERR_BUSY, True), ("detach", CL_ERR_BUSY, True)],
+        )
+
+        callback_fixture = self._fixture(direct_event_on={"present"})
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(callback_fixture.bridge),
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+        self.assertEqual(
+            callback_fixture.direct_event_observations,
+            [("present", CL_ERR_BUSY, True)],
+        )
+
+    def test_revision_overflow_rejects_only_the_changes_it_cannot_record(self):
+        self._require_exports()
+        fixture = self._open_fixture()
+        fixture.bridge.state_revision = 0xFFFFFFFF
+        fixture.bridge.processing_revision = 7
+        before = (
+            bytes(fixture.bridge.state), fixture.bridge.state_revision,
+            fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+        )
+        self.assertEqual(
+            fixture.deliver(self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_VV))[0],
+            CL_ERR_REVISION,
+        )
+        self.assertEqual(
+            (
+                bytes(fixture.bridge.state), fixture.bridge.state_revision,
+                fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+            ),
+            before,
+        )
+        self.assertEqual(
+            fixture.deliver(
+                InputEvent(
+                    0, 0, CL_INPUT_ORIENTATION, 1,
+                    (ctypes.c_uint8 * 2)(0, 0),
+                )
+            )[0],
+            CL_ERR_REVISION,
+        )
+        self.assertEqual(
+            (
+                bytes(fixture.bridge.state), fixture.bridge.state_revision,
+                fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+            ),
+            before,
+        )
+
+        fixture = self._open_fixture()
+        fixture.bridge.processing_revision = 0xFFFFFFFF
+        before = (
+            bytes(fixture.bridge.state), fixture.bridge.state_revision,
+            fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+        )
+        self.assertEqual(
+            fixture.deliver(self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_VV))[0],
+            CL_ERR_REVISION,
+        )
+        self.assertEqual(
+            (
+                bytes(fixture.bridge.state), fixture.bridge.state_revision,
+                fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+            ),
+            before,
+        )
+        self.assertEqual(
+            fixture.deliver(InputEvent(0, 0, CL_INPUT_ORIENTATION, 1, (ctypes.c_uint8 * 2)(0, 0)))[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            (fixture.bridge.state_revision, fixture.bridge.processing_revision),
+            (2, 0xFFFFFFFF),
+        )
+
+    def test_mode_noop_leaves_revisions_and_callbacks_untouched(self):
+        self._require_exports()
+        fixture = self._open_fixture()
+        before = (
+            bytes(fixture.bridge.state), fixture.bridge.state_revision,
+            fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+            list(fixture.calls),
+        )
+        report = BridgeReport()
+        ctypes.memset(ctypes.byref(report), 0x5A, ctypes.sizeof(report))
+        self.assertEqual(
+            self.library.cl_bridge_set_mode(
+                ctypes.byref(fixture.bridge), CL_MODE_MOVIE, 0,
+                ctypes.byref(report),
+            ),
+            CL_OK,
+        )
+        self._assert_report(
+            report, state_revision=1, processing_revision=1, dirty=0x3E,
+            opened=1,
+        )
+        self.assertEqual(
+            (
+                bytes(fixture.bridge.state), fixture.bridge.state_revision,
+                fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+                list(fixture.calls),
+            ),
+            before,
         )
 
     def _require_exports(self):
