@@ -822,22 +822,27 @@ as failure. Assert `creative_look_bridge.c` directly includes only
 header.
 
 Then compile all three C modules freestanding. All object paths must live in one
-test-owned temporary directory, and the relocatable link must use `gcc -r`
-(never standalone `ld`):
+test-owned temporary directory. Resolve the exact linker selected by GCC with
+`gcc -print-prog-name=ld` and invoke that executable for the relocatable link;
+never use an arbitrary `ld` from `PATH`, fabricate a symbol definition, or
+allowlist/filter an undefined symbol:
 
 ```powershell
 gcc -std=c99 -Wall -Wextra -Werror -pedantic -I native/a6400_creative_look -ffreestanding -fno-builtin -c native/a6400_creative_look/creative_look_core.c -o <tmp>/creative_look_core.o
 gcc -std=c99 -Wall -Wextra -Werror -pedantic -I native/a6400_creative_look -ffreestanding -fno-builtin -c native/a6400_creative_look/creative_look_view.c -o <tmp>/creative_look_view.o
 gcc -std=c99 -Wall -Wextra -Werror -pedantic -I native/a6400_creative_look -ffreestanding -fno-builtin -c native/a6400_creative_look/creative_look_bridge.c -o <tmp>/creative_look_bridge.o
-gcc -r <tmp>/creative_look_core.o <tmp>/creative_look_view.o <tmp>/creative_look_bridge.o -o <tmp>/creative_look_native.o
+$linker = (& gcc -print-prog-name=ld).Trim()
+& $linker -r <tmp>/creative_look_core.o <tmp>/creative_look_view.o <tmp>/creative_look_bridge.o -o <tmp>/creative_look_native.o
 nm -u <tmp>/creative_look_native.o
 gcc -std=c99 -Wall -Wextra -Werror -pedantic -I native/a6400_creative_look -fanalyzer -c native/a6400_creative_look/creative_look_bridge.c -o <tmp>/creative_look_bridge_analyzer.o
 ```
 
-Tests must use temporary directories and assert `nm -u` is empty. They must also
-assert compilation succeeds without warning text. The ctypes ABI test asserts
-every wire size, natural field offset, `Bridge.adapters.offset == 624`, the C
-offset query, and the C alignment query. It must not hard-code total bridge size.
+Tests must use temporary directories and assert `nm -u` is empty. Missing `nm`
+is a verification failure, not a silent pass. A mutation object with a deliberate
+undefined symbol must be rejected. Tests must also assert compilation succeeds
+without warning text. The ctypes ABI test asserts every wire size, natural field
+offset, `Bridge.adapters.offset == 624`, the C offset query, and the C alignment
+query. It must not hard-code total bridge size.
 
 - [ ] **Step 5: Run all native tests**
 

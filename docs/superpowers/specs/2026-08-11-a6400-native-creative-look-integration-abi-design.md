@@ -430,7 +430,10 @@ before state mutation. This prevents revision reuse in idempotent adapters.
 - Assert exact enum values, struct sizes, binding order, ABI version, and safety
   zeros.
 - Compile core, view, and bridge as strict hosted and freestanding C99.
-- Link them into one relocatable object and require zero undefined symbols.
+- Resolve the compiler-matching linker through `gcc -print-prog-name=ld`, link
+  them into one relocatable object, and require zero undefined symbols. The gate
+  must not fabricate, allowlist, or filter a symbol, and unavailable symbol
+  inspection is a verification failure.
 - Run GCC static analysis and repository safety-token scans.
 
 ### Manifest validation
