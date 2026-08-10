@@ -1206,6 +1206,161 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
         self.assertEqual(completed.processing_revision, 1)
         self.assertEqual(fixture.model_snapshots[-1].effective_base, CL_LOOK_VV)
 
+    def test_staged_custom_preserves_failed_model_for_explicit_retry(self):
+        """Fails if staging clears or opportunistically retries older dirty work."""
+        self._require_exports()
+        fixture = self._open_fixture()
+        fixture.callback_results["model"] = 71
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_VV)
+            )[0],
+            CL_ERR_ADAPTER,
+        )
+        revision_n = fixture.bridge.processing_revision
+        snapshot_n = bytes(fixture.bridge.retained_processing_snapshot)
+        self.assertEqual(fixture.bridge.dirty_mask, 0x04)
+
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(
+                    fixture, CL_UI_KIND_ACTION, action=CL_UI_ACTION_CATALOG
+                )
+            )[0],
+            CL_ERR_ADAPTER,
+        )
+        model_count = len(fixture.model_snapshots)
+        calls_before_stage = len(fixture.calls)
+        staged = BridgeReport()
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_CUSTOM1),
+                staged,
+            )[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            fixture.calls[calls_before_stage:], ["present", "save"]
+        )
+        self._assert_report(
+            staged,
+            sync_results=[0, 0] + [CL_CALLBACK_NOT_ATTEMPTED] * 4,
+            state_revision=4,
+            processing_revision=revision_n,
+            attempted=0x03,
+            succeeded=0x03,
+            dirty=0x04,
+            state_committed=1,
+            opened=1,
+        )
+        self.assertEqual(len(fixture.model_snapshots), model_count)
+        self.assertEqual(
+            bytes(fixture.bridge.retained_processing_snapshot), snapshot_n
+        )
+
+        mode_calls = len(fixture.calls)
+        staged_mode = BridgeReport()
+        self.assertEqual(
+            self.library.cl_bridge_set_mode(
+                ctypes.byref(fixture.bridge), CL_MODE_MOVIE, 1,
+                ctypes.byref(staged_mode),
+            ),
+            CL_OK,
+        )
+        self.assertEqual(fixture.calls[mode_calls:], ["present", "save"])
+        self._assert_report(
+            staged_mode,
+            sync_results=[0, 0] + [CL_CALLBACK_NOT_ATTEMPTED] * 4,
+            state_revision=5,
+            processing_revision=revision_n,
+            attempted=0x03,
+            succeeded=0x03,
+            dirty=0x04,
+            state_committed=1,
+            opened=1,
+        )
+        self.assertEqual(len(fixture.model_snapshots), model_count)
+        self.assertEqual(
+            bytes(fixture.bridge.retained_processing_snapshot), snapshot_n
+        )
+
+        fixture.callback_results["model"] = 0
+        retry = BridgeReport()
+        self.assertEqual(
+            self.library.cl_bridge_retry(
+                ctypes.byref(fixture.bridge), ctypes.byref(retry)
+            ),
+            CL_OK,
+        )
+        self.assertEqual(fixture.calls[-1:], ["model"])
+        self.assertEqual(
+            (retry.attempted, retry.succeeded, retry.failed, retry.dirty),
+            (0x04, 0x04, 0, 0),
+        )
+        self.assertEqual(
+            bytes(fixture.model_snapshots[-1]), snapshot_n
+        )
+        self.assertEqual(
+            fixture.model_snapshots[-1].processing_revision, revision_n
+        )
+
+    def test_staged_custom_coalesces_failed_model_when_base_precedes_retry(self):
+        """Fails if base completion replays N or omits the coalesced N+1 snapshot."""
+        self._require_exports()
+        fixture = self._open_fixture()
+        fixture.callback_results["model"] = 72
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_VV)
+            )[0],
+            CL_ERR_ADAPTER,
+        )
+        snapshot_n = bytes(fixture.bridge.retained_processing_snapshot)
+        revision_n = fixture.bridge.processing_revision
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(
+                    fixture, CL_UI_KIND_ACTION, action=CL_UI_ACTION_CATALOG
+                )
+            )[0],
+            CL_ERR_ADAPTER,
+        )
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_CUSTOM1)
+            )[1].dirty,
+            0x04,
+        )
+
+        fixture.callback_results["model"] = 0
+        model_count = len(fixture.model_snapshots)
+        output_count = len(fixture.output_snapshots)
+        completed = BridgeReport()
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(
+                    fixture, CL_UI_KIND_CUSTOM_BASE, CL_LOOK_VV
+                ),
+                completed,
+            )[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            fixture.calls[-6:],
+            ["present", "save", "model", "live_view", "still_jpeg", "movie"],
+        )
+        self.assertEqual(completed.processing_revision, revision_n + 1)
+        self.assertEqual(
+            (len(fixture.model_snapshots), len(fixture.output_snapshots)),
+            (model_count + 1, output_count + 3),
+        )
+        snapshots = [fixture.model_snapshots[-1]] + [
+            snapshot for _, snapshot in fixture.output_snapshots[-3:]
+        ]
+        self.assertNotEqual(bytes(snapshots[0]), snapshot_n)
+        self.assertEqual(len({bytes(snapshot) for snapshot in snapshots}), 1)
+        self.assertEqual(snapshots[0].processing_revision, revision_n + 1)
+
     def test_sink_flow_matches_direct_view_touch_for_editor_paths(self):
         self._require_exports()
         fixture = self._open_fixture()

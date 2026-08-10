@@ -638,7 +638,8 @@ overflow only after detecting a processing-relevant change. On success:
   model/live/still/movie dirty, replacing the retained processing snapshot
   exactly once;
 - if the candidate selects an unconfigured Custom slot, commit and synchronize
-  presentation/persistence only while preserving prior retained snapshot bytes;
+  presentation/persistence only while preserving prior retained snapshot bytes
+  and any pre-existing failed processing dirty bits for explicit retry;
 - set `report.state_committed = 1`; and
 - call the private synchronization entry added as a no-op shell until Task 4.
 
@@ -729,10 +730,13 @@ Capture the model and output snapshots by value inside callbacks. Assert:
 
 Add staged-Custom tests that select an unconfigured slot from a valid built-in,
 assert only `present, save`, unchanged processing revision, and a byte-identical
-prior retained snapshot. Selecting the base afterward must call all six domains,
-increment processing revision once, and deliver the first current full-state
-snapshot with a non-`CL_UNSET` effective base. Repeat with a mode update between
-slot and base selection; the deferred snapshot must contain that mode.
+prior retained snapshot. With a failed revision-N model domain already dirty,
+staging must leave that bit dirty but `CL_CALLBACK_NOT_ATTEMPTED`; explicit retry
+must send the byte-identical revision-N snapshot. Selecting the base before
+retry must call all six domains, increment processing revision once, and
+coalesce the preserved work into the first current full-state N+1 snapshot with
+a non-`CL_UNSET` effective base. Repeat with a mode update between slot and base
+selection; the deferred snapshot must contain that mode.
 
 Encode and restore a legitimate state with an unconfigured selected Custom on
 `CL_SCREEN_CUSTOM_BASE`. Open must call exactly `load, open, present, attach`,
@@ -772,7 +776,9 @@ that Look. For a configured Custom Look, use
 `custom_bases[selected_look - CL_BUILT_IN_LOOK_COUNT]`. Snapshot construction
 itself must fail closed on `CL_UNSET` without modifying retained bytes. The
 unconfigured selection is valid state/UI and is not rejected; it defers
-processing until base selection. A newer ready processing change replaces the
+processing until base selection. It preserves older processing dirtiness but
+its automatic synchronization masks those domains; public sync/retry remains
+the explicit retry path. A newer ready processing change replaces the
 retained snapshot and coalesces all already-dirty model/output domains to the
 new desired revision.
 

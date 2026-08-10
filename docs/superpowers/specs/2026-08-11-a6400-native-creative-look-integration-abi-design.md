@@ -227,7 +227,11 @@ The bridge retains the complete snapshot by value when it creates a processing
 revision. UI-only changes, including selection of an unconfigured Custom slot,
 may update current state, presentation, and persistence, but they never rewrite
 the retained processing snapshot. Model and output retries for a revision
-therefore receive byte-identical payloads. If a new processing change occurs
+therefore receive byte-identical payloads. Entering or modifying the staged
+picker does not create new processing dirtiness and does not clear older failed
+processing domains. Its automatic synchronization attempts only presentation
+and persistence; explicit `cl_bridge_sync`/`cl_bridge_retry` still owns and may
+retry the preserved domains. If a new processing change occurs
 while an older revision is still dirty, the bridge coalesces to the newest
 desired processing revision: it replaces the retained snapshot once, keeps the
 relevant domains dirty, and does not replay the older revision. A restored
@@ -335,14 +339,17 @@ For every touch event, the bridge:
 10. if processing work was created, increments the processing revision,
     replaces the retained snapshot, and marks model plus all three outputs
     dirty; an unconfigured Custom selection preserves the prior retained bytes
-    and creates no processing dirtiness; and
+    and pre-existing processing dirty bits without creating new ones; and
 11. invokes deterministic synchronization.
 
 Processing-relevant fields are selected Look, Custom bases, all adjustments,
 and mode bits, but they create work only for a processing-ready candidate.
 Screen, editing-axis, orientation, and the staged selection of an unconfigured
 Custom slot do not create a model or output request. Selecting that Custom's
-valid base creates the deferred processing revision.
+valid base creates the deferred processing revision. Automatic synchronization
+for an unconfigured staged candidate is UI-only even when an older processing
+failure remains dirty; ordinary navigation/orientation outside that staged state
+retains the normal full dirty retry behavior.
 
 ### Orientation event
 
@@ -514,7 +521,9 @@ before state mutation. This prevents revision reuse in idempotent adapters.
   prove the retry snapshot remains byte-identical to the failed snapshot.
 - Prove screen navigation and orientation do not emit processing requests.
 - Prove unconfigured Custom selection preserves a prior retained snapshot,
-  emits only presentation/persistence, and that base completion emits the first
+  preserves older failed processing dirtiness without attempting it, and emits
+  only presentation/persistence. Prove explicit retry uses the byte-identical
+  older snapshot, while base completion coalesces the work into the first
   current full-state snapshot, including modes staged during the picker.
 
 ### Safety

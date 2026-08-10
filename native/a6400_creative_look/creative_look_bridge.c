@@ -34,6 +34,12 @@ typedef char cl_bridge_adapters_offset_is_632[
     CL_SYNC_MODEL_REQUEST | CL_SYNC_LIVE_VIEW | \
     CL_SYNC_STILL_JPEG | CL_SYNC_MOVIE \
 ))
+#define CL_SYNC_UI_MASK ((uint8_t)( \
+    CL_SYNC_PRESENTATION | CL_SYNC_PERSISTENCE \
+))
+#define CL_SYNC_ALL_MASK ((uint8_t)( \
+    CL_SYNC_UI_MASK | CL_SYNC_PROCESSING_MASK \
+))
 
 typedef struct cl_bridge_alignment_probe {
     uint8_t prefix;
@@ -267,7 +273,8 @@ static void cl_sync_result(
 
 static cl_result cl_synchronize_state(
     cl_bridge *bridge,
-    cl_bridge_report *report
+    cl_bridge_report *report,
+    uint8_t domain_mask
 )
 {
     uint8_t blob[CL_BLOB_SIZE];
@@ -275,12 +282,14 @@ static cl_result cl_synchronize_state(
     cl_result result;
     int32_t callback_result;
 
-    if ((bridge->dirty_mask & CL_SYNC_PROCESSING_MASK) != 0u &&
+    if ((bridge->dirty_mask & domain_mask &
+         CL_SYNC_PROCESSING_MASK) != 0u &&
         !cl_retained_snapshot_valid(bridge)) {
         report->transition_result = CL_ERR_STATE;
         return CL_ERR_STATE;
     }
-    if ((bridge->dirty_mask & CL_SYNC_PRESENTATION) != 0u) {
+    if ((bridge->dirty_mask & domain_mask &
+         CL_SYNC_PRESENTATION) != 0u) {
         result = cl_view_build(&bridge->state, &frame);
         if (result != CL_OK) {
             report->transition_result = result;
@@ -291,7 +300,8 @@ static cl_result cl_synchronize_state(
             bridge, report, CL_SYNC_PRESENTATION, 0u, callback_result
         );
     }
-    if ((bridge->dirty_mask & CL_SYNC_PERSISTENCE) != 0u) {
+    if ((bridge->dirty_mask & domain_mask &
+         CL_SYNC_PERSISTENCE) != 0u) {
         result = cl_encode(&bridge->state, blob, CL_BLOB_SIZE);
         if (result != CL_OK) {
             report->transition_result = result;
@@ -304,7 +314,8 @@ static cl_result cl_synchronize_state(
             bridge, report, CL_SYNC_PERSISTENCE, 1u, callback_result
         );
     }
-    if ((bridge->dirty_mask & CL_SYNC_MODEL_REQUEST) != 0u) {
+    if ((bridge->dirty_mask & domain_mask &
+         CL_SYNC_MODEL_REQUEST) != 0u) {
         CL_CALL(bridge, callback_result, bridge->adapters.model.submit(
             bridge->adapters.model.context,
             &bridge->retained_processing_snapshot
@@ -313,7 +324,8 @@ static cl_result cl_synchronize_state(
             bridge, report, CL_SYNC_MODEL_REQUEST, 2u, callback_result
         );
     }
-    if ((bridge->dirty_mask & CL_SYNC_LIVE_VIEW) != 0u) {
+    if ((bridge->dirty_mask & domain_mask &
+         CL_SYNC_LIVE_VIEW) != 0u) {
         CL_CALL(bridge, callback_result, bridge->adapters.output.apply(
             bridge->adapters.output.context, CL_OUTPUT_LIVE_VIEW,
             &bridge->retained_processing_snapshot
@@ -322,7 +334,8 @@ static cl_result cl_synchronize_state(
             bridge, report, CL_SYNC_LIVE_VIEW, 3u, callback_result
         );
     }
-    if ((bridge->dirty_mask & CL_SYNC_STILL_JPEG) != 0u) {
+    if ((bridge->dirty_mask & domain_mask &
+         CL_SYNC_STILL_JPEG) != 0u) {
         CL_CALL(bridge, callback_result, bridge->adapters.output.apply(
             bridge->adapters.output.context, CL_OUTPUT_STILL_JPEG,
             &bridge->retained_processing_snapshot
@@ -331,7 +344,7 @@ static cl_result cl_synchronize_state(
             bridge, report, CL_SYNC_STILL_JPEG, 4u, callback_result
         );
     }
-    if ((bridge->dirty_mask & CL_SYNC_MOVIE) != 0u) {
+    if ((bridge->dirty_mask & domain_mask & CL_SYNC_MOVIE) != 0u) {
         CL_CALL(bridge, callback_result, bridge->adapters.output.apply(
             bridge->adapters.output.context, CL_OUTPUT_MOVIE,
             &bridge->retained_processing_snapshot
@@ -763,7 +776,9 @@ cl_result cl_bridge_open(cl_bridge *bridge, cl_bridge_report *report)
 
     bridge->input_attached = 1u;
     bridge->opened = 1u;
-    result = cl_synchronize_state(bridge, &operation);
+    result = cl_synchronize_state(
+        bridge, &operation, CL_SYNC_ALL_MASK
+    );
     return cl_publish_report(bridge, report, &operation, result);
 }
 
@@ -832,7 +847,9 @@ cl_result cl_bridge_sync(cl_bridge *bridge, cl_bridge_report *report)
     }
 
     cl_report_initialize(&operation, bridge);
-    result = cl_synchronize_state(bridge, &operation);
+    result = cl_synchronize_state(
+        bridge, &operation, CL_SYNC_ALL_MASK
+    );
     return cl_publish_report(bridge, report, &operation, result);
 }
 
@@ -940,13 +957,14 @@ cl_result cl_bridge_handle_event(
         bridge->dirty_mask = (uint8_t)(bridge->dirty_mask |
             CL_SYNC_PROCESSING_MASK);
         bridge->retained_processing_snapshot = next_snapshot;
-    } else if (!cl_processing_ready(&candidate)) {
-        bridge->dirty_mask = (uint8_t)(
-            bridge->dirty_mask & (uint8_t)~CL_SYNC_PROCESSING_MASK
-        );
     }
     operation.state_committed = 1u;
-    result = cl_synchronize_state(bridge, &operation);
+    result = cl_synchronize_state(
+        bridge,
+        &operation,
+        cl_processing_ready(&candidate) ?
+            CL_SYNC_ALL_MASK : CL_SYNC_UI_MASK
+    );
     return cl_publish_report(bridge, report, &operation, result);
 }
 
@@ -1018,13 +1036,13 @@ cl_result cl_bridge_set_mode(
             bridge->dirty_mask | CL_SYNC_PROCESSING_MASK
         );
         bridge->retained_processing_snapshot = next_snapshot;
-    } else {
-        bridge->dirty_mask = (uint8_t)(
-            bridge->dirty_mask & (uint8_t)~CL_SYNC_PROCESSING_MASK
-        );
     }
     operation.state_committed = 1u;
-    result = cl_synchronize_state(bridge, &operation);
+    result = cl_synchronize_state(
+        bridge,
+        &operation,
+        processing_change ? CL_SYNC_ALL_MASK : CL_SYNC_UI_MASK
+    );
     return cl_publish_report(bridge, report, &operation, result);
 }
 
