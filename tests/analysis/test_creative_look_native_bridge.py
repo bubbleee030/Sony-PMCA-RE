@@ -1,8 +1,10 @@
 import ctypes
+import re
 import subprocess
 import sys
 import tempfile
 import unittest
+import zlib
 from pathlib import Path
 from unittest import mock
 
@@ -23,6 +25,7 @@ from tests.analysis.creative_look_native_abi import (
     configure_core_exports,
     link_relocatable,
     retain_callback,
+    strict_c99_command,
     unload_library,
 )
 
@@ -35,6 +38,7 @@ CL_OK = 0
 CL_ERR_ARGUMENT = -1
 CL_ERR_STATE = -2
 CL_ERR_MODE_UNAVAILABLE = -3
+CL_ERR_RESTRICTED = -7
 CL_ERR_BLOB = -8
 CL_ERR_NO_HIT = -9
 CL_ERR_ADAPTER = -10
@@ -70,10 +74,29 @@ CL_UI_ACTION_RESET = 5
 CL_UI_ACTION_CATALOG = 6
 CL_SCREEN_CUSTOM_BASE = 1
 CL_LOOK_VV = 3
+CL_LOOK_BW = 10
+CL_LOOK_SE = 11
 CL_LOOK_CUSTOM1 = 12
 CL_UNSET = 255
+CL_AXIS_DEFAULT = -128
 CL_MODE_INTELLIGENT_AUTO = 0
+CL_MODE_PICTURE_PROFILE_NOT_OFF = 1
+CL_MODE_FLEXIBLE_ISO_LOG = 2
 CL_MODE_MOVIE = 3
+
+BUILT_INS = tuple(range(12))
+CUSTOMS = tuple(range(12, 18))
+AXIS_CASES = (
+    (0, -9, 9),
+    (1, -9, 9),
+    (2, -9, 9),
+    (3, 0, 9),
+    (4, -9, 9),
+    (5, 0, 9),
+    (6, 1, 5),
+    (7, 0, 9),
+)
+ORIENTATIONS = (0, 1, 2)
 
 
 class BindingRecord(ctypes.Structure):
@@ -806,6 +829,169 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             (ctypes.c_uint8 * 2)(0, 0),
         )
 
+    @staticmethod
+    def _literal_blob_for_state(state):
+        payload = bytearray(160)
+        payload[:5] = b"CLK1\x01"
+        payload[5:10] = bytes(
+            (
+                state.selected_look,
+                state.screen,
+                state.orientation,
+                state.editing_axis,
+                state.modes,
+            )
+        )
+        payload[10:16] = bytes(state.custom_bases)
+        payload[16:160] = bytes(state.adjustments)
+        return bytes(payload) + zlib.crc32(payload).to_bytes(4, "little")
+
+    @staticmethod
+    def _transition_baseline(fixture):
+        return {
+            "calls": len(fixture.calls),
+            "saved": len(fixture.saved_blobs),
+            "model": len(fixture.model_snapshots),
+            "output": len(fixture.output_snapshots),
+            "state_revision": fixture.bridge.state_revision,
+            "processing_revision": fixture.bridge.processing_revision,
+            "retained": bytes(fixture.bridge.retained_processing_snapshot),
+        }
+
+    def _assert_persisted_state_is_literal(self, fixture):
+        self.assertEqual(len(fixture.saved_blobs[-1]), 164)
+        self.assertEqual(
+            fixture.saved_blobs[-1],
+            self._literal_blob_for_state(fixture.bridge.state),
+        )
+
+    def _assert_processing_transition_evidence(
+        self, fixture, baseline, report, effective_base
+    ):
+        self.assertEqual(
+            (
+                len(fixture.calls),
+                len(fixture.saved_blobs),
+                len(fixture.model_snapshots),
+                len(fixture.output_snapshots),
+                fixture.bridge.state_revision,
+                fixture.bridge.processing_revision,
+            ),
+            (
+                baseline["calls"] + 6,
+                baseline["saved"] + 1,
+                baseline["model"] + 1,
+                baseline["output"] + 3,
+                baseline["state_revision"] + 1,
+                baseline["processing_revision"] + 1,
+            ),
+        )
+        self.assertEqual(
+            fixture.calls[-6:],
+            ["present", "save", "model", "live_view", "still_jpeg", "movie"],
+        )
+        self.assertEqual(
+            (report.attempted, report.succeeded, report.failed, report.dirty),
+            (0x3F, 0x3F, 0, 0),
+        )
+        self.assertEqual(report.state_committed, 1)
+        self._assert_persisted_state_is_literal(fixture)
+
+        snapshots = [fixture.model_snapshots[-1]] + [
+            snapshot for _, snapshot in fixture.output_snapshots[-3:]
+        ]
+        self.assertEqual(
+            [kind for kind, _ in fixture.output_snapshots[-3:]],
+            [0, 1, 2],
+        )
+        for snapshot in snapshots:
+            self.assertEqual(
+                (
+                    snapshot.abi_version,
+                    snapshot.effective_base,
+                    snapshot.output_mask,
+                    snapshot.processing_revision,
+                    bytes(snapshot.state),
+                    bytes(snapshot.reserved),
+                ),
+                (
+                    CL_BRIDGE_ABI_VERSION,
+                    effective_base,
+                    CL_BRIDGE_OUTPUT_MASK,
+                    report.processing_revision,
+                    bytes(fixture.bridge.state),
+                    bytes(1),
+                ),
+            )
+        self.assertEqual(len({bytes(snapshot) for snapshot in snapshots}), 1)
+        self.assertEqual(
+            bytes(fixture.bridge.retained_processing_snapshot),
+            bytes(snapshots[0]),
+        )
+
+    def _assert_ui_only_transition_evidence(
+        self, fixture, baseline, report
+    ):
+        self.assertEqual(
+            (
+                len(fixture.calls),
+                len(fixture.saved_blobs),
+                len(fixture.model_snapshots),
+                len(fixture.output_snapshots),
+                fixture.bridge.state_revision,
+                fixture.bridge.processing_revision,
+            ),
+            (
+                baseline["calls"] + 2,
+                baseline["saved"] + 1,
+                baseline["model"],
+                baseline["output"],
+                baseline["state_revision"] + 1,
+                baseline["processing_revision"],
+            ),
+        )
+        self.assertEqual(fixture.calls[-2:], ["present", "save"])
+        self.assertEqual(
+            (report.attempted, report.succeeded, report.failed, report.dirty),
+            (0x03, 0x03, 0, 0),
+        )
+        self.assertEqual(report.state_committed, 1)
+        self._assert_persisted_state_is_literal(fixture)
+        self.assertEqual(
+            bytes(fixture.bridge.retained_processing_snapshot),
+            baseline["retained"],
+        )
+
+    def _assert_event_rejection_is_atomic(self, fixture, event, expected):
+        before = (
+            bytes(fixture.bridge.state),
+            fixture.bridge.state_revision,
+            fixture.bridge.processing_revision,
+            fixture.bridge.dirty_mask,
+            tuple(fixture.calls),
+        )
+        report = BridgeReport()
+        result, report = fixture.deliver(event, report)
+        self.assertEqual(result, expected)
+        self.assertEqual(
+            (
+                bytes(fixture.bridge.state),
+                fixture.bridge.state_revision,
+                fixture.bridge.processing_revision,
+                fixture.bridge.dirty_mask,
+                tuple(fixture.calls),
+            ),
+            before,
+        )
+        self._assert_report(
+            report,
+            transition=expected,
+            state_revision=before[1],
+            processing_revision=before[2],
+            dirty=before[3],
+            opened=1,
+        )
+
     def _open_fixture(self, **arguments):
         fixture = self._fixture(**arguments)
         self.assertEqual(
@@ -815,6 +1001,365 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             CL_OK,
         )
         return fixture
+
+    def test_exhaustive_catalog_and_custom_flows_have_persistence_and_snapshots(self):
+        """Fails if a rendered Look/base path skips the sink, blob, or full snapshot."""
+        self._require_exports()
+        fixture = self._open_fixture()
+        built_in_transitions = 0
+        for look in BUILT_INS[1:] + BUILT_INS[:1]:
+            with self.subTest(kind="built_in", look=look):
+                baseline = self._transition_baseline(fixture)
+                report = BridgeReport()
+                result, report = fixture.deliver(
+                    self._event_for_element(
+                        fixture, CL_UI_KIND_LOOK, primary=look
+                    ),
+                    report,
+                )
+                self.assertEqual(result, CL_OK)
+                self.assertEqual(fixture.bridge.state.selected_look, look)
+                self._assert_processing_transition_evidence(
+                    fixture, baseline, report, look
+                )
+                built_in_transitions += 1
+
+                baseline = self._transition_baseline(fixture)
+                result, navigation = fixture.deliver(
+                    self._event_for_element(
+                        fixture,
+                        CL_UI_KIND_ACTION,
+                        action=CL_UI_ACTION_CATALOG,
+                    )
+                )
+                self.assertEqual(result, CL_OK)
+                self._assert_ui_only_transition_evidence(
+                    fixture, baseline, navigation
+                )
+        self.assertEqual(built_in_transitions, 12)
+        self.assertEqual(
+            self.library.cl_bridge_close(
+                ctypes.byref(fixture.bridge), ctypes.byref(BridgeReport())
+            ),
+            CL_OK,
+        )
+
+        staged_transitions = 0
+        completed_transitions = 0
+        for custom in CUSTOMS:
+            for base in BUILT_INS:
+                with self.subTest(kind="custom_base", custom=custom, base=base):
+                    fixture = self._open_fixture()
+                    baseline = self._transition_baseline(fixture)
+                    result, staged = fixture.deliver(
+                        self._event_for_element(
+                            fixture, CL_UI_KIND_LOOK, primary=custom
+                        )
+                    )
+                    self.assertEqual(result, CL_OK)
+                    self._assert_ui_only_transition_evidence(
+                        fixture, baseline, staged
+                    )
+                    slot = custom - CUSTOMS[0]
+                    self.assertEqual(
+                        (
+                            fixture.bridge.state.selected_look,
+                            fixture.bridge.state.custom_bases[slot],
+                            fixture.bridge.state.screen,
+                        ),
+                        (custom, CL_UNSET, CL_SCREEN_CUSTOM_BASE),
+                    )
+                    staged_transitions += 1
+
+                    baseline = self._transition_baseline(fixture)
+                    report = BridgeReport()
+                    result, report = fixture.deliver(
+                        self._event_for_element(
+                            fixture,
+                            CL_UI_KIND_CUSTOM_BASE,
+                            primary=base,
+                        ),
+                        report,
+                    )
+                    self.assertEqual(result, CL_OK)
+                    self.assertEqual(
+                        (
+                            fixture.bridge.state.selected_look,
+                            fixture.bridge.state.custom_bases[slot],
+                        ),
+                        (custom, base),
+                    )
+                    self._assert_processing_transition_evidence(
+                        fixture, baseline, report, base
+                    )
+                    completed_transitions += 1
+                    self.assertEqual(
+                        self.library.cl_bridge_close(
+                            ctypes.byref(fixture.bridge),
+                            ctypes.byref(BridgeReport()),
+                        ),
+                        CL_OK,
+                    )
+        self.assertEqual(staged_transitions, 6 * 12)
+        self.assertEqual(completed_transitions, 6 * 12)
+
+    def test_exhaustive_axis_picker_and_orientation_flows_have_exact_evidence(self):
+        """Fails if an axis case or orientation bypasses canonical bridge delivery."""
+        self._require_exports()
+        fixture = self._open_fixture()
+        baseline = self._transition_baseline(fixture)
+        result, selected = fixture.deliver(
+            self._event_for_element(
+                fixture, CL_UI_KIND_LOOK, primary=CL_LOOK_VV
+            )
+        )
+        self.assertEqual(result, CL_OK)
+        self._assert_processing_transition_evidence(
+            fixture, baseline, selected, CL_LOOK_VV
+        )
+
+        picker_transitions = 0
+        value_transitions = 0
+        for axis, minimum, maximum in AXIS_CASES:
+            for value in (minimum, CL_AXIS_DEFAULT, maximum):
+                with self.subTest(axis=axis, value=value):
+                    baseline = self._transition_baseline(fixture)
+                    result, picker = fixture.deliver(
+                        self._event_for_element(
+                            fixture, CL_UI_KIND_AXIS, primary=axis
+                        )
+                    )
+                    self.assertEqual(result, CL_OK)
+                    self.assertEqual(
+                        (fixture.bridge.state.screen,
+                         fixture.bridge.state.editing_axis),
+                        (3, axis),
+                    )
+                    self._assert_ui_only_transition_evidence(
+                        fixture, baseline, picker
+                    )
+                    picker_transitions += 1
+
+                    baseline = self._transition_baseline(fixture)
+                    report = BridgeReport()
+                    result, report = fixture.deliver(
+                        self._event_for_element(
+                            fixture,
+                            CL_UI_KIND_AXIS_VALUE,
+                            primary=axis,
+                            value=value,
+                        ),
+                        report,
+                    )
+                    self.assertEqual(result, CL_OK)
+                    self.assertEqual(
+                        fixture.bridge.state.adjustments[CL_LOOK_VV][axis],
+                        value,
+                    )
+                    self._assert_processing_transition_evidence(
+                        fixture, baseline, report, CL_LOOK_VV
+                    )
+                    value_transitions += 1
+        self.assertEqual(picker_transitions, 8 * 3)
+        self.assertEqual(value_transitions, 8 * 3)
+
+        observed_orientations = []
+        for orientation in ORIENTATIONS[1:] + ORIENTATIONS[:1]:
+            with self.subTest(orientation=orientation):
+                baseline = self._transition_baseline(fixture)
+                result, report = fixture.deliver(
+                    InputEvent(
+                        0,
+                        0,
+                        CL_INPUT_ORIENTATION,
+                        orientation,
+                        (ctypes.c_uint8 * 2)(0, 0),
+                    )
+                )
+                self.assertEqual(result, CL_OK)
+                self.assertEqual(
+                    fixture.bridge.state.orientation, orientation
+                )
+                self._assert_ui_only_transition_evidence(
+                    fixture, baseline, report
+                )
+                frame = fixture.presented_frames[-1]
+                expected_dimensions = (
+                    (1600000, 900000)
+                    if orientation == ORIENTATIONS[0]
+                    else (900000, 1600000)
+                )
+                self.assertEqual(
+                    (frame.width, frame.height), expected_dimensions
+                )
+                observed_orientations.append(orientation)
+        self.assertEqual(tuple(observed_orientations), (1, 2, 0))
+        self.assertEqual(set(observed_orientations), set(ORIENTATIONS))
+
+    def test_restriction_no_hit_and_invalid_orientation_matrices_are_atomic(self):
+        """Fails if any rejected canonical event mutates state, revisions, dirtiness, or callbacks."""
+        self._require_exports()
+        restriction_count = 0
+        for mode in (
+            CL_MODE_INTELLIGENT_AUTO,
+            CL_MODE_PICTURE_PROFILE_NOT_OFF,
+            CL_MODE_FLEXIBLE_ISO_LOG,
+        ):
+            with self.subTest(restriction="global_mode", mode=mode):
+                fixture = self._open_fixture()
+                self.assertEqual(
+                    self.library.cl_bridge_set_mode(
+                        ctypes.byref(fixture.bridge),
+                        mode,
+                        1,
+                        ctypes.byref(BridgeReport()),
+                    ),
+                    CL_OK,
+                )
+                self._assert_event_rejection_is_atomic(
+                    fixture,
+                    self._event_for_element(
+                        fixture, CL_UI_KIND_LOOK, primary=CL_LOOK_VV
+                    ),
+                    CL_ERR_MODE_UNAVAILABLE,
+                )
+                restriction_count += 1
+
+        for look in (CL_LOOK_BW, CL_LOOK_SE):
+            with self.subTest(restriction="bw_se_saturation", look=look):
+                fixture = self._open_fixture()
+                self.assertEqual(
+                    fixture.deliver(
+                        self._event_for_element(
+                            fixture, CL_UI_KIND_LOOK, primary=look
+                        )
+                    )[0],
+                    CL_OK,
+                )
+                self._assert_event_rejection_is_atomic(
+                    fixture,
+                    self._event_for_element(
+                        fixture, CL_UI_KIND_AXIS, primary=4
+                    ),
+                    CL_ERR_RESTRICTED,
+                )
+                restriction_count += 1
+
+        fixture = self._open_fixture()
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(
+                    fixture, CL_UI_KIND_LOOK, primary=CL_LOOK_VV
+                )
+            )[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            self.library.cl_bridge_set_mode(
+                ctypes.byref(fixture.bridge),
+                CL_MODE_MOVIE,
+                1,
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+        self._assert_event_rejection_is_atomic(
+            fixture,
+            self._event_for_element(
+                fixture, CL_UI_KIND_AXIS, primary=6
+            ),
+            CL_ERR_RESTRICTED,
+        )
+        restriction_count += 1
+        self.assertEqual(restriction_count, 6)
+
+        fixture = self._open_fixture()
+        no_hit_count = 0
+        self._assert_event_rejection_is_atomic(
+            fixture,
+            InputEvent(
+                -1, -1, CL_INPUT_TOUCH, 0,
+                (ctypes.c_uint8 * 2)(0, 0),
+            ),
+            CL_ERR_NO_HIT,
+        )
+        no_hit_count += 1
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(
+                    fixture, CL_UI_KIND_LOOK, primary=CL_LOOK_CUSTOM1
+                )
+            )[0],
+            CL_OK,
+        )
+        self._assert_event_rejection_is_atomic(
+            fixture,
+            InputEvent(
+                -1, -1, CL_INPUT_TOUCH, 0,
+                (ctypes.c_uint8 * 2)(0, 0),
+            ),
+            CL_ERR_NO_HIT,
+        )
+        no_hit_count += 1
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(
+                    fixture, CL_UI_KIND_CUSTOM_BASE, primary=CL_LOOK_VV
+                )
+            )[0],
+            CL_OK,
+        )
+        self._assert_event_rejection_is_atomic(
+            fixture,
+            InputEvent(
+                -1, -1, CL_INPUT_TOUCH, 0,
+                (ctypes.c_uint8 * 2)(0, 0),
+            ),
+            CL_ERR_NO_HIT,
+        )
+        no_hit_count += 1
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(
+                    fixture, CL_UI_KIND_AXIS, primary=0
+                )
+            )[0],
+            CL_OK,
+        )
+        self._assert_event_rejection_is_atomic(
+            fixture,
+            InputEvent(
+                -1, -1, CL_INPUT_TOUCH, 0,
+                (ctypes.c_uint8 * 2)(0, 0),
+            ),
+            CL_ERR_NO_HIT,
+        )
+        no_hit_count += 1
+        self.assertEqual(no_hit_count, 4)
+
+        fixture = self._open_fixture()
+        invalid_orientations = (
+            ("x", 1, 0, 1, (0, 0)),
+            ("y", 0, 1, 1, (0, 0)),
+            ("value_low", 0, 0, 3, (0, 0)),
+            ("value_high", 0, 0, 255, (0, 0)),
+            ("reserved_0", 0, 0, 1, (1, 0)),
+            ("reserved_1", 0, 0, 1, (0, 1)),
+        )
+        for label, x, y, value, reserved in invalid_orientations:
+            with self.subTest(invalid_orientation=label):
+                self._assert_event_rejection_is_atomic(
+                    fixture,
+                    InputEvent(
+                        x,
+                        y,
+                        CL_INPUT_ORIENTATION,
+                        value,
+                        (ctypes.c_uint8 * 2)(*reserved),
+                    ),
+                    CL_ERR_ARGUMENT,
+                )
+        self.assertEqual(len(invalid_orientations), 6)
 
     def test_canonical_sink_touch_commits_selected_look_and_processing(self):
         self._require_exports()
@@ -1748,6 +2293,131 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             with self.subTest(structure=structure.__name__):
                 self.assertEqual(ctypes.sizeof(structure), literal_size)
                 self.assertEqual(size_query(), literal_size)
+
+    def test_wire_records_and_bridge_prefix_have_natural_literal_offsets(self):
+        """Fails if fixed ABI fields drift or pointer alignment inserts prefix padding."""
+        self._require_exports()
+        expected_offsets = (
+            (
+                NativeState,
+                {
+                    "selected_look": 0,
+                    "screen": 1,
+                    "orientation": 2,
+                    "editing_axis": 3,
+                    "custom_bases": 4,
+                    "adjustments": 10,
+                    "modes": 154,
+                },
+                1,
+            ),
+            (
+                BindingRecord,
+                {
+                    "kind": 0,
+                    "evidence": 1,
+                    "runtime": 2,
+                    "reserved": 3,
+                    "evidence_sha256": 4,
+                },
+                1,
+            ),
+            (
+                IntegrationManifest,
+                {
+                    "abi_version": 0,
+                    "execution_profile": 2,
+                    "binding_count": 3,
+                    "bindings": 4,
+                    "processing_binding_proven": 220,
+                    "recovery_validated": 221,
+                    "camera_test_eligible": 222,
+                    "installable": 223,
+                    "reserved": 224,
+                },
+                2,
+            ),
+            (
+                InputEvent,
+                {"x": 0, "y": 4, "kind": 8, "value": 9, "reserved": 10},
+                4,
+            ),
+            (
+                ProcessingSnapshot,
+                {
+                    "abi_version": 0,
+                    "effective_base": 2,
+                    "output_mask": 3,
+                    "processing_revision": 4,
+                    "state": 8,
+                    "reserved": 163,
+                },
+                4,
+            ),
+            (
+                BridgeReport,
+                {
+                    "transition_result": 0,
+                    "lifecycle_open_result": 4,
+                    "lifecycle_close_result": 8,
+                    "input_attach_result": 12,
+                    "input_detach_result": 16,
+                    "persistence_load_result": 20,
+                    "sync_results": 24,
+                    "state_revision": 48,
+                    "processing_revision": 52,
+                    "attempted": 56,
+                    "succeeded": 57,
+                    "failed": 58,
+                    "dirty": 59,
+                    "state_committed": 60,
+                    "opened": 61,
+                    "reserved": 62,
+                },
+                4,
+            ),
+        )
+        for structure, offsets, alignment in expected_offsets:
+            with self.subTest(structure=structure.__name__):
+                self.assertEqual(
+                    {
+                        name: getattr(structure, name).offset
+                        for name in offsets
+                    },
+                    offsets,
+                )
+                self.assertEqual(ctypes.alignment(structure), alignment)
+
+        bridge_prefix_offsets = {
+            "manifest": 0,
+            "last_report": 228,
+            "state_revision": 292,
+            "processing_revision": 296,
+            "retained_processing_snapshot": 300,
+            "initialization_marker": 464,
+            "state": 468,
+            "dirty_mask": 623,
+            "opened": 624,
+            "input_attached": 625,
+            "busy": 626,
+            "opened_once": 627,
+            "reserved": 628,
+            "adapters": 632,
+        }
+        self.assertEqual(
+            {
+                name: getattr(Bridge, name).offset
+                for name in bridge_prefix_offsets
+            },
+            bridge_prefix_offsets,
+        )
+        self.assertEqual(self.library.cl_bridge_adapters_offset(), 632)
+        self.assertEqual(
+            self.library.cl_bridge_alignment(), ctypes.alignment(Bridge)
+        )
+        self.assertEqual(
+            self.library.cl_bridge_size(), ctypes.sizeof(Bridge)
+        )
 
     def test_host_manifest_is_ordered_simulated_and_safety_zero(self):
         self._require_exports()
@@ -2978,11 +3648,112 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
         self.assertTrue(linker.is_absolute())
         self.assertTrue(linker.is_file())
 
+    def test_strict_hosted_freestanding_link_and_analyzer_are_warning_free(self):
+        """Fails on any warning, non-GCC linker, unresolved symbol, or analyzer finding."""
+        sources = (CORE_SOURCE, VIEW_SOURCE, BRIDGE_C)
+
+        def run_clean(command, label):
+            completed = subprocess.run(
+                command,
+                cwd=NATIVE.parents[1],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(
+                completed.returncode,
+                0,
+                f"{label}: {completed.stderr or completed.stdout}",
+            )
+            self.assertEqual(completed.stdout, "", label)
+            self.assertEqual(completed.stderr, "", label)
+
+        with tempfile.TemporaryDirectory(
+            dir=self._temporary.name,
+            prefix="task5-toolchain-",
+            ignore_cleanup_errors=True,
+        ) as directory_name:
+            directory = Path(directory_name)
+            hosted_library = directory / "creative_look_hosted.dll"
+            run_clean(
+                [
+                    *strict_c99_command(),
+                    "-shared",
+                    "-o",
+                    str(hosted_library),
+                    *(str(source) for source in sources),
+                ],
+                "strict hosted shared library",
+            )
+
+            freestanding_objects = []
+            for source in sources:
+                hosted_object = directory / f"{source.stem}-hosted.o"
+                run_clean(
+                    [
+                        *strict_c99_command(),
+                        "-c",
+                        str(source),
+                        "-o",
+                        str(hosted_object),
+                    ],
+                    f"strict hosted {source.name}",
+                )
+
+                freestanding_object = directory / f"{source.stem}-freestanding.o"
+                run_clean(
+                    [
+                        *strict_c99_command(),
+                        "-ffreestanding",
+                        "-fno-builtin",
+                        "-c",
+                        str(source),
+                        "-o",
+                        str(freestanding_object),
+                    ],
+                    f"freestanding {source.name}",
+                )
+                freestanding_objects.append(freestanding_object)
+
+            linker = compiler_linker()
+            self.assertTrue(Path(linker).is_absolute())
+            combined = directory / "creative_look_native.o"
+            run_clean(
+                [
+                    linker,
+                    "-r",
+                    *(str(path) for path in freestanding_objects),
+                    "-o",
+                    str(combined),
+                ],
+                "GCC-selected natural relocatable link",
+            )
+            assert_no_undefined_symbols(
+                combined, "strict freestanding core/view/bridge"
+            )
+
+            analyzer_object = directory / "creative_look_bridge-analyzer.o"
+            run_clean(
+                [
+                    *strict_c99_command(),
+                    "-fanalyzer",
+                    "-c",
+                    str(BRIDGE_C),
+                    "-o",
+                    str(analyzer_object),
+                ],
+                "GCC bridge analyzer",
+            )
+
     def test_bridge_source_is_offline_and_has_one_direct_dependency(self):
         source = BRIDGE_C.read_text(encoding="utf-8")
         self.assertEqual(
-            [line for line in source.splitlines() if line.startswith("#include")],
-            ['#include "creative_look_bridge.h"'],
+            re.findall(
+                r'^\s*#\s*include\s*([<"][^>"]+[>"])',
+                source,
+                flags=re.MULTILINE,
+            ),
+            ['"creative_look_bridge.h"'],
         )
         for forbidden in (
             "malloc(",
