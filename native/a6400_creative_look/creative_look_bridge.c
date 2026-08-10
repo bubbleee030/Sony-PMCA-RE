@@ -195,14 +195,109 @@ static void cl_update_retained_snapshot(cl_bridge *bridge)
     snapshot->state = bridge->state;
 }
 
-static void cl_synchronize_state(
+static int32_t cl_call_present(
+    cl_bridge *bridge,
+    const cl_view_frame *frame
+);
+
+#define CL_CALL(bridge, result, callback) do { \
+    (bridge)->busy = 1u; \
+    (result) = (callback); \
+    (bridge)->busy = 0u; \
+} while (0)
+
+static void cl_sync_result(
+    cl_bridge *bridge,
+    cl_bridge_report *report,
+    uint8_t domain,
+    size_t result_index,
+    int32_t callback_result
+)
+{
+    report->attempted = (uint8_t)(report->attempted | domain);
+    report->sync_results[result_index] = callback_result;
+    if (callback_result == 0) {
+        report->succeeded = (uint8_t)(report->succeeded | domain);
+        bridge->dirty_mask = (uint8_t)(bridge->dirty_mask & ~domain);
+    } else {
+        report->failed = (uint8_t)(report->failed | domain);
+    }
+}
+
+static cl_result cl_synchronize_state(
     cl_bridge *bridge,
     cl_bridge_report *report
 )
 {
-    (void)bridge;
-    (void)report;
+    uint8_t blob[CL_BLOB_SIZE];
+    cl_view_frame frame;
+    cl_result result;
+    int32_t callback_result;
+
+    if ((bridge->dirty_mask & CL_SYNC_PRESENTATION) != 0u) {
+        result = cl_view_build(&bridge->state, &frame);
+        if (result != CL_OK) {
+            report->transition_result = result;
+            return result;
+        }
+        callback_result = cl_call_present(bridge, &frame);
+        cl_sync_result(
+            bridge, report, CL_SYNC_PRESENTATION, 0u, callback_result
+        );
+    }
+    if ((bridge->dirty_mask & CL_SYNC_PERSISTENCE) != 0u) {
+        result = cl_encode(&bridge->state, blob, CL_BLOB_SIZE);
+        if (result != CL_OK) {
+            report->transition_result = result;
+            return result;
+        }
+        CL_CALL(bridge, callback_result, bridge->adapters.persistence.save(
+            bridge->adapters.persistence.context, blob, CL_BLOB_SIZE
+        ));
+        cl_sync_result(
+            bridge, report, CL_SYNC_PERSISTENCE, 1u, callback_result
+        );
+    }
+    if ((bridge->dirty_mask & CL_SYNC_MODEL_REQUEST) != 0u) {
+        CL_CALL(bridge, callback_result, bridge->adapters.model.submit(
+            bridge->adapters.model.context,
+            &bridge->retained_processing_snapshot
+        ));
+        cl_sync_result(
+            bridge, report, CL_SYNC_MODEL_REQUEST, 2u, callback_result
+        );
+    }
+    if ((bridge->dirty_mask & CL_SYNC_LIVE_VIEW) != 0u) {
+        CL_CALL(bridge, callback_result, bridge->adapters.output.apply(
+            bridge->adapters.output.context, CL_OUTPUT_LIVE_VIEW,
+            &bridge->retained_processing_snapshot
+        ));
+        cl_sync_result(
+            bridge, report, CL_SYNC_LIVE_VIEW, 3u, callback_result
+        );
+    }
+    if ((bridge->dirty_mask & CL_SYNC_STILL_JPEG) != 0u) {
+        CL_CALL(bridge, callback_result, bridge->adapters.output.apply(
+            bridge->adapters.output.context, CL_OUTPUT_STILL_JPEG,
+            &bridge->retained_processing_snapshot
+        ));
+        cl_sync_result(
+            bridge, report, CL_SYNC_STILL_JPEG, 4u, callback_result
+        );
+    }
+    if ((bridge->dirty_mask & CL_SYNC_MOVIE) != 0u) {
+        CL_CALL(bridge, callback_result, bridge->adapters.output.apply(
+            bridge->adapters.output.context, CL_OUTPUT_MOVIE,
+            &bridge->retained_processing_snapshot
+        ));
+        cl_sync_result(
+            bridge, report, CL_SYNC_MOVIE, 5u, callback_result
+        );
+    }
+    return report->failed == 0u ? CL_OK : CL_ERR_ADAPTER;
 }
+
+#undef CL_CALL
 
 static int32_t cl_call_load(cl_bridge *bridge, uint8_t *blob)
 {
@@ -612,7 +707,8 @@ cl_result cl_bridge_open(cl_bridge *bridge, cl_bridge_report *report)
 
     bridge->input_attached = 1u;
     bridge->opened = 1u;
-    return cl_publish_report(bridge, report, &operation, CL_OK);
+    result = cl_synchronize_state(bridge, &operation);
+    return cl_publish_report(bridge, report, &operation, result);
 }
 
 cl_result cl_bridge_close(cl_bridge *bridge, cl_bridge_report *report)
@@ -655,6 +751,38 @@ cl_result cl_bridge_close(cl_bridge *bridge, cl_bridge_report *report)
         result = CL_ERR_LIFECYCLE;
     }
     return cl_publish_report(bridge, report, &operation, result);
+}
+
+cl_result cl_bridge_sync(cl_bridge *bridge, cl_bridge_report *report)
+{
+    cl_bridge_report operation;
+    cl_result result;
+
+    if (bridge == NULL) {
+        return CL_ERR_ARGUMENT;
+    }
+    if (bridge->initialization_marker !=
+        CL_BRIDGE_INITIALIZATION_MARKER) {
+        return CL_ERR_STATE;
+    }
+    if (bridge->busy != 0u) {
+        return CL_ERR_BUSY;
+    }
+    if (report == NULL) {
+        return CL_ERR_ARGUMENT;
+    }
+    if (bridge->opened == 0u) {
+        return CL_ERR_NOT_OPEN;
+    }
+
+    cl_report_initialize(&operation, bridge);
+    result = cl_synchronize_state(bridge, &operation);
+    return cl_publish_report(bridge, report, &operation, result);
+}
+
+cl_result cl_bridge_retry(cl_bridge *bridge, cl_bridge_report *report)
+{
+    return cl_bridge_sync(bridge, report);
 }
 
 cl_result cl_bridge_handle_event(
@@ -749,8 +877,8 @@ cl_result cl_bridge_handle_event(
         cl_update_retained_snapshot(bridge);
     }
     operation.state_committed = 1u;
-    cl_synchronize_state(bridge, &operation);
-    return cl_publish_report(bridge, report, &operation, CL_OK);
+    result = cl_synchronize_state(bridge, &operation);
+    return cl_publish_report(bridge, report, &operation, result);
 }
 
 cl_result cl_bridge_set_mode(
@@ -808,8 +936,8 @@ cl_result cl_bridge_set_mode(
         CL_SYNC_STILL_JPEG | CL_SYNC_MOVIE);
     cl_update_retained_snapshot(bridge);
     operation.state_committed = 1u;
-    cl_synchronize_state(bridge, &operation);
-    return cl_publish_report(bridge, report, &operation, CL_OK);
+    result = cl_synchronize_state(bridge, &operation);
+    return cl_publish_report(bridge, report, &operation, result);
 }
 
 const cl_state *cl_bridge_state(const cl_bridge *bridge)

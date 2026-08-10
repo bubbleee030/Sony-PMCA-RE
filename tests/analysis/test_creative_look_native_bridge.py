@@ -373,7 +373,8 @@ class LifecycleFixture:
             return self.callback_results["model"]
 
         def apply(_context, kind, snapshot_pointer):
-            self.calls.append("output")
+            output_names = ("live_view", "still_jpeg", "movie")
+            self.calls.append(output_names[kind])
             self.output_snapshots.append(
                 (
                     kind,
@@ -384,7 +385,7 @@ class LifecycleFixture:
             )
             self._maybe_reenter("output")
             self._maybe_reinitialize("output")
-            return self.callback_results["output"]
+            return self.callback_results.get(output_names[kind], self.callback_results["output"])
 
         self.load_callback = retain_callback(
             self,
@@ -568,6 +569,8 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             "cl_bridge_init",
             "cl_bridge_open",
             "cl_bridge_close",
+            "cl_bridge_sync",
+            "cl_bridge_retry",
             "cl_bridge_handle_event",
             "cl_bridge_set_mode",
             "cl_bridge_state",
@@ -610,6 +613,14 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             ctypes.POINTER(BridgeReport),
         ]
         cls.library.cl_bridge_close.restype = ctypes.c_int
+        cls.library.cl_bridge_sync.argtypes = [
+            ctypes.POINTER(Bridge), ctypes.POINTER(BridgeReport)
+        ]
+        cls.library.cl_bridge_sync.restype = ctypes.c_int
+        cls.library.cl_bridge_retry.argtypes = [
+            ctypes.POINTER(Bridge), ctypes.POINTER(BridgeReport)
+        ]
+        cls.library.cl_bridge_retry.restype = ctypes.c_int
         cls.library.cl_bridge_handle_event.argtypes = [
             ctypes.POINTER(Bridge),
             ctypes.POINTER(InputEvent),
@@ -827,9 +838,225 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             report,
             state_revision=2,
             processing_revision=2,
-            dirty=0x3F,
+            sync_results=[0] * 6,
+            attempted=0x3F,
+            succeeded=0x3F,
+            dirty=0,
             state_committed=1,
             opened=1,
+        )
+
+    def test_processing_touch_synchronizes_full_snapshot_in_exact_order(self):
+        """Fails if any six-domain callback is skipped, reordered, or copied incompletely."""
+        self._require_exports()
+        fixture = self._open_fixture()
+        report = BridgeReport()
+
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_VV),
+                report,
+            )[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            fixture.calls[-6:],
+            ["present", "save", "model", "live_view", "still_jpeg", "movie"],
+        )
+        self.assertEqual((report.attempted, report.succeeded, report.failed, report.dirty), (0x3F, 0x3F, 0, 0))
+        snapshots = [fixture.model_snapshots[-1]] + [snapshot for _, snapshot in fixture.output_snapshots[-3:]]
+        for snapshot in snapshots:
+            self.assertEqual((snapshot.abi_version, snapshot.output_mask, snapshot.processing_revision), (1, 7, report.processing_revision))
+            self.assertEqual(snapshot.state.selected_look, fixture.bridge.state.selected_look)
+            self.assertEqual(bytes(snapshot.state.custom_bases), bytes(fixture.bridge.state.custom_bases))
+            self.assertEqual(bytes(snapshot.state.adjustments), bytes(fixture.bridge.state.adjustments))
+            self.assertEqual(snapshot.effective_base, CL_LOOK_VV)
+        self.assertEqual([kind for kind, _ in fixture.output_snapshots[-3:]], [0, 1, 2])
+        self.assertEqual(
+            len({bytes(snapshot) for snapshot in snapshots}),
+            1,
+        )
+
+    def test_partial_failures_remain_dirty_and_retry_only_failed_domains(self):
+        """Fails if a failed domain is cleared or retry rebuilds a broader call set."""
+        self._require_exports()
+        fixture = self._open_fixture()
+        fixture.callback_results.update({"save": 41, "still_jpeg": 42})
+        report = BridgeReport()
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_VV),
+                report,
+            )[0],
+            CL_ERR_ADAPTER,
+        )
+        self.assertEqual(
+            fixture.calls[-6:],
+            ["present", "save", "model", "live_view", "still_jpeg", "movie"],
+        )
+        self.assertEqual((report.attempted, report.succeeded, report.failed, report.dirty), (0x3F, 0x2D, 0x12, 0x12))
+        failed_revision = report.processing_revision
+        failed_state = bytes(fixture.model_snapshots[-1])
+        fixture.callback_results.update({"save": 0, "still_jpeg": 0})
+        retry = BridgeReport()
+        self.assertEqual(
+            self.library.cl_bridge_retry(
+                ctypes.byref(fixture.bridge), ctypes.byref(retry)
+            ),
+            CL_OK,
+        )
+        self.assertEqual(fixture.calls[-2:], ["save", "still_jpeg"])
+        self.assertEqual((retry.attempted, retry.succeeded, retry.failed, retry.dirty), (0x12, 0x12, 0, 0))
+        self.assertEqual(retry.processing_revision, failed_revision)
+        self.assertEqual(bytes(fixture.output_snapshots[-1][1]), failed_state)
+
+    def test_screen_and_orientation_changes_sync_only_presentation_and_persistence(self):
+        """Fails if UI-only changes rebuild or apply processing output."""
+        self._require_exports()
+        fixture = self._open_fixture()
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_VV)
+            )[0],
+            CL_OK,
+        )
+        for event in (
+            self._event_for_element(
+                fixture, CL_UI_KIND_ACTION, action=CL_UI_ACTION_CATALOG
+            ),
+            InputEvent(
+                0, 0, CL_INPUT_ORIENTATION, 1,
+                (ctypes.c_uint8 * 2)(0, 0),
+            ),
+        ):
+            with self.subTest(kind=event.kind):
+                report = BridgeReport()
+                self.assertEqual(fixture.deliver(event, report)[0], CL_OK)
+                self.assertEqual(fixture.calls[-2:], ["present", "save"])
+                self.assertEqual((report.attempted, report.succeeded, report.failed, report.dirty), (0x03, 0x03, 0, 0))
+
+    def test_retry_reuses_immutable_snapshot_and_new_processing_coalesces(self):
+        """Fails if retries rebuild from UI state or replay a stale processing revision."""
+        self._require_exports()
+        fixture = self._open_fixture()
+        fixture.callback_results["model"] = 51
+        first = BridgeReport()
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_VV), first
+            )[0],
+            CL_ERR_ADAPTER,
+        )
+        snapshot_n = bytes(fixture.model_snapshots[-1])
+        revision_n = first.processing_revision
+        for event in (
+            self._event_for_element(
+                fixture, CL_UI_KIND_ACTION, action=CL_UI_ACTION_CATALOG
+            ),
+            InputEvent(0, 0, CL_INPUT_ORIENTATION, 1, (ctypes.c_uint8 * 2)(0, 0)),
+        ):
+            self.assertEqual(fixture.deliver(event)[0], CL_ERR_ADAPTER)
+            self.assertEqual(bytes(fixture.model_snapshots[-1]), snapshot_n)
+            self.assertEqual(fixture.model_snapshots[-1].processing_revision, revision_n)
+        fixture.callback_results["model"] = 0
+        self.assertEqual(
+            self.library.cl_bridge_retry(
+                ctypes.byref(fixture.bridge), ctypes.byref(BridgeReport())
+            ),
+            CL_OK,
+        )
+        self.assertEqual(bytes(fixture.model_snapshots[-1]), snapshot_n)
+
+        coalesced = self._open_fixture()
+        coalesced.callback_results["model"] = 52
+        baseline = len(coalesced.model_snapshots)
+        self.assertEqual(
+            coalesced.deliver(
+                self._event_for_element(coalesced, CL_UI_KIND_LOOK, CL_LOOK_VV)
+            )[0],
+            CL_ERR_ADAPTER,
+        )
+        revision_n = coalesced.bridge.processing_revision
+        self.assertEqual(
+            self.library.cl_bridge_set_mode(
+                ctypes.byref(coalesced.bridge), CL_MODE_MOVIE, 1,
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_ERR_ADAPTER,
+        )
+        self.assertEqual(len(coalesced.model_snapshots), baseline + 2)
+        self.assertEqual(
+            coalesced.model_snapshots[-1].processing_revision, revision_n + 1
+        )
+        self.assertNotEqual(
+            bytes(coalesced.model_snapshots[-2]),
+            bytes(coalesced.model_snapshots[-1]),
+        )
+
+    def test_initial_post_attach_sync_failure_keeps_only_failed_domain_dirty(self):
+        """Fails if post-attach failures close the bridge or lose their retry bit."""
+        self._require_exports()
+        fixture = self._fixture(callback_results={"still_jpeg": 61})
+        report = BridgeReport()
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(fixture.bridge), ctypes.byref(report)
+            ),
+            CL_ERR_ADAPTER,
+        )
+        self.assertEqual(
+            fixture.calls,
+            ["load", "open", "present", "attach", "save", "model", "live_view", "still_jpeg", "movie"],
+        )
+        self.assertEqual((report.attempted, report.succeeded, report.failed, report.dirty), (0x3F, 0x2F, 0x10, 0x10))
+        self.assertEqual((fixture.bridge.opened, fixture.bridge.input_attached), (1, 1))
+
+    def test_each_failed_sync_domain_retains_only_its_dirty_bit(self):
+        """Fails if a domain failure clears itself or dirties a successful peer."""
+        self._require_exports()
+        cases = (
+            ("present", 0x01, "present", "ui", -2),
+            ("save", 0x02, "save", "ui", -1),
+            ("model", 0x04, "model", "processing", -4),
+            ("live_view", 0x08, "live_view", "processing", -3),
+            ("still_jpeg", 0x10, "still_jpeg", "processing", -2),
+            ("movie", 0x20, "movie", "processing", -1),
+        )
+        for callback_name, bit, result_name, event_kind, call_index in cases:
+            fixture = self._open_fixture()
+            fixture.callback_results[callback_name] = 71
+            event = (
+                InputEvent(0, 0, CL_INPUT_ORIENTATION, 1, (ctypes.c_uint8 * 2)(0, 0))
+                if event_kind == "ui"
+                else self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_VV)
+            )
+            with self.subTest(domain=callback_name):
+                report = BridgeReport()
+                self.assertEqual(fixture.deliver(event, report)[0], CL_ERR_ADAPTER)
+                self.assertEqual((report.failed, report.dirty), (bit, bit))
+                self.assertEqual(report.sync_results[(bit.bit_length() - 1)], 71)
+                self.assertEqual(fixture.calls[call_index], result_name)
+
+    def test_custom_selected_snapshot_uses_its_configured_effective_base(self):
+        """Fails if Custom Look output uses the Custom slot rather than its base Look."""
+        self._require_exports()
+        fixture = self._open_fixture()
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_CUSTOM1)
+            )[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_CUSTOM_BASE, CL_LOOK_VV)
+            )[0],
+            CL_OK,
+        )
+        snapshot = fixture.model_snapshots[-1]
+        self.assertEqual(
+            (snapshot.state.selected_look, snapshot.effective_base),
+            (CL_LOOK_CUSTOM1, CL_LOOK_VV),
         )
 
     def test_sink_flow_matches_direct_view_touch_for_editor_paths(self):
@@ -863,7 +1090,10 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
                 self.assertEqual(
                     bytes(fixture.bridge.state), bytes(direct_state)
                 )
-        self.assertEqual(fixture.calls, ["load", "open", "present", "attach"])
+        self.assertEqual(fixture.calls[:9], [
+            "load", "open", "present", "attach", "save", "model",
+            "live_view", "still_jpeg", "movie",
+        ])
 
     def test_event_rejects_an_invalid_successful_transition_atomically(self):
         self._require_exports()
@@ -913,7 +1143,7 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
         self.assertEqual(result, CL_ERR_STATE)
         self._assert_report(
             report, transition=CL_ERR_STATE, state_revision=1,
-            processing_revision=1, dirty=0x3E, opened=1,
+            processing_revision=1, dirty=0, opened=1,
         )
         self.assertEqual(
             (
@@ -979,7 +1209,10 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             report,
             state_revision=8,
             processing_revision=5,
-            dirty=0x3F,
+            sync_results=[0] * 6,
+            attempted=0x3F,
+            succeeded=0x3F,
+            dirty=0,
             state_committed=1,
             opened=1,
         )
@@ -1164,7 +1397,7 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             CL_OK,
         )
         self._assert_report(
-            report, state_revision=1, processing_revision=1, dirty=0x3E,
+            report, state_revision=1, processing_revision=1, dirty=0,
             opened=1,
         )
         self.assertEqual(
@@ -1957,10 +2190,19 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
         self._require_exports()
         restored_blob, restored_state = self._encoded_blob(selected_look=3)
         cases = (
-            ("missing", CL_STORAGE_MISSING, None, 0x3E, None),
-            ("restored", 0, restored_blob, 0x3C, restored_state),
+            (
+                "missing", CL_STORAGE_MISSING, None,
+                ["load", "open", "present", "attach", "save", "model", "live_view", "still_jpeg", "movie"],
+                [0] * 6, 0x3F, None,
+            ),
+            (
+                "restored", 0, restored_blob,
+                ["load", "open", "present", "attach", "model", "live_view", "still_jpeg", "movie"],
+                [0, CL_CALLBACK_NOT_ATTEMPTED, 0, 0, 0, 0], 0x3D,
+                restored_state,
+            ),
         )
-        for label, load_result, blob, dirty, expected_state in cases:
+        for label, load_result, blob, calls, expected_sync, attempted, expected_state in cases:
             fixture = self._fixture(
                 load_result=load_result, load_blob=blob
             )
@@ -1973,9 +2215,8 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
                     CL_OK,
                 )
                 self.assertEqual(
-                    fixture.calls, ["load", "open", "present", "attach"]
+                    fixture.calls, calls
                 )
-                expected_sync = [0] + [CL_CALLBACK_NOT_ATTEMPTED] * 5
                 self._assert_report(
                     report,
                     lifecycle_open=0,
@@ -1984,9 +2225,9 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
                     sync_results=expected_sync,
                     state_revision=1,
                     processing_revision=1,
-                    attempted=1,
-                    succeeded=1,
-                    dirty=dirty,
+                    attempted=attempted,
+                    succeeded=attempted,
+                    dirty=0,
                     state_committed=1,
                     opened=1,
                 )
@@ -2004,7 +2245,7 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
                     self.library.cl_bridge_dirty_mask(
                         ctypes.byref(fixture.bridge)
                     ),
-                    dirty,
+                    0,
                 )
                 if expected_state is None:
                     self._assert_default_state(fixture.bridge.state)
@@ -2034,8 +2275,8 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
                 self.assertIsNotNone(fixture.sink)
                 self.assertTrue(fixture.resource_open)
                 self.assertEqual(
-                    (fixture.saved_blobs, fixture.model_snapshots, fixture.output_snapshots),
-                    ([], [], []),
+                    (len(fixture.saved_blobs), len(fixture.model_snapshots), len(fixture.output_snapshots)),
+                    (1 if label == "missing" else 0, 1, 3),
                 )
 
                 close_report = BridgeReport()
@@ -2053,7 +2294,7 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
                     input_detach=0,
                     state_revision=1,
                     processing_revision=1,
-                    dirty=dirty,
+                    dirty=0,
                 )
                 self.assertEqual(
                     (fixture.bridge.opened, fixture.bridge.input_attached),
@@ -2232,7 +2473,7 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
                     input_detach=callback_results.get("detach", 0),
                     state_revision=1,
                     processing_revision=1,
-                    dirty=0x3E,
+                    dirty=0,
                 )
                 self.assertEqual(
                     (
@@ -2240,7 +2481,7 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
                         fixture.bridge.input_attached,
                         fixture.bridge.dirty_mask,
                     ),
-                    (0, 0, 0x3E),
+                    (0, 0, 0),
                 )
                 self.assertIsNone(fixture.sink)
                 self.assertFalse(fixture.resource_open)
@@ -2318,7 +2559,8 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
                 self.assertEqual((name, result, unchanged), (callback_name, CL_ERR_BUSY, True))
                 self.assertEqual(nested_report, bytes([0x5A] * 64))
                 self.assertEqual(
-                    fixture.calls, ["load", "open", "present", "attach"]
+                    fixture.calls,
+                    ["load", "open", "present", "attach", "save", "model", "live_view", "still_jpeg", "movie"],
                 )
 
         for callback_name in ("detach", "close"):

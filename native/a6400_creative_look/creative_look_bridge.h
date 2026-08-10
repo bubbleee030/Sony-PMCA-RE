@@ -196,6 +196,8 @@ cl_result cl_bridge_init(
 );
 cl_result cl_bridge_open(cl_bridge *, cl_bridge_report *);
 cl_result cl_bridge_close(cl_bridge *, cl_bridge_report *);
+cl_result cl_bridge_sync(cl_bridge *, cl_bridge_report *);
+cl_result cl_bridge_retry(cl_bridge *, cl_bridge_report *);
 cl_result cl_bridge_handle_event(
     cl_bridge *, const cl_input_event *, cl_bridge_report *
 );
