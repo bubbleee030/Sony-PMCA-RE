@@ -118,13 +118,86 @@ typedef struct cl_bridge_report {
     uint8_t reserved[2];
 } cl_bridge_report;
 
+typedef int32_t (*cl_lifecycle_open_fn)(void *, const cl_state *);
+typedef int32_t (*cl_lifecycle_close_fn)(void *);
+typedef int32_t (*cl_input_sink_fn)(
+    void *, const cl_input_event *, cl_bridge_report *
+);
+typedef int32_t (*cl_input_attach_fn)(void *, cl_input_sink_fn, void *);
+typedef int32_t (*cl_input_detach_fn)(void *);
+typedef int32_t (*cl_model_submit_fn)(
+    void *, const cl_processing_snapshot *
+);
+typedef int32_t (*cl_output_apply_fn)(
+    void *, uint8_t, const cl_processing_snapshot *
+);
+
+typedef struct cl_lifecycle_adapter {
+    void *context;
+    cl_lifecycle_open_fn open;
+    cl_lifecycle_close_fn close;
+} cl_lifecycle_adapter;
+
+typedef struct cl_input_adapter {
+    void *context;
+    cl_input_attach_fn attach;
+    cl_input_detach_fn detach;
+} cl_input_adapter;
+
+typedef struct cl_model_adapter {
+    void *context;
+    cl_model_submit_fn submit;
+} cl_model_adapter;
+
+typedef struct cl_output_adapter {
+    void *context;
+    cl_output_apply_fn apply;
+} cl_output_adapter;
+
+typedef struct cl_bridge_adapters {
+    cl_lifecycle_adapter lifecycle;
+    cl_view_adapter presentation;
+    cl_input_adapter input;
+    cl_storage_adapter persistence;
+    cl_model_adapter model;
+    cl_output_adapter output;
+} cl_bridge_adapters;
+
+typedef struct cl_bridge {
+    cl_integration_manifest manifest;
+    cl_bridge_report last_report;
+    uint32_t state_revision;
+    uint32_t processing_revision;
+    cl_processing_snapshot retained_processing_snapshot;
+    cl_state state;
+    uint8_t dirty_mask;
+    uint8_t opened;
+    uint8_t input_attached;
+    uint8_t busy;
+    uint8_t opened_once;
+    cl_bridge_adapters adapters;
+} cl_bridge;
+
 size_t cl_binding_record_size(void);
 size_t cl_integration_manifest_size(void);
 size_t cl_input_event_size(void);
 size_t cl_processing_snapshot_size(void);
 size_t cl_bridge_report_size(void);
+size_t cl_bridge_size(void);
+size_t cl_bridge_adapters_offset(void);
+size_t cl_bridge_alignment(void);
 cl_result cl_bridge_manifest_host(cl_integration_manifest *manifest);
 cl_result cl_bridge_validate_manifest(const cl_integration_manifest *manifest);
+cl_result cl_bridge_init(
+    cl_bridge *, const cl_integration_manifest *, const cl_bridge_adapters *
+);
+cl_result cl_bridge_open(cl_bridge *, cl_bridge_report *);
+cl_result cl_bridge_close(cl_bridge *, cl_bridge_report *);
+const cl_state *cl_bridge_state(const cl_bridge *);
+const cl_bridge_report *cl_bridge_last_report(const cl_bridge *);
+uint32_t cl_bridge_state_revision(const cl_bridge *);
+uint32_t cl_bridge_processing_revision(const cl_bridge *);
+uint8_t cl_bridge_dirty_mask(const cl_bridge *);
 
 #ifdef __cplusplus
 }
