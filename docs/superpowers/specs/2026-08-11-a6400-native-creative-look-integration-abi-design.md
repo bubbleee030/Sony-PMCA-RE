@@ -248,7 +248,7 @@ semantics only; it does not claim that an α6400 processing sink is known.
 - one validated manifest copy;
 - one adapter-set copy;
 - monotonic state and processing revisions;
-- open, input-attached, busy, and opened-once flags;
+- initialized, open, input-attached, busy, and opened-once flags;
 - dirty bits for presentation, persistence, model request, live view, still
   JPEG, and movie; and
 - the most recent operation report with raw callback diagnostics.
@@ -260,9 +260,14 @@ mask, and last report. It exposes no mutable state pointer.
 
 ### Initialization
 
-`cl_bridge_init` validates the manifest and callback completeness, copies the
-manifest and adapter structs, initializes default state, clears revisions and
-dirtiness, and performs no callback.
+Bridge storage must be all-zero before its first `cl_bridge_init`. Initialization
+validates the manifest and callback completeness, copies the manifest and adapter
+structs, initializes default state, marks the bridge initialized, clears
+revisions and dirtiness, and performs no callback. Reinitialization is allowed
+only after a prior session is closed or admission has failed. Initialization of
+a busy bridge returns `CL_ERR_BUSY`; initialization of an open/attached bridge
+returns `CL_ERR_ALREADY_OPEN`; both are mutation-free so a live sink or resource
+cannot be orphaned.
 
 All six binding records must be `HOST_SIMULATED` at initialization. This ensures
 the host milestone exercises every boundary. Static evidence may remain

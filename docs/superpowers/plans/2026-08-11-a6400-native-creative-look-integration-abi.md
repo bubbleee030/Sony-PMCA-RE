@@ -277,6 +277,10 @@ set `argtypes`/`restype` for every exported function before use. Callback bodies
 must capture Python exceptions and return a nonzero result instead of allowing
 an exception to escape through C. Give persistence load and save distinct
 callback type aliases even though their return types match.
+The guard accepts a per-callback exception result: persistence load must use a
+value other than `0` and `CL_STORAGE_MISSING`, while other adapters may use `1`.
+Attach clears a provisional sink in `finally` unless it completed successfully;
+detach clears the retained sink in `finally` even when fixture code raises.
 
 - [ ] **Step 6: Replace the existence test with real compile/behavior tests**
 
@@ -417,7 +421,7 @@ typedef struct cl_bridge_adapters {
 
 Expose a concrete fixed-memory `cl_bridge` containing state, an immutable
 retained processing snapshot, manifest, adapters, two revisions, last report,
-dirty/open/attached/busy/opened-once flags. Keep the data prefix exactly 624
+dirty/open/attached/busy/opened-once/initialized flags. Keep the data prefix exactly 632
 bytes before the pointer-bearing adapter set, avoiding implicit pointer-alignment
 padding on ordinary 32-bit and 64-bit GCC hosts:
 
@@ -434,6 +438,8 @@ typedef struct cl_bridge {
     uint8_t input_attached;
     uint8_t busy;
     uint8_t opened_once;
+    uint8_t initialized;
+    uint8_t reserved[7];
     cl_bridge_adapters adapters;
 } cl_bridge;
 ```
@@ -458,7 +464,7 @@ uint8_t cl_bridge_dirty_mask(const cl_bridge *);
 
 Implement the alignment query with a C99 `offsetof` probe struct. Add compile-time
 typedef assertions plus host tests for every fixed-data size, the adapter offset
-`624`, and the reported bridge alignment. Do not hard-code total `cl_bridge`
+`632`, and the reported bridge alignment. Do not hard-code total `cl_bridge`
 size because pointer/function-pointer size is platform-dependent.
 
 - [ ] **Step 4: Implement initialization and callback completeness validation**
@@ -473,9 +479,13 @@ be `HOST_SIMULATED`, and require every callback:
 - model submit; and
 - output apply.
 
-Copy the caller structs by value, initialize default state, and invoke no
-callback. Return `CL_ERR_BINDING` for incomplete adapters. Runtime-state
-validation occurs here, not later in `cl_bridge_open`.
+Require all-zero bridge storage before first initialization. Before mutation,
+reject reentrant/busy init as `CL_ERR_BUSY` and live open/attached init as
+`CL_ERR_ALREADY_OPEN`. Copy the caller structs through locals so reinitialization
+may safely use the bridge's existing manifest/adapters, initialize default state,
+set `initialized = 1`, and invoke no callback. Reinitialization after close or
+failed admission is allowed. Return `CL_ERR_BINDING` for incomplete adapters.
+Runtime-state validation occurs here, not later in `cl_bridge_open`.
 
 - [ ] **Step 5: Implement open and close cleanup semantics**
 
@@ -529,7 +539,9 @@ made the sink/resource unreachable before returning. Retain all
 `NativeFrame.from_buffer_copy(frame.contents)`, snapshots with
 `ProcessingSnapshot.from_buffer_copy(snapshot.contents)`, save input with
 `ctypes.string_at(data, size)`, and load bytes only after size validation using
-`ctypes.memmove`.
+`ctypes.memmove`. Inject load, attach, and detach exceptions: load must fail open
+as `CL_ERR_ADAPTER`, while attach/detach must still leave the fixture sink and
+resource unreachable.
 
 - [ ] **Step 7: Commit lifecycle support**
 
@@ -848,7 +860,7 @@ Tests must use temporary directories and assert `nm -u` is empty. Missing `nm`
 is a verification failure, not a silent pass. A mutation object with a deliberate
 undefined symbol must be rejected. Tests must also assert compilation succeeds
 without warning text. The ctypes ABI test asserts every wire size, natural field
-offset, `Bridge.adapters.offset == 624`, the C offset query, and the C alignment
+offset, `Bridge.adapters.offset == 632`, the C offset query, and the C alignment
 query. It must not hard-code total bridge size.
 
 - [ ] **Step 5: Run all native tests**
