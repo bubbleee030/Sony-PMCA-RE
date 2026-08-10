@@ -38,7 +38,16 @@ typedef enum cl_result {
     CL_ERR_RESTRICTED = -7,
     CL_ERR_BLOB = -8,
     CL_ERR_NO_HIT = -9,
-    CL_ERR_ADAPTER = -10
+    CL_ERR_ADAPTER = -10,
+    CL_ERR_MANIFEST = -11,
+    CL_ERR_BINDING = -12,
+    CL_ERR_LIFECYCLE = -13,
+    CL_ERR_NOT_OPEN = -14,
+    CL_ERR_ALREADY_OPEN = -15,
+    CL_ERR_REVISION = -16,
+    CL_ERR_INPUT_ATTACHMENT = -17,
+    CL_ERR_REINIT_REQUIRED = -18,
+    CL_ERR_BUSY = -19
 } cl_result;
 
 typedef enum cl_screen {

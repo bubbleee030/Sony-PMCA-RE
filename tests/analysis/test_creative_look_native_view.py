@@ -1,10 +1,6 @@
 import ctypes
-import os
-import shutil
-import subprocess
 import tempfile
 import unittest
-from pathlib import Path
 
 from pmca.experience.creative_look import (
     AXIS_IDS,
@@ -13,12 +9,27 @@ from pmca.experience.creative_look import (
     CreativeLookExperience,
     Orientation,
 )
+from tests.analysis.creative_look_native_abi import (
+    CORE_SOURCE,
+    VIEW_SOURCE,
+    NativeElement,
+    NativeFrame,
+    NativeState,
+    PresentCallback,
+    StorageAdapter,
+    StorageLoadCallback,
+    StorageSaveCallback,
+    ViewAdapter,
+    assert_no_undefined_symbols,
+    compile_freestanding_objects,
+    compile_shared_library,
+    configure_core_exports,
+    configure_view_exports,
+    link_relocatable,
+    retain_callback,
+    unload_library,
+)
 
-
-ROOT = Path(__file__).resolve().parents[2]
-NATIVE_DIRECTORY = ROOT / "native" / "a6400_creative_look"
-CORE_SOURCE = NATIVE_DIRECTORY / "creative_look_core.c"
-VIEW_SOURCE = NATIVE_DIRECTORY / "creative_look_view.c"
 
 CL_OK = 0
 CL_ERR_MODE_UNAVAILABLE = -3
@@ -28,8 +39,6 @@ CL_ERR_ADAPTER = -10
 CL_DEFAULT = -128
 CL_UNSET = 255
 CL_BLOB_SIZE = 164
-CL_UI_MAX_ELEMENTS = 20
-
 ACTION_SELECT_LOOK = 1
 ACTION_SELECT_CUSTOM_BASE = 2
 ACTION_OPEN_AXIS = 3
@@ -53,199 +62,30 @@ REASON_STATUS = {
 }
 
 
-class NativeState(ctypes.Structure):
-    _pack_ = 1
-    _fields_ = [
-        ("selected_look", ctypes.c_uint8),
-        ("screen", ctypes.c_uint8),
-        ("orientation", ctypes.c_uint8),
-        ("editing_axis", ctypes.c_uint8),
-        ("custom_bases", ctypes.c_uint8 * 6),
-        ("adjustments", (ctypes.c_int8 * 8) * 18),
-        ("modes", ctypes.c_uint8),
-    ]
-
-
-class NativeElement(ctypes.Structure):
-    _fields_ = [
-        ("x", ctypes.c_int32),
-        ("y", ctypes.c_int32),
-        ("width", ctypes.c_int32),
-        ("height", ctypes.c_int32),
-        ("value", ctypes.c_int16),
-        ("status", ctypes.c_int8),
-        ("kind", ctypes.c_uint8),
-        ("action", ctypes.c_uint8),
-        ("primary", ctypes.c_uint8),
-        ("enabled", ctypes.c_uint8),
-        ("modified", ctypes.c_uint8),
-    ]
-
-
-class NativeFrame(ctypes.Structure):
-    _fields_ = [
-        ("width", ctypes.c_int32),
-        ("height", ctypes.c_int32),
-        ("columns", ctypes.c_uint8),
-        ("count", ctypes.c_uint8),
-        ("reserved", ctypes.c_uint8 * 2),
-        ("elements", NativeElement * CL_UI_MAX_ELEMENTS),
-    ]
-
-
-PresentCallback = ctypes.CFUNCTYPE(
-    ctypes.c_int, ctypes.c_void_p, ctypes.POINTER(NativeFrame)
-)
-StorageCallback = ctypes.CFUNCTYPE(
-    ctypes.c_int,
-    ctypes.c_void_p,
-    ctypes.POINTER(ctypes.c_uint8),
-    ctypes.c_size_t,
-)
-
-
-class ViewAdapter(ctypes.Structure):
-    _fields_ = [("context", ctypes.c_void_p), ("present", PresentCallback)]
-
-
-class StorageAdapter(ctypes.Structure):
-    _fields_ = [
-        ("context", ctypes.c_void_p),
-        ("load", StorageCallback),
-        ("save", StorageCallback),
-    ]
-
-
 class CreativeLookNativeViewTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        compiler = shutil.which("gcc")
-        if compiler is None:
-            raise unittest.SkipTest("a C99 compiler is unavailable")
         cls._temporary = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
-        directory = Path(cls._temporary.name)
-        cls.library_path = directory / "creative_look_view.dll"
-        core_object = directory / "core.o"
-        view_object = directory / "view.o"
-        combined_object = directory / "combined.o"
-        common = [
-            compiler,
-            "-std=c99",
-            "-Wall",
-            "-Wextra",
-            "-Werror",
-            "-pedantic",
-            "-I",
-            str(NATIVE_DIRECTORY),
-        ]
-        shared = subprocess.run(
-            [
-                *common,
-                "-shared",
-                "-o",
-                str(cls.library_path),
-                str(CORE_SOURCE),
-                str(VIEW_SOURCE),
-            ],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            check=False,
+        cls.library_path = compile_shared_library(
+            cls._temporary.name,
+            "creative_look_view",
+            [CORE_SOURCE, VIEW_SOURCE],
         )
-        if shared.returncode != 0:
-            raise AssertionError(shared.stderr)
-        for source, output in ((CORE_SOURCE, core_object), (VIEW_SOURCE, view_object)):
-            compiled = subprocess.run(
-                [
-                    *common,
-                    "-ffreestanding",
-                    "-fno-builtin",
-                    "-c",
-                    "-o",
-                    str(output),
-                    str(source),
-                ],
-                cwd=ROOT,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            if compiled.returncode != 0:
-                raise AssertionError(compiled.stderr)
-        linker = shutil.which("ld")
-        if linker is None:
-            raise unittest.SkipTest("a relocatable-object linker is unavailable")
-        linked = subprocess.run(
-            [linker, "-r", "-o", str(combined_object), str(core_object), str(view_object)],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            check=False,
+        objects = compile_freestanding_objects(
+            cls._temporary.name, [CORE_SOURCE, VIEW_SOURCE]
         )
-        if linked.returncode != 0:
-            raise AssertionError(linked.stderr)
-        symbol_tool = shutil.which("nm")
-        if symbol_tool is not None:
-            undefined = subprocess.run(
-                [symbol_tool, "-u", str(combined_object)],
-                cwd=ROOT,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            if undefined.returncode != 0 or undefined.stdout.strip():
-                raise AssertionError(undefined.stderr or undefined.stdout)
+        combined_object = link_relocatable(
+            cls._temporary.name, "creative_look_view", objects
+        )
+        assert_no_undefined_symbols(combined_object, "native core/view")
 
         cls.library = ctypes.CDLL(str(cls.library_path))
-        state_pointer = ctypes.POINTER(NativeState)
-        frame_pointer = ctypes.POINTER(NativeFrame)
-        cls.library.cl_init.argtypes = [state_pointer]
-        cls.library.cl_init.restype = ctypes.c_int
-        cls.library.cl_set_mode.argtypes = [state_pointer, ctypes.c_uint8, ctypes.c_int]
-        cls.library.cl_set_mode.restype = ctypes.c_int
-        cls.library.cl_select_look.argtypes = [state_pointer, ctypes.c_uint8]
-        cls.library.cl_select_look.restype = ctypes.c_int
-        cls.library.cl_select_custom_base.argtypes = [
-            state_pointer,
-            ctypes.c_uint8,
-            ctypes.c_uint8,
-        ]
-        cls.library.cl_select_custom_base.restype = ctypes.c_int
-        cls.library.cl_open_axis.argtypes = [state_pointer, ctypes.c_uint8]
-        cls.library.cl_open_axis.restype = ctypes.c_int
-        cls.library.cl_view_frame_size.restype = ctypes.c_size_t
-        cls.library.cl_view_build.argtypes = [state_pointer, frame_pointer]
-        cls.library.cl_view_build.restype = ctypes.c_int
-        cls.library.cl_view_touch.argtypes = [
-            state_pointer,
-            ctypes.c_int32,
-            ctypes.c_int32,
-        ]
-        cls.library.cl_view_touch.restype = ctypes.c_int
-        cls.library.cl_view_present.argtypes = [
-            state_pointer,
-            ctypes.POINTER(ViewAdapter),
-        ]
-        cls.library.cl_view_present.restype = ctypes.c_int
-        cls.library.cl_storage_save.argtypes = [
-            state_pointer,
-            ctypes.POINTER(StorageAdapter),
-        ]
-        cls.library.cl_storage_save.restype = ctypes.c_int
-        cls.library.cl_storage_load.argtypes = [
-            state_pointer,
-            ctypes.POINTER(StorageAdapter),
-        ]
-        cls.library.cl_storage_load.restype = ctypes.c_int
+        configure_core_exports(cls.library)
+        configure_view_exports(cls.library)
 
     @classmethod
     def tearDownClass(cls):
-        if os.name == "nt":
-            import _ctypes
-
-            handle = cls.library._handle
-            cls.library = None
-            _ctypes.FreeLibrary(handle)
+        unload_library(cls, "library")
         cls._temporary.cleanup()
 
     def _state(self):
@@ -427,11 +267,11 @@ class CreativeLookNativeViewTests(unittest.TestCase):
         state = self._state()
         presented = []
 
-        @PresentCallback
         def present(_context, frame_pointer):
             presented.append((frame_pointer.contents.width, frame_pointer.contents.count))
             return 0
 
+        present = retain_callback(self, PresentCallback, present)
         adapter = ViewAdapter(None, present)
         self.assertEqual(
             self.library.cl_view_present(ctypes.byref(state), ctypes.byref(adapter)),
@@ -439,10 +279,10 @@ class CreativeLookNativeViewTests(unittest.TestCase):
         )
         self.assertEqual(presented, [(1600000, 18)])
 
-        @PresentCallback
         def fail_present(_context, _frame_pointer):
             return 1
 
+        fail_present = retain_callback(self, PresentCallback, fail_present)
         failing_view = ViewAdapter(None, fail_present)
         self.assertEqual(
             self.library.cl_view_present(
@@ -453,16 +293,16 @@ class CreativeLookNativeViewTests(unittest.TestCase):
 
         persisted = bytearray(CL_BLOB_SIZE)
 
-        @StorageCallback
         def save(_context, data, size):
             persisted[:] = bytes(data[:size])
             return 0
 
-        @StorageCallback
         def load(_context, data, size):
             ctypes.memmove(data, bytes(persisted), size)
             return 0
 
+        save = retain_callback(self, StorageSaveCallback, save)
+        load = retain_callback(self, StorageLoadCallback, load)
         storage = StorageAdapter(None, load, save)
         self.assertEqual(self.library.cl_select_look(ctypes.byref(state), 3), CL_OK)
         self.assertEqual(
@@ -476,10 +316,10 @@ class CreativeLookNativeViewTests(unittest.TestCase):
         )
         self.assertEqual(state.selected_look, 3)
 
-        @StorageCallback
         def fail_load(_context, _data, _size):
             return 1
 
+        fail_load = retain_callback(self, StorageLoadCallback, fail_load)
         failing = StorageAdapter(None, fail_load, save)
         before = bytes(state)
         self.assertEqual(
@@ -488,10 +328,10 @@ class CreativeLookNativeViewTests(unittest.TestCase):
         )
         self.assertEqual(bytes(state), before)
 
-        @StorageCallback
         def fail_save(_context, _data, _size):
             return 1
 
+        fail_save = retain_callback(self, StorageSaveCallback, fail_save)
         failing = StorageAdapter(None, load, fail_save)
         self.assertEqual(
             self.library.cl_storage_save(
@@ -520,6 +360,7 @@ class CreativeLookNativeViewTests(unittest.TestCase):
             ),
             CL_ERR_ADAPTER,
         )
+        self.assertEqual(self._native_callback_errors, [])
 
     def test_adapter_source_has_no_platform_or_processing_dependency(self):
         source = VIEW_SOURCE.read_text(encoding="utf-8")
