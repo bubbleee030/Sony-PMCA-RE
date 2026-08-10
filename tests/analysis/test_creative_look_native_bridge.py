@@ -68,8 +68,10 @@ CL_UI_KIND_AXIS_VALUE = 3
 CL_UI_KIND_ACTION = 4
 CL_UI_ACTION_RESET = 5
 CL_UI_ACTION_CATALOG = 6
+CL_SCREEN_CUSTOM_BASE = 1
 CL_LOOK_VV = 3
 CL_LOOK_CUSTOM1 = 12
+CL_UNSET = 255
 CL_MODE_INTELLIGENT_AUTO = 0
 CL_MODE_MOVIE = 3
 
@@ -1059,6 +1061,151 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             (CL_LOOK_CUSTOM1, CL_LOOK_VV),
         )
 
+    def test_unconfigured_custom_stages_ui_and_defers_mode_processing_until_base(self):
+        """Fails if an unconfigured Custom selection emits effective base 255."""
+        self._require_exports()
+        fixture = self._open_fixture()
+        retained_before = bytes(fixture.bridge.retained_processing_snapshot)
+        model_count = len(fixture.model_snapshots)
+        output_count = len(fixture.output_snapshots)
+
+        staged = BridgeReport()
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_CUSTOM1),
+                staged,
+            )[0],
+            CL_OK,
+        )
+        self.assertEqual(fixture.calls[-2:], ["present", "save"])
+        self._assert_report(
+            staged,
+            sync_results=[0, 0] + [CL_CALLBACK_NOT_ATTEMPTED] * 4,
+            state_revision=2,
+            processing_revision=1,
+            attempted=0x03,
+            succeeded=0x03,
+            state_committed=1,
+            opened=1,
+        )
+        self.assertEqual(
+            (
+                fixture.bridge.state.selected_look,
+                fixture.bridge.state.custom_bases[0],
+                fixture.bridge.state.screen,
+            ),
+            (CL_LOOK_CUSTOM1, CL_UNSET, CL_SCREEN_CUSTOM_BASE),
+        )
+        self.assertEqual(
+            bytes(fixture.bridge.retained_processing_snapshot), retained_before
+        )
+        self.assertEqual(
+            (len(fixture.model_snapshots), len(fixture.output_snapshots)),
+            (model_count, output_count),
+        )
+
+        mode_report = BridgeReport()
+        self.assertEqual(
+            self.library.cl_bridge_set_mode(
+                ctypes.byref(fixture.bridge), CL_MODE_MOVIE, 1,
+                ctypes.byref(mode_report),
+            ),
+            CL_OK,
+        )
+        self.assertEqual(fixture.calls[-2:], ["present", "save"])
+        self.assertEqual(
+            (mode_report.state_revision, mode_report.processing_revision,
+             mode_report.attempted, mode_report.succeeded),
+            (3, 1, 0x03, 0x03),
+        )
+        self.assertEqual(
+            bytes(fixture.bridge.retained_processing_snapshot), retained_before
+        )
+
+        completed = BridgeReport()
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(
+                    fixture, CL_UI_KIND_CUSTOM_BASE, CL_LOOK_VV
+                ),
+                completed,
+            )[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            fixture.calls[-6:],
+            ["present", "save", "model", "live_view", "still_jpeg", "movie"],
+        )
+        self.assertEqual(
+            (completed.state_revision, completed.processing_revision,
+             completed.attempted, completed.succeeded),
+            (4, 2, 0x3F, 0x3F),
+        )
+        snapshot = fixture.model_snapshots[-1]
+        self.assertEqual(
+            (snapshot.effective_base, snapshot.state.selected_look,
+             snapshot.state.custom_bases[0], snapshot.state.modes),
+            (CL_LOOK_VV, CL_LOOK_CUSTOM1, CL_LOOK_VV, 1 << CL_MODE_MOVIE),
+        )
+
+    def test_restored_unconfigured_custom_opens_without_processing_until_base(self):
+        """Fails if restored staged state creates invalid revision-1 output."""
+        self._require_exports()
+        blob, restored = self._encoded_blob(selected_look=CL_LOOK_CUSTOM1)
+        fixture = self._fixture(load_result=0, load_blob=blob)
+        report = BridgeReport()
+
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(fixture.bridge), ctypes.byref(report)
+            ),
+            CL_OK,
+        )
+        self.assertEqual(fixture.calls, ["load", "open", "present", "attach"])
+        self._assert_report(
+            report,
+            lifecycle_open=0,
+            input_attach=0,
+            persistence_load=0,
+            sync_results=[0] + [CL_CALLBACK_NOT_ATTEMPTED] * 5,
+            state_revision=1,
+            processing_revision=0,
+            attempted=0x01,
+            succeeded=0x01,
+            state_committed=1,
+            opened=1,
+        )
+        self.assertEqual(bytes(fixture.bridge.state), bytes(restored))
+        self.assertEqual(
+            bytes(fixture.bridge.retained_processing_snapshot), bytes(164)
+        )
+        self.assertEqual((fixture.model_snapshots, fixture.output_snapshots), ([], []))
+        calls_before_retry = list(fixture.calls)
+        self.assertEqual(
+            self.library.cl_bridge_retry(
+                ctypes.byref(fixture.bridge), ctypes.byref(BridgeReport())
+            ),
+            CL_OK,
+        )
+        self.assertEqual(fixture.calls, calls_before_retry)
+
+        completed = BridgeReport()
+        self.assertEqual(
+            fixture.deliver(
+                self._event_for_element(
+                    fixture, CL_UI_KIND_CUSTOM_BASE, CL_LOOK_VV
+                ),
+                completed,
+            )[0],
+            CL_OK,
+        )
+        self.assertEqual(
+            fixture.calls[-6:],
+            ["present", "save", "model", "live_view", "still_jpeg", "movie"],
+        )
+        self.assertEqual(completed.processing_revision, 1)
+        self.assertEqual(fixture.model_snapshots[-1].effective_base, CL_LOOK_VV)
+
     def test_sink_flow_matches_direct_view_touch_for_editor_paths(self):
         self._require_exports()
         fixture = self._open_fixture()
@@ -1181,7 +1328,7 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
         )
         self.assertEqual(
             (fixture.bridge.state_revision, fixture.bridge.processing_revision),
-            (5, 4),
+            (5, 3),
         )
 
         navigation = self._event_for_element(
@@ -1194,7 +1341,7 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
         self.assertEqual(fixture.deliver(orientation)[0], CL_OK)
         self.assertEqual(
             (fixture.bridge.state_revision, fixture.bridge.processing_revision),
-            (7, 4),
+            (7, 3),
         )
 
         report = BridgeReport()
@@ -1208,7 +1355,7 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
         self._assert_report(
             report,
             state_revision=8,
-            processing_revision=5,
+            processing_revision=4,
             sync_results=[0] * 6,
             attempted=0x3F,
             succeeded=0x3F,

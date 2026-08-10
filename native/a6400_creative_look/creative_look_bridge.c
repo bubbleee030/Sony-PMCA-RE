@@ -30,6 +30,11 @@ typedef char cl_bridge_adapters_offset_is_632[
     (offsetof(cl_bridge, adapters) == 632u) ? 1 : -1
 ];
 
+#define CL_SYNC_PROCESSING_MASK ((uint8_t)( \
+    CL_SYNC_MODEL_REQUEST | CL_SYNC_LIVE_VIEW | \
+    CL_SYNC_STILL_JPEG | CL_SYNC_MOVIE \
+))
+
 typedef struct cl_bridge_alignment_probe {
     uint8_t prefix;
     cl_bridge bridge;
@@ -133,10 +138,25 @@ static int cl_state_changed(const cl_state *left, const cl_state *right)
     return 0;
 }
 
+static int cl_processing_ready(const cl_state *state)
+{
+    return state->selected_look < CL_BUILT_IN_LOOK_COUNT ||
+        state->custom_bases[
+            state->selected_look - CL_BUILT_IN_LOOK_COUNT
+        ] != CL_UNSET;
+}
+
 static int cl_processing_changed(const cl_state *left, const cl_state *right)
 {
     size_t look;
     size_t axis;
+
+    if (!cl_processing_ready(right)) {
+        return 0;
+    }
+    if (!cl_processing_ready(left)) {
+        return 1;
+    }
 
     if (left->selected_look != right->selected_look ||
         left->modes != right->modes) {
@@ -182,17 +202,38 @@ static uint8_t cl_effective_base(const cl_state *state)
     ];
 }
 
-static void cl_update_retained_snapshot(cl_bridge *bridge)
+static cl_result cl_build_processing_snapshot(
+    const cl_state *state,
+    uint32_t processing_revision,
+    cl_processing_snapshot *output
+)
 {
-    cl_processing_snapshot *snapshot =
+    cl_processing_snapshot snapshot;
+    const uint8_t effective_base = cl_effective_base(state);
+
+    if (effective_base == CL_UNSET) {
+        return CL_ERR_STATE;
+    }
+    cl_zero_bytes(&snapshot, sizeof(snapshot));
+    snapshot.abi_version = CL_BRIDGE_ABI_VERSION;
+    snapshot.effective_base = effective_base;
+    snapshot.output_mask = CL_BRIDGE_OUTPUT_MASK;
+    snapshot.processing_revision = processing_revision;
+    snapshot.state = *state;
+    *output = snapshot;
+    return CL_OK;
+}
+
+static int cl_retained_snapshot_valid(const cl_bridge *bridge)
+{
+    const cl_processing_snapshot *snapshot =
         &bridge->retained_processing_snapshot;
 
-    cl_zero_bytes(snapshot, sizeof(*snapshot));
-    snapshot->abi_version = CL_BRIDGE_ABI_VERSION;
-    snapshot->effective_base = cl_effective_base(&bridge->state);
-    snapshot->output_mask = CL_BRIDGE_OUTPUT_MASK;
-    snapshot->processing_revision = bridge->processing_revision;
-    snapshot->state = bridge->state;
+    return bridge->processing_revision != 0u &&
+        snapshot->abi_version == CL_BRIDGE_ABI_VERSION &&
+        snapshot->effective_base != CL_UNSET &&
+        snapshot->output_mask == CL_BRIDGE_OUTPUT_MASK &&
+        snapshot->processing_revision == bridge->processing_revision;
 }
 
 static int32_t cl_call_present(
@@ -234,6 +275,11 @@ static cl_result cl_synchronize_state(
     cl_result result;
     int32_t callback_result;
 
+    if ((bridge->dirty_mask & CL_SYNC_PROCESSING_MASK) != 0u &&
+        !cl_retained_snapshot_valid(bridge)) {
+        report->transition_result = CL_ERR_STATE;
+        return CL_ERR_STATE;
+    }
     if ((bridge->dirty_mask & CL_SYNC_PRESENTATION) != 0u) {
         result = cl_view_build(&bridge->state, &frame);
         if (result != CL_OK) {
@@ -604,10 +650,12 @@ cl_result cl_bridge_open(cl_bridge *bridge, cl_bridge_report *report)
     size_t index;
     uint8_t blob[CL_BLOB_SIZE];
     cl_state candidate;
+    cl_processing_snapshot initial_snapshot;
     cl_view_frame frame;
     cl_bridge_report operation;
     cl_result result;
     int32_t callback_result;
+    int processing_ready;
 
     if (bridge == NULL) {
         return CL_ERR_ARGUMENT;
@@ -654,6 +702,17 @@ cl_result cl_bridge_open(cl_bridge *bridge, cl_bridge_report *report)
         );
     }
 
+    processing_ready = cl_processing_ready(&candidate);
+    if (processing_ready) {
+        result = cl_build_processing_snapshot(
+            &candidate, 1u, &initial_snapshot
+        );
+        operation.transition_result = result;
+        if (result != CL_OK) {
+            return cl_publish_report(bridge, report, &operation, result);
+        }
+    }
+
     callback_result = cl_call_lifecycle_open(bridge, &candidate);
     operation.lifecycle_open_result = callback_result;
     if (callback_result != 0) {
@@ -664,19 +723,16 @@ cl_result cl_bridge_open(cl_bridge *bridge, cl_bridge_report *report)
 
     bridge->state = candidate;
     bridge->state_revision = 1u;
-    bridge->processing_revision = 1u;
-    bridge->dirty_mask = (uint8_t)(
-        CL_SYNC_MODEL_REQUEST |
-        CL_SYNC_LIVE_VIEW |
-        CL_SYNC_STILL_JPEG |
-        CL_SYNC_MOVIE
-    );
+    bridge->processing_revision = processing_ready ? 1u : 0u;
+    bridge->dirty_mask = processing_ready ? CL_SYNC_PROCESSING_MASK : 0u;
+    if (processing_ready) {
+        bridge->retained_processing_snapshot = initial_snapshot;
+    }
     if (operation.persistence_load_result == CL_STORAGE_MISSING) {
         bridge->dirty_mask = (uint8_t)(
             bridge->dirty_mask | CL_SYNC_PERSISTENCE
         );
     }
-    cl_update_retained_snapshot(bridge);
     operation.state_committed = 1u;
 
     result = cl_view_build(&bridge->state, &frame);
@@ -793,6 +849,7 @@ cl_result cl_bridge_handle_event(
 {
     cl_bridge_report operation;
     cl_state candidate;
+    cl_processing_snapshot next_snapshot;
     cl_result result;
     int processing_change;
 
@@ -864,6 +921,15 @@ cl_result cl_bridge_handle_event(
             bridge, report, &operation, CL_ERR_REVISION
         );
     }
+    if (processing_change) {
+        result = cl_build_processing_snapshot(
+            &candidate, bridge->processing_revision + 1u, &next_snapshot
+        );
+        operation.transition_result = result;
+        if (result != CL_OK) {
+            return cl_publish_report(bridge, report, &operation, result);
+        }
+    }
 
     bridge->state = candidate;
     ++bridge->state_revision;
@@ -872,9 +938,12 @@ cl_result cl_bridge_handle_event(
     if (processing_change) {
         ++bridge->processing_revision;
         bridge->dirty_mask = (uint8_t)(bridge->dirty_mask |
-            CL_SYNC_MODEL_REQUEST | CL_SYNC_LIVE_VIEW |
-            CL_SYNC_STILL_JPEG | CL_SYNC_MOVIE);
-        cl_update_retained_snapshot(bridge);
+            CL_SYNC_PROCESSING_MASK);
+        bridge->retained_processing_snapshot = next_snapshot;
+    } else if (!cl_processing_ready(&candidate)) {
+        bridge->dirty_mask = (uint8_t)(
+            bridge->dirty_mask & (uint8_t)~CL_SYNC_PROCESSING_MASK
+        );
     }
     operation.state_committed = 1u;
     result = cl_synchronize_state(bridge, &operation);
@@ -890,7 +959,9 @@ cl_result cl_bridge_set_mode(
 {
     cl_bridge_report operation;
     cl_state candidate;
+    cl_processing_snapshot next_snapshot;
     cl_result result;
+    int processing_change;
 
     if (bridge == NULL) {
         return CL_ERR_ARGUMENT;
@@ -919,22 +990,39 @@ cl_result cl_bridge_set_mode(
     if (candidate.modes == bridge->state.modes) {
         return cl_publish_report(bridge, report, &operation, CL_OK);
     }
+    processing_change = cl_processing_ready(&candidate);
     if (bridge->state_revision == UINT32_MAX ||
-        bridge->processing_revision == UINT32_MAX) {
+        (processing_change && bridge->processing_revision == UINT32_MAX)) {
         operation.transition_result = CL_ERR_REVISION;
         return cl_publish_report(
             bridge, report, &operation, CL_ERR_REVISION
         );
     }
+    if (processing_change) {
+        result = cl_build_processing_snapshot(
+            &candidate, bridge->processing_revision + 1u, &next_snapshot
+        );
+        operation.transition_result = result;
+        if (result != CL_OK) {
+            return cl_publish_report(bridge, report, &operation, result);
+        }
+    }
 
     bridge->state = candidate;
     ++bridge->state_revision;
-    ++bridge->processing_revision;
     bridge->dirty_mask = (uint8_t)(bridge->dirty_mask |
-        CL_SYNC_PRESENTATION | CL_SYNC_PERSISTENCE |
-        CL_SYNC_MODEL_REQUEST | CL_SYNC_LIVE_VIEW |
-        CL_SYNC_STILL_JPEG | CL_SYNC_MOVIE);
-    cl_update_retained_snapshot(bridge);
+        CL_SYNC_PRESENTATION | CL_SYNC_PERSISTENCE);
+    if (processing_change) {
+        ++bridge->processing_revision;
+        bridge->dirty_mask = (uint8_t)(
+            bridge->dirty_mask | CL_SYNC_PROCESSING_MASK
+        );
+        bridge->retained_processing_snapshot = next_snapshot;
+    } else {
+        bridge->dirty_mask = (uint8_t)(
+            bridge->dirty_mask & (uint8_t)~CL_SYNC_PROCESSING_MASK
+        );
+    }
     operation.state_committed = 1u;
     result = cl_synchronize_state(bridge, &operation);
     return cl_publish_report(bridge, report, &operation, result);

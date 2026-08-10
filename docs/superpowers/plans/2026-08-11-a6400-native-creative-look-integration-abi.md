@@ -351,9 +351,11 @@ self.assertEqual(fixture.calls[-2:], ["detach", "close"])
 ```
 
 At this task boundary synchronization is not implemented: missing storage leaves
-persistence/model/live/still/movie dirty (`0x3E`), while restored storage leaves
-only model/live/still/movie dirty (`0x3C`). Task 4 replaces these prefix checks
-with the final full startup sequences. Add separate tests for load error, corrupt
+persistence/model/live/still/movie dirty (`0x3E`). A processing-ready restored
+state leaves model/live/still/movie dirty (`0x3C`), while a legitimately
+restored unconfigured Custom picker has processing revision `0` and no
+processing dirtiness. Task 4 replaces these prefix checks with the final startup
+sequences. Add separate tests for load error, corrupt
 loaded blob, lifecycle-open failure, presentation failure, and input-attach
 failure. Presentation failure must be exactly
 `load, open, present, close`; attach failure must be exactly
@@ -494,13 +496,15 @@ Runtime-state validation occurs here, not later in `cl_bridge_open`.
 
 Open must use a local candidate and a local 164-byte blob. Interpret load return
 `0` as decode-required, `1` as exact default, and all other values as failure.
-After lifecycle open succeeds, commit state at state/processing revision `1`,
-build the retained processing snapshot, present the initial frame, attach the
-internal sink, set open/attached flags, and leave the initial non-presentation
-dirty bits for Task 4 synchronization. Initial presentation is an admission gate
-and is not dirty/retryable. A failed attach must retain no sink. On either
-failure, call close, clear the provisional dirty mask, and report both the
-primary and cleanup raw results.
+After lifecycle open succeeds, commit state at state revision `1`. For the
+default or a processing-ready restored candidate, create processing revision
+`1`, build the retained snapshot, and leave model/output dirty bits for Task 4.
+For a legitimately restored unconfigured Custom picker, retain processing
+revision `0`, all-zero snapshot storage, and no processing dirtiness. Present
+the initial frame, attach the internal sink, and set open/attached flags.
+Initial presentation is an admission gate and is not dirty/retryable. A failed
+attach must retain no sink. On either failure, call close, clear the provisional
+dirty mask, and report both the primary and cleanup raw results.
 
 Attach failure is contractually atomic. Detach and close must complete teardown
 even when returning a diagnostic failure. Close must attempt detach before
@@ -585,7 +589,8 @@ self.assertEqual(fixture.state().selected_look, CL_LOOK_VV)
 Add literal assertions for:
 
 - state revision increments once;
-- processing revision increments for Look/base/axis/mode changes;
+- processing revision increments for processing-ready Look/base/axis/mode
+  changes; selecting an unconfigured Custom slot increments only state revision;
 - orientation increments only state revision;
 - screen/editor navigation does not increment processing revision;
 - restricted/no-hit/invalid events change neither revision nor state;
@@ -610,9 +615,13 @@ Implement private loops that compare only:
 - all `18 × 8` adjustments; and
 - mode bits.
 
-Do not compare screen, editing axis, or orientation for processing changes. Add a
-private report initializer that writes `CL_CALLBACK_NOT_ATTEMPTED` to all six
-sync results and all five lifecycle/input/load results without `memset`.
+Do not compare screen, editing axis, or orientation for processing changes. Add
+a processing-readiness predicate: built-ins are ready, while a selected Custom
+is ready only when its base is not `CL_UNSET`. A candidate creates processing
+work only when it is ready and either the prior state was not ready or the listed
+fields changed. Add a private report initializer that writes
+`CL_CALLBACK_NOT_ATTEMPTED` to all six sync results and all five
+lifecycle/input/load results without `memset`.
 
 - [ ] **Step 4: Implement canonical event handling**
 
@@ -624,9 +633,12 @@ overflow only after detecting a processing-relevant change. On success:
 
 - increment state revision;
 - mark presentation and persistence dirty;
-- if processing-relevant fields changed, increment processing revision and mark
+- if the candidate is processing-ready and either became ready or changed a
+  processing-relevant field while ready, increment processing revision and mark
   model/live/still/movie dirty, replacing the retained processing snapshot
   exactly once;
+- if the candidate selects an unconfigured Custom slot, commit and synchronize
+  presentation/persistence only while preserving prior retained snapshot bytes;
 - set `report.state_committed = 1`; and
 - call the private synchronization entry added as a no-op shell until Task 4.
 
@@ -643,7 +655,10 @@ cl_result cl_bridge_handle_event(
 
 `cl_bridge_set_mode` must apply `cl_set_mode` to a candidate. If the mode bits are
 unchanged, return `CL_OK` with `state_committed = 0`, unchanged revisions, and no
-callback attempt. A real change dirties all six synchronization domains.
+callback attempt. A real change always dirties presentation/persistence. It
+dirties model/output and increments processing revision only when the candidate
+is processing-ready; an unconfigured picker defers the mode processing change
+until base selection creates a full snapshot containing the latest modes.
 
 Declare it exactly as:
 
@@ -712,6 +727,19 @@ Capture the model and output snapshots by value inside callbacks. Assert:
 - all three output callbacks receive byte-identical snapshots and distinct
   literal output kinds `0`, `1`, `2`.
 
+Add staged-Custom tests that select an unconfigured slot from a valid built-in,
+assert only `present, save`, unchanged processing revision, and a byte-identical
+prior retained snapshot. Selecting the base afterward must call all six domains,
+increment processing revision once, and deliver the first current full-state
+snapshot with a non-`CL_UNSET` effective base. Repeat with a mode update between
+slot and base selection; the deferred snapshot must contain that mode.
+
+Encode and restore a legitimate state with an unconfigured selected Custom on
+`CL_SCREEN_CUSTOM_BASE`. Open must call exactly `load, open, present, attach`,
+set state revision `1`, retain processing revision `0`, leave model/output clean,
+and capture no processing snapshot. Base selection afterward creates processing
+revision `1` and the first model/output callbacks.
+
 - [ ] **Step 2: Write failing partial-failure/retry tests**
 
 Make persistence and still-JPEG callbacks fail once. Assert presentation, model,
@@ -730,19 +758,23 @@ for revision N+1 rather than replaying N.
 
 - [ ] **Step 3: Run synchronization tests and verify red**
 
-Expected: dirty bits remain set or callbacks/snapshots are absent.
+Expected before the staged-Custom fix: runtime selection increments processing
+revision and emits effective base `255`; restored transitional open invokes
+model/output with the same invalid value.
 
 - [ ] **Step 4: Implement retained snapshot and effective-base construction**
 
-Build and store one `cl_processing_snapshot` when open creates revision 1 and
-whenever a processing-relevant change creates a newer revision. Never rebuild it
-for a retry or UI-only change. For a built-in selected Look, effective base is
-that Look. For a Custom Look, use
-`custom_bases[selected_look - CL_BUILT_IN_LOOK_COUNT]`; reject `CL_UNSET` as
-`CL_ERR_STATE` before committing the processing change or invoking
-model/output callbacks. A newer processing change replaces the retained
-snapshot and coalesces all already-dirty model/output domains to the new desired
-revision.
+Build and store one `cl_processing_snapshot` when a processing-ready open
+creates revision `1` and whenever a ready processing change creates a newer
+revision. Never rebuild it for retry, ordinary UI-only change, or selection of
+an unconfigured Custom slot. For a built-in selected Look, effective base is
+that Look. For a configured Custom Look, use
+`custom_bases[selected_look - CL_BUILT_IN_LOOK_COUNT]`. Snapshot construction
+itself must fail closed on `CL_UNSET` without modifying retained bytes. The
+unconfigured selection is valid state/UI and is not rejected; it defers
+processing until base selection. A newer ready processing change replaces the
+retained snapshot and coalesces all already-dirty model/output domains to the
+new desired revision.
 
 - [ ] **Step 5: Implement all six synchronization domains**
 
@@ -756,19 +788,24 @@ existing save callback directly. Presentation uses `cl_view_build` and invokes
 the existing present callback directly. This preserves raw callback results that
 `cl_storage_save`/`cl_view_present` would normalize away. Model uses the retained
 snapshot callback. Output uses three independent calls and bits, all with that
-same retained snapshot.
+same retained snapshot. Synchronization and retry must not invoke a processing
+callback when processing revision is `0` or retained snapshot storage is not
+valid.
 
 - [ ] **Step 6: Integrate initial-open synchronization**
 
-When startup load returns missing, mark persistence dirty. For both missing and
-restored state, mark model/live/still/movie dirty. After admission present and
-attach succeed, call synchronization starting after presentation so it is not
+When startup load returns missing, mark persistence dirty and create processing
+revision `1` for the valid default. A processing-ready restored state also
+creates revision `1`; both mark model/live/still/movie dirty. A restored
+unconfigured Custom picker remains at processing revision `0` with no retained
+processing work or processing dirty bits. After admission present and attach
+succeed, call synchronization starting after presentation so it is not
 presented twice. Sync failure leaves the bridge open, returns `CL_ERR_ADAPTER`,
-and retains failed dirty bits for retry. Replace Task 2's prefix-only assertions
-with the final exact sequences: missing storage calls
-`load, open, present, attach, save, model, live_view, still_jpeg, movie`; restored
-storage calls the same sequence without `save`. Add an initial post-attach sync
-failure test proving the bridge remains open with only failed domains dirty.
+and retains failed dirty bits for retry. Exact sequences are: missing storage
+calls `load, open, present, attach, save, model, live_view, still_jpeg, movie`;
+processing-ready restored storage omits only `save`; restored transitional
+storage calls exactly `load, open, present, attach`. Add an initial post-attach
+sync failure test proving the bridge remains open with only failed domains dirty.
 
 - [ ] **Step 7: Run focused tests and mutation checks**
 

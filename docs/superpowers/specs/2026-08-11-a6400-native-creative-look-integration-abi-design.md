@@ -216,14 +216,23 @@ The complete state preserves all twelve built-ins, all six Custom bases, all
 `18 × 8` adjustment bytes, mode flags, and selection. No field is reduced to or
 identified with the five Creative Style setter arguments.
 
+A state is processing-ready when the selected Look is built-in or the selected
+Custom slot has a built-in base. Selecting an unconfigured Custom slot is a
+valid staged UI state on `CL_SCREEN_CUSTOM_BASE`, but it is not
+processing-ready: `CL_UNSET` is never an effective base and no model or output
+callback may receive it. A later base selection creates the processing change
+and its snapshot includes every state and mode change accumulated while staged.
+
 The bridge retains the complete snapshot by value when it creates a processing
-revision. UI-only changes may update current state, presentation, and
-persistence, but they never rewrite the retained processing snapshot. Model and
-output retries for a revision therefore receive byte-identical payloads. If a
-new processing change occurs while an older revision is still dirty, the bridge
-coalesces to the newest desired processing revision: it replaces the retained
-snapshot once, keeps the relevant domains dirty, and does not replay the older
-revision.
+revision. UI-only changes, including selection of an unconfigured Custom slot,
+may update current state, presentation, and persistence, but they never rewrite
+the retained processing snapshot. Model and output retries for a revision
+therefore receive byte-identical payloads. If a new processing change occurs
+while an older revision is still dirty, the bridge coalesces to the newest
+desired processing revision: it replaces the retained snapshot once, keeps the
+relevant domains dirty, and does not replay the older revision. A restored
+unconfigured Custom state starts at processing revision `0` with no valid
+retained processing work.
 
 ### Output adapter
 
@@ -243,8 +252,8 @@ semantics only; it does not claim that an α6400 processing sink is known.
 `cl_bridge` is allocation-free and owns all mutable coordination state by value:
 
 - one `cl_state`;
-- one retained immutable `cl_processing_snapshot` for the current processing
-  revision;
+- one retained immutable `cl_processing_snapshot` for the latest completed
+  processing revision, or all-zero storage when no processing revision exists;
 - one validated manifest copy;
 - one adapter-set copy;
 - monotonic state and processing revisions;
@@ -287,9 +296,11 @@ Open performs these steps in order:
    value;
 4. call lifecycle open with the candidate;
 5. commit the candidate to bridge state;
-6. create state revision `1`, processing revision `1`, and the retained
-   processing snapshot;
-7. mark model and all three outputs dirty;
+6. create state revision `1`;
+7. if the candidate is processing-ready, create processing revision `1`, build
+   the retained processing snapshot, and mark model and all three outputs dirty;
+   otherwise retain processing revision `0`, all-zero snapshot storage, and no
+   model/output work;
 8. mark persistence dirty only when no prior blob existed;
 9. build and present the initial frame as an admission gate;
 10. attach the canonical input sink; and
@@ -315,17 +326,23 @@ For every touch event, the bridge:
    results;
 5. validates a successful candidate;
 6. rejects before mutation if the state revision would overflow;
-7. compares processing-relevant fields with the prior state and, only when they
-   changed, separately rejects if the processing revision would overflow;
+7. determines whether the candidate is processing-ready and creates processing
+   work only when it became ready or processing-relevant fields changed while
+   ready; only that case separately rejects if the processing revision would
+   overflow;
 8. commits the candidate and increments the state revision;
 9. marks presentation and persistence dirty;
-10. if processing fields changed, increments the processing revision, replaces
-   the retained snapshot, and marks model plus all three outputs dirty; and
+10. if processing work was created, increments the processing revision,
+    replaces the retained snapshot, and marks model plus all three outputs
+    dirty; an unconfigured Custom selection preserves the prior retained bytes
+    and creates no processing dirtiness; and
 11. invokes deterministic synchronization.
 
 Processing-relevant fields are selected Look, Custom bases, all adjustments,
-and mode bits. Screen, editing-axis, and orientation changes do not create a
-model or output request.
+and mode bits, but they create work only for a processing-ready candidate.
+Screen, editing-axis, orientation, and the staged selection of an unconfigured
+Custom slot do not create a model or output request. Selecting that Custom's
+valid base creates the deferred processing revision.
 
 ### Orientation event
 
@@ -336,8 +353,12 @@ state.
 ### Mode update
 
 `cl_bridge_set_mode` applies the existing `cl_set_mode` transition. A real mode
-change increments both revisions and dirties presentation, persistence, model,
-and all three outputs. A no-op update produces no new revision or callback.
+change always increments the state revision and dirties presentation plus
+persistence. It increments the processing revision and dirties model plus all
+three outputs only when the resulting state is processing-ready. A mode change
+while an unconfigured Custom picker is staged is deferred; the later base
+selection creates one snapshot containing the latest modes. A no-op update
+produces no new revision or callback.
 
 ### Synchronization order
 
@@ -361,7 +382,10 @@ dirty and `cl_bridge_retry` repeats the retained snapshot for that exact
 processing revision. Callbacks must be idempotent for a repeated
 `(processing_revision, output_kind)` pair within one initialized bridge session.
 Persistence and presentation always use current state; model and output always
-use the retained processing snapshot.
+use the retained processing snapshot. Synchronization and retry never invoke a
+processing callback when processing revision is `0` or no valid retained
+snapshot exists. Snapshot construction fails closed if effective-base
+resolution yields `CL_UNSET`.
 
 ### Close
 
@@ -458,8 +482,10 @@ before state mutation. This prevents revision reuse in idempotent adapters.
 - Inject failures at every step and assert cleanup calls, state, flags, and
   reports.
 - Verify missing storage calls
-  `load, open, present, attach, save, model, live_view, still_jpeg, movie`, while
-  restored storage omits only `save`.
+  `load, open, present, attach, save, model, live_view, still_jpeg, movie`.
+  Processing-ready restored storage omits only `save`; a legitimately restored
+  unconfigured Custom picker calls exactly `load, open, present, attach` and
+  starts at processing revision `0`.
 - Verify presentation failure calls `load, open, present, close`; attach failure
   calls `load, open, present, attach, close`; and neither leaves a retained
   sink.
@@ -487,6 +513,9 @@ before state mutation. This prevents revision reuse in idempotent adapters.
 - After an output failure, apply a screen-only or orientation-only change and
   prove the retry snapshot remains byte-identical to the failed snapshot.
 - Prove screen navigation and orientation do not emit processing requests.
+- Prove unconfigured Custom selection preserves a prior retained snapshot,
+  emits only presentation/persistence, and that base completion emits the first
+  current full-state snapshot, including modes staged during the picker.
 
 ### Safety
 
