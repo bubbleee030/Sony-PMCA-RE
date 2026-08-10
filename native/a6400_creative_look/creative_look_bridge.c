@@ -402,6 +402,9 @@ cl_result cl_bridge_init(
         if (bridge->opened != 0u || bridge->input_attached != 0u) {
             return CL_ERR_ALREADY_OPEN;
         }
+        if (bridge->opened_once == 0u) {
+            return CL_ERR_STATE;
+        }
     } else if (!cl_bytes_are_zero(bridge, sizeof(*bridge))) {
         return CL_ERR_STATE;
     }
@@ -451,6 +454,10 @@ cl_result cl_bridge_open(cl_bridge *bridge, cl_bridge_report *report)
 
     if (bridge == NULL) {
         return CL_ERR_ARGUMENT;
+    }
+    if (bridge->initialization_marker !=
+        CL_BRIDGE_INITIALIZATION_MARKER) {
+        return CL_ERR_STATE;
     }
     if (bridge->busy != 0u) {
         return CL_ERR_BUSY;
@@ -555,6 +562,10 @@ cl_result cl_bridge_close(cl_bridge *bridge, cl_bridge_report *report)
 
     if (bridge == NULL) {
         return CL_ERR_ARGUMENT;
+    }
+    if (bridge->initialization_marker !=
+        CL_BRIDGE_INITIALIZATION_MARKER) {
+        return CL_ERR_STATE;
     }
     if (bridge->busy != 0u) {
         return CL_ERR_BUSY;

@@ -1,4 +1,6 @@
 import ctypes
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -990,6 +992,120 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
         )
         self.assertEqual(bytes(unknown_marker), before)
         self.assertEqual(fixture.calls, [])
+
+    def test_reinit_requires_a_prior_open_attempt(self):
+        self._require_exports()
+        fixture = self._fixture()
+        before = bytes(fixture.bridge)
+
+        self.assertEqual(
+            self.library.cl_bridge_init(
+                ctypes.byref(fixture.bridge),
+                ctypes.byref(fixture.bridge.manifest),
+                ctypes.byref(fixture.bridge.adapters),
+            ),
+            CL_ERR_STATE,
+        )
+        self.assertEqual(bytes(fixture.bridge), before)
+        self.assertEqual(fixture.calls, [])
+
+    def test_open_requires_the_exact_initialization_marker(self):
+        self._require_exports()
+        child_script = f"""
+import ctypes
+
+library = ctypes.CDLL({str(self.library_path)!r})
+library.cl_bridge_size.restype = ctypes.c_size_t
+library.cl_bridge_open.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+library.cl_bridge_open.restype = ctypes.c_int32
+bridge = ctypes.create_string_buffer(library.cl_bridge_size())
+report = ctypes.create_string_buffer(64)
+ctypes.memset(report, 0x6B, 64)
+before_bridge = bytes(bridge)
+before_report = bytes(report)
+result = library.cl_bridge_open(ctypes.byref(bridge), ctypes.byref(report))
+if result != {CL_ERR_STATE}:
+    raise SystemExit(f"unexpected result: {{result}}")
+if bytes(bridge) != before_bridge or bytes(report) != before_report:
+    raise SystemExit("uninitialized open mutated storage")
+"""
+        completed = subprocess.run(
+            [sys.executable, "-c", child_script],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(
+            completed.returncode,
+            0,
+            completed.stderr or completed.stdout or "child process crashed",
+        )
+
+        fixture = self._fixture()
+        fixture.bridge.initialization_marker = 0xDEADBEEF
+        report = BridgeReport()
+        ctypes.memset(ctypes.byref(report), 0x6B, ctypes.sizeof(report))
+        before_bridge = bytes(fixture.bridge)
+        before_report = bytes(report)
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(fixture.bridge), ctypes.byref(report)
+            ),
+            CL_ERR_STATE,
+        )
+        self.assertEqual(bytes(fixture.bridge), before_bridge)
+        self.assertEqual(bytes(report), before_report)
+        self.assertEqual(fixture.calls, [])
+
+    def test_close_requires_the_exact_initialization_marker(self):
+        self._require_exports()
+        uninitialized = Bridge()
+        report = BridgeReport()
+        ctypes.memset(ctypes.byref(report), 0x6B, ctypes.sizeof(report))
+        before_bridge = bytes(uninitialized)
+        before_report = bytes(report)
+        self.assertEqual(
+            self.library.cl_bridge_close(
+                ctypes.byref(uninitialized), ctypes.byref(report)
+            ),
+            CL_ERR_STATE,
+        )
+        self.assertEqual(bytes(uninitialized), before_bridge)
+        self.assertEqual(bytes(report), before_report)
+
+        fixture = self._fixture()
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(fixture.bridge), ctypes.byref(BridgeReport())
+            ),
+            CL_OK,
+        )
+        retained_sink = fixture.sink
+        fixture.bridge.initialization_marker = 0xDEADBEEF
+        report = BridgeReport()
+        ctypes.memset(ctypes.byref(report), 0x6B, ctypes.sizeof(report))
+        before_bridge = bytes(fixture.bridge)
+        before_report = bytes(report)
+        before_calls = list(fixture.calls)
+        self.assertEqual(
+            self.library.cl_bridge_close(
+                ctypes.byref(fixture.bridge), ctypes.byref(report)
+            ),
+            CL_ERR_STATE,
+        )
+        self.assertEqual(bytes(fixture.bridge), before_bridge)
+        self.assertEqual(bytes(report), before_report)
+        self.assertEqual(fixture.calls, before_calls)
+        self.assertIs(fixture.sink, retained_sink)
+        self.assertTrue(fixture.resource_open)
+
+        fixture.bridge.initialization_marker = CL_BRIDGE_INITIALIZATION_MARKER
+        self.assertEqual(
+            self.library.cl_bridge_close(
+                ctypes.byref(fixture.bridge), ctypes.byref(BridgeReport())
+            ),
+            CL_OK,
+        )
 
     def test_init_busy_and_live_guards_are_mutation_free(self):
         self._require_exports()
