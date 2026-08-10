@@ -1,0 +1,45 @@
+{
+  "analysis_scope": "offline-static-mouse-post-producer-boundary",
+  "camera_executed": false,
+  "camera_policy": "physically-disconnected",
+  "camera_test_eligible": false,
+  "claims": {
+    "bounded_static_producer_inventory_complete": true,
+    "creative_look_touch_route_found": false,
+    "creative_style_touch_route_found": false,
+    "public_api_to_existing_queue_delivery_dependency_found": true,
+    "public_mouse_post_api_definitions_found": true,
+    "queue_processor_invocation_found": false,
+    "raw_mouse_input_producer_found": false,
+    "runtime_execution_proven": false,
+    "runtime_mouse_input_delivery_proven": false
+  },
+  "conclusion": "The authenticated target defines three public WidgetSystem mouse-post APIs, and the pinned interaction dependency proves their static queue-to-widget delivery path. A bounded scan of 59,614 exception-index owners, including 56,271 fully decoded and 3,343 incomplete owners, found no decoded direct caller or static publication for the APIs or queue processor. Incomplete decode coverage and arbitrary computed, runtime, external, or opaque paths were not exhausted, so this does not prove that no runtime or computed producer exists. Raw input delivery, Creative Style touch, Creative Look behavior, runtime execution, installability, recovery, and camera-test eligibility remain unestablished.",
+  "first_unresolved_boundary": "external-computed-or-opaque-input-producer-and-queue-processor-invocation",
+  "installable": false,
+  "interaction_dependency": {
+    "canonical_export_sha256": "cd7c0f1df911248492ddb6542d2b9f225b7ec4a408a910fe896722a83277fa53",
+    "raw_input_producer_found": false,
+    "report": "analysis/a6400-creative-style-interaction-surface.json",
+    "static_post_api_to_widget_delivery_found": true
+  },
+  "readiness": "PUBLIC_MOUSE_POST_PIPELINE_PROVEN__RAW_INPUT_PRODUCER_UNRESOLVED",
+  "schema_version": 1,
+  "source": {
+    "module": "lib/libObj.so",
+    "sha256": "60ffd2b0f31f4bc139a7c13a4f62c25cdeb6a531ad5ef35df48471e6e36e88b1",
+    "size": 20860436
+  },
+  "summary": {
+    "canonical_export_sha256": "fb5d955038379666394afe5a0a29dfd32673b969bcd0a77973fe306df2457f95",
+    "complete_owner_count": 56271,
+    "elf_file_count": 324,
+    "external_symbol_consumer_count": 0,
+    "firmware_file_count": 799,
+    "incomplete_owner_count": 3343,
+    "owner_count": 59614,
+    "public_api_count": 3,
+    "publication_candidate_count": 0,
+    "queue_processor_candidate_count": 0
+  }
+}

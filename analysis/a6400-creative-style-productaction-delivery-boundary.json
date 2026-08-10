@@ -1,0 +1,662 @@
+{
+  "analysis_scope": "offline-static-creative-style-productaction-delivery-boundary",
+  "camera_executed": false,
+  "camera_policy": "physically-disconnected",
+  "camera_test_eligible": false,
+  "canonical_slot37_scan": {
+    "call_modules": [
+      {
+        "canonical_call_count": 51,
+        "complete_owner_count": 15952,
+        "incomplete_owner_count": 333,
+        "module": "bin/orb-server"
+      },
+      {
+        "canonical_call_count": 3,
+        "complete_owner_count": 6469,
+        "incomplete_owner_count": 741,
+        "module": "lib/CautionConfig.so"
+      },
+      {
+        "canonical_call_count": 1,
+        "complete_owner_count": 841,
+        "incomplete_owner_count": 22,
+        "module": "lib/libBizFw.so"
+      },
+      {
+        "canonical_call_count": 28,
+        "complete_owner_count": 33110,
+        "incomplete_owner_count": 3732,
+        "module": "lib/libmpr.so"
+      },
+      {
+        "canonical_call_count": 22,
+        "complete_owner_count": 56271,
+        "incomplete_owner_count": 3343,
+        "module": "lib/libObj.so"
+      },
+      {
+        "canonical_call_count": 6,
+        "complete_owner_count": 28869,
+        "incomplete_owner_count": 1594,
+        "module": "lib/viewUnified2.so"
+      }
+    ],
+    "canonical_call_count": 111,
+    "complete_owner_count": 195837,
+    "excluded_file_count": 102,
+    "excluded_reason_counts": {
+      "kernel-module-without-usable-arm-exidx": 101,
+      "shared-object-without-usable-arm-exidx": 1
+    },
+    "excluded_records_sha256": "d8b68f50d377b03b731b4150c1544780e6b5e0bde88b28111c1a2e96237deeef",
+    "exidx_scanned_file_count": 222,
+    "incomplete_owner_count": 13885,
+    "incomplete_owner_dispatch_scanned": false,
+    "known_selector_calls": [
+      {
+        "call_site": 7561968,
+        "module": "lib/libmpr.so",
+        "owner_end": 7562152,
+        "owner_start": 7561864,
+        "selector": 0,
+        "slot_load_site": 7561964,
+        "vptr_load_site": 7561962
+      },
+      {
+        "call_site": 8128854,
+        "module": "lib/libmpr.so",
+        "owner_end": 8129028,
+        "owner_start": 8128744,
+        "selector": 0,
+        "slot_load_site": 8128850,
+        "vptr_load_site": 8128848
+      },
+      {
+        "call_site": 8128992,
+        "module": "lib/libmpr.so",
+        "owner_end": 8129028,
+        "owner_start": 8128744,
+        "selector": 1,
+        "slot_load_site": 8128988,
+        "vptr_load_site": 8128986
+      }
+    ],
+    "known_selector_calls_sha256": "289eaac4a75dcaca96a5d86525af6f70a7dd907b6abf03598cc62bb8a838bb2f",
+    "known_selector_histogram": {
+      "0": 2,
+      "1": 1
+    },
+    "noncanonical_dispatch_scanned": false,
+    "runtime_indirect_dispatch_scanned": false,
+    "scope": "authenticated-inventory-elf-files-with-usable-arm-exidx-and-fully-decoded-thumb-owners-canonical-vptr-slot37-blx-shape",
+    "selector_10_call_count": 0,
+    "unknown_selector_count": 108,
+    "whole_elf_universe_absence_proven": false
+  },
+  "claims": {
+    "af_orientation_false_lead_identified": true,
+    "canonical_cross_elf_productaction_inventory_found": true,
+    "canonical_direct_slot64_inventory_found": true,
+    "direct_productaction_call_found": false,
+    "direct_slot64_selector_10_found": false,
+    "first_class_creative_look_proven": false,
+    "known_selector_10_call_found": false,
+    "process_id_42_activation_proven": false,
+    "processing_output_binding_proven": false,
+    "productaction_abs32_publications_found": true,
+    "productaction_plt_or_glob_dat_binding_found": false,
+    "productaction_selector_10_delivery_proven": false,
+    "runtime_creative_style_selection_proven": false,
+    "typed_productaction_primary_vtables_found": true,
+    "viewcreativestyle_factory_invocation_proven": false,
+    "viewsettingmenu_local_factory_and_constructor_found": true,
+    "viewsettingmenu_receiver_proven": false,
+    "viewsettingmenu_runtime_factory_invocation_proven": false,
+    "whole_runtime_absence_proven": false,
+    "widened_basic_block_selector_10_candidate_found": false
+  },
+  "conclusion": "Across the authenticated 324-ELF inventory, 222 files expose usable ARM EXIDX ownership. Their 195,837 fully decoded owners contain 111 canonical receiver-vptr to slot-37 register transfers; the only statically live immediate selectors are 0, 0, and 1 in libmpr owners, never selector 10. The same owner universe contains 50 canonical direct slot-64 transfers; their twelve live immediates are 0, 6, 15, 16, 18, 19, 191, or 262, again never 10. Seven viewUnified modules publish ProductAction through 186 R_ARM_ABS32 cells, but expose no PLT/GLOB_DAT binding and no decoded direct call to the VU2 wrapper; publication is not invocation. All 186 cells derive zero-offset RTTI-backed primary vtables with concrete slot-64 cells. A whole-basic-block def-use scan expands slot-37 transfers from 111 to 112; eight explicit selector candidates are 0, 0, 1, 4, 16, 16, 4103, or 4138, never 10. The sole new transfer is a SequenceDecodeBackground receiver, not ViewSettingMenu. VU2 defines ViewSettingMenuToInstance, its constructor installs address point 0x8e2270, and a view/SETTINGMENUX registration row names the factory, but no runtime registration or factory invocation is proven. In viewUnified2, two direct helper routes are reached through slot 36 of the distinct AfImplForOrientationRegisterAF table, while the remaining helper has no decoded direct inbound or relocation-backed publication. This canonical bounded scan does not prove whole-runtime absence: 102 ELF files lack usable EXIDX ownership, 13,885 owners are incomplete, and noncanonical or runtime-indirect dispatch remains unresolved. A ViewSettingMenu receiver carrying ProductAction selector 10, runtime Creative Style selection, process-ID 42 activation, ViewCreativeStyle factory invocation, first-class Creative Look, processing/output binding, installation, recovery, and camera eligibility remain unproven.",
+  "dependencies": {
+    "orientation_object_table": {
+      "af_address_point": 9331240,
+      "canonical_export_sha256": "86daf8ed9640fac1825c1076a21b0252a59b2619024af031d036fe31816ddcd4",
+      "report": "analysis/a6400-orientation-object-table-boundary.json",
+      "widget_address_point_match_count": 0
+    },
+    "selected_node_identity": {
+      "canonical_export_sha256": "dee95f6e6e33e48a0beb3aff1b0cbe33331b91ce6bb38002fc1b56bcb87aa7c6",
+      "report": "analysis/a6400-creative-style-selected-node-identity-boundary.json",
+      "schema_version": 5,
+      "viewsettingmenu_productaction_10_delivery_proven": false
+    }
+  },
+  "direct_slot64_scan": {
+    "call_modules": [
+      {
+        "canonical_call_count": 1,
+        "complete_owner_count": 6469,
+        "incomplete_owner_count": 741,
+        "module": "lib/CautionConfig.so"
+      },
+      {
+        "canonical_call_count": 20,
+        "complete_owner_count": 33110,
+        "incomplete_owner_count": 3732,
+        "module": "lib/libmpr.so"
+      },
+      {
+        "canonical_call_count": 16,
+        "complete_owner_count": 56271,
+        "incomplete_owner_count": 3343,
+        "module": "lib/libObj.so"
+      },
+      {
+        "canonical_call_count": 5,
+        "complete_owner_count": 28869,
+        "incomplete_owner_count": 1594,
+        "module": "lib/viewUnified2.so"
+      },
+      {
+        "canonical_call_count": 8,
+        "complete_owner_count": 7247,
+        "incomplete_owner_count": 715,
+        "module": "lib/viewUnified4.so"
+      }
+    ],
+    "canonical_call_count": 50,
+    "complete_owner_count": 195837,
+    "incomplete_owner_count": 13885,
+    "known_selector_call_count": 12,
+    "known_selector_calls": [
+      {
+        "call_site": 3761782,
+        "module": "lib/libmpr.so",
+        "owner_end": 3761808,
+        "owner_start": 3761628,
+        "selector": 0,
+        "slot_load_site": 3761778,
+        "vptr_load_site": 3761776
+      },
+      {
+        "call_site": 7967162,
+        "module": "lib/libObj.so",
+        "owner_end": 7967192,
+        "owner_start": 7967088,
+        "selector": 6,
+        "slot_load_site": 7967152,
+        "vptr_load_site": 7967142
+      },
+      {
+        "call_site": 6279336,
+        "module": "lib/viewUnified2.so",
+        "owner_end": 6279354,
+        "owner_start": 6279296,
+        "selector": 191,
+        "slot_load_site": 6279332,
+        "vptr_load_site": 6279326
+      },
+      {
+        "call_site": 6279350,
+        "module": "lib/viewUnified2.so",
+        "owner_end": 6279354,
+        "owner_start": 6279296,
+        "selector": 262,
+        "slot_load_site": 6279346,
+        "vptr_load_site": 6279338
+      },
+      {
+        "call_site": 1126660,
+        "module": "lib/viewUnified4.so",
+        "owner_end": 1126754,
+        "owner_start": 1126622,
+        "selector": 19,
+        "slot_load_site": 1126656,
+        "vptr_load_site": 1126652
+      },
+      {
+        "call_site": 1126672,
+        "module": "lib/viewUnified4.so",
+        "owner_end": 1126754,
+        "owner_start": 1126622,
+        "selector": 15,
+        "slot_load_site": 1126668,
+        "vptr_load_site": 1126662
+      },
+      {
+        "call_site": 1126684,
+        "module": "lib/viewUnified4.so",
+        "owner_end": 1126754,
+        "owner_start": 1126622,
+        "selector": 16,
+        "slot_load_site": 1126680,
+        "vptr_load_site": 1126674
+      },
+      {
+        "call_site": 1126744,
+        "module": "lib/viewUnified4.so",
+        "owner_end": 1126754,
+        "owner_start": 1126622,
+        "selector": 18,
+        "slot_load_site": 1126740,
+        "vptr_load_site": 1126736
+      },
+      {
+        "call_site": 1238808,
+        "module": "lib/viewUnified4.so",
+        "owner_end": 1238902,
+        "owner_start": 1238770,
+        "selector": 19,
+        "slot_load_site": 1238804,
+        "vptr_load_site": 1238800
+      },
+      {
+        "call_site": 1238820,
+        "module": "lib/viewUnified4.so",
+        "owner_end": 1238902,
+        "owner_start": 1238770,
+        "selector": 15,
+        "slot_load_site": 1238816,
+        "vptr_load_site": 1238810
+      },
+      {
+        "call_site": 1238832,
+        "module": "lib/viewUnified4.so",
+        "owner_end": 1238902,
+        "owner_start": 1238770,
+        "selector": 16,
+        "slot_load_site": 1238828,
+        "vptr_load_site": 1238822
+      },
+      {
+        "call_site": 1238892,
+        "module": "lib/viewUnified4.so",
+        "owner_end": 1238902,
+        "owner_start": 1238770,
+        "selector": 18,
+        "slot_load_site": 1238888,
+        "vptr_load_site": 1238884
+      }
+    ],
+    "known_selector_calls_sha256": "a5716084cadcb3e26dbb998d70463c365588cf8e16e1c4765068b8b5834b077d",
+    "known_selector_histogram": {
+      "0": 1,
+      "15": 2,
+      "16": 2,
+      "18": 2,
+      "19": 2,
+      "191": 1,
+      "262": 1,
+      "6": 1
+    },
+    "receiver_identity_analysis_performed": false,
+    "scope": "same-authenticated-exidx-fully-decoded-owner-universe-canonical-receiver-vptr-slot64-blx-shape",
+    "selector_10_call_count": 0,
+    "slot": 64,
+    "slot_offset": 256,
+    "unknown_selector_count": 38,
+    "whole_runtime_absence_proven": false
+  },
+  "first_unresolved_boundary": "noncanonical-or-incomplete-owner-or-runtime-indirect-viewsettingmenu-receiver-productaction-selector-10-delivery",
+  "installable": false,
+  "productaction_interface": {
+    "forwarded_slot": 64,
+    "forwarded_slot_offset": 256,
+    "module": "lib/viewUnified2.so",
+    "module_sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+    "module_size": 11530552,
+    "productaction_end": 3085150,
+    "productaction_entry": 3085136,
+    "productaction_symbol": "_ZN15ViewBaseProduct13ProductActionEi",
+    "productaction_symbol_index": 2323,
+    "required_selector": 10,
+    "viewsettingmenu_address_point": 9314928,
+    "viewsettingmenu_slot37_cell": 9315076
+  },
+  "productaction_symbol_publication": {
+    "abs32_publication_cell_count": 186,
+    "cross_module_provider_binding_proven": false,
+    "direct_call_count": 0,
+    "glob_dat_cell_count": 0,
+    "importer_needed_viewunified2_count": 0,
+    "module_count": 7,
+    "modules": [
+      {
+        "abs32_cell_count": 32,
+        "defined": true,
+        "first_cell": 9290692,
+        "first_relocation_index": 86850,
+        "last_cell": 9716940,
+        "last_relocation_index": 86881,
+        "module": "lib/viewUnified2.so",
+        "needed_viewunified2": false,
+        "symbol_index": 2323,
+        "symbol_size": 14,
+        "symbol_value": 3085137
+      },
+      {
+        "abs32_cell_count": 24,
+        "defined": false,
+        "first_cell": 658564,
+        "first_relocation_index": 7583,
+        "last_cell": 690332,
+        "last_relocation_index": 7606,
+        "module": "lib/viewUnified3.so",
+        "needed_viewunified2": false,
+        "symbol_index": 156,
+        "symbol_size": 0,
+        "symbol_value": 0
+      },
+      {
+        "abs32_cell_count": 68,
+        "defined": false,
+        "first_cell": 2501380,
+        "first_relocation_index": 26826,
+        "last_cell": 2614668,
+        "last_relocation_index": 26893,
+        "module": "lib/viewUnified4.so",
+        "needed_viewunified2": false,
+        "symbol_index": 952,
+        "symbol_size": 0,
+        "symbol_value": 0
+      },
+      {
+        "abs32_cell_count": 19,
+        "defined": false,
+        "first_cell": 664828,
+        "first_relocation_index": 6579,
+        "last_cell": 692572,
+        "last_relocation_index": 6597,
+        "module": "lib/viewUnified5.so",
+        "needed_viewunified2": false,
+        "symbol_index": 138,
+        "symbol_size": 0,
+        "symbol_value": 0
+      },
+      {
+        "abs32_cell_count": 20,
+        "defined": false,
+        "first_cell": 517164,
+        "first_relocation_index": 6217,
+        "last_cell": 542604,
+        "last_relocation_index": 6236,
+        "module": "lib/viewUnified6.so",
+        "needed_viewunified2": false,
+        "symbol_index": 110,
+        "symbol_size": 0,
+        "symbol_value": 0
+      },
+      {
+        "abs32_cell_count": 11,
+        "defined": false,
+        "first_cell": 452540,
+        "first_relocation_index": 3408,
+        "last_cell": 465172,
+        "last_relocation_index": 3418,
+        "module": "lib/viewUnified7.so",
+        "needed_viewunified2": false,
+        "symbol_index": 199,
+        "symbol_size": 0,
+        "symbol_value": 0
+      },
+      {
+        "abs32_cell_count": 12,
+        "defined": false,
+        "first_cell": 279876,
+        "first_relocation_index": 2332,
+        "last_cell": 294636,
+        "last_relocation_index": 2343,
+        "module": "lib/viewUnified8.so",
+        "needed_viewunified2": false,
+        "symbol_index": 89,
+        "symbol_size": 0,
+        "symbol_value": 0
+      }
+    ],
+    "plt_relocation_count": 0,
+    "publication_proves_invocation": false,
+    "publication_records_sha256": "a7710b5f866b933f0f91156ab0d693d01cd49d9be74454f969d2416f9ac3df31",
+    "symbol": "_ZN15ViewBaseProduct13ProductActionEi"
+  },
+  "readiness": "TYPED_PUBLICATION_AND_WIDENED_BASIC_BLOCK_SELECTOR_10_NOT_FOUND",
+  "recovery_validated": false,
+  "schema_version": 3,
+  "summary": {
+    "canonical_call_count": 111,
+    "canonical_export_sha256": "9096a6dd3ddcddfcfb82762baf2e379fd27e8ca5c231b74e6cb23ad804964e47",
+    "direct_slot64_call_count": 50,
+    "elf_file_count": 324,
+    "exidx_scanned_file_count": 222,
+    "productaction_abs32_publication_cell_count": 186,
+    "selector_10_call_count": 0,
+    "typed_productaction_vtable_count": 186,
+    "widened_slot37_call_count": 112
+  },
+  "typed_productaction_publications": {
+    "record_count": 186,
+    "records_sha256": "6b061f8136480b242cb12f9a642ffceee8d6edb069354fbb3800ad7db50b42b6",
+    "rtti_header_abs32_count": 2,
+    "rtti_header_relative_count": 184,
+    "rtti_name_resolved_count": 186,
+    "scope": "all-productaction-abs32-cells-derived-primary-vtable-and-slot64-relations",
+    "slot64_abs32_count": 2,
+    "slot64_cell_count": 186,
+    "slot64_relative_count": 184,
+    "typed_publication_proves_invocation": false,
+    "viewcreativestyle": {
+      "address_point": 9694400,
+      "header": 9694392,
+      "module": "lib/viewUnified2.so",
+      "offset_to_top": 0,
+      "product_cell": 9694548,
+      "rtti": 9694364,
+      "rtti_rel_type": 23,
+      "rtti_symbol": null,
+      "slot64_cell": 9694656,
+      "slot64_raw": 6096269,
+      "slot64_rel_type": 23,
+      "slot64_symbol": null,
+      "type_name": "17ViewCreativeStyle"
+    },
+    "viewsettingmenu": {
+      "address_point": 9314928,
+      "header": 9314920,
+      "module": "lib/viewUnified2.so",
+      "offset_to_top": 0,
+      "product_cell": 9315076,
+      "rtti": 9315380,
+      "rtti_rel_type": 23,
+      "rtti_symbol": null,
+      "slot64_cell": 9315184,
+      "slot64_raw": 2176351,
+      "slot64_rel_type": 23,
+      "slot64_symbol": null,
+      "type_name": "15ViewSettingMenu"
+    },
+    "zero_offset_to_top_count": 186
+  },
+  "viewsettingmenu_factory_availability": {
+    "allocation_call_site": 2119038,
+    "allocation_size": 976,
+    "allocation_size_site": 2119030,
+    "allocation_symbol": "_Znwj",
+    "constructor_call_site": 2119046,
+    "constructor_end": 2116872,
+    "constructor_entry": 2116752,
+    "direct_factory_call_count": 0,
+    "factory_end": 2119064,
+    "factory_entry": 2119028,
+    "factory_symbol": "ViewSettingMenuToInstance",
+    "factory_symbol_index": 3053,
+    "module": "lib/viewUnified2.so",
+    "registration_row": {
+      "add_call_site": 4248030,
+      "alias": "view/SETTINGMENUX",
+      "alias_add_site": 4248008,
+      "alias_address": 8053690,
+      "alias_literal_cell": 4249348,
+      "alias_literal_word": 3805678,
+      "alias_load_site": 4248004,
+      "component": "viewSettingMenu.so",
+      "component_add_site": 4248022,
+      "component_address": 8053708,
+      "component_file_match_count": 0,
+      "component_literal_cell": 4249352,
+      "component_literal_word": 3805682,
+      "component_load_site": 4248014,
+      "factory": "ViewSettingMenuToInstance",
+      "factory_add_site": 4248024,
+      "factory_address": 8053727,
+      "factory_literal_cell": 4249356,
+      "factory_literal_word": 3805699,
+      "factory_load_site": 4248018,
+      "get_call_site": 4248010,
+      "id_to_key_site": 4248026,
+      "owner": {
+        "end": 4256236,
+        "start": 4241876
+      },
+      "receiver_site": 4248028
+    },
+    "relative_factory_publication_count": 0,
+    "runtime_factory_invocation_proven": false,
+    "runtime_registration_invocation_proven": false,
+    "vptr_store": {
+      "address_point": 9314928,
+      "got_cell": 9727240,
+      "got_offset": 9832,
+      "got_offset_literal_cell": 2116868,
+      "got_offset_load_site": 2116766,
+      "got_relocation_index": 54506,
+      "pic_base": 9717408,
+      "pic_base_add_site": 2116768,
+      "pic_base_literal_cell": 2116864,
+      "pic_base_literal_word": 7600636,
+      "pic_base_load_site": 2116758,
+      "store_site": 2116786,
+      "vtable_header": 9314920
+    }
+  },
+  "vu2_direct_caller_classification": {
+    "af_slot36_route": {
+      "address_point": 9331240,
+      "address_points_equal": false,
+      "cell": 9331384,
+      "direct_tail_routes": [
+        {
+          "site": 3221706,
+          "target": 3216092
+        },
+        {
+          "site": 3221818,
+          "target": 3215548
+        }
+      ],
+      "owner": {
+        "end": 3221884,
+        "start": 3221612
+      },
+      "relocation_index": 20028,
+      "relocation_type": 23,
+      "slot": 36,
+      "slot_offset": 144,
+      "target": 3221612,
+      "type_name": "AfImplForOrientationRegisterAF",
+      "viewsettingmenu_address_point": 9314928,
+      "viewsettingmenu_receiver_proven": false
+    },
+    "large_helpers": [
+      {
+        "decoded_direct_inbound_count": 0,
+        "defined_symbol_count": 0,
+        "end": 3215548,
+        "receiver_origin": "entry-r0",
+        "relative_address_taken_count": 0,
+        "start": 3214896,
+        "viewsettingmenu_identity_proven": false
+      },
+      {
+        "decoded_direct_inbound_count": 1,
+        "defined_symbol_count": 0,
+        "end": 3216092,
+        "receiver_origin": "af-slot36-route-entry-r0",
+        "relative_address_taken_count": 0,
+        "start": 3215548,
+        "viewsettingmenu_identity_proven": false
+      },
+      {
+        "decoded_direct_inbound_count": 1,
+        "defined_symbol_count": 0,
+        "end": 3216660,
+        "receiver_origin": "af-slot36-route-entry-r0",
+        "relative_address_taken_count": 0,
+        "start": 3216092,
+        "viewsettingmenu_identity_proven": false
+      }
+    ],
+    "productaction_parent_owner": {
+      "defined_symbol_count": 0,
+      "direct_inbound_calls": [
+        {
+          "owner_end": 3215548,
+          "owner_start": 3214896,
+          "site": 3215486
+        },
+        {
+          "owner_end": 3216092,
+          "owner_start": 3215548,
+          "site": 3216032
+        },
+        {
+          "owner_end": 3216660,
+          "owner_start": 3216092,
+          "site": 3216582
+        }
+      ],
+      "end": 3214896,
+      "relative_address_taken_count": 0,
+      "selector_origin": "call-clobbered-before-each-slot37-transfer",
+      "start": 3214552
+    },
+    "vu2_direct_inbound_scan_complete": false,
+    "vu2_incomplete_owner_count": 1594
+  },
+  "widened_basic_block_slot37_scan": {
+    "additional_call": {
+      "accepted": false,
+      "call_site": 1312356,
+      "intervening_call_site": 1312308,
+      "intervening_call_target": 1080008,
+      "module": "lib/libObj.so",
+      "owner_end": 1312804,
+      "owner_start": 1312232,
+      "receiver_address_point": 20051152,
+      "receiver_type": "N9OBJEFFECT24SequenceDecodeBackgroundE",
+      "selector_candidate": 16,
+      "selector_candidate_source_site": 1312300,
+      "slot_load_site": 1312346,
+      "viewsettingmenu_receiver": false,
+      "vptr_load_site": 1312312
+    },
+    "call_count": 112,
+    "call_records_sha256": "bd40f4fd0ab6b4e380b92a7d2839aac39b62a51cea366d174ea3cb4fdd090a45",
+    "complete_owner_count": 195837,
+    "explicit_selector_candidate_count": 8,
+    "explicit_selector_candidates_sha256": "4a13e58b0832018c2e5584c9c84f7b3822a01ec7fe7d2a19da71b3872d74e218",
+    "explicit_selector_histogram": {
+      "0": 2,
+      "1": 1,
+      "16": 2,
+      "4": 1,
+      "4103": 1,
+      "4138": 1
+    },
+    "incomplete_owner_count": 13885,
+    "intervening_call_candidate_count": 5,
+    "intervening_call_preservation_validated_count": 0,
+    "non_basic_block_or_runtime_indirect_scanned": false,
+    "scope": "same-authenticated-exidx-fully-decoded-owner-universe-whole-basic-block-receiver-vptr-slot37-blx-def-use",
+    "selector_10_candidate_count": 0,
+    "whole_runtime_absence_proven": false
+  }
+}

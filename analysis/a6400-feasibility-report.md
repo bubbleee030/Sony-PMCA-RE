@@ -1,62 +1,62 @@
 # Sony α6400 Firmware Feasibility Decisions
 
-Generation source: validated evidence document (schema version 1).
+Generated decision section source: validated evidence document (schema version 1).
 
 ## creative-look-discovery
 
-Status: `PARTIAL`
+Status: `INSUFFICIENT_EVIDENCE`
 
-Summary: The visible Creative Look control surface and an α6400 translation boundary are defined, but Sony's internal preset tables and processing code remain inaccessible.
+Summary: The authoritative α7 V contract records 12 built-in looks and six Custom slots; all 26 look, Custom, and axis items are visible in the offline contract but disabled because target UI, state, range/default, processing, and output joins remain unestablished.
 
 Evidence:
-- **OBSERVATION** — `https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html`: Sony documents ten Creative Look bases, six Custom Look slots, and eight adjustment axes on ILCE-6700.
-- **OBSERVATION** — `analysis/creative-look-recipes.json`: The committed translation catalog records six direct semantic mappings and four explicitly inferred Style Box approximations for ILCE-6400.
-- **OBSERVATION** — `analysis/feature-compatibility.json`: The authenticated bounded marker scan found no plaintext feature locator in the α6400 overlay or either donor FDAT and labels absence from encrypted data as no result.
-- **INFERENCE** — `analysis/feature-compatibility.json`: The visible behavior and target-side approximation boundary are known, but no authenticated firmware table, loader, or image-pipeline integration point has been located.
+- **OBSERVATION** — `https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html`: Sony documents 12 built-in Creative Looks, six Custom slots, eight adjustment axes, five workflows, and five mode-dependent restrictions for the α7 V reference behavior.
+- **OBSERVATION** — `analysis/a6400-creative-look-stack.json`: The validated offline contract keeps every built-in look, Custom slot, axis, workflow, restriction, and output binding visible while marking each unavailable target path disabled or unestablished.
+- **OBSERVATION** — `analysis/a6400-creative-look-boundary.json`: Bounded target evidence does not establish a first-class Creative Look interface, state model, base-look table, adjustment pipeline, or live-view, still-JPEG, and movie output bindings.
+- **INFERENCE** — `analysis/a6400-creative-look-stack.json`: A complete behavioral contract is suitable for continued offline research but cannot authorize implementation or camera testing while every required target chain remains disabled.
 
-Next permitted action: Use the practical Creative Style recipe guide for reversible testing; require authenticated decryption and table-location evidence before any native implementation claim.
+Next permitted action: Trace independent target UI, state, range/default, workflow, restriction, and live-view/still-JPEG/movie processing paths; keep every unsupported contract item visible and disabled.
 
 ## creative-look-emulation
 
 Status: `PARTIAL`
 
-Summary: A practical no-firmware approximation is delivered for all ten named looks, while exact colorimetry and five donor-only adjustment axes remain unsupported.
+Summary: A separate Creative Style fallback represents 10 of the 12 reference looks as approximations; FL2 and FL3 have no fallback representation, and the catalog does not establish native Creative Look behavior.
 
 Evidence:
-- **OBSERVATION** — `https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html`: ILCE-6400 Creative Style provides Standard, Portrait, Neutral, Vivid, B/W, Sepia, six Style Boxes, and contrast, saturation, and sharpness adjustments.
-- **OBSERVATION** — `analysis/creative-look-recipes.json`: The catalog maps ST, PT, NT, VV, BW, and SE directly and supplies bounded inferred recipes for VV2, FL, IN, and SH without modifying firmware.
-- **OBSERVATION** — `analysis/a6400-creative-look-guide.md`: The deterministic guide preserves white-balance instructions, clamps target values to the documented α6400 range, and calls out every donor axis that cannot be represented.
-- **INFERENCE** — `analysis/creative-look-recipes.json`: This is a practical approximation candidate, not a native Creative Look port or proof of a Sony-exact visual match.
+- **OBSERVATION** — `https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html`: ILCE-6400 Creative Style exposes the target-native styles, six Style Boxes, and three adjustment controls used by the fallback catalog.
+- **OBSERVATION** — `analysis/creative-look-recipes.json`: The schema-v2 fallback catalog represents ST, PT, NT, VV, VV2, FL, IN, SH, BW, and SE while explicitly leaving FL2 and FL3 unrepresented.
+- **OBSERVATION** — `analysis/a6400-creative-look-guide.md`: The deterministic guide labels every recipe APPROXIMATION_ONLY and LAST_RESORT_ONLY and rejects native, colorimetric, installation, recovery, and camera-test claims.
+- **INFERENCE** — `analysis/creative-look-recipes.json`: Creative Style remains a reversible fallback candidate rather than a first-class Creative Look implementation or proof of Sony-exact output.
 
-Next permitted action: Evaluate the recipes on ordinary stills with a fixed scene, exposure, lens, white balance, and RAW+JPEG protocol; do not flash the camera.
+Next permitted action: Retain the ten fallback recipes for offline comparison only; prioritize the separate first-class contract and do not fabricate FL2 or FL3 mappings.
 
 ## touch-menu
 
 Status: `PARTIAL`
 
-Summary: The α6400 has a working touch-input path for shooting functions, but menu widgets, menu-wide event routing, and a safe extension point have not been located.
+Summary: The α6400 has shooting touch plus pinned settings-menu status/configuration paths, but no menu coordinate consumer, hit test, selection dispatcher, or safe extension point is established.
 
 Evidence:
 - **OBSERVATION** — `https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002280339.html`: Sony documents that touching a subject on the α6400 monitor starts Touch Tracking, confirming target touch coordinates reach a shooting subsystem.
 - **OBSERVATION** — `https://helpguide.sony.net/ilc/2320/v1/en/contents/211h_touchpanel_settings.html`: Sony documents separate shooting-screen, footer-icon, playback-screen, and menu-screen touch controls on ILCE-6700.
-- **OBSERVATION** — `analysis/feature-compatibility.json`: The dependency matrix finds no α6400 menu-wide dispatcher, widget implementation, icon resource boundary, data-binding ABI, or digest-pinned patch site.
+- **OBSERVATION** — `analysis/feature-compatibility.json`: The bounded target trace reaches touch-status and touch-pad configuration helpers but finds no executable menu coordinate, hit-test, selection, widget-binding, or production resource-touch path.
 - **INFERENCE** — `analysis/feature-compatibility.json`: An α6400-specific subsystem extension is more plausible than donor reuse, but the requested full touch menu is not currently implementable from authenticated evidence.
 
-Next permitted action: Locate authenticated α6400 UI and touch-dispatch interfaces after the decryption boundary is solved; retain the no-camera gate.
+Next permitted action: Resolve selected terminal indirect calls and the cross-module layout/resource boundary using read-only metadata; retain the no-camera gate.
 
 ## vertical-ui
 
 Status: `PARTIAL`
 
-Summary: The α6400 already exposes three-way orientation state and the α7 V defines the desired vertical behavior, but portrait layout, render, and input-transform components remain unlocated.
+Summary: The α6400 exposes three-way orientation state and five pinned vertical-layout class IDs, but orientation-based selection, verified portrait geometry, rendering, and input transforms remain unestablished.
 
 Evidence:
 - **OBSERVATION** — `https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002278024.html`: Sony documents horizontal, vertical shutter-up, and vertical shutter-down orientation detection for α6400 Switch V/H AF Area.
 - **OBSERVATION** — `https://helpguide.sony.net/ilc/2540/v1/en/contents/251h_vertical_ui_display.html`: Sony documents α7 V Vertical Display rotating shooting information, control-wheel directions, and touch operations to match monitor orientation.
-- **OBSERVATION** — `analysis/feature-compatibility.json`: Only vertical-orientation-state is ready; vertical-layout-selection, vertical-render-transform, and vertical-input-transform retain explicit unresolved evidence dependencies.
-- **INFERENCE** — `analysis/feature-compatibility.json`: Orientation sensing can be reused conceptually, but a native donor transplant is unsupported and an α6400-specific reimplementation has no authenticated patch boundary.
+- **OBSERVATION** — `analysis/feature-compatibility.json`: Five target vertical-layout class IDs and UXC references are pinned, while bounded searches find no orientation-to-layout selector or control/touch transform path; only vertical-orientation-state is ready.
+- **INFERENCE** — `analysis/feature-compatibility.json`: Orientation sensing and target layout identities can be reused conceptually, but neither donor transplantation nor an α6400-specific implementation has a complete executable path or safe patch boundary.
 
-Next permitted action: Require authenticated α6400 layout, renderer, and input-dispatch boundaries plus a verified signature and recovery model before implementation.
+Next permitted action: Resolve the target orientation-to-layout and layout-to-render/input paths before implementation; later require verified signing and independent external recovery.
 
 ## signature-enforcement
 
@@ -90,28 +90,41 @@ Next permitted action: Treat every unverified ABI, memory, resource, and control
 
 Status: `BLOCKED`
 
-Summary: Camera-side execution remains prohibited because no verified α6400 restore path exists for a failed modified image and this is the user's only working main camera.
+Summary: The exact Taiwan/region-0 α6400 2.00 stock source is authenticated, but all three external restore candidates and all six mandatory failure scenarios remain unestablished; recovery and camera testing are unvalidated.
 
 Evidence:
-- **OBSERVATION** — `https://www.sony.com.tw/zh/electronics/support/e-mount-body-ilce-6000-series/ilce-6400/downloads/00016145`: Sony warns that power loss during the α6400 update may make the camera inoperable and documents only the official updater workflow.
-- **OBSERVATION** — `analysis/feature-compatibility.json`: The real candidate gate rejected an empty guessed-patch set with eleven unresolved dependencies, including updater wrapper, decryption, signature layer, and camera recovery path.
-- **OBSERVATION** — `analysis/signature-experiments.json`: All mutation experiments are offline-only, camera_executed is false, installable is false, and outputs are quarantined.
-- **INFERENCE** — `analysis/feature-compatibility.json`: Without an independently demonstrated restore path and a nonessential test body, a camera-side experiment cannot satisfy the study's safety gate.
+- **OBSERVATION** — `analysis/a6400-stock-200-bundle.json`: The official Sony Taiwan updater and its embedded stock container are digest-pinned to ILCE-6400 model `0x81030011`, region code `0`, and version `2.00`.
+- **OBSERVATION** — `analysis/a6400-recovery-scenarios.json`: All six mandatory failure scenarios and every one of their three candidate coverage records remain `UNESTABLISHED`.
+- **OBSERVATION** — `analysis/a6400-stock-200-recovery.json`: The strict report records `BLOCKED_STATIC_EVIDENCE`, `recovery_validated=false`, `camera_test_eligible=false`, and no runtime-independent entry or complete write and verification path.
+- **OBSERVATION** — `analysis/a6400a-updater-control-bootstrap.json`: The different-model alpha 6400A 1.01 control resolves a bounded 37-function/71-call receiver graph with model/region/version guards and signature verification; target transfer, write orchestration, completion verification, and recovery support remain false.
+- **INFERENCE** — `analysis/a6400-stock-200-recovery.json`: Host-side updater mapping cannot establish camera-side reinstall acceptance, boot recovery, complete stock restoration, or safe interrupted-restore behavior.
 
-Next permitted action: End at offline artifacts; require a separately verified recovery method and a nonessential α6400 test body before any future camera-side proposal.
+Next permitted action: Continue static work on the missing pre-normal-runtime updater selector or authentic earlier installing receiver; do not draft camera steps until the strict report reaches a separately reviewed future-validation-design gate and fresh authorization exists.
 
 # Integrated Offline Research Result
 
 ## Outcome classification
 
 - Native donor port candidate: **no**. No authenticated donor executable, resource range, relocation boundary, or compatible firmware ABI was recovered.
-- α6400-specific reimplementation candidate: **conceptually partial, not build-ready**. Existing target orientation and touch paths are confirmed, but every required layout, rendering, event-routing, widget, and image-processing integration point remains unlocated.
-- Practical Creative Look approximation: **yes, offline and reversible**. Six direct Creative Style mappings and four clearly inferred Style Box recipes cover all ten named Creative Looks without firmware modification.
+- α6400-specific reimplementation candidate: **conceptually partial, not build-ready**. Target orientation, five vertical-layout class identities, UXC references, and two bounded settings-menu paths are confirmed, but selector, geometry, rendering, coordinate, hit-test, selection, widget, and image-processing integration paths remain incomplete.
+- Practical Creative Look approximation: **available only as the final fallback**. Six direct Creative Style mappings and four clearly inferred Style Box recipes represent ten of the 12 reference looks without firmware modification; `FL2` and `FL3` have no fallback representation. The primary goal remains a first-class Creative Look interface and usage model.
 - Camera execution: **blocked**. No candidate image was built, no output is installable, and neither camera was accessed.
+
+Creative Look remains the product goal. Creative Style is the target-native
+substrate for typed values, persistence, menu scaffolding, and generic model
+transport; its visual recipes remain fallback-only and do not define the
+requested Creative Look interface or usage pattern.
 
 ## Donor correction
 
-ILCE-6700 firmware remains the behavioral donor for Creative Look and newer touch controls. It is not evidence for the requested full vertical shooting display. The actual official vertical-display donor used here is ILCE-7M5 (α7 V), whose Help Guide states that shooting information, control-wheel directions, and touch operations rotate with monitor orientation. This correction prevents flipped touch-icon placement from being mistaken for a portrait UI.
+ILCE-7M5 (α7 V) is the authoritative behavior reference for the 12-look,
+six-Custom Creative Look contract and for the vertical-display behavior used
+here. ILCE-6700 remains a secondary reference for newer menu touch controls,
+not the source of the first-class Creative Look catalog and not evidence for
+the requested full vertical shooting display. The α7 V Help Guide states that
+shooting information, control-wheel directions, and touch operations rotate
+with monitor orientation; this prevents flipped touch-icon placement from
+being mistaken for a portrait UI.
 
 ## Pinned historical-tool baselines
 
@@ -170,27 +183,66 @@ This is deliberately not a model-mismatch bypass. Unknown containers, unavailabl
 | Component | Strongest target evidence | Result | Exact unresolved boundary |
 |---|---|---|---|
 | Vertical orientation state | α6400 detects horizontal and both vertical orientations | Ready for conceptual reuse | None at the state-detection boundary |
-| Vertical layout selection | α7 V behavior is officially defined | Not ready | Target layout selector, geometry, ABI, and resources unlocated |
-| Vertical render transform | Desired monitor/finder behavior defined | Not ready | Renderer, compositor, font/icon resources, clipping, and relocations unlocated |
-| Vertical input transform | α7 V rotates wheel/touch directions | Not ready | α6400 hit-test transform, gesture ABI, and dispatcher unlocated |
-| Touch event routing | α6400 Touch Tracking proves shooting-screen coordinate routing | Not ready for menus | Menu-wide dispatcher and safe extension point unlocated |
-| Touch menu widgets | α6700 touch icons and menu behavior documented | Not ready | Widget framework, bindings, icon resources, and geometry unlocated |
+| Vertical layout selection | Five class IDs occur as reference-only entries in each pinned UXC; a real 12-arm `viewUnified7` factory and five address-taken wrapper registrations are bounded separately | Not ready | Address-taken registration does not prove runtime invocation; no `viewUnified2` handoff or orientation-to-factory join is established |
+| Vertical render transform | Target vertical-layout identities are pinned | Not ready | Exact geometry, renderer/compositor path, resources, clipping, and relocations unestablished |
+| Vertical input transform | Orientation-aware AF exists; bounded UI trace is pinned | Not ready | No control-direction or touch-coordinate transform, hit-test ABI, or dispatcher path established |
+| Touch event routing | Settings-menu paths reach touch status/touch-pad configuration, and the Creative Style lookup reaches a generic `PAS_BtnCombo::cast` type filter | Not ready for menus | The cast does not type the belt field or establish coordinates, hit testing, gestures, selection dispatch, or a safe extension point |
+| Touch menu widgets | Known resource-touch owners were searched from the menu root | Not ready | No reached production resource binding; widget framework, bindings, icons, and geometry remain unestablished |
 
 ## Creative Look result
 
-The practical guide is [`a6400-creative-look-guide.md`](a6400-creative-look-guide.md). Direct semantic mappings are ST→Standard, PT→Portrait, NT→Neutral, VV→Vivid, BW→B/W, and SE→Sepia. Bounded Style Box approximations are VV2→Clear `(0,+1,0)`, FL→Deep `(-1,0,0)`, IN→Neutral `(-2,-2,-1)`, and SH→Light `(-1,-1,-1)`, expressed as α6400 contrast/saturation/sharpness values.
+The authoritative first-class contract contains 12 built-in looks and six
+Custom slots. Those 18 items and all eight axes are visible in the offline
+presentation but disabled. The result is currently `UNESTABLISHED` at every
+required layer: interface, state, base looks, adjustment axes, and pipeline
+binding. Five workflows and five reference restrictions are recorded as
+visible, disabled behavior requirements without target implementation claims.
+Every axis still lacks a complete UI, state, range, default, and processing
+chain, and no positive binding exists for live view, still JPEG, or movie.
+Touch delivery and runtime factory invocation remain unresolved. The bounded
+target trace proves only the existing Creative Style selector-to-menu-graph
+path; it does not prove Creative Look processing. Authenticated α6700 and α7 V
+donor payloads remain opaque and cannot supply tables, functions, offsets, or
+ABI evidence.
+
+The target-native substrate is materially clearer without becoming a Creative
+Look implementation. A five-value Creative Style setter/getter, persistence
+geometry, `@M00B` operation-38 transport, generic ModelManager record layout,
+dynamic loader, ParamList clone, scheduler, and destination-bit-4 receiver
+structure are bounded. The numeric `model/CAMERA` ID, runtime descriptor,
+record/executor identity, five-field consumption, and live-view/still-JPEG/movie
+bindings remain unresolved. A manifest, factory export, RTTI, or matching
+entry is candidate evidence only: static table equality does not prove a
+runtime transaction.
+
+The fallback-only practical guide is [`a6400-creative-look-guide.md`](a6400-creative-look-guide.md). Direct semantic mappings are ST→Standard, PT→Portrait, NT→Neutral, VV→Vivid, BW→B/W, and SE→Sepia. Bounded Style Box approximations are VV2→Clear `(0,+1,0)`, FL→Deep `(-1,0,0)`, IN→Neutral `(-2,-2,-1)`, and SH→Light `(-1,-1,-1)`, expressed as α6400 contrast/saturation/sharpness values. This separate fallback represents only those ten looks; `FL2` and `FL3` have no fallback representation.
 
 These recipes do not claim Sony-exact colorimetry. ILCE-6700 exposes eight adjustment axes while α6400 Creative Style exposes three; highlights, shadows, fade, sharpness range, and clarity cannot be represented directly. The guide preserves those gaps and supplies a fixed comparison protocol rather than hiding them.
 
 ## Recovery gap and camera-execution gate
 
-No verified α6400 modified-firmware restore path was demonstrated. The official updater warning says interrupted updating can make the camera inoperable, and this α6400 is the user's only working main camera. The NEX-C3 driver rehearsal does not prove α6400 firmware recovery and cannot satisfy this gate.
+The exact restoration source is now authenticated: source key `a6400-tw-v2.00`, model `ILCE-6400`, model ID `0x81030011`, region `TW`/code `0`, and version `2.00`, with both the official updater and embedded stock container digest-pinned. This proves source identity only. It does not prove that a running or failed camera accepts a same-version reinstall, that every affected component is restored, or that power loss has a safe resume or rollback outcome.
+
+The strict report remains `BLOCKED_STATIC_EVIDENCE`. The three candidates—`official-updater-reinstall`, `usb-recovery-or-updater-mode`, and `independent-maintenance-path`—are independently `UNESTABLISHED`, with no runtime-independent entry, complete write scope, or terminal verification. The six mandatory scenarios—modified UI runtime failure, interrupted feature update, nonbooting application layer, version/downgrade rejection, boot-chain failure, and power loss during stock restore—are likewise all `UNESTABLISHED` for every candidate.
+
+The packaged false-lead scan proves updater mode-flag state, LSI notification,
+four bounded `libObj.so` path-literal owners, nested updater-script state, and
+crypter flag classes. `bootin.elf` contributes only a printable-string search
+for documented `normal`, `adj`, and `usbj` modes. Numeric or indirect selector
+analysis remains incomplete, so the missing `/dev/nflasha1` selector join still
+blocks an exact external restore procedure.
+
+The α6400A 1.01 receiver graph is retained only as `NON_TRANSFERABLE_CONTROL`: source model `0x81030017` differs from target `0x81030011`, so its guard/signature architecture cannot prove the α6400's original selector, installing receiver, target acceptance, write order, terminal verification, or recovery. It changes none of those candidates, scenarios, or readiness gates.
+
+The official updater warning says interrupted updating can make the camera inoperable, and this α6400 is the user's only working main camera. The NEX-C3 driver rehearsal does not prove α6400 firmware recovery and cannot satisfy this gate. An in-camera settings or factory reset is not required and would not restore firmware; an independent external route back to the exact stock Taiwan/region-0 α6400 2.00 identity is mandatory.
 
 Camera execution remains prohibited until all of the following exist independently:
 
 - a digest-pinned, model-specific candidate with authenticated source ranges and no ambiguous parser result;
 - successful container decryption and reconstruction with every integrity/signature layer understood;
-- a verified non-destructive restore procedure that works after a deliberately failed test on a nonessential α6400 body;
+- a separately reviewed, non-operational future validation design for proving that an external route can return a nonessential α6400 body to the exact original regional 2.00 firmware and pinned updater identity;
 - independent review of the patch, recovery runbook, power plan, and rollback evidence.
 
-Until then, the strongest usable result is the reversible Creative Style approximation guide. Do not connect the α6400 for this research branch.
+Any later physical validation would still require fresh user authorization, direct supervision, and the separately reviewed design. No feature modification may precede successful validation of stock recovery itself.
+
+Until then, `recovery_validated=false`, `camera_test_eligible=false`, and `installable=false`. Continue only static first-class Creative Look and UI research. The reversible Creative Style guide remains the final fallback, and the α6400 must not be connected for this research branch.

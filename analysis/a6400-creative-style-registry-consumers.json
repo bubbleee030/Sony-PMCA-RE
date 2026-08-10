@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-creative-style-registry-consumers",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "summary": {
+    "artifact_sha256": "37d004036817dd0402dfe646afdf17503d84d0fafed976792aae0b87d205b11e",
+    "registry_slot_count": 415,
+    "creative_style_slot": 15,
+    "reference_module_count": 4,
+    "consumer_data_cell_count": 58,
+    "plt_reference_module_count": 0
+  },
+  "claims": {
+    "typed_default_registry_found": true,
+    "creative_style_registry_slot_found": true,
+    "cross_module_data_publication_found": true,
+    "indirect_data_consumers_found": false,
+    "selected_state_found": false,
+    "persistence_found": false,
+    "creative_look_found": false
+  },
+  "readiness": "STATIC_TYPED_REGISTRY_AND_DATA_PUBLICATION_ONLY",
+  "conclusion": "The 415-entry typed default-root registry and its Creative Style slot are exact static ELF metadata. The three consumer modules publish imported data cells, but no provenance-backed indirect data consumer, selection state, persistence, or Creative Look behavior is established."
+}

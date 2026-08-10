@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-target-ui-terminal-trace",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/viewUnified2.so",
+    "size": 11530552,
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+    "ui_boundary_reference": "analysis/a6400-ui-dispatch-boundary.json",
+    "source_graph_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22"
+  },
+  "export_summary": {
+    "canonical_export_sha256": "a41f4fdf6490ab9df14c60e1b1c319affd67c0390253163b04293aa6f9dcec9f",
+    "classification_methods": [
+      "instruction-flow",
+      "reference-target",
+      "symbol-identity"
+    ],
+    "local_branch_landing_count": 1,
+    "exposure_mode_getter_plt_call_count": 1
+  },
+  "tracks": [
+    {
+      "id": "orientation-handler-local-branch-landing",
+      "traversal_entry": "0x1bb41c",
+      "site": {
+        "owner": {
+          "start": "0x1b97e4",
+          "end": "0x1b9c1c"
+        },
+        "offset": "0x1b9b6a",
+        "classification": "local-branch-landing",
+        "flow_target": null,
+        "symbol": null
+      }
+    },
+    {
+      "id": "layout-attach-exposure-mode-getter",
+      "traversal_entry": "0x1bb2d2",
+      "site": {
+        "owner": {
+          "start": "0x1bb2c6",
+          "end": "0x1bb3f8"
+        },
+        "offset": "0x1bb30e",
+        "classification": "exposure-mode-getter-plt-call",
+        "flow_target": "0x14e688",
+        "symbol": "_ZN33CmnViewModelWrpCameraExposureMode21getExposureModeActValEv"
+      }
+    }
+  ],
+  "claims": {
+    "view_unified2_to_view_unified7_factory_edge_found": false,
+    "orientation_layout_selector_found": false,
+    "orientation_to_vertical_layout_path_found": false
+  },
+  "behavior_support": {
+    "orientation-layout-selection": false,
+    "portrait-landscape-geometry": false,
+    "control-direction-transform": false,
+    "touch-coordinate-transform": false,
+    "hit-test": false,
+    "menu-selection-dispatch": false,
+    "creative-look": false
+  },
+  "readiness": "CLASSIFIED_NO_FACTORY_HANDOFF",
+  "conclusion": "The previously misclassified sites are a local branch landing and an exposure-mode getter PLT call. Neither establishes a viewUnified2-to-viewUnified7 factory handoff or an orientation-driven UI path; all modern UI behavior claims remain false."
+}

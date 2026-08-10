@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-dispatch-table-container-provenance",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "sources": [
+    {
+      "module": "lib/viewUnified4.so",
+      "size": 2614628,
+      "sha256": "0fe8f852b0f028ac7d1d55c613726b3949879cf7fdd44074e525ae302a6f2e62"
+    },
+    {
+      "module": "lib/viewUnified7.so",
+      "size": 541024,
+      "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+    }
+  ],
+  "prior_owner_report": {
+    "path": "analysis/a6400-generic-model-owner-provenance.json",
+    "sha256": "77f6befb580a89c91d16017dfb317984f3678dd3e651d323e089b49229a42512"
+  },
+  "summary": {
+    "canonical_export_sha256": "c6424837f9f905a550cf250297ee5f3d709271d83022c7b3c7f260766d39069b",
+    "typed_owner_count": 3,
+    "slot_64_owner_count": 3,
+    "creative_style_owner_count": 0,
+    "vu7_same_vtable_initializer_count": 1
+  },
+  "evidence_digest": "3e8e01ec30bc58de08193262f1f34821aa0de4d121947a1dd2a7c944a22bb274",
+  "creative_style_boundary": {
+    "typed_dispatcher_owner_match_count": 0,
+    "owner_type_names": [
+      "ViewFocusArea_C",
+      "ViewCustomZebra",
+      "ViewFocusArea"
+    ],
+    "owner_name_contains_creative_style": false,
+    "typed_primary_vtable_creative_relocation_count": 0,
+    "typed_primary_vtable_creative_style_edge_found": false
+  },
+  "claims": {
+    "concrete_dispatcher_owner_types_found": true,
+    "shared_generic_slot_64_pattern_found": true,
+    "vu7_initializer_dispatcher_same_typed_vtable_found": true,
+    "to_instance_to_vtable_binding_proven": false,
+    "creative_style_owner_binding_found": false,
+    "selected_model_value_storage_found": false,
+    "final_model_setter_or_commit_found": false,
+    "renderer_binding_found": false,
+    "touch_routing_found": false,
+    "commit_or_persistence_found": false,
+    "creative_look_equivalence_found": false,
+    "runtime_execution_proven": false
+  },
+  "readiness": "TYPED_NON_CREATIVE_GENERIC_DISPATCH_OWNERS",
+  "conclusion": "The three generic model-sequence dispatchers are slot-64 overrides owned by typed ViewFocusArea_C, ViewCustomZebra, and ViewFocusArea primary vtables. ViewFocusArea also contains the utility initializer at slot 54 and WrapperSettingUtil at offset 0x140. These concrete owners map the sequences to Focus Area and Custom Zebra views rather than Creative Style; they do not prove a selected-value store, final commit, renderer, touch route, or persistence."
+}

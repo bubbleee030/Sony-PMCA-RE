@@ -94,22 +94,22 @@
       },
       "modern": {
         "base": "ST",
-        "clarity": 0,
+        "clarity": null,
         "code": "ST",
-        "contrast": 0,
-        "fade": 0,
-        "highlights": 0,
-        "saturation": 0,
-        "shadows": 0,
-        "sharpness": 0,
-        "sharpness_range": 0,
-        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "contrast": null,
+        "fade": null,
+        "highlights": null,
+        "saturation": null,
+        "shadows": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
         "wb_kelvin": null,
         "wb_shift_ab": 0,
         "wb_shift_gm": 0
       },
       "note": "Direct semantic base mapping to Standard with neutral adjustments; not a measured colorimetric match.",
-      "source_kind": "official-definition-plus-analysis-translation"
+      "source_kind": "creative-style-fallback-approximation"
     },
     {
       "a6400": {
@@ -126,22 +126,22 @@
       },
       "modern": {
         "base": "PT",
-        "clarity": 0,
+        "clarity": null,
         "code": "PT",
-        "contrast": 0,
-        "fade": 0,
-        "highlights": 0,
-        "saturation": 0,
-        "shadows": 0,
-        "sharpness": 0,
-        "sharpness_range": 0,
-        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "contrast": null,
+        "fade": null,
+        "highlights": null,
+        "saturation": null,
+        "shadows": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
         "wb_kelvin": null,
         "wb_shift_ab": 0,
         "wb_shift_gm": 0
       },
       "note": "Direct semantic base mapping to Portrait with neutral adjustments; not a measured colorimetric match.",
-      "source_kind": "official-definition-plus-analysis-translation"
+      "source_kind": "creative-style-fallback-approximation"
     },
     {
       "a6400": {
@@ -158,22 +158,22 @@
       },
       "modern": {
         "base": "NT",
-        "clarity": 0,
+        "clarity": null,
         "code": "NT",
-        "contrast": 0,
-        "fade": 0,
-        "highlights": 0,
-        "saturation": 0,
-        "shadows": 0,
-        "sharpness": 0,
-        "sharpness_range": 0,
-        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "contrast": null,
+        "fade": null,
+        "highlights": null,
+        "saturation": null,
+        "shadows": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
         "wb_kelvin": null,
         "wb_shift_ab": 0,
         "wb_shift_gm": 0
       },
       "note": "Direct semantic base mapping to Neutral with neutral adjustments; not a measured colorimetric match.",
-      "source_kind": "official-definition-plus-analysis-translation"
+      "source_kind": "creative-style-fallback-approximation"
     },
     {
       "a6400": {
@@ -190,22 +190,22 @@
       },
       "modern": {
         "base": "VV",
-        "clarity": 0,
+        "clarity": null,
         "code": "VV",
-        "contrast": 0,
-        "fade": 0,
-        "highlights": 0,
-        "saturation": 0,
-        "shadows": 0,
-        "sharpness": 0,
-        "sharpness_range": 0,
-        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "contrast": null,
+        "fade": null,
+        "highlights": null,
+        "saturation": null,
+        "shadows": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
         "wb_kelvin": null,
         "wb_shift_ab": 0,
         "wb_shift_gm": 0
       },
       "note": "Direct semantic base mapping to Vivid with neutral adjustments; not a measured colorimetric match.",
-      "source_kind": "official-definition-plus-analysis-translation"
+      "source_kind": "creative-style-fallback-approximation"
     },
     {
       "a6400": {
@@ -222,22 +222,22 @@
       },
       "modern": {
         "base": "VV2",
-        "clarity": 0,
+        "clarity": null,
         "code": "VV2",
-        "contrast": 0,
-        "fade": 0,
-        "highlights": 0,
-        "saturation": 1,
-        "shadows": 0,
-        "sharpness": 0,
-        "sharpness_range": 0,
-        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "contrast": null,
+        "fade": null,
+        "highlights": null,
+        "saturation": null,
+        "shadows": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
         "wb_kelvin": null,
         "wb_shift_ab": 0,
         "wb_shift_gm": 0
       },
       "note": "Inferred Style Box starting point: Clear, contrast 0, saturation +1, sharpness 0; validate with controlled JPEG pairs.",
-      "source_kind": "official-definition-plus-analysis-translation"
+      "source_kind": "creative-style-fallback-approximation"
     },
     {
       "a6400": {
@@ -254,22 +254,22 @@
       },
       "modern": {
         "base": "FL",
-        "clarity": 0,
+        "clarity": null,
         "code": "FL",
-        "contrast": -1,
-        "fade": 0,
-        "highlights": 0,
-        "saturation": 0,
-        "shadows": 0,
-        "sharpness": 0,
-        "sharpness_range": 0,
-        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "contrast": null,
+        "fade": null,
+        "highlights": null,
+        "saturation": null,
+        "shadows": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
         "wb_kelvin": null,
         "wb_shift_ab": 0,
         "wb_shift_gm": 0
       },
       "note": "Inferred Style Box starting point: Deep, contrast -1, saturation 0, sharpness 0; validate with controlled JPEG pairs.",
-      "source_kind": "official-definition-plus-analysis-translation"
+      "source_kind": "creative-style-fallback-approximation"
     },
     {
       "a6400": {
@@ -286,22 +286,22 @@
       },
       "modern": {
         "base": "IN",
-        "clarity": 0,
+        "clarity": null,
         "code": "IN",
-        "contrast": -2,
-        "fade": 0,
-        "highlights": 0,
-        "saturation": -2,
-        "shadows": 0,
-        "sharpness": -1,
-        "sharpness_range": 0,
-        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "contrast": null,
+        "fade": null,
+        "highlights": null,
+        "saturation": null,
+        "shadows": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
         "wb_kelvin": null,
         "wb_shift_ab": 0,
         "wb_shift_gm": 0
       },
       "note": "Inferred Style Box starting point: Neutral, contrast -2, saturation -2, sharpness -1; validate with controlled JPEG pairs.",
-      "source_kind": "official-definition-plus-analysis-translation"
+      "source_kind": "creative-style-fallback-approximation"
     },
     {
       "a6400": {
@@ -318,22 +318,22 @@
       },
       "modern": {
         "base": "SH",
-        "clarity": 0,
+        "clarity": null,
         "code": "SH",
-        "contrast": -1,
-        "fade": 0,
-        "highlights": 0,
-        "saturation": -1,
-        "shadows": 0,
-        "sharpness": -1,
-        "sharpness_range": 0,
-        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "contrast": null,
+        "fade": null,
+        "highlights": null,
+        "saturation": null,
+        "shadows": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
         "wb_kelvin": null,
         "wb_shift_ab": 0,
         "wb_shift_gm": 0
       },
       "note": "Inferred Style Box starting point: Light, contrast -1, saturation -1, sharpness -1; validate with controlled JPEG pairs.",
-      "source_kind": "official-definition-plus-analysis-translation"
+      "source_kind": "creative-style-fallback-approximation"
     },
     {
       "a6400": {
@@ -350,22 +350,22 @@
       },
       "modern": {
         "base": "BW",
-        "clarity": 0,
+        "clarity": null,
         "code": "BW",
-        "contrast": 0,
-        "fade": 0,
-        "highlights": 0,
-        "saturation": 0,
-        "shadows": 0,
-        "sharpness": 0,
-        "sharpness_range": 0,
-        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "contrast": null,
+        "fade": null,
+        "highlights": null,
+        "saturation": null,
+        "shadows": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
         "wb_kelvin": null,
         "wb_shift_ab": 0,
         "wb_shift_gm": 0
       },
       "note": "Direct semantic base mapping to B/W with neutral adjustments; not a measured colorimetric match.",
-      "source_kind": "official-definition-plus-analysis-translation"
+      "source_kind": "creative-style-fallback-approximation"
     },
     {
       "a6400": {
@@ -382,30 +382,26 @@
       },
       "modern": {
         "base": "SE",
-        "clarity": 0,
+        "clarity": null,
         "code": "SE",
-        "contrast": 0,
-        "fade": 0,
-        "highlights": 0,
-        "saturation": 0,
-        "shadows": 0,
-        "sharpness": 0,
-        "sharpness_range": 0,
-        "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
+        "contrast": null,
+        "fade": null,
+        "highlights": null,
+        "saturation": null,
+        "shadows": null,
+        "sharpness": null,
+        "sharpness_range": null,
+        "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
         "wb_kelvin": null,
         "wb_shift_ab": 0,
         "wb_shift_gm": 0
       },
       "note": "Direct semantic base mapping to Sepia with neutral adjustments; not a measured colorimetric match.",
-      "source_kind": "official-definition-plus-analysis-translation"
+      "source_kind": "creative-style-fallback-approximation"
     }
   ],
-  "disclaimer": "These α6400 settings are conservative practical starting points, not exact Sony colorimetric matches; community experiments are not Sony defaults.",
-  "official_sources": {
-    "creative_look": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
-    "creative_style": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html"
-  },
-  "schema_version": 1,
+  "disclaimer": "These α6400 Creative Style settings are conservative fallback-only starting points, not native Creative Look or exact Sony colorimetric matches; community experiments are not Sony defaults.",
+  "schema_version": 2,
   "validation_protocol": [
     "same lens",
     "same scene",
@@ -414,5 +410,25 @@
     "same white balance",
     "same JPEG settings",
     "no postprocessing"
+  ],
+  "artifact_role": "CREATIVE_STYLE_FALLBACK",
+  "native_claim_basis": false,
+  "reference_source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
+  "creative_style_source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html",
+  "represented_reference_looks": [
+    "ST",
+    "PT",
+    "NT",
+    "VV",
+    "VV2",
+    "FL",
+    "IN",
+    "SH",
+    "BW",
+    "SE"
+  ],
+  "unrepresented_reference_looks": [
+    "FL2",
+    "FL3"
   ]
 }

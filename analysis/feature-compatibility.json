@@ -54,10 +54,10 @@
     },
     {
       "compatibility": {
-        "architecture": "The ILCE-7M5 behavior is documented, but no compatible target layout component or ABI has been located.",
+        "architecture": "The target contains five vertical-named shooting-layout classes and a layout factory, but no orientation-to-layout selector path has been established.",
         "dependent_services": "A portrait layout would need shooting-state, finder, monitor, DISP-mode, and icon-placement services.",
-        "display_geometry": "The target portrait constraint and anchoring rules are unknown even though target orientation state exists.",
-        "imports": "Donor layout imports and target equivalents remain inaccessible behind the unsupported container and decrypter boundary.",
+        "display_geometry": "Target layout class identities are pinned, but their portrait constraints, anchoring rules, and visible geometry remain unknown.",
+        "imports": "Target factory and class-ID references are located; their selector ABI and any donor equivalents remain unestablished.",
         "input_coordinates": "Layout selection must publish the selected orientation to later input-coordinate transforms.",
         "memory": "Widget-tree and layout-cache memory requirements are unknown.",
         "relocations": "No donor section, relocation table, or resource boundary has been authenticated as transplantable.",
@@ -73,9 +73,14 @@
           "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/251h_vertical_ui_display.html"
         },
         {
-          "claim": "No target-compatible layout selector was located because the ILCE-6400 updater wrapper is unsupported and donor FDAT decryption has no compatible decrypter.",
+          "claim": "Five target vertical-layout class IDs occur in both pinned UXC resources and have executable owners in viewUnified2.so.",
+          "level": "CONFIRMED",
+          "source": "artifact:analysis/a6400-ui-dispatch-boundary.json"
+        },
+        {
+          "claim": "A depth-32 bounded mixed-call search from three ViewStlrec roots traversed resolved direct edges, stopped at unresolved indirect terminals, and found no path to the layout factories or class-ID owners.",
           "level": "INSUFFICIENT_EVIDENCE",
-          "source": "analysis:tool-baselines-and-structure-reports"
+          "source": "analysis/a6400-ui-dispatch-boundary.json"
         }
       ],
       "id": "vertical-layout-selection",
@@ -88,10 +93,10 @@
     },
     {
       "compatibility": {
-        "architecture": "No renderer architecture match between donor and target has been established.",
+        "architecture": "Target vertical-layout class identities are present, but no complete renderer architecture or donor match has been established.",
         "dependent_services": "The renderer depends on layout selection, live-view overlays, finder output, monitor output, and DISP modes.",
         "display_geometry": "Official behavior preserves information while rearranging it, but target coordinates and clipping rules are unknown.",
-        "imports": "Graphics primitives, font/icon resources, and compositor entry points have not been identified.",
+        "imports": "Layout factories and class-ID owners are identified, while graphics primitives, font/icon resources, and compositor entry points remain unlocated.",
         "input_coordinates": "The rendered transform must remain synchronized with control and touch transforms.",
         "memory": "Portrait render surfaces, caches, and stack requirements are unknown.",
         "relocations": "No executable or resource relocation evidence exists for a donor renderer.",
@@ -107,9 +112,9 @@
           "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/251h_vertical_ui_display.html"
         },
         {
-          "claim": "The authenticated marker scan found no plaintext locator and no executable or resource reference is available to confirm a portable render boundary.",
+          "claim": "Pinned target UXC files reference five vertical-layout class IDs, but exact layout names are absent and references alone do not establish geometry or rendering semantics.",
           "level": "INSUFFICIENT_EVIDENCE",
-          "source": "analysis:authenticated-marker-scan"
+          "source": "analysis/a6400-ui-dispatch-boundary.json"
         }
       ],
       "id": "vertical-render-transform",
@@ -123,10 +128,10 @@
     },
     {
       "compatibility": {
-        "architecture": "The target has orientation-aware AF state, but a general UI input-transform layer has not been identified.",
+        "architecture": "The target has orientation-aware AF state and bounded UI dispatch evidence, but no general UI input-transform path has been identified.",
         "dependent_services": "Control-wheel navigation, touch hit testing, gesture routing, and custom-key behavior must remain coherent.",
         "display_geometry": "Portrait hit boxes must match the unlocated portrait render geometry.",
-        "imports": "Input dispatcher and gesture recognizer interfaces remain unknown.",
+        "imports": "The recovered menu paths reach status/configuration helpers only; coordinate consumers, hit testing, input dispatch, and gesture interfaces remain unknown.",
         "input_coordinates": "ILCE-7M5 rotates wheel directions and touch operations, but the target transform matrix and handedness are unknown.",
         "memory": "Gesture state and transformed hit-test storage requirements are unknown.",
         "relocations": "No donor input-transform code boundary or relocations have been authenticated.",
@@ -149,9 +154,9 @@
           "source": "analysis:official-target-behavior-comparison"
         },
         {
-          "claim": "No target hit-test transform, gesture-coordinate ABI, or donor-compatible dispatcher has been located.",
+          "claim": "The bounded target trace found no coordinate consumer, hit-test path, control-direction transform, touch-coordinate transform, or selection dispatcher.",
           "level": "INSUFFICIENT_EVIDENCE",
-          "source": "analysis:unlocated-input-transform"
+          "source": "analysis/a6400-ui-dispatch-boundary.json"
         }
       ],
       "id": "vertical-input-transform",
@@ -166,10 +171,10 @@
     },
     {
       "compatibility": {
-        "architecture": "Newer touch-function icons are documented, but their widget framework is not identified in target or donor binaries.",
+        "architecture": "The target settings-menu event switch is bounded, but a production touch-widget framework is not identified in target or donor binaries.",
         "dependent_services": "Widgets require shooting settings, playback, focus, recording, Creative Look, and visibility-state services.",
         "display_geometry": "Left, right, footer, flipped-monitor, and portrait icon arrangements require geometry unavailable on the target UI.",
-        "imports": "Widget constructors, icon resources, binding adapters, and gesture APIs are unknown.",
+        "imports": "Known resource-touch owners are not reached from the menu root; widget constructors, icon resources, binding adapters, and gesture APIs remain unknown.",
         "input_coordinates": "Each widget needs hit boxes routed by the unconfirmed menu-wide touch dispatcher.",
         "memory": "Widget-tree, icon-cache, and binding-state requirements are unknown.",
         "relocations": "No resource table or executable widget section has been authenticated as transplantable.",
@@ -185,9 +190,9 @@
           "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/221h_touch_function_icon.html"
         },
         {
-          "claim": "No compatible widget implementation, icon resource boundary, or data-binding ABI has been located for ILCE-6400.",
+          "claim": "No path from the pinned ViewSettingMenu root reached either known resource-touch owner, and no compatible widget, icon-resource, or data-binding ABI was established.",
           "level": "INSUFFICIENT_EVIDENCE",
-          "source": "analysis:tool-baselines-and-marker-scan"
+          "source": "analysis/a6400-ui-dispatch-boundary.json"
         }
       ],
       "id": "touch-menu-widgets",
@@ -201,10 +206,10 @@
     },
     {
       "compatibility": {
-        "architecture": "The target already routes touch coordinates into shooting functions, but not documented menu-wide controls.",
+        "architecture": "The target routes touch coordinates into shooting functions, while the recovered settings-menu paths expose status/configuration only and not menu-wide selection.",
         "dependent_services": "Existing focus and tracking consumers are known; arbitrary menu setting and navigation consumers are not.",
         "display_geometry": "Existing shooting-screen coordinates are functional, but menu and portrait hit-test geometry are unknown.",
-        "imports": "The target touch dispatcher entry points and extension ABI have not been located.",
+        "imports": "The settings-menu root is pinned, but its coordinate consumer, hit-test dispatcher, selection endpoint, and safe extension ABI have not been located.",
         "input_coordinates": "Touch Tracking confirms positional input reaches a target shooting subsystem.",
         "memory": "Existing touch state is present; additional menu-routing state requirements are unknown.",
         "relocations": "A subsystem extension is more plausible than donor reuse, but no digest-pinned patch site exists.",
@@ -223,9 +228,9 @@
           "source": "analysis:official-target-touch-scope"
         },
         {
-          "claim": "No menu-wide target event dispatcher or safe extension point has been located.",
+          "claim": "The bounded mixed-call search found no executable path from ViewSettingMenu to a coordinate consumer, hit test, selection dispatcher, or known production resource-touch owner.",
           "level": "INSUFFICIENT_EVIDENCE",
-          "source": "analysis:unlocated-touch-dispatcher"
+          "source": "analysis/a6400-ui-dispatch-boundary.json"
         }
       ],
       "id": "touch-event-routing",
@@ -263,6 +268,11 @@
           "claim": "Exact Sony base tables and colorimetric equivalence cannot be confirmed without authenticated table extraction or measurement.",
           "level": "INSUFFICIENT_EVIDENCE",
           "source": "analysis:unavailable-color-tables"
+        },
+        {
+          "claim": "The digest-pinned target trace resolves a Creative Style selector-to-menu-graph reference but no native Creative Look base-table load or live-view, still-JPEG, or movie sink.",
+          "level": "INSUFFICIENT_EVIDENCE",
+          "source": "analysis/a6400-creative-look-boundary.json"
         }
       ],
       "id": "creative-look-base-tables",
@@ -279,7 +289,7 @@
         "dependent_services": "Contrast, highlights, shadows, fade, saturation, sharpness, sharpness range, and clarity affect live view and output processing.",
         "display_geometry": "Target Style Box UI can expose only contrast, saturation, and sharpness without a new UI.",
         "imports": "No target APIs for highlights, shadows, fade, sharpness range, or clarity have been located.",
-        "input_coordinates": "Existing wheel controls can enter the three available axes; six additional touch or wheel controls are unavailable.",
+        "input_coordinates": "Existing wheel controls can enter the three Creative Style axes; five additional Creative Look axes have no verified target UI path.",
         "memory": "Target storage is documented for three per-style adjustments, not eight-axis Creative Look records.",
         "relocations": "No adjustment-axis handler or donor table range has a confirmed relocation boundary.",
         "signature_layer": "Native extra-axis support requires firmware changes; recipes can only approximate through existing controls."
@@ -302,6 +312,11 @@
           "claim": "No exact target implementation exists for the additional donor adjustment axes, so native equivalence is unsupported.",
           "level": "INSUFFICIENT_EVIDENCE",
           "source": "analysis:target-axis-gap"
+        },
+        {
+          "claim": "Each of the eight Creative Look axes has an independent bounded negative search; none has a complete target UI, state, range, and processing boundary.",
+          "level": "INSUFFICIENT_EVIDENCE",
+          "source": "analysis/a6400-creative-look-boundary.json"
         }
       ],
       "id": "creative-look-adjustment-axes",

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-ui-slot34-dispatch",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/viewUnified7.so",
+    "size": 541024,
+    "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+  },
+  "export_summary": {
+    "canonical_export_sha256": "34bedfe4e6f2cb881d759842ce6d11bdad1eb52fcd3bd1a7e76f6b1ff5c844f9",
+    "header_reference_count": 5,
+    "accepted_candidate_count": 0,
+    "stack_rejection_count": 1,
+    "direct_pc_literal_load_count": 52
+  },
+  "prior_vtable_interface": {
+    "analysis_contract": "ui_layout_vtable_interface",
+    "canonical_export_sha256": "5091e8d299df9b16b043b11578d3ed306c6d289dd778a1c72ccff0c76b0adca9"
+  },
+  "prior_owner_registration": {
+    "analysis_contract": "ui_factory_owner_registration",
+    "canonical_export_sha256": "5406b615542a0af4ab6ad07060126b98e00e673456d9958dbd9733a2f3508bab"
+  },
+  "structural_scan": {
+    "rule": {
+      "receiver_vptr_load_offset": 0,
+      "slot_load_offset": 136,
+      "indirect_call": "blx-register",
+      "function_bounded": true
+    },
+    "accepted_candidate_count": 0,
+    "stack_rejection_count": 1,
+    "direct_pc_literal_load_count": 52
+  },
+  "runtime_consumption_boundary": {
+    "vu2_source": {
+      "module": "lib/viewUnified2.so",
+      "size": 11530552,
+      "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
+    },
+    "unique_nul_terminated_name_occurrences": [
+      {
+        "name": "viewUnified7.so",
+        "address": 8055778,
+        "occurrence_count": 1
+      },
+      {
+        "name": "17LkmLayoutModeMngr",
+        "address": 8055855,
+        "occurrence_count": 1
+      }
+    ],
+    "same_registry_or_container_proven": false,
+    "dynamic_linkage": {
+      "vu2_needed_vu7": false,
+      "vu7_needed_vu2": false
+    },
+    "typed_layout_dynsym_linkage": {
+      "checked_modules": [
+        "lib/viewUnified2.so",
+        "lib/viewUnified7.so"
+      ],
+      "layoutst_dial_modules": [],
+      "layout_converter_base_modules": []
+    },
+    "first_unresolved_boundary": "runtime-loading-object-selection-and-dispatch-consumption"
+  },
+  "claims": {
+    "slot_34_dispatch_found": false,
+    "runtime_consumption_found": false,
+    "orientation_layout_selector_found": false
+  },
+  "behavior_support": {
+    "touch_coordinate_transform": false,
+    "menu_touch_hit_test": false,
+    "menu_touch_selection": false
+  },
+  "readiness": "LOCAL_SLOT34_DISPATCH_AND_RUNTIME_CONSUMPTION_UNRESOLVED",
+  "conclusion": "Five typed slot-34 registrations and their wrapper are statically bounded, but no local slot-34 invoker is proven. Separate VU2 name occurrences do not prove a common registry or container. The first unresolved boundary is runtime loading, object selection, and dispatch consumption that could load or select viewUnified7.so, create a typed receiver, and invoke slot 34; this does not establish orientation, Creative Look, touch, coordinates, runtime execution, installability, or recovery behavior."
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-creative-style-view-model-binding",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/viewUnified2.so",
+    "size": 11530552,
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
+  },
+  "summary": {
+    "canonical_export_sha256": "7a1a92c3da8c597032d241e0f24fb2a1b0e77a4a55d7471be0862c54f00cb977",
+    "view_primary_slot_count": 94,
+    "view_dispatch_case_count": 20,
+    "typed_process_element_count": 1,
+    "value_setter_argument_count": 5,
+    "backup_write_call_count": 5,
+    "model_param_count": 5
+  },
+  "evidence_digest": "97f13391debbe3171d7c6b58e1c3b7c9953d9d0ddffbee824b0b80191a44644e",
+  "claims": {
+    "creative_style_view_owner_found": true,
+    "view_factory_function_found": true,
+    "view_model_request_found": true,
+    "typed_custom_process_element_binding_found": true,
+    "creative_style_value_read_boundary_found": true,
+    "creative_style_value_write_boundary_found": true,
+    "backup_write_boundary_found": true,
+    "model_request_boundary_found": true,
+    "factory_registration_route_found": false,
+    "selected_creative_style_field_identified": false,
+    "five_argument_semantics_resolved": false,
+    "eight_axis_creative_look_model_found": false,
+    "renderer_or_output_sink_found": false,
+    "touch_routing_found": false,
+    "creative_look_equivalence_found": false,
+    "runtime_execution_proven": false
+  },
+  "readiness": "TARGET_NATIVE_CREATIVE_STYLE_UI_MODEL_COMMIT_BOUNDARY",
+  "conclusion": "The target-native ViewCreativeStyle screen is bound through process-data ID 42 to the typed CmnViewProcessDataElementCustomCreativeStyle singleton. Its manager path reaches exact getValue slot 10 and the five-integer setValue override at slot 21; that setter contains five bounded backupWrite call sites, five ParamList-add call sites, and an @M00B operation-38 request call site. A separate word at view offset 0x15c is a resettable controller mode persisted through a one-byte backup representation, not a proven selected-style field. Factory registration, five-argument semantics, an eight-axis Creative Look model, renderer/output binding, touch routing, runtime behavior, and installability remain unproven."
+}

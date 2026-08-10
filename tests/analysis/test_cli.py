@@ -664,7 +664,11 @@ class FirmwareLabCliTests(unittest.TestCase):
 
 class CreativeLookRecipesCliTests(unittest.TestCase):
     def test_render_calls_validated_renderer_and_prints_safe_counts(self):
-        document = {"defaults": [{}] * 10, "community_experiments": [{}, {}]}
+        document = {
+            "represented_reference_looks": [{}] * 10,
+            "unrepresented_reference_looks": [{}, {}],
+            "community_experiments": [{}, {}],
+        }
         stdout = io.StringIO()
         with (
             patch("creative_look_recipes._load", return_value=document) as load,
@@ -686,7 +690,10 @@ class CreativeLookRecipesCliTests(unittest.TestCase):
         load.assert_called_once()
         render.assert_called_once_with(document)
         write.assert_called_once()
-        self.assertEqual(stdout.getvalue(), "looks=10 community=2\n")
+        self.assertEqual(
+            stdout.getvalue(),
+            "represented=10 unrepresented=2 community=2\n",
+        )
 
 
 if __name__ == "__main__":

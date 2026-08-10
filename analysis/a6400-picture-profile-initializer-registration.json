@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-picture-profile-initializer-registration",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "summary": {
+    "artifact_sha256": "585da9e3b3da99af9baeea003e749b75345b53e0eb322182e601ac7246eb986e",
+    "initializer_entry_count": 6,
+    "constructor_parameter_reference_count": 18,
+    "bounded_elf_file_count": 184,
+    "named_cross_module_import_count": 0
+  },
+  "claims": {
+    "loader_registration_found": true,
+    "selected_profile_state_found": false,
+    "ui_dispatch_found": false,
+    "persistence_found": false,
+    "processing_found": false,
+    "output_found": false,
+    "first_class_creative_look": false
+  },
+  "readiness": "STATIC_CONSTRUCTION_REGISTRATION_ONLY",
+  "conclusion": "A typed loader registration entry establishes the broad PP1-PP9 construction batch only. It does not establish selected-profile state, UI dispatch, persistence, image processing, output, or a Creative Look path."
+}

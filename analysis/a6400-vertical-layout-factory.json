@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-target-vertical-layout-factory",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/viewUnified7.so",
+    "size": 541024,
+    "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+  },
+  "export_summary": {
+    "canonical_export_sha256": "d21e73a1307be4709b6f30e3326a4e7d658fe01da6d18098db41b4c25b6825ce",
+    "constructor_count": 5,
+    "total_constructor_arm_count": 12,
+    "vertical_constructor_arm_count": 5,
+    "reverse_caller_count": 1,
+    "claims": {
+      "vertical_layout_factory_found": true,
+      "five_wrapper_registrations_found": true,
+      "runtime_factory_invocation_proven": false,
+      "view_unified2_to_factory_edge_found": false,
+      "orientation_to_factory_join_proven": false,
+      "orientation_layout_selector_found": false,
+      "portrait_geometry_proven": false,
+      "touch_coordinate_transform_proven": false,
+      "menu_selection_dispatch_proven": false
+    },
+    "behavior_support": {
+      "orientation-layout-selection": false,
+      "touch-coordinate-transform": false,
+      "menu-touch-hit-test": false,
+      "menu-touch-selection": false
+    }
+  },
+  "factory": {
+    "owner": {
+      "start": "0x52840",
+      "end": "0x529b8"
+    },
+    "total_constructor_arm_count": 12,
+    "group_id": "0x1b906244",
+    "vertical_classical_arms": [
+      {
+        "id": "info",
+        "class_id": "0x61dc811c",
+        "site": "0x52934",
+        "target": "0x14e9c"
+      },
+      {
+        "id": "footer",
+        "class_id": "0x186c17f6",
+        "site": "0x52944",
+        "target": "0x14028"
+      },
+      {
+        "id": "header-manual-info",
+        "class_id": "0x8e7fdf88",
+        "site": "0x52914",
+        "target": "0x14148"
+      },
+      {
+        "id": "manual",
+        "class_id": "0x7be1c309",
+        "site": "0x52954",
+        "target": "0x14d64"
+      },
+      {
+        "id": "error",
+        "class_id": "0xbdbc36bd",
+        "site": "0x52924",
+        "target": "0x14b04"
+      }
+    ],
+    "wrapper": {
+      "start": "0x529cc",
+      "end": "0x529e8",
+      "forwarding_site": "0x529d6",
+      "target": "0x52840"
+    }
+  },
+  "invalid_offset_classifications": [
+    {
+      "offset": "0x181f18",
+      "classification": "internal-conditional-branch"
+    },
+    {
+      "offset": "0x24222c",
+      "classification": "non-instruction-boundary-second-halfword"
+    },
+    {
+      "offset": "0x3ba6dc",
+      "classification": "non-instruction-boundary-second-halfword"
+    },
+    {
+      "offset": "0x651684",
+      "classification": "non-instruction-boundary-second-halfword"
+    }
+  ],
+  "false_class_id_paths": [
+    {
+      "offset": "0x37b614",
+      "classification": "constructor-vptr-material-path",
+      "class_id_load": false
+    },
+    {
+      "offset": "0x37aa18",
+      "classification": "constructor-vptr-material-path",
+      "class_id_load": false
+    },
+    {
+      "offset": "0x37b5e0",
+      "classification": "constructor-vptr-material-path",
+      "class_id_load": false
+    },
+    {
+      "offset": "0x37b648",
+      "classification": "constructor-vptr-material-path",
+      "class_id_load": false
+    },
+    {
+      "offset": "0x37b578",
+      "classification": "constructor-vptr-material-path",
+      "class_id_load": false
+    }
+  ],
+  "claims": {
+    "vertical_layout_factory_found": true,
+    "five_wrapper_registrations_found": true,
+    "runtime_factory_invocation_proven": false,
+    "view_unified2_to_factory_edge_found": false,
+    "orientation_to_factory_join_proven": false,
+    "orientation_layout_selector_found": false,
+    "portrait_geometry_proven": false,
+    "touch_coordinate_transform_proven": false,
+    "menu_selection_dispatch_proven": false
+  },
+  "behavior_support": {
+    "orientation-layout-selection": false,
+    "touch-coordinate-transform": false,
+    "menu-touch-hit-test": false,
+    "menu-touch-selection": false
+  },
+  "readiness": "FACTORY_SELECTION_AND_REGISTRATION_BOUNDED_INVOCATION_UNESTABLISHED",
+  "conclusion": "The vertical-classical constructor selection and address-taken wrapper registration are bounded; registration is not invocation, and runtime, orientation, geometry, touch, and menu joins remain unproven."
+}

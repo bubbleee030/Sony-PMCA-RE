@@ -24,7 +24,10 @@ class CreativeLookCliTests(unittest.TestCase):
 
             self.assertEqual(result, 0)
             self.assertTrue(output.read_text(encoding="utf-8").startswith("# α6400"))
-            self.assertEqual(stdout.getvalue(), "looks=10 community=0\n")
+            self.assertEqual(
+                stdout.getvalue(),
+                "represented=10 unrepresented=2 community=0\n",
+            )
 
     def test_only_render_and_exact_options_are_accepted(self):
         for subcommand in ("download", "camera", "flash", "install"):

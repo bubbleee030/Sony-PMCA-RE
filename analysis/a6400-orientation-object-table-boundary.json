@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-orientation-object-table-boundary",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {"module": "lib/viewUnified2.so", "size": 11530552, "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"},
+  "summary": {"canonical_export_sha256": "86daf8ed9640fac1825c1076a21b0252a59b2619024af031d036fe31816ddcd4", "initializer_count": 2, "identified_type_count": 2, "widget_address_point_match_count": 0},
+  "prior_orientation_helper": {"analysis_contract": "orientation_af_helper", "canonical_export_sha256": "05abc1883d29d3bc4780cde2a67d5ee13912e2296936f9e9e76b713042318f0d"},
+  "prior_slot37_dispatch": {"analysis_contract": "generic_slot37_dispatch", "canonical_export_sha256": "bf4e9ea3ea1f4841bdcda6ecdf337a9cb064be2b560ace7b533a6a5e7f83f12f"},
+  "prior_widget_compatible_tables": {"analysis_contract": "widget_hit_test_vtables", "artifact_sha256": "3d88983377538b2fc98ddc1170bdb5848cebf4a28d319c35365a105075ca2035", "address_point_count": 407},
+  "initializers": [
+    {"role": "base", "owner": 3205580, "end": 3205608, "range_size": 28, "decoded_item_count": 14, "complete": true, "direct_calls": [], "offset_zero_store_site": 3205594, "store_base_register": "r0", "store_receiver_provenance": "entry-r0"},
+    {"role": "derived", "owner": 3205608, "end": 3205644, "range_size": 36, "decoded_item_count": 17, "complete": true, "direct_calls": [{"site": 3205616, "target": 3205580}], "offset_zero_store_site": 3205630, "base_call_receiver_provenance": "entry-r0", "saved_entry_register": "r5", "store_base_register": "r5", "store_receiver_provenance": "entry-r0"}
+  ],
+  "table_stores": [
+    {"role": "base", "site": 3205594, "source_cell": 9739632, "source_section": ".got", "relocation_index": 57459, "relocation_type": 23, "target": 9330968, "target_section": ".data.rel.ro", "widget_address_point_match_count": 0},
+    {"role": "derived", "site": 3205630, "source_cell": 9748980, "source_section": ".got", "relocation_index": 59685, "relocation_type": 23, "target": 9331240, "target_section": ".data.rel.ro", "widget_address_point_match_count": 0}
+  ],
+  "type_tables": [
+    {"role": "abstract-base", "type_name": "AfOrientImpl", "rtti_encoding": "12AfOrientImpl", "typeinfo": 9330952, "abi_type_info": "__class_type_info", "base_typeinfo": null, "address_point": 9330968, "window_start": 9330960, "window_end": 9331232, "slot_count": 66, "relocation_count": 66, "relative_relocation_count": 3, "absolute_relocation_count": 63, "pure_virtual_reference_count": 63, "relocation_digest": "58689094ff707a2ded98dacdf427350e56ecce073f9df7bcb8f0fa5b1b954773"},
+    {"role": "derived", "type_name": "AfImplForOrientationRegisterAF", "rtti_encoding": "30AfImplForOrientationRegisterAF", "typeinfo": 9331552, "abi_type_info": "__si_class_type_info", "base_typeinfo": 9330952, "base_link_cell": 9331560, "base_link_relocation_index": 20071, "base_link_relocation_type": 23, "base_link_relocation_symbol": 0, "address_point": 9331240, "window_start": 9331232, "window_end": 9331504, "slot_count": 66, "relocation_count": 67, "relative_relocation_count": 67, "absolute_relocation_count": 0, "pure_virtual_reference_count": 0, "relocation_digest": "0c9f737b5f170bb0023e2ff326592b1b691db182f457c087a55b3f36b3149100"}
+  ],
+  "slot37_binding": {"slot": 37, "offset": 148, "cell": 9331388, "relocation_index": 20029, "relocation_type": 23, "target": 3196280, "target_section": ".text", "defined_dynsym_match_count": 0},
+  "storage_consumers": {"guard_storage": 11726832, "object_storage": 11726836, "guard_materialization_sites": [3535912, 3535944], "object_materialization_sites": [3535936, 3535956, 3535968], "offset_zero_load_sites": [3535918], "initializer_calls": [{"site": 3535938, "target": 3205608}], "post_initializer_unresolved_calls": [{"site": 3535946, "target": 1401668}, {"site": 3535962, "target": 1401788}], "canonical_digest": "d45002a0c1e392f1958022bc6ee86e636d0a6d3c1646a1c35953910a1a762984"},
+  "direct_graph_summary": {"scope": "pinned-complete-helper-prefix-only", "owner": 3535908, "prefix_end": 3535984, "prefix_complete": true, "path_analysis_performed": false, "cross_module_path_analysis_performed": false},
+  "claims": {"initializer_chain_found": true, "concrete_af_type_found": true, "derived_slot37_target_found": true, "widget_compatible_table_found": false, "ui_widget_identity_found": false, "menu_touch_behavior_found": false, "selection_result_found": false, "transitive_graph_absence_established": false},
+  "readiness": "AF_INTERNAL_FALSE_LEAD_FOR_MENU_TOUCH",
+  "conclusion": "The stable orientation/AF object is initialized first as AfOrientImpl and then as AfImplForOrientationRegisterAF. Its derived slot-37 target is local and unnamed, and neither vtable address point matches the 407 Widget-compatible tables; this branch is a bounded false lead for concrete menu-touch routing, while indirect, incomplete-owner, and cross-module paths remain open."
+}

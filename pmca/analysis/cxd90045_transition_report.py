@@ -7,6 +7,8 @@ camera transport, cryptographic primitive, executable loader, or writer.
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 import re
 
 
@@ -15,6 +17,9 @@ class Cxd90045TransitionReportError(ValueError):
 
 
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
+TRANSITION_NARRATIVE_SHA256 = (
+    "bfa89d2f25b60c42a1fe8c59cd79921f877c277c40fae33ad306cd5b25b3e276"
+)
 _TOP_FIELDS = {
     "schema_version",
     "subject",
@@ -29,6 +34,8 @@ _TOP_FIELDS = {
     "shared_static_artifacts",
     "updater_partition",
     "visible_runtime",
+    "packaged_selector_scan",
+    "packaged_selector_evidence",
     "observations",
     "inferences",
     "unresolved",
@@ -99,6 +106,312 @@ _RUNTIME_FIELDS = {
     "cbc_stage_present",
     "raw_fdat_written_before_crypter",
 }
+_PACKAGED_SELECTOR_SCAN_FIELDS = {
+    "updater_flag_state_proven",
+    "lsi_notification_proven",
+    "lsi_flag_delivery_path_proven",
+    "packaged_flag_consumer_proven",
+    "nflasha1_selector_join_proven",
+    "updater_partition_selector_present",
+    "bootin_direct_updater_selector",
+    "external_or_opaque_selector_unresolved",
+}
+PACKAGED_SELECTOR_SCAN = {
+    "updater_flag_state_proven": True,
+    "lsi_notification_proven": True,
+    "lsi_flag_delivery_path_proven": True,
+    "packaged_flag_consumer_proven": True,
+    "nflasha1_selector_join_proven": False,
+    "updater_partition_selector_present": False,
+    "bootin_direct_updater_selector": False,
+    "external_or_opaque_selector_unresolved": True,
+}
+PACKAGED_SELECTOR_EVIDENCE = {
+    "sources": {
+        "libobj": {
+            "path": "lib/libObj.so",
+            "bytes": 20860436,
+            "sha256": "60ffd2b0f31f4bc139a7c13a4f62c25cdeb6a531ad5ef35df48471e6e36e88b1",
+        },
+        "up_sh": {
+            "path": "bin/up.sh",
+            "bytes": 5008,
+            "sha256": "03a70fd0d0ef269c0de9530398d1e4d7cd8fcb089286cff682ee32d097ad16bd",
+        },
+        "ud_send_lsi": {
+            "path": "bin/ud_send_lsi.elf",
+            "bytes": 4324,
+            "sha256": "2a9abc332aadf118c5b99fff3539fd9e702202c8f928c1e619d1b3a689fc30a6",
+        },
+        "libosal_uipc": {
+            "path": "lib/libosal_uipc.so",
+            "bytes": 26692,
+            "sha256": "b6ded35add9582413b401cf4db78ec2c9a201b632e78c2731d6bbb379249b3eb",
+        },
+        "crypter": {
+            "path": "bin/crypter.elf",
+            "bytes": 39084,
+            "sha256": "ec971fc3ae7452ff3c5a46959fdb6fa6d9a27087cb226b23cc2cce0289c84653",
+        },
+        "bootin": {
+            "path": "bin/bootin.elf",
+            "bytes": 13116,
+            "sha256": "44788cd57d3befcb5552006d73e7b5a3d92847a5710c084c696564673e09aad7",
+        },
+        "nested_body": {
+            "path": "bin/udtrbody.bin",
+            "bytes": 143360,
+            "sha256": "09ee888c8a5242a292eec30dff3eff3e017761a573dab0a9f89d80f2a1c96f81",
+        },
+        "nested_script": {
+            "path": "bin/udtrbody.bin_unpacked/bin/us_crc32sum_appli.sh",
+            "bytes": 1888,
+            "sha256": "991c31024ec077d6c43599df4f04d8c0b7e82f93e04b2a275368ea2c313bae41",
+        },
+    },
+    "libobj_literal_consumers": [
+        {
+            "owner": {"start": 0x83E5B8, "end": 0x83E6B4},
+            "classification": "mode-flag-literal-reference-owner",
+            "xrefs": [
+                {"path": "/setting/updater/mode", "load": 0x83E5DE, "add": 0x83E5E0},
+                {"path": "/setting/updater/mode6", "load": 0x83E604, "add": 0x83E606},
+                {"path": "/setting/updater/mode1", "load": 0x83E614, "add": 0x83E616},
+                {"path": "/setting/updater/mode3", "load": 0x83E61A, "add": 0x83E61C},
+            ],
+        },
+        {
+            "owner": {"start": 0x83E79C, "end": 0x83EBA8},
+            "classification": "mode-flag-literal-reference-owner",
+            "xrefs": [
+                {"path": "/setting/updater/mode", "load": 0x83E892, "add": 0x83E894},
+                {"path": "/setting/updater/mode", "load": 0x83E8BA, "add": 0x83E8BC},
+                {"path": "/setting/updater/mode3", "load": 0x83E8D0, "add": 0x83E8D2},
+                {"path": "/setting/updater/mode", "load": 0x83E8F8, "add": 0x83E8FA},
+                {"path": "/setting/updater/mode1", "load": 0x83E90E, "add": 0x83E910},
+                {"path": "/setting/updater/mode", "load": 0x83E934, "add": 0x83E936},
+                {"path": "/setting/updater/mode6", "load": 0x83E94A, "add": 0x83E94C},
+                {"path": "/setting/updater/mode", "load": 0x83E9C4, "add": 0x83E9C6},
+                {"path": "/setting/updater/mode3", "load": 0x83E9DA, "add": 0x83E9DC},
+            ],
+        },
+        {
+            "owner": {"start": 0x83F854, "end": 0x83FA4C},
+            "classification": "dat4-literal-reference-owner",
+            "xrefs": [
+                {"path": "/setting/updater/dat4", "load": 0x83F86E, "add": 0x83F872},
+            ],
+        },
+        {
+            "owner": {"start": 0x83FA4C, "end": 0x83FACC},
+            "classification": "dat4-literal-reference-owner",
+            "xrefs": [
+                {"path": "/setting/updater/dat4", "load": 0x83FA50, "add": 0x83FA58},
+            ],
+        },
+    ],
+    "up_sh": {
+        "mode_flags": ["mode", "mode1", "mode3", "mode6"],
+        "lsi_modes": [2, 3, 4, 6],
+        "nflasha1_role": "dat2-dat3-metadata-storage",
+        "dat4_role": "setting-partition-state",
+    },
+    "nested_updater_component": {
+        "mode_flags_written": ["mode", "mode6"],
+        "nflasha1_files_written": ["dat2", "dat3"],
+        "setting_files_written": ["dat4"],
+    },
+    "crypter": {
+        "flag_classes": [
+            "ModeFlagFile", "Mode3FlagFile", "Mode5FlagFile", "Mode6FlagFile"
+        ],
+        "nested_body_paths_present": True,
+    },
+    "bootin": {
+        "documented_application_modes": ["normal", "adj", "usbj"],
+        "named_reference_search": {
+            "scope": "printable-strings",
+            "needles": ["updater", "nflasha1"],
+            "hits": 0,
+        },
+    },
+    "lsi_delivery": {
+        "sender": {
+            "source": "ud_send_lsi",
+            "owner": {"start": 0x8734, "end": 0x87FC},
+            "backup_read": {
+                "site": 0x8746,
+                "symbol": "Backup_read",
+                "record_id": 0x4B0000,
+            },
+            "message_allocation": {
+                "site": 0x876C,
+                "symbol": "osal_valloc_msg_wait",
+                "destination": 0x804B0376,
+                "size": 4,
+            },
+            "message_source_id": 0x004B0379,
+            "source_id_store_site": 0x8786,
+            "mode_parse_site": 0x878A,
+            "mode_store_site": 0x8790,
+            "send_site": 0x8794,
+            "receive_site": 0x87B0,
+            "receive_timeout_ms": 3000,
+        },
+        "receiver_registration": {
+            "source": "libobj",
+            "owner": {"start": 0x83EBA8, "end": 0x83EC60},
+            "queue_id": 0x004B0376,
+            "queue_id_load_site": 0x83EC02,
+            "callback": 0x83E5B8,
+            "context": 0x1420D00,
+            "registration_site": 0x83EC0E,
+            "symbol": "osal_reg_msg_queue_cb",
+        },
+        "flag_callback": {
+            "source": "libobj",
+            "owner": {"start": 0x83E5B8, "end": 0x83E6B4},
+            "clear_helper": {
+                "owner": {"start": 0x83E54C, "end": 0x83E588},
+                "call_site": 0x83E5CE,
+                "command": "rm -f /setting/updater/mode*",
+                "command_address": 0x1001384,
+            },
+            "create_helper": {
+                "owner": {"start": 0x83E588, "end": 0x83E5B8},
+                "first_call_site": 0x83E5E4,
+                "second_call_site": 0x83E620,
+            },
+            "mode_paths": [
+                "/setting/updater/mode",
+                "/setting/updater/mode1",
+                "/setting/updater/mode3",
+                "/setting/updater/mode6",
+            ],
+            "mode_path_sites": [
+                {
+                    "path": "/setting/updater/mode",
+                    "load_site": 0x83E5DE,
+                    "add_site": 0x83E5E0,
+                    "address": 0x1001470,
+                },
+                {
+                    "path": "/setting/updater/mode1",
+                    "load_site": 0x83E614,
+                    "add_site": 0x83E616,
+                    "address": 0x10013E9,
+                },
+                {
+                    "path": "/setting/updater/mode3",
+                    "load_site": 0x83E61A,
+                    "add_site": 0x83E61C,
+                    "address": 0x1001400,
+                },
+                {
+                    "path": "/setting/updater/mode6",
+                    "load_site": 0x83E604,
+                    "add_site": 0x83E606,
+                    "address": 0x1001417,
+                },
+            ],
+            "mode_payloads": [2, 3, 4, 6],
+            "payload_routes": [
+                {
+                    "mode": 2,
+                    "compare_site": 0x83E5F2,
+                    "branch_site": 0x83E5F4,
+                    "branch_target": 0x83E660,
+                    "extra_mode_path": None,
+                },
+                {
+                    "mode": 3,
+                    "compare_site": 0x83E5FE,
+                    "branch_site": 0x83E602,
+                    "branch_target": 0x83E61A,
+                    "guard_branch_site": 0x83E600,
+                    "guard_mismatch_target": 0x83E60A,
+                    "extra_mode_path": "/setting/updater/mode3",
+                },
+                {
+                    "mode": 4,
+                    "compare_site": 0x83E5F6,
+                    "branch_site": 0x83E5F8,
+                    "branch_target": 0x83E614,
+                    "extra_mode_path": "/setting/updater/mode1",
+                },
+                {
+                    "mode": 6,
+                    "compare_site": 0x83E5FA,
+                    "branch_site": 0x83E5FC,
+                    "branch_target": 0x83E604,
+                    "extra_mode_path": "/setting/updater/mode6",
+                },
+            ],
+            "success_acknowledgement_path": {
+                "flag_create_success_branch_site": 0x83E624,
+                "flag_create_success_target": 0x83E660,
+                "allocation_success_branch_site": 0x83E676,
+                "allocation_success_target": 0x83E640,
+            },
+            "acknowledgement": {
+                "allocation_site": 0x83E66C,
+                "send_site": 0x83E644,
+                "free_site": 0x83E65A,
+            },
+        },
+        "osal_dispatch": {
+            "source": "libosal_uipc",
+            "send": {
+                "entry": 0x3C34,
+                "owner": {"start": 0x3B54, "end": 0x3D44},
+                "mask_sites": [0x3C68, 0x3C6C],
+                "lookup_call_site": 0x3C6E,
+            },
+            "registration": {
+                "entry": 0x4300,
+                "owner": {"start": 0x4300, "end": 0x43DC},
+                "mask_sites": [0x4330, 0x4332],
+                "lookup_call_site": 0x4334,
+            },
+            "queue_lookup": {"start": 0x3604, "end": 0x361C},
+            "queue_id_mask": 0x7FFF,
+            "normalized_queue_id": 0x376,
+            "callback_record": {
+                "wrapper_offset": 0x08,
+                "handler_offset": 0x14,
+                "context_offset": 0x18,
+                "wrapper_store_site": 0x435E,
+                "handler_store_site": 0x4354,
+                "context_store_site": 0x435A,
+            },
+            "wrapper": {
+                "owner": {"start": 0x3168, "end": 0x318C},
+                "entry": 0x3168,
+                "payload_offset": 0x0C,
+                "handler_load_site": 0x3178,
+                "context_load_site": 0x317E,
+                "handler_call_site": 0x3180,
+            },
+            "dispatch_owner": {"start": 0x3848, "end": 0x3A5C},
+            "indirect_dispatch_sites": [0x38A2, 0x38FA, 0x3992],
+        },
+        "claims": {
+            "packaged_lsi_flag_delivery_path_proven": True,
+            "local_flag_state_management_proven": True,
+            "success_acknowledgement_path_proven": True,
+            "all_payloads_acknowledged_proven": False,
+            "pre_normal_partition_selector_join_proven": False,
+            "external_or_opaque_selector_unresolved": True,
+        },
+    },
+    "selector_assessment": {
+        "nflasha1_selector_join_proven": False,
+        "bounded_named_reference_search_only": True,
+        "numeric_or_indirect_selector_analysis_complete": False,
+        "external_or_opaque_selector_unresolved": True,
+    },
+    "first_unresolved_edge": "pre-normal-or-opaque-mode-to-updater-partition-selector",
+}
 _CLAIM_FIELDS = {"classification", "source", "claim"}
 _FORBIDDEN_KEYS = {
     "raw_payload",
@@ -135,6 +448,22 @@ def _digest(value: object, label: str) -> str:
     return value
 
 
+def _narrative_sha256(document: dict) -> str:
+    narrative = {
+        "observations": document["observations"],
+        "inferences": document["inferences"],
+        "unresolved": document["unresolved"],
+        "conclusion": document["conclusion"],
+    }
+    payload = json.dumps(
+        narrative,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("ascii")
+    return hashlib.sha256(payload).hexdigest()
+
+
 def _reject_reconstructive_fields(value: object) -> None:
     if isinstance(value, dict):
         for key, nested in value.items():
@@ -167,11 +496,61 @@ def _validate_claims(document: dict) -> None:
             _bounded_text(claim["claim"], "Transition claim")
 
 
+def _validate_packaged_selector_scan(value: object) -> dict:
+    """Accept only the bounded false-lead result from packaged components.
+
+    The scan covers four identified libObj path-literal owners, parsed up.sh
+    and nested updater components, the crypter flag-file path, and bootin.elf
+    normal/adj/usbj mode handling.  False ``*_proven`` values mean the join is
+    not established, not that every numeric or indirect implementation has
+    been excluded.  The unavailable/opaque selector boundary stays explicit.
+    """
+    scan = _require_fields(value, _PACKAGED_SELECTOR_SCAN_FIELDS, "Packaged selector scan")
+    if scan != PACKAGED_SELECTOR_SCAN:
+        raise Cxd90045TransitionReportError("Packaged selector scan was altered or promoted")
+    return scan
+
+
+def _validate_packaged_selector_evidence(value: object) -> dict:
+    if value != PACKAGED_SELECTOR_EVIDENCE:
+        raise Cxd90045TransitionReportError(
+            "Packaged selector source evidence was altered or promoted"
+        )
+    return value
+
+
+def canonical_cxd90045_transition_digest(document: object) -> str:
+    """Return the canonical digest of a validated transition report."""
+    validated = validate_cxd90045_transition_report(document)
+    encoded = json.dumps(
+        validated, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("ascii")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def build_cxd90045_transition_report(
+    document: object, *, packaged_selector_evidence: object | None = None
+) -> dict:
+    """Upgrade a validated legacy report with the bounded selector result."""
+    if not isinstance(document, dict):
+        raise Cxd90045TransitionReportError("Transition source is invalid")
+    report = copy.deepcopy(document)
+    report["schema_version"] = 5
+    report["packaged_selector_scan"] = copy.deepcopy(PACKAGED_SELECTOR_SCAN)
+    evidence = (
+        PACKAGED_SELECTOR_EVIDENCE
+        if packaged_selector_evidence is None else packaged_selector_evidence
+    )
+    _validate_packaged_selector_evidence(evidence)
+    report["packaged_selector_evidence"] = copy.deepcopy(evidence)
+    return validate_cxd90045_transition_report(report)
+
+
 def validate_cxd90045_transition_report(document: object) -> dict:
     """Validate static evidence while rejecting a bypass or flash claim."""
     _require_fields(document, _TOP_FIELDS, "Transition report")
     _reject_reconstructive_fields(document)
-    if document["schema_version"] != 4:
+    if document["schema_version"] != 5:
         raise Cxd90045TransitionReportError("Transition schema is unsupported")
     if document["subject"] != (
         "ILCE-6400 CXD90045 transition, boot-mode, and persistent-updater boundary"
@@ -293,7 +672,7 @@ def validate_cxd90045_transition_report(document: object) -> dict:
         "mode_files_set_by_up_sh": True,
         "lsi_handoff_present": True,
         "normal_init_mounts_partition": False,
-        "selection_stage": "before-normal-userspace",
+        "selection_stage": "unresolved-before-or-outside-normal-userspace",
         "contents_acquired": False,
         "cbc_stage_located": False,
         "signature_verifier_located": False,
@@ -323,6 +702,13 @@ def validate_cxd90045_transition_report(document: object) -> dict:
     _digest(runtime["a6400_crypter_sha256"], "Alpha 6400 crypter digest")
     _digest(runtime["a7m3_crypter_sha256"], "Alpha 7 III crypter digest")
 
+    _validate_packaged_selector_scan(document["packaged_selector_scan"])
+    _validate_packaged_selector_evidence(document["packaged_selector_evidence"])
+
     _validate_claims(document)
     _bounded_text(document["conclusion"], "Transition conclusion")
+    if _narrative_sha256(document) != TRANSITION_NARRATIVE_SHA256:
+        raise Cxd90045TransitionReportError(
+            "Transition report narrative is not the fail-closed canonical text"
+        )
     return copy.deepcopy(document)

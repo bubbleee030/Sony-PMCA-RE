@@ -1,6 +1,8 @@
 """Validate and render bounded evidence for the α6400 updater gates."""
 
 import copy
+import json
+from pathlib import Path
 import re
 
 
@@ -9,6 +11,9 @@ class UpdaterGateError(ValueError):
 
 
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
+_REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+_RECOVERY_REPORT_PATH = _REPOSITORY_ROOT / "analysis" / "a6400-stock-200-recovery.json"
+_RECOVERY_SCENARIOS_PATH = _REPOSITORY_ROOT / "analysis" / "a6400-recovery-scenarios.json"
 _TOP_FIELDS = {
     "schema_version",
     "subject",
@@ -153,9 +158,62 @@ def validate_updater_gate_map(document: object) -> dict:
     return copy.deepcopy(document)
 
 
-def render_updater_gate_report(document: object) -> str:
+def _validated_recovery_checkpoint(
+    recovery_document: object | None,
+    scenario_document: object | None,
+) -> tuple[dict, dict]:
+    """Load strict recovery state lazily to avoid the validator import cycle."""
+
+    from .recovery_path import RecoveryPathError, validate_recovery_report
+    from .recovery_scenarios import (
+        RecoveryScenarioError,
+        validate_recovery_scenarios,
+    )
+
+    try:
+        if recovery_document is None:
+            recovery_document = json.loads(
+                _RECOVERY_REPORT_PATH.read_text(encoding="utf-8")
+            )
+        if scenario_document is None:
+            scenario_document = json.loads(
+                _RECOVERY_SCENARIOS_PATH.read_text(encoding="utf-8")
+            )
+        recovery = validate_recovery_report(recovery_document)
+        scenarios = validate_recovery_scenarios(scenario_document)
+    except (
+        OSError,
+        UnicodeError,
+        json.JSONDecodeError,
+        RecoveryPathError,
+        RecoveryScenarioError,
+    ) as error:
+        raise UpdaterGateError("Strict recovery checkpoint is unavailable") from error
+
+    scenario_reference = recovery["recovery_scenarios"]
+    recoverable_count = sum(
+        item["status"] == "RECOVERABLE" for item in scenarios["scenarios"]
+    )
+    if scenario_reference != {
+        "reference": "analysis/a6400-recovery-scenarios.json",
+        "scenario_count": len(scenarios["scenarios"]),
+        "recoverable_count": recoverable_count,
+    }:
+        raise UpdaterGateError("Recovery scenario checkpoint is inconsistent")
+    return recovery, scenarios
+
+
+def render_updater_gate_report(
+    document: object,
+    *,
+    recovery_document: object | None = None,
+    scenario_document: object | None = None,
+) -> str:
     """Render a deterministic Markdown report from a validated gate map."""
     document = validate_updater_gate_map(document)
+    recovery, scenarios = _validated_recovery_checkpoint(
+        recovery_document, scenario_document
+    )
     lines = [
         "# Sony α6400 Updater Enforcement Gate Report",
         "",
@@ -198,7 +256,51 @@ def render_updater_gate_report(document: object) -> str:
             ]
         )
 
-    lines.extend(["## Requested-feature assessment", ""])
+    stock = recovery["stock_bundle"]
+    architecture_control = recovery["architecture_controls"][0]
+    lines.extend(
+        [
+            "## Exact stock-recovery checkpoint",
+            "",
+            f"The official {stock['region']}/region-{stock['region_code']} α6400 {stock['version']} updater and its embedded stock container are digest-pinned in `{stock['reference']}`. This authenticates the exact source needed for restoration; it does not establish same-version reinstall acceptance, complete write coverage, boot recovery, or safe interruption behavior.",
+            "",
+            f"The strict recovery status is `{recovery['readiness']}`, with `recovery_validated={str(recovery['recovery_validated']).lower()}`, `camera_test_eligible={str(recovery['camera_test_eligible']).lower()}`, and `installable={str(recovery['installable']).lower()}`.",
+            "",
+            f"The α6400A receiver graph is retained as `{architecture_control['status']}`: source model `{architecture_control['source_model_id']}` differs from target `{architecture_control['target_model_id']}`, so the related guard/signature architecture does not establish the original α6400 selector or receiver, target acceptance, complete write order, terminal verification, or recovery. It changes no recovery readiness input.",
+            "",
+            "The packaged updater flag state, LSI notification, and bounded flag-consumer evidence are proven. They do not establish a next-boot partition selector: the `/dev/nflasha1 selector join` remains unproven, numeric or indirect selector analysis remains incomplete, and an external or opaque selector remains possible.",
+            "",
+            "Candidate paths:",
+            "",
+        ]
+    )
+    for candidate in recovery["candidates"]:
+        lines.append(f"- `{candidate['id']}` — `{candidate['status']}`")
+    lines.extend(["", "Mandatory failure scenarios:", ""])
+    for scenario in scenarios["scenarios"]:
+        coverage = ", ".join(
+            f"{item['id']}={item['status']}"
+            for item in scenario["candidate_coverage"]
+        )
+        lines.append(
+            f"- `{scenario['id']}` — `{scenario['status']}`; candidate coverage: {coverage}"
+        )
+    if recovery["readiness_basis"]["runtime_independent_entry_established"]:
+        entry_sentence = (
+            "A runtime-independent entry is established statically, but physical "
+            "recovery and camera testing remain unvalidated."
+        )
+    else:
+        entry_sentence = "No runtime-independent entry has been proven."
+    lines.extend(
+        [
+            "",
+            f"{entry_sentence} An in-camera settings reset would reset configuration only; it is not a route back to the exact stock firmware image.",
+            "",
+            "## Requested-feature assessment",
+            "",
+        ]
+    )
     for item in document["feature_assessment"]:
         label = {
             "vertical-ui": "Vertical UI",

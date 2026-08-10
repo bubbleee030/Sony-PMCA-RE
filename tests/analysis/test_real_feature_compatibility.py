@@ -24,6 +24,21 @@ class RealFeatureCompatibilityTests(unittest.TestCase):
                 for count in scope[field].values()
             )
         )
+        by_id = {item["id"]: item for item in document["features"]}
+        self.assertTrue(
+            any(
+                evidence["source"]
+                == "analysis/a6400-creative-look-boundary.json"
+                for evidence in by_id["creative-look-base-tables"]["evidence"]
+            )
+        )
+        self.assertTrue(
+            any(
+                evidence["source"]
+                == "analysis/a6400-creative-look-boundary.json"
+                for evidence in by_id["creative-look-adjustment-axes"]["evidence"]
+            )
+        )
 
 
 if __name__ == "__main__":

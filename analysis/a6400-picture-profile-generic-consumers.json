@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-picture-profile-generic-consumers",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "summary": {
+    "artifact_sha256": "b068bf450d0c27689fa44c4f3d1698dcebb60aab5771584752385d62b08340bf",
+    "generic_method_count": 14,
+    "named_direct_control_flow_count": 0,
+    "dynamic_typed_relocation_count": 0,
+    "pp1_pp9_reference_count": 0
+  },
+  "claims": {
+    "generic_base_interface_code_found": true,
+    "selected_profile_state_found": false,
+    "persistence_found": false,
+    "processing_found": false,
+    "output_found": false,
+    "interface_reuse_found": false,
+    "state_reuse_found": false,
+    "first_class_creative_look": false
+  },
+  "readiness": "GENERIC_BASE_INTERFACE_ONLY",
+  "conclusion": "The fourteen inherited Picture Profile selection, state, and setter methods are bounded typed base-class interface code. Their bounded ranges contain no named direct-control-flow edge, dynamic typed relocation, or PP1-PP9 node/property reference; construction and copy-construction PLT bindings are distinct. No selected-profile state, persistence, processing, output, reusable Creative Look interface, or first-class Creative Look behavior is established."
+}

@@ -19,6 +19,10 @@ class RealCreativeLookRecipeTests(unittest.TestCase):
             tuple(item["modern"]["code"] for item in document["defaults"]),
             LOOK_CODES,
         )
+        self.assertEqual(document["schema_version"], 2)
+        self.assertEqual(document["artifact_role"], "CREATIVE_STYLE_FALLBACK")
+        self.assertFalse(document["native_claim_basis"])
+        self.assertEqual(document["unrepresented_reference_looks"], ["FL2", "FL3"])
         self.assertEqual(len(document["community_experiments"]), 2)
         self.assertTrue(
             all(
@@ -49,6 +53,11 @@ class RealCreativeLookRecipeTests(unittest.TestCase):
                 "SH": ("Light", -1, -1, -1),
             },
         )
+        for item in document["defaults"]:
+            with self.subTest(code=item["modern"]["code"]):
+                self.assertIsNone(item["modern"]["sharpness_range"])
+                if item["modern"]["code"] in {"IN", "SH"}:
+                    self.assertIsNone(item["modern"]["sharpness"])
 
 
 if __name__ == "__main__":

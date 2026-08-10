@@ -1,0 +1,1377 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+  <meta name="creative-look-offline-only" content="true">
+  <title>α6400 Creative Look — Offline Prototype</title>
+  <style>
+:root {
+  color-scheme: dark;
+  --bg: #090b0d;
+  --panel: #11151a;
+  --panel-raised: #191e24;
+  --panel-soft: #20262d;
+  --ink: #f4f6f7;
+  --muted: #9ca6ae;
+  --line: rgba(255, 255, 255, 0.12);
+  --accent: #ff7a1a;
+  --accent-soft: rgba(255, 122, 26, 0.16);
+  --danger: #ff5d5d;
+  --success: #69d39b;
+  --radius: clamp(10px, 1.15vw, 18px);
+  --target: clamp(46px, 5.5vh, 68px);
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  overscroll-behavior: none;
+  background:
+    radial-gradient(circle at 20% 10%, #1c2025 0, transparent 34rem),
+    #07090b;
+}
+
+body {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 2vh 2vw;
+  overflow: hidden;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+.boot-message {
+  color: var(--muted);
+}
+
+.camera-shell {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  width: min(96vw, 1500px);
+  max-height: 96vh;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid #333a42;
+  border-radius: clamp(14px, 1.5vw, 24px);
+  background: var(--panel);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.62);
+}
+
+body[data-orientation^="portrait"] .camera-shell {
+  width: min(92vw, 670px);
+  height: min(96vh, 1190px);
+  max-height: 96vh;
+  aspect-ratio: 9 / 16;
+}
+
+.topbar {
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  min-height: clamp(64px, 9vh, 92px);
+  padding: 0.8rem clamp(1rem, 2.2vw, 2rem);
+  border-bottom: 1px solid var(--line);
+  background: rgba(8, 11, 14, 0.95);
+}
+
+body[data-orientation="portrait_shutter_down"] .topbar {
+  direction: rtl;
+}
+
+body[data-orientation="portrait_shutter_down"] .title-stack,
+body[data-orientation="portrait_shutter_down"] .system-tools {
+  direction: ltr;
+}
+
+.eyebrow {
+  margin: 0 0 0.15rem;
+  color: var(--accent);
+  font-size: clamp(0.63rem, 1vw, 0.82rem);
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.screen-title {
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: clamp(1.05rem, 2.1vw, 1.8rem);
+  font-weight: 630;
+  line-height: 1.12;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.system-tools {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.icon-button,
+.orientation-button,
+.tool-button,
+.nav-button {
+  display: inline-grid;
+  min-width: var(--target);
+  min-height: var(--target);
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-raised);
+  cursor: pointer;
+}
+
+.icon-button:hover,
+.orientation-button:hover,
+.tool-button:hover,
+.nav-button:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: var(--panel-soft);
+}
+
+.orientation-button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.orientation-symbol {
+  display: block;
+  width: 1.55rem;
+  height: 1.05rem;
+  border: 2px solid currentColor;
+  border-radius: 0.2rem;
+  transition: transform 160ms ease;
+}
+
+.orientation-button[data-value^="portrait"] .orientation-symbol {
+  transform: rotate(90deg);
+}
+
+.orientation-button[data-value="portrait_shutter_down"] .orientation-symbol {
+  transform: rotate(-90deg);
+}
+
+.content {
+  position: relative;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-color: #48515a transparent;
+  scrollbar-width: thin;
+}
+
+.content-inner {
+  min-height: 100%;
+  padding: clamp(0.9rem, 2.2vw, 2rem);
+}
+
+.catalog-grid,
+.base-grid,
+.value-grid {
+  display: grid;
+  gap: clamp(0.55rem, 1.2vw, 1rem);
+}
+
+.catalog-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.base-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.value-grid {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+body[data-orientation^="portrait"] .catalog-grid,
+body[data-orientation^="portrait"] .base-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+body[data-orientation^="portrait"] .value-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.look-card,
+.base-card {
+  position: relative;
+  display: grid;
+  min-height: clamp(104px, 16vh, 158px);
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #262c32;
+  text-align: left;
+  cursor: pointer;
+}
+
+.look-card:hover,
+.base-card:hover,
+.look-card[aria-current="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+.look-card:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+  opacity: 0.5;
+}
+
+.swatch {
+  min-height: clamp(58px, 9vh, 96px);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 42%),
+    linear-gradient(135deg, var(--swatch-a), var(--swatch-b));
+}
+
+.custom-swatch {
+  display: grid;
+  place-items: center;
+  min-height: clamp(58px, 9vh, 96px);
+  color: rgba(255, 255, 255, 0.82);
+  background:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.07) 25%, transparent 25%) 0 0 / 20px 20px,
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.07) 25%, transparent 25%) 0 0 / 20px 20px,
+    #343b43;
+  font-size: clamp(1.3rem, 3vw, 2.3rem);
+  font-weight: 760;
+}
+
+.look-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  background: rgba(11, 14, 17, 0.92);
+}
+
+.look-code {
+  font-size: clamp(0.92rem, 1.5vw, 1.2rem);
+  font-weight: 760;
+}
+
+.look-name {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: clamp(0.68rem, 0.95vw, 0.82rem);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modified-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.section-intro {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  justify-content: space-between;
+  margin: 0 0 1rem;
+}
+
+.section-intro h2,
+.section-intro p {
+  margin: 0;
+}
+
+.section-intro h2 {
+  font-size: clamp(1rem, 2vw, 1.55rem);
+}
+
+.section-intro p {
+  max-width: 40rem;
+  color: var(--muted);
+  font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+}
+
+.editor-layout {
+  display: grid;
+  grid-template-columns: minmax(200px, 0.72fr) minmax(0, 1.7fr);
+  gap: clamp(0.8rem, 2vw, 1.6rem);
+}
+
+body[data-orientation^="portrait"] .editor-layout {
+  grid-template-columns: 1fr;
+}
+
+.look-hero {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-raised);
+}
+
+body[data-orientation^="portrait"] .look-hero {
+  position: static;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+}
+
+.hero-swatch {
+  min-height: clamp(150px, 27vh, 260px);
+  background:
+    linear-gradient(140deg, rgba(255, 255, 255, 0.18), transparent 40%),
+    linear-gradient(140deg, var(--swatch-a), var(--swatch-b));
+}
+
+body[data-orientation^="portrait"] .hero-swatch {
+  min-height: 112px;
+}
+
+.hero-copy {
+  padding: clamp(0.9rem, 2vw, 1.4rem);
+}
+
+.hero-code {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 4.2rem);
+  line-height: 0.95;
+}
+
+.hero-copy p {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+}
+
+.axis-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.axis-row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1fr) minmax(8rem, 1.4fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  min-height: var(--target);
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 0.75);
+  background: var(--panel-raised);
+  cursor: pointer;
+}
+
+body[data-orientation^="portrait"] .axis-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.axis-row:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.axis-row:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.axis-label {
+  font-weight: 620;
+}
+
+.axis-range {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+body[data-orientation^="portrait"] .axis-range {
+  display: none;
+}
+
+.axis-value {
+  min-width: 4.2rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.axis-value.is-modified {
+  color: var(--accent);
+  font-weight: 760;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+}
+
+.tool-button,
+.nav-button {
+  grid-auto-flow: column;
+  gap: 0.5rem;
+  min-width: 7.5rem;
+  padding: 0 1rem;
+  border-radius: calc(var(--radius) * 0.75);
+  font-weight: 650;
+}
+
+.tool-button.primary {
+  border-color: var(--accent);
+  color: #111;
+  background: var(--accent);
+}
+
+.value-button {
+  display: grid;
+  min-height: clamp(54px, 8.5vh, 82px);
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-raised);
+  font-size: clamp(0.9rem, 1.7vw, 1.25rem);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.value-button:hover,
+.value-button[aria-current="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.bottom-bar {
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  min-height: clamp(54px, 7.5vh, 76px);
+  padding: 0.55rem clamp(1rem, 2.2vw, 2rem);
+  border-top: 1px solid var(--line);
+  background: #090c0f;
+}
+
+body[data-orientation="portrait_shutter_down"] .bottom-bar {
+  direction: rtl;
+}
+
+.boundary-copy {
+  min-width: 0;
+  color: var(--muted);
+  font-size: clamp(0.62rem, 0.9vw, 0.78rem);
+  line-height: 1.3;
+}
+
+.boundary-copy strong {
+  color: var(--success);
+  font-weight: 660;
+}
+
+.utility-tools {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.utility-tools .icon-button {
+  min-width: calc(var(--target) * 0.9);
+  min-height: calc(var(--target) * 0.9);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.context-panel {
+  position: absolute;
+  z-index: 20;
+  top: clamp(64px, 9vh, 92px);
+  right: 0;
+  display: grid;
+  width: min(360px, 90%);
+  max-height: calc(100% - clamp(118px, 16.5vh, 168px));
+  gap: 0.65rem;
+  padding: 1rem;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-right: 0;
+  border-radius: 0 0 0 var(--radius);
+  background: rgba(18, 22, 27, 0.98);
+  box-shadow: -18px 20px 48px rgba(0, 0, 0, 0.45);
+}
+
+body[data-orientation="portrait_shutter_down"] .context-panel {
+  right: auto;
+  left: 0;
+  border-right: 1px solid var(--line);
+  border-left: 0;
+  border-radius: 0 0 var(--radius) 0;
+}
+
+.context-panel[hidden] {
+  display: none;
+}
+
+.context-panel h2,
+.context-panel p {
+  margin: 0;
+}
+
+.context-panel p {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.mode-toggle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  min-height: var(--target);
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 0.7);
+  background: var(--panel-raised);
+  cursor: pointer;
+}
+
+.mode-toggle input {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--accent);
+}
+
+.unavailable-banner,
+.notice {
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(255, 93, 93, 0.42);
+  border-radius: var(--radius);
+  color: #ffd2d2;
+  background: rgba(123, 26, 26, 0.28);
+}
+
+.notice {
+  border-color: var(--line);
+  color: var(--muted);
+  background: var(--panel-raised);
+}
+
+.toast {
+  position: absolute;
+  z-index: 30;
+  left: 50%;
+  bottom: clamp(66px, 9vh, 96px);
+  max-width: min(88%, 540px);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  background: rgba(20, 24, 29, 0.98);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.46);
+  transform: translateX(-50%);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.toast[data-level="error"] {
+  border-color: var(--danger);
+}
+
+.toast[hidden] {
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.6rem);
+}
+
+.file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 820px) and (orientation: landscape) {
+  .topbar {
+    min-height: 58px;
+  }
+
+  .bottom-bar {
+    min-height: 50px;
+  }
+
+  .look-card,
+  .base-card {
+    min-height: 88px;
+  }
+
+  .look-name,
+  .boundary-copy span {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+  </style>
+</head>
+<body data-orientation="landscape">
+  <main id="creative-look-app" aria-live="polite">
+    <p class="boot-message">Loading offline Creative Look prototype…</p>
+  </main>
+  <script id="creative-look-bootstrap" type="application/json">{"schema_version":1,"offline_only":true,"target":"ILCE-6400","reference":"ILCE-7M5","processing_binding":"UNBOUND_TARGET","safety":{"recovery_validated":false,"camera_test_eligible":false,"installable":false},"contract":{"built_in_looks":["ST","PT","NT","VV","VV2","FL","FL2","FL3","IN","SH","BW","SE"],"custom_slots":["Custom1","Custom2","Custom3","Custom4","Custom5","Custom6"],"orientations":["landscape","portrait_shutter_up","portrait_shutter_down"],"modes":["intelligent_auto","picture_profile_not_off","flexible_iso_log","movie_mode"],"look_labels":{"ST":"Standard","PT":"Portrait","NT":"Neutral","VV":"Vivid","VV2":"Vivid 2","FL":"Film","FL2":"Film 2","FL3":"Film 3","IN":"Instant","SH":"Soft High-key","BW":"Black \u0026 White","SE":"Sepia"},"axis_labels":{"contrast":"Contrast","highlights":"Highlights","shadows":"Shadows","fade":"Fade","saturation":"Saturation","sharpness":"Sharpness","sharpness_range":"Sharpness Range","clarity":"Clarity"},"mode_labels":{"intelligent_auto":"Intelligent Auto","picture_profile_not_off":"Picture Profile active","flexible_iso_log":"Flexible ISO Log","movie_mode":"Movie mode"},"axes":{"contrast":{"minimum":-9,"maximum":9,"label":"Contrast"},"highlights":{"minimum":-9,"maximum":9,"label":"Highlights"},"shadows":{"minimum":-9,"maximum":9,"label":"Shadows"},"fade":{"minimum":0,"maximum":9,"label":"Fade"},"saturation":{"minimum":-9,"maximum":9,"label":"Saturation"},"sharpness":{"minimum":0,"maximum":9,"label":"Sharpness"},"sharpness_range":{"minimum":1,"maximum":5,"label":"Sharpness Range"},"clarity":{"minimum":0,"maximum":9,"label":"Clarity"}},"look_swatches":{"ST":{"start":"#657382","end":"#384651"},"PT":{"start":"#d09a87","end":"#704a52"},"NT":{"start":"#8a908a","end":"#4a504d"},"VV":{"start":"#ef7138","end":"#954eaa"},"VV2":{"start":"#de3c5c","end":"#2c78c5"},"FL":{"start":"#8da57d","end":"#495c50"},"FL2":{"start":"#d5a55d","end":"#654c52"},"FL3":{"start":"#4d7f91","end":"#ba705c"},"IN":{"start":"#d3b07f","end":"#736451"},"SH":{"start":"#d9d7c9","end":"#969b9d"},"BW":{"start":"#d5d5d5","end":"#343434"},"SE":{"start":"#c59b63","end":"#5d4029"}},"storage_key":"a6400.creative-look.offline.v1"},"initial_state":{"schema_version":1,"offline_only":true,"target":"ILCE-6400","reference":"ILCE-7M5","processing_binding":"UNBOUND_TARGET","selected_look":"ST","screen":"catalog","orientation":"landscape","editing_axis":null,"custom_bases":{"Custom1":null,"Custom2":null,"Custom3":null,"Custom4":null,"Custom5":null,"Custom6":null},"adjustments":{"BW":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"Custom1":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"Custom2":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"Custom3":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"Custom4":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"Custom5":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"Custom6":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"FL":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"FL2":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"FL3":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"IN":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"NT":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"PT":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"SE":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"SH":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"ST":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"VV":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null},"VV2":{"clarity":null,"contrast":null,"fade":null,"highlights":null,"saturation":null,"shadows":null,"sharpness":null,"sharpness_range":null}},"modes":{"flexible_iso_log":false,"intelligent_auto":false,"movie_mode":false,"picture_profile_not_off":false},"safety":{"recovery_validated":false,"camera_test_eligible":false,"installable":false}}}</script>
+  <script>
+(function (root, factory) {
+  "use strict";
+  const api = factory();
+  if (typeof module === "object" && module.exports) {
+    module.exports = api;
+    return;
+  }
+  root.CreativeLookOfflineApp = api;
+  const start = function () {
+    api.boot(document, root.localStorage);
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start, { once: true });
+  } else {
+    start();
+  }
+})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  "use strict";
+
+  const STATE_FIELDS = [
+    "schema_version",
+    "offline_only",
+    "target",
+    "reference",
+    "processing_binding",
+    "selected_look",
+    "screen",
+    "orientation",
+    "editing_axis",
+    "custom_bases",
+    "adjustments",
+    "modes",
+    "safety",
+  ];
+  const SCREENS = ["catalog", "custom_base", "editor", "axis_picker"];
+  const SAFETY = {
+    recovery_validated: false,
+    camera_test_eligible: false,
+    installable: false,
+  };
+
+  function fail(message) {
+    throw new Error(message);
+  }
+
+  function clone(value) {
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  function sameMembers(actual, expected) {
+    if (!actual || typeof actual !== "object" || Array.isArray(actual)) {
+      return false;
+    }
+    const left = Object.keys(actual).sort();
+    const right = expected.slice().sort();
+    return left.length === right.length && left.every((key, index) => key === right[index]);
+  }
+
+  function exactObject(actual, expected) {
+    if (!sameMembers(actual, Object.keys(expected))) {
+      return false;
+    }
+    return Object.keys(expected).every((key) => actual[key] === expected[key]);
+  }
+
+  function validStringArray(value) {
+    return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string" && item.length > 0);
+  }
+
+  function createCore(contract) {
+    if (!contract || typeof contract !== "object") {
+      fail("Creative Look contract is missing");
+    }
+    const builtIns = contract.built_in_looks;
+    const customSlots = contract.custom_slots;
+    const orientations = contract.orientations;
+    const modes = contract.modes;
+    const axes = contract.axes;
+    if (!validStringArray(builtIns) || !validStringArray(customSlots) || !validStringArray(orientations) || !validStringArray(modes)) {
+      fail("Creative Look contract membership is invalid");
+    }
+    if (!axes || typeof axes !== "object" || Array.isArray(axes) || Object.keys(axes).length !== 8) {
+      fail("Creative Look axis contract is invalid");
+    }
+    Object.entries(axes).forEach(([axis, definition]) => {
+      if (!axis || !definition || !Number.isInteger(definition.minimum) || !Number.isInteger(definition.maximum) || definition.minimum > definition.maximum) {
+        fail("Creative Look axis range is invalid");
+      }
+    });
+    const lookIds = builtIns.concat(customSlots);
+    const axisIds = Object.keys(axes);
+
+    function isModeUnavailable(state) {
+      return state.modes.intelligent_auto || state.modes.picture_profile_not_off || state.modes.flexible_iso_log;
+    }
+
+    function resolvedBase(state) {
+      return builtIns.includes(state.selected_look)
+        ? state.selected_look
+        : state.custom_bases[state.selected_look];
+    }
+
+    function axisAvailability(state, axis) {
+      if (!axisIds.includes(axis)) {
+        fail("axis identifier is invalid");
+      }
+      if (isModeUnavailable(state)) {
+        return { enabled: false, reason: "CREATIVE_LOOK_MODE_UNAVAILABLE" };
+      }
+      if (axis === "saturation" && ["BW", "SE"].includes(resolvedBase(state))) {
+        return { enabled: false, reason: "BW_SE_SATURATION_UNAVAILABLE" };
+      }
+      if (axis === "sharpness_range" && state.modes.movie_mode) {
+        return { enabled: false, reason: "MOVIE_SHARPNESS_RANGE_UNAVAILABLE" };
+      }
+      return { enabled: true, reason: null };
+    }
+
+    function validateState(candidate) {
+      if (!candidate || typeof candidate !== "object" || Array.isArray(candidate) || !sameMembers(candidate, STATE_FIELDS)) {
+        fail("experience state fields are not exact");
+      }
+      if (
+        candidate.schema_version !== 1 ||
+        candidate.offline_only !== true ||
+        candidate.target !== "ILCE-6400" ||
+        candidate.reference !== "ILCE-7M5" ||
+        candidate.processing_binding !== "UNBOUND_TARGET"
+      ) {
+        fail("experience identity or binding is invalid");
+      }
+      if (!lookIds.includes(candidate.selected_look)) {
+        fail("selected look is invalid");
+      }
+      if (!SCREENS.includes(candidate.screen) || !orientations.includes(candidate.orientation)) {
+        fail("screen or orientation is invalid");
+      }
+      if (candidate.editing_axis !== null && !axisIds.includes(candidate.editing_axis)) {
+        fail("editing axis is invalid");
+      }
+      if ((candidate.screen === "axis_picker") !== (candidate.editing_axis !== null)) {
+        fail("axis picker state is inconsistent");
+      }
+      if (!sameMembers(candidate.custom_bases, customSlots)) {
+        fail("Custom slot membership is invalid");
+      }
+      customSlots.forEach((slot) => {
+        const base = candidate.custom_bases[slot];
+        if (base !== null && !builtIns.includes(base)) {
+          fail("Custom base is invalid");
+        }
+      });
+      if (!sameMembers(candidate.adjustments, lookIds)) {
+        fail("adjustment membership is invalid");
+      }
+      lookIds.forEach((look) => {
+        const values = candidate.adjustments[look];
+        if (!sameMembers(values, axisIds)) {
+          fail("axis membership is invalid");
+        }
+        axisIds.forEach((axis) => {
+          const value = values[axis];
+          const definition = axes[axis];
+          if (value !== null && (!Number.isInteger(value) || value < definition.minimum || value > definition.maximum)) {
+            fail("axis state is out of range");
+          }
+        });
+      });
+      if (!sameMembers(candidate.modes, modes) || modes.some((mode) => typeof candidate.modes[mode] !== "boolean")) {
+        fail("mode state is invalid");
+      }
+      if (!exactObject(candidate.safety, SAFETY)) {
+        fail("camera safety state is invalid");
+      }
+      if (
+        customSlots.includes(candidate.selected_look) &&
+        candidate.custom_bases[candidate.selected_look] === null &&
+        ["editor", "axis_picker"].includes(candidate.screen)
+      ) {
+        fail("unconfigured Custom slot cannot be edited");
+      }
+      if (isModeUnavailable(candidate) && candidate.screen !== "catalog") {
+        fail("unavailable Creative Look mode must remain on the catalog screen");
+      }
+      if (candidate.screen === "axis_picker" && !axisAvailability(candidate, candidate.editing_axis).enabled) {
+        fail("restricted axis cannot remain open");
+      }
+      return clone(candidate);
+    }
+
+    function requireMode(state) {
+      if (isModeUnavailable(state)) {
+        fail("CREATIVE_LOOK_MODE_UNAVAILABLE");
+      }
+    }
+
+    function transition(current, action) {
+      const state = validateState(current);
+      if (!action || typeof action !== "object" || typeof action.type !== "string") {
+        fail("interaction action is invalid");
+      }
+      switch (action.type) {
+        case "SET_ORIENTATION":
+          if (!orientations.includes(action.orientation)) {
+            fail("orientation is invalid");
+          }
+          state.orientation = action.orientation;
+          break;
+        case "SELECT_LOOK":
+          requireMode(state);
+          if (!lookIds.includes(action.look)) {
+            fail("look identifier is invalid");
+          }
+          state.selected_look = action.look;
+          state.editing_axis = null;
+          state.screen = customSlots.includes(action.look) && state.custom_bases[action.look] === null
+            ? "custom_base"
+            : "editor";
+          break;
+        case "SELECT_CUSTOM_BASE":
+          requireMode(state);
+          if (!customSlots.includes(state.selected_look) || !builtIns.includes(action.base)) {
+            fail("Custom base selection is invalid");
+          }
+          state.custom_bases[state.selected_look] = action.base;
+          state.screen = "editor";
+          state.editing_axis = null;
+          break;
+        case "OPEN_AXIS": {
+          requireMode(state);
+          const availability = axisAvailability(state, action.axis);
+          if (!availability.enabled) {
+            fail(availability.reason);
+          }
+          state.screen = "axis_picker";
+          state.editing_axis = action.axis;
+          break;
+        }
+        case "SET_AXIS": {
+          requireMode(state);
+          const availability = axisAvailability(state, action.axis);
+          if (!availability.enabled) {
+            fail(availability.reason);
+          }
+          const definition = axes[action.axis];
+          if (
+            action.value !== null &&
+            (!Number.isInteger(action.value) || action.value < definition.minimum || action.value > definition.maximum)
+          ) {
+            fail("axis value is out of range");
+          }
+          state.adjustments[state.selected_look][action.axis] = action.value;
+          state.screen = "editor";
+          state.editing_axis = null;
+          break;
+        }
+        case "RESET_SELECTED":
+          requireMode(state);
+          axisIds.forEach((axis) => {
+            state.adjustments[state.selected_look][axis] = null;
+          });
+          break;
+        case "BACK_TO_CATALOG":
+          state.screen = "catalog";
+          state.editing_axis = null;
+          break;
+        case "BACK":
+          if (state.screen === "axis_picker") {
+            state.screen = "editor";
+            state.editing_axis = null;
+          } else {
+            state.screen = "catalog";
+            state.editing_axis = null;
+          }
+          break;
+        case "SET_MODE":
+          if (!modes.includes(action.mode) || typeof action.value !== "boolean") {
+            fail("mode update is invalid");
+          }
+          state.modes[action.mode] = action.value;
+          if (isModeUnavailable(state)) {
+            state.screen = "catalog";
+            state.editing_axis = null;
+          } else if (state.screen === "axis_picker" && !axisAvailability(state, state.editing_axis).enabled) {
+            state.screen = "editor";
+            state.editing_axis = null;
+          }
+          break;
+        default:
+          fail("interaction action is unsupported");
+      }
+      return validateState(state);
+    }
+
+    return {
+      validateState,
+      transition,
+      axisAvailability,
+      isModeUnavailable,
+      resolvedBase,
+      isModified: function (state, look) {
+        return axisIds.some((axis) => state.adjustments[look][axis] !== null);
+      },
+      serialize: function (state) {
+        return JSON.stringify(validateState(state));
+      },
+      builtIns: builtIns.slice(),
+      customSlots: customSlots.slice(),
+      lookIds: lookIds.slice(),
+      axisIds: axisIds.slice(),
+      orientations: orientations.slice(),
+      modes: modes.slice(),
+      axes: clone(axes),
+    };
+  }
+
+  function element(documentObject, tag, className, text) {
+    const node = documentObject.createElement(tag);
+    if (className) {
+      node.className = className;
+    }
+    if (text !== undefined) {
+      node.textContent = text;
+    }
+    return node;
+  }
+
+  function button(documentObject, className, text, action, value) {
+    const node = element(documentObject, "button", className, text);
+    node.type = "button";
+    node.dataset.action = action;
+    if (value !== undefined) {
+      node.dataset.value = value;
+    }
+    return node;
+  }
+
+  function boot(documentObject, storage) {
+    const bootstrapNode = documentObject.getElementById("creative-look-bootstrap");
+    const rootNode = documentObject.getElementById("creative-look-app");
+    if (!bootstrapNode || !rootNode) {
+      fail("offline prototype document is incomplete");
+    }
+    const bootstrap = JSON.parse(bootstrapNode.textContent);
+    if (
+      bootstrap.schema_version !== 1 ||
+      bootstrap.offline_only !== true ||
+      bootstrap.processing_binding !== "UNBOUND_TARGET" ||
+      !exactObject(bootstrap.safety, SAFETY)
+    ) {
+      fail("offline prototype bootstrap is unsafe");
+    }
+    const contract = bootstrap.contract;
+    const core = createCore(contract);
+    let state = core.validateState(bootstrap.initial_state);
+    let contextOpen = false;
+    let toastTimer = null;
+
+    try {
+      const saved = storage.getItem(contract.storage_key);
+      if (saved !== null) {
+        state = core.validateState(JSON.parse(saved));
+      }
+    } catch (error) {
+      state = core.validateState(bootstrap.initial_state);
+    }
+
+    function persist() {
+      try {
+        storage.setItem(contract.storage_key, core.serialize(state));
+      } catch (error) {
+        showToast("Browser persistence is unavailable; export state before closing.", "error");
+      }
+    }
+
+    function showToast(message, level) {
+      const toast = rootNode.querySelector(".toast");
+      if (!toast) {
+        return;
+      }
+      toast.textContent = message;
+      toast.dataset.level = level || "info";
+      toast.hidden = false;
+      if (toastTimer !== null) {
+        clearTimeout(toastTimer);
+      }
+      toastTimer = setTimeout(function () {
+        toast.hidden = true;
+      }, 2600);
+    }
+
+    function screenTitle() {
+      if (state.screen === "catalog") return "Creative Look";
+      if (state.screen === "custom_base") return state.selected_look + " · Choose base";
+      if (state.screen === "axis_picker") return contract.axes[state.editing_axis].label;
+      const label = core.customSlots.includes(state.selected_look)
+        ? "Custom Look"
+        : contract.look_labels[state.selected_look];
+      return state.selected_look + " · " + label;
+    }
+
+    function swatchFor(look) {
+      const resolved = core.builtIns.includes(look) ? look : state.custom_bases[look];
+      return resolved ? contract.look_swatches[resolved] : null;
+    }
+
+    function applySwatch(node, look) {
+      const swatch = swatchFor(look);
+      if (swatch) {
+        node.style.setProperty("--swatch-a", swatch.start);
+        node.style.setProperty("--swatch-b", swatch.end);
+      }
+    }
+
+    function renderTopbar(shell) {
+      const topbar = element(documentObject, "header", "topbar");
+      const title = element(documentObject, "div", "title-stack");
+      title.append(element(documentObject, "p", "eyebrow", "α6400 · Offline native prototype"));
+      title.append(element(documentObject, "h1", "screen-title", screenTitle()));
+      topbar.append(title);
+
+      const tools = element(documentObject, "div", "system-tools");
+      core.orientations.forEach((orientation) => {
+        const control = button(documentObject, "orientation-button", "", "orientation", orientation);
+        control.dataset.value = orientation;
+        control.setAttribute("aria-label", orientation.replaceAll("_", " "));
+        control.setAttribute("aria-pressed", String(state.orientation === orientation));
+        control.append(element(documentObject, "span", "orientation-symbol"));
+        tools.append(control);
+      });
+      const context = button(documentObject, "icon-button", "CTX", "toggle-context");
+      context.setAttribute("aria-label", "Toggle shooting context test controls");
+      context.setAttribute("aria-expanded", String(contextOpen));
+      tools.append(context);
+      topbar.append(tools);
+      shell.append(topbar);
+    }
+
+    function renderCatalog(content) {
+      if (core.isModeUnavailable(state)) {
+        content.append(element(documentObject, "p", "unavailable-banner", "Creative Look is unavailable in the current shooting context. Change Context settings to continue."));
+      }
+      const grid = element(documentObject, "div", "catalog-grid");
+      core.lookIds.forEach((look) => {
+        const card = button(documentObject, "look-card", "", "select-look", look);
+        card.disabled = core.isModeUnavailable(state);
+        card.setAttribute("aria-current", String(state.selected_look === look));
+        const isCustom = core.customSlots.includes(look);
+        const swatch = element(documentObject, "div", isCustom && !swatchFor(look) ? "custom-swatch" : "swatch");
+        if (isCustom && !swatchFor(look)) {
+          swatch.textContent = look.replace("Custom", "C");
+        } else {
+          applySwatch(swatch, look);
+        }
+        card.append(swatch);
+        const meta = element(documentObject, "div", "look-meta");
+        const copy = element(documentObject, "div", "look-copy");
+        copy.append(element(documentObject, "span", "look-code", look));
+        const subtitle = isCustom
+          ? (state.custom_bases[look] ? "Base · " + state.custom_bases[look] : "Choose a base")
+          : contract.look_labels[look];
+        copy.append(element(documentObject, "span", "look-name", subtitle));
+        meta.append(copy);
+        if (core.isModified(state, look)) {
+          const dot = element(documentObject, "span", "modified-dot");
+          dot.setAttribute("aria-label", "Modified");
+          meta.append(dot);
+        }
+        card.append(meta);
+        grid.append(card);
+      });
+      content.append(grid);
+    }
+
+    function renderCustomBase(content) {
+      const intro = element(documentObject, "div", "section-intro");
+      const copy = element(documentObject, "div");
+      copy.append(element(documentObject, "h2", "", "Choose a built-in starting point"));
+      copy.append(element(documentObject, "p", "", "The Custom slot keeps its own eight adjustment values."));
+      intro.append(copy);
+      intro.append(button(documentObject, "nav-button", "Back", "back"));
+      content.append(intro);
+      const grid = element(documentObject, "div", "base-grid");
+      core.builtIns.forEach((look) => {
+        const card = button(documentObject, "base-card", "", "select-base", look);
+        const swatch = element(documentObject, "div", "swatch");
+        applySwatch(swatch, look);
+        card.append(swatch);
+        const meta = element(documentObject, "div", "look-meta");
+        const copyNode = element(documentObject, "div", "look-copy");
+        copyNode.append(element(documentObject, "span", "look-code", look));
+        copyNode.append(element(documentObject, "span", "look-name", contract.look_labels[look]));
+        meta.append(copyNode);
+        card.append(meta);
+        grid.append(card);
+      });
+      content.append(grid);
+    }
+
+    function displayValue(value) {
+      if (value === null) return "Default";
+      return value > 0 ? "+" + value : String(value);
+    }
+
+    function renderEditor(content) {
+      const layout = element(documentObject, "div", "editor-layout");
+      const hero = element(documentObject, "section", "look-hero");
+      const heroSwatch = element(documentObject, "div", "hero-swatch");
+      applySwatch(heroSwatch, state.selected_look);
+      hero.append(heroSwatch);
+      const heroCopy = element(documentObject, "div", "hero-copy");
+      heroCopy.append(element(documentObject, "h2", "hero-code", state.selected_look));
+      const base = core.resolvedBase(state);
+      heroCopy.append(element(documentObject, "p", "", core.customSlots.includes(state.selected_look) ? "Custom base · " + base : contract.look_labels[state.selected_look]));
+      heroCopy.append(element(documentObject, "p", "", "Swatch is a navigation aid, not Sony color output."));
+      hero.append(heroCopy);
+      layout.append(hero);
+
+      const panel = element(documentObject, "section", "axis-panel");
+      const list = element(documentObject, "div", "axis-list");
+      core.axisIds.forEach((axis) => {
+        const availability = core.axisAvailability(state, axis);
+        const row = button(documentObject, "axis-row", "", "open-axis", axis);
+        row.disabled = !availability.enabled;
+        row.title = availability.reason || contract.axes[axis].label;
+        row.append(element(documentObject, "span", "axis-label", contract.axes[axis].label));
+        row.append(element(documentObject, "span", "axis-range", contract.axes[axis].minimum + " … " + contract.axes[axis].maximum));
+        const current = state.adjustments[state.selected_look][axis];
+        row.append(element(documentObject, "span", current === null ? "axis-value" : "axis-value is-modified", availability.enabled ? displayValue(current) : "Unavailable"));
+        list.append(row);
+      });
+      panel.append(list);
+      const actions = element(documentObject, "div", "editor-actions");
+      actions.append(button(documentObject, "tool-button", "Catalog", "catalog"));
+      actions.append(button(documentObject, "tool-button primary", "Reset Look", "reset"));
+      panel.append(actions);
+      layout.append(panel);
+      content.append(layout);
+    }
+
+    function renderAxisPicker(content) {
+      const axis = state.editing_axis;
+      const definition = contract.axes[axis];
+      const intro = element(documentObject, "div", "section-intro");
+      const copy = element(documentObject, "div");
+      copy.append(element(documentObject, "h2", "", definition.label));
+      copy.append(element(documentObject, "p", "", "Choose Default or an exact value from " + definition.minimum + " to " + definition.maximum + "."));
+      intro.append(copy);
+      intro.append(button(documentObject, "nav-button", "Back", "back"));
+      content.append(intro);
+      const grid = element(documentObject, "div", "value-grid");
+      const current = state.adjustments[state.selected_look][axis];
+      const values = [null];
+      for (let value = definition.minimum; value <= definition.maximum; value += 1) {
+        values.push(value);
+      }
+      values.forEach((value) => {
+        const encoded = value === null ? "default" : String(value);
+        const control = button(documentObject, "value-button", displayValue(value), "set-axis", encoded);
+        control.dataset.axis = axis;
+        control.setAttribute("aria-current", String(current === value));
+        grid.append(control);
+      });
+      content.append(grid);
+    }
+
+    function renderContext(shell) {
+      const panel = element(documentObject, "aside", "context-panel");
+      panel.hidden = !contextOpen;
+      panel.append(element(documentObject, "h2", "", "Shooting context"));
+      panel.append(element(documentObject, "p", "", "Offline controls for exercising the reference restriction matrix."));
+      core.modes.forEach((mode) => {
+        const label = element(documentObject, "label", "mode-toggle");
+        label.append(element(documentObject, "span", "", contract.mode_labels[mode]));
+        const input = element(documentObject, "input");
+        input.type = "checkbox";
+        input.checked = state.modes[mode];
+        input.dataset.action = "set-mode";
+        input.dataset.value = mode;
+        label.append(input);
+        panel.append(label);
+      });
+      shell.append(panel);
+    }
+
+    function renderBottom(shell) {
+      const bottom = element(documentObject, "footer", "bottom-bar");
+      const boundary = element(documentObject, "div", "boundary-copy");
+      boundary.append(element(documentObject, "strong", "", "OFFLINE ONLY · "));
+      boundary.append(element(documentObject, "span", "", "Processing unbound · Recovery unverified · Not installable"));
+      bottom.append(boundary);
+      const tools = element(documentObject, "div", "utility-tools");
+      tools.append(button(documentObject, "icon-button", "Import", "import"));
+      tools.append(button(documentObject, "icon-button", "Export", "export"));
+      bottom.append(tools);
+      shell.append(bottom);
+    }
+
+    function render() {
+      documentObject.body.dataset.orientation = state.orientation;
+      rootNode.replaceChildren();
+      const shell = element(documentObject, "section", "camera-shell");
+      shell.dataset.offlineOnly = "true";
+      shell.dataset.processingBinding = "UNBOUND_TARGET";
+      renderTopbar(shell);
+      const content = element(documentObject, "div", "content");
+      const inner = element(documentObject, "div", "content-inner");
+      if (state.screen === "catalog") renderCatalog(inner);
+      if (state.screen === "custom_base") renderCustomBase(inner);
+      if (state.screen === "editor") renderEditor(inner);
+      if (state.screen === "axis_picker") renderAxisPicker(inner);
+      content.append(inner);
+      shell.append(content);
+      renderBottom(shell);
+      renderContext(shell);
+      const fileInput = element(documentObject, "input", "file-input");
+      fileInput.type = "file";
+      fileInput.accept = "application/json,.json";
+      fileInput.dataset.role = "state-import";
+      shell.append(fileInput);
+      const toast = element(documentObject, "div", "toast");
+      toast.hidden = true;
+      toast.setAttribute("role", "status");
+      shell.append(toast);
+      rootNode.append(shell);
+    }
+
+    function dispatch(action, message) {
+      try {
+        state = core.transition(state, action);
+        persist();
+        render();
+        if (message) showToast(message, "info");
+      } catch (error) {
+        showToast(error.message, "error");
+      }
+    }
+
+    rootNode.addEventListener("click", function (event) {
+      const target = event.target.closest("[data-action]");
+      if (!target || target.disabled) return;
+      const action = target.dataset.action;
+      const value = target.dataset.value;
+      if (action === "orientation") dispatch({ type: "SET_ORIENTATION", orientation: value });
+      if (action === "select-look") dispatch({ type: "SELECT_LOOK", look: value });
+      if (action === "select-base") dispatch({ type: "SELECT_CUSTOM_BASE", base: value });
+      if (action === "open-axis") dispatch({ type: "OPEN_AXIS", axis: value });
+      if (action === "set-axis") dispatch({ type: "SET_AXIS", axis: target.dataset.axis, value: value === "default" ? null : Number(value) });
+      if (action === "reset") dispatch({ type: "RESET_SELECTED" }, "Selected Look reset to unknown reference defaults.");
+      if (action === "catalog") dispatch({ type: "BACK_TO_CATALOG" });
+      if (action === "back") dispatch({ type: "BACK" });
+      if (action === "toggle-context") {
+        contextOpen = !contextOpen;
+        render();
+      }
+      if (action === "import") rootNode.querySelector('[data-role="state-import"]').click();
+      if (action === "export") {
+        const blob = new Blob([JSON.stringify(core.validateState(state), null, 2) + "\n"], { type: "application/json" });
+        const link = documentObject.createElement("a");
+        link.download = "a6400-creative-look-state.json";
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
+        showToast("Strict offline state exported.", "info");
+      }
+    });
+
+    rootNode.addEventListener("change", function (event) {
+      const target = event.target;
+      if (target.dataset.action === "set-mode") {
+        dispatch({ type: "SET_MODE", mode: target.dataset.value, value: target.checked });
+        return;
+      }
+      if (target.dataset.role !== "state-import" || !target.files || target.files.length !== 1) return;
+      const file = target.files[0];
+      if (file.size > 262144) {
+        showToast("State file exceeds the 256 KiB limit.", "error");
+        return;
+      }
+      const reader = new FileReader();
+      reader.addEventListener("load", function () {
+        try {
+          state = core.validateState(JSON.parse(String(reader.result)));
+          persist();
+          render();
+          showToast("Strict offline state imported.", "info");
+        } catch (error) {
+          showToast(error.message, "error");
+        }
+      });
+      reader.addEventListener("error", function () {
+        showToast("State file could not be read.", "error");
+      });
+      reader.readAsText(file, "utf-8");
+    });
+
+    render();
+    return {
+      getState: function () { return core.validateState(state); },
+      dispatch,
+    };
+  }
+
+  return { createCore, boot };
+});
+
+  </script>
+</body>
+</html>

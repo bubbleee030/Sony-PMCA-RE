@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-creative-style-model-cursor-boundary",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/viewUnified2.so",
+    "size": 11530552,
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
+  },
+  "summary": {
+    "canonical_export_sha256": "1da0bfb35186d642eb229c801cd86fa86dc0ce90d677bf4d7b28db827ab1d6c0",
+    "method_count": 7,
+    "field_access_count": 22,
+    "virtual_call_count": 17,
+    "local_terminal_count": 2
+  },
+  "method_summary": {
+    "count": 7,
+    "roles": [
+      "move-cursor",
+      "get-value",
+      "get-process-value-id-for-item",
+      "set-cursor",
+      "update-belt-widget",
+      "set-cursor-on-item-change",
+      "set-value-to-model"
+    ],
+    "owners": [3139810, 3140110, 3140154, 3140914, 3141368, 3141496, 3141836]
+  },
+  "boundary_summary": {
+    "field_access_count": 22,
+    "field_access_digest": "677d86ad8a6a7e76b045c599388cff2bce01e629584c3b86ecc344ee20c78435",
+    "virtual_call_count": 17,
+    "virtual_call_digest": "48740880ef83896455d11c0980688dc33ce86c22135f31e77c03f441fa5a22f2",
+    "named_lookup_sites": [3141884, 3141912],
+    "local_terminal_calls": [
+      {"site": 3141930, "target": 3139404, "name_resolved": false},
+      {"site": 3141936, "target": 3139590, "name_resolved": false}
+    ],
+    "local_terminal_semantics_resolved": false,
+    "local_terminal_classification": "contains-widget-display-state-updates-with-unresolved-virtual-effects",
+    "belt_widget_update_binding": {
+      "site": 3141386,
+      "plt": 1381300,
+      "symbol": "_ZN22PAS_MenuSelectBeltZako12updateWidgetEP18CmnViewSettingNode",
+      "symbol_index": 2950,
+      "defined_owner": 6079372,
+      "defined_size": 372
+    },
+    "creative_style_specific_binding_found": false,
+    "final_model_setter_or_commit_found": false,
+    "commit_or_persistence_found": false
+  },
+  "claims": {
+    "generic_cursor_selection_path_found": true,
+    "named_set_value_to_model_helper_found": true,
+    "process_id_lookup_found": true,
+    "process_value_id_lookup_found": true,
+    "ui_widget_state_update_found": true,
+    "belt_widget_update_binding_found": true,
+    "icon_content_setter_found": true,
+    "creative_style_specific_binding_found": false,
+    "selected_model_value_storage_found": false,
+    "final_model_setter_or_commit_found": false,
+    "menu_event_binding_found": false,
+    "renderer_binding_found": false,
+    "touch_routing_found": false,
+    "commit_or_persistence_found": false,
+    "backup_manager_binding_found": false,
+    "creative_look_equivalence_found": false,
+    "runtime_execution_proven": false
+  },
+  "readiness": "GENERIC_MODEL_CURSOR_BOUNDARY_ONLY",
+  "conclusion": "The generic setting-node utility connects cursor changes and selected-item interface calls to named process-ID/value-ID lookup helpers and a method named setValueToModel. Its final local targets contain proven widget display-state updates but retain unresolved virtual effects, and the belt path reaches a named widget update plus icon-content setter. No exact Creative Style binding, model commit, renderer, menu-event, touch, BackupManager, or durable-persistence edge is proven."
+}

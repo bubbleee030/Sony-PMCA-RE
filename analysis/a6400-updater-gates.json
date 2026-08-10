@@ -123,7 +123,7 @@
     {
       "layer": "boot",
       "status": "INSUFFICIENT_EVIDENCE",
-      "summary": "No authenticated α6400 boot chain, recovery loader, firmware signature root, partition map, or rollback path has been recovered.",
+      "summary": "Post-install α6400 2.00 system updater components have been recovered, but the pre-normal-runtime selector, earlier installing receiver, camera-side signature boundary for the 2.00 install, complete boot chain, and rollback behavior remain unestablished.",
       "evidence": [
         {
           "classification": "OBSERVATION",
@@ -131,17 +131,22 @@
           "claim": "All mutations remain quarantined, camera execution is false, and no experiment produced an installable image."
         },
         {
+          "classification": "OBSERVATION",
+          "source": "analysis/a6400-stock-200-recovery.json",
+          "claim": "All three external recovery candidates remain UNESTABLISHED; no candidate has a runtime-independent entry, complete write scope, or terminal verification path."
+        },
+        {
           "classification": "INFERENCE",
-          "source": "analysis/feature-compatibility.json",
-          "claim": "Host package acceptance cannot demonstrate that a modified image would pass camera boot verification or remain recoverable."
+          "source": "analysis/a6400-stock-200-recovery.json",
+          "claim": "Host package acceptance and post-install system components cannot demonstrate that a modified image would pass camera boot verification or remain externally recoverable."
         },
         {
           "classification": "UNRESOLVED",
           "source": "camera-boot-chain",
-          "claim": "Boot ROM trust anchors, stage signatures, partition redundancy, rollback counters, and an independently verified unbrick route are unknown."
+          "claim": "The selector before normal runtime, earlier installing receiver, Boot ROM trust anchors, stage signatures, partition redundancy, rollback counters, and an independently verified restore route are unknown."
         }
       ],
-      "next_experiment": "Recover authenticated partition and signature metadata from firmware contents and validate a restore path on a nonessential α6400 body before considering any camera execution.",
+      "next_experiment": "Locate the pre-normal-runtime updater selector or authentic earlier installing receiver using static evidence only. Do not design camera steps until the strict recovery report reaches the separately reviewed future-validation-design gate.",
       "feature_relevance": "Even a correctly ported feature would be unusable if the modified image cannot boot or if a failed boot cannot be recovered."
     },
     {
@@ -191,5 +196,5 @@
       "evidence_gap": "Practical Creative Style approximations exist, but native base tables, extra adjustment axes, color-pipeline code, and processor compatibility are unlocated."
     }
   ],
-  "conclusion": "Static reverse engineering moved the boundary from an unknown Windows wrapper to a mapped host parser, storage transport, command state machine, and camera-returned model/version statuses. That is meaningful progress, but it is not a bypass: decryption, camera-side enforcement, boot trust, recovery, runtime integrity, and all native feature integration points remain unresolved."
+  "conclusion": "Static reverse engineering moved the boundary from an unknown Windows wrapper to a mapped host parser, storage transport, command state machine, camera-returned model/version statuses, post-install target-system updater components, and a digest-pinned exact stock source. That is meaningful progress, but it is not a bypass or a recovery procedure: the earlier installing receiver, runtime-independent entry, camera-side install signature boundary, complete restore behavior, boot trust, runtime integrity, and all native feature integration points remain unresolved. Camera execution and installable output remain prohibited."
 }

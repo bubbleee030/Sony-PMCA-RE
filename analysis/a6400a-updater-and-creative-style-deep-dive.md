@@ -1,4 +1,4 @@
-# α6400A Updater and α6400 Creative Style Deep Dive
+# α6400A Updater and α6400 Creative Look / Creative Style Substrate Deep Dive
 
 ## Scope and safety state
 
@@ -131,6 +131,56 @@ Exact symbol and resource comparisons between original α6400 2.00 and α6400A
 Therefore α6400A 1.01 does not supply α6700-style Creative Look or the requested
 vertical/touch menu UI under an obvious dormant resource or symbol boundary.
 
+## First-class Creative Look boundary result
+
+Creative Look remains the product goal: an α7 V-like interaction pattern with
+a first-class Creative Look interface and experience, excluding features that
+require newer image-processing hardware. Creative Style is the target-native
+substrate for understanding typed values, persistence, menu scaffolding, and
+model transport. It is not the product definition. Creative Style-based visual
+emulation remains the final fallback only if native Creative Look behavior
+cannot be established.
+
+The first-class investigation is now defined and traced independently of the
+Creative Style fallback. Its authoritative α7 V-like contract contains 12
+built-ins—`ST`, `PT`, `NT`, `VV`, `VV2`, `FL`, `FL2`, `FL3`, `IN`, `SH`, `BW`,
+and `SE`—plus `Custom1` through `Custom6`; eight separate axes; five stack
+layers; five workflow actions; five reference restrictions; and live-view,
+still-JPEG, and movie outputs. All 26 look, Custom, and axis items are visible
+in the offline presentation contract but disabled because their target chains
+remain unproven. The workflow and restriction records are likewise visible and
+disabled; they document the intended behavior without claiming implementation.
+
+Read-only Ghidra analysis used the digest-pinned original α6400 2.00
+`CautionConfig.so`. Correcting the ELF virtual-address mapping to Ghidra's
+`+0x10000` image base resolved the Creative Style selector at analysis address
+`0x7eb958` and the compiled `Default` graph at `0xb936cc`. The bounded export
+found ten named Creative Style functions, one selector-to-graph data reference,
+and nine direct calls, with no unresolved direct or indirect calls in this
+scope. This proves a real menu-graph selection path only. It does not identify
+a first-class Creative Look interface, state model, base-look table load, axis
+processing path, or output sink.
+
+Accordingly, all five Creative Look layers remain `UNESTABLISHED`; all eight
+axes remain independently `UNESTABLISHED`, and every axis still lacks a
+complete UI, state, range, default, and processing chain; and
+live view, still JPEG, and movie remain unsupported by positive pipeline
+evidence. Touch delivery and runtime factory invocation are also unresolved.
+The classifications are not
+`HARDWARE_BLOCKED`: current evidence does not prove impossibility, but it also
+does not support a target-native, target-reimplementation, or donor-compatible
+claim. The α6700 and α7 V sources remain authenticated but opaque, so they
+cannot supply donor functions, tables, offsets, or ABI evidence.
+
+The normalized evidence is recorded in
+`analysis/a6400-creative-look-boundary.json`, while the layer and workflow
+contract is in `analysis/a6400-creative-look-stack.json`. Creative Style below
+remains a last-resort approximation and cannot satisfy this acceptance gate.
+That separate catalog represents only ten reference looks; `FL2` and `FL3`
+have no fallback representation. Exact stock recovery remains
+`BLOCKED_STATIC_EVIDENCE`, so installability and camera-test eligibility remain
+false.
+
 ## Native α6400 Creative Style selector
 
 The original α6400 2.00 function
@@ -159,11 +209,589 @@ This exposes a firmware-native Creative Style graph already present in α6400
 2.00. It does not add α6700 Creative Look processing, extra adjustment axes, a
 new menu framework, or a valid package/signature.
 
-## α6400 `ViewSettingMenu` static touch trace
+### Product-graph selector versus current selection
 
-Read-only PyGhidra analysis of the pinned α6400 2.00 `viewUnified2.so` recovered
-the large `ViewSettingMenu` event switch at `0x22355e`. Two direct-call paths
-from that switch contain touch-named endpoints:
+The selector's input is now structurally resolved. Creative Style
+`_getSubNode()` at `0x7db958` and Picture Profile `_getSubNode()` at `0x7dbc04`
+each call the same imported `BackupManager::Bkup_Read(int, void*)` binding with
+ID `0x01070316` and a zero-initialized one-byte stack-local output. Sharing this
+read across two independent menu families establishes a product/menu-graph
+configuration selector, not the user's currently selected Creative Style or
+Picture Profile.
+
+This also clarifies two different value domains: `0x43` is the shipped
+read-only backup value selecting the α6400's `TypeEmnt` product graph, while
+`0x1e` and `0x37` in the offline patch experiment are TBB dispatch-entry values
+for the TypeEmnt and Default code paths. They are not persisted Creative Style
+values.
+
+The Creative Style vtable separately inherits 16 generic selected/state methods.
+A bounded trace resolves 22 virtual-interface dispatches covering selected-item
+lookup, state lookup, selection, unselection, and reinitialization. Four-byte
+in-memory fields at offsets `0x18`, `0x20`, and `0x24` participate in that generic
+state machinery. Ten callbacks on resolved child objects remain indirect and
+their final implementations are not statically established. No model value,
+model setter, renderer, menu-event, commit, or persistence binding has yet been
+located inside that bounded settings-node slice. The fail-closed record is
+`analysis/a6400-creative-style-selected-state-dispatch.json`.
+
+### Generic model/cursor boundary
+
+The next target-side layer is now pinned in the exact α6400 2.00
+`viewUnified2.so`. Seven `CmnSettingNodeUtil` methods cover cursor movement,
+value lookup, item-change cursor synchronization, belt-widget update, and the
+named `setValueToModel()` helper. Across those methods, 22 exact four-byte
+utility-field accesses and 17 bounded virtual-interface calls establish real
+generic in-memory cursor/selection control rather than a resource-only menu.
+
+`setValueToModel()` calls the defined `getProcIdForItem()` and
+`getProcValIdForItem()` helpers, then reaches local targets at `0x2fe74c` and
+`0x2fe806`. Those same targets occur in the ten-way local call surface of
+`moveCursor()`. Both unnamed routines contain proven widget display-state calls
+through `LayoutableWidgetBase::setDispState(bool)`, but also retain unresolved
+virtual effects. They therefore cannot be classified as widget-only or as
+model-commit terminals. The nearby `updateBeltWidget()` call resolves
+through the PLT to a defined `PAS_MenuSelectBeltZako::updateWidget()` routine,
+which also reaches `GEN_Icon::setImage()` and therefore proves widget-state and
+content mutation, but not a terminal renderer/draw path.
+
+This proves a generic menu-to-model boundary exists on α6400, which is useful
+for reproducing a newer interaction pattern without importing a hardware-only
+processor feature. At this stage it did not bind this helper instance to the Creative
+Style root, identify the selected style's storage, prove a final setter or
+commit, publish a menu event, reach a renderer, route touch, or reach
+`BackupManager`/durable persistence. The fail-closed record is
+`analysis/a6400-creative-style-model-cursor-boundary.json`.
+
+Cross-module consumers narrow the ownership gap without closing it. Two exact
+anonymous `.ARM.exidx` owners in `viewUnified4.so` call
+`setCursorOnItemChange()` followed by `setValueToModel()`. A third owner in
+`viewUnified7.so` calls those two helpers and then `getProcVal()`. These are
+seven direct Thumb transfers across three ordered generic UI/model sequences.
+
+The same two modules also import `cmnViewSettingNodeRootCreativeStyle`, but all
+eight relocations are data-only `.data`/`.got` publications outside every one
+of the three executable owners. None of the owners has a matching nonzero-sized
+dynamic function symbol, and no typed or path-sensitive indirect edge binds a
+Creative Style root cell back to a sequence. This is module co-containment, not
+a Creative Style-specific model or commit path. The fail-closed record is
+`analysis/a6400-creative-style-generic-model-consumers.json`.
+
+Bounded owner provenance first established three exact `TBH` tails and receiver
+paths. Its direct scan covers canonical decoded prefixes rather than every
+unwind interval to completion, so the recorded predecessors remain positive
+bounded evidence rather than exhaustive uniqueness claims. The fail-closed
+predecessor record is `analysis/a6400-generic-model-owner-provenance.json`.
+
+The surrounding Itanium RTTI and primary vtables now identify all three owners.
+`viewUnified4.so` maps slot 64 to `ViewFocusArea_C` for the `+0x180` utility
+sequence and to `ViewCustomZebra` for the `+0x188` sequence; Zebra's adjacent
+slot 65 is the prior-return-split entry at `0x17a91c`. `viewUnified7.so` maps
+slot 64 to `ViewFocusArea` and the separate utility initializer to slot 54 in
+the same typed primary vtable. `ViewFocusArea` and `ViewFocusArea_C` both expose
+`WrapperSettingUtil` as a public nonvirtual base at `+0x140`; VU7's secondary
+vtable at that offset confirms the subobject layout, while its observed
+`+0x14c` field remains structurally inside the wrapper rather than semantically
+named by the static evidence.
+
+The shared slot-64 pattern is therefore generic view behavior across Focus Area
+and Custom Zebra, not a Creative Style owner. It proves a same-class static link
+between VU7's initializer and dispatcher, but not runtime ordering or a concrete
+same-instance execution. No typed primary-vtable relocation names Creative
+Style; broader root-edge absence is not assessed by this slice. That generic-owner slice alone still
+stops before selected-value storage, final commit, renderer, touch, or
+persistence. The refined fail-closed record is
+`analysis/a6400-dispatch-table-container-provenance.json`.
+
+### Target-native Creative Style view/model binding
+
+The ownership gap is now closed through a different, exact target-native path.
+`viewUnified2.so` contains the SI RTTI type `ViewCreativeStyle`, a 94-slot
+primary vtable, a secondary address point at object offset `0x28`, and the
+defined `ViewCreativeStyleToInstance` entry. Its factory allocates `0x194`
+bytes; the bounded constructor calls `ViewBaseForMR`, installs both vptrs, and
+sets the model-request flag to false. Slot 54 attaches `@M00B` event 9 and `@M096` event 8,
+then requests current-still-recording model operation 75. Slot 64 is an exact
+20-case controller dispatcher.
+
+Dispatcher case 16 directly calls both controller helpers, which use
+process-data ID 42. `CmnViewProcessDataMgr` preserves that ID into its lookup and maps
+index 42 to selector 45; the bounded 378-way factory dispatcher maps selector
+45 to the singleton accessor that constructs the RTTI-typed
+`CmnViewProcessDataElementCustomCreativeStyle`. This joins the concrete view to
+the concrete Creative Style process element without relying on class-name
+co-containment. The manager's read path reaches exact element vtable slot 10,
+whose base signature is `getValue(int&,int&,int&,int&,int&,int,int)`. Its write
+path reaches vtable slot 21, whose base signature is
+`setValue(int,int,int,int,int)` and whose Creative Style override is bounded at
+`0x4893ac..0x489644`.
+
+That five-integer setter contains five bounded call sites to
+`CmnViewModelIfWrapper::backupWrite`, five `ParamList::add` call sites, and a
+bounded `@M00B` model-operation-38 request call site. This is the first verified
+target-native Creative Style UI-to-typed-value-setter-to-backup/model-request
+boundary.
+
+The setter's first integer is now structurally bounded as a selector. Inputs 0
+through 13 enter a 14-entry halfword branch table; index 12 reaches the error
+path, while the other thirteen indices map exactly to persisted codes
+`{0:1, 1:2, 2:3, 3:7, 4:8, 5:9, 6:4, 7:5, 8:10, 9:11, 10:12,
+11:6, 13:14}`. Each accepted case allocates the same 0x14-byte `ParamBase`
+holder and passes the mapped code to its constructor. The holder accessor then
+supplies a one-byte local selector-code value.
+
+That selector byte does not use the first fixed backup item. It is passed to a
+table-selected dynamic backup record only when setter argument 2 is nonzero;
+the record-ID table's human field meaning remains unresolved. Fixed item
+`0x01070762` instead receives the adjacent one-byte encoding of setter argument
+2: nonpositive input leaves `0xff`, and positive `n` stores the low byte of
+`n-1`. The getter captures its second direct output reference, preinitializes
+that output to zero, reads the same item as a signed byte, skips the update for
+signed `-1`, and otherwise stores the signed value plus one. This is an exact
+typed setter/getter encode/decode boundary, but no admissible input range is
+proven and a universal round trip is not claimed. It also does not prove that
+the manager or view exposes that reference as selected style.
+
+The four dynamic setter writes now have exact frame-relative geometry. Four
+fixed read-only record-ID tables copied into both setter and getter frames
+establish their fixed numeric domains and static setter/getter family equality,
+but not their human field meanings; static table equality does not prove a
+runtime transaction or a runtime write-followed-by-read join. The selector code uses the
+record word at `r7 + 0xf8 + 4*argument-2` and the byte at `r7 + 0x11e`.
+Arguments 3 and 4 use record words at `r7 + 0xdc + 4*argument-2` and
+`r7 + 0x8c + 4*argument-2`, with values at `r7 + 0x4` and `r7 + 0x140`.
+Argument 5 uses the record word at `r7 + 0x3c + 4*argument-2` and the value at
+`r7 + 0x144`. Ten branch-dependent getter reads likewise resolve only their
+scratch-buffer pointers: three at `r7 + 0x134`, three at `r7 + 0x135`, two at
+`r7 + 0x136`, and two at `r7 + 0x137`. Static evidence does not yet join any
+of those getter reads to a dynamic setter record.
+
+The five request additions use exact keys `[383, 386, 389, 392, 383]` and
+holder roles `[selector-code, argument-3, argument-4-or-branch-default,
+argument-5, selector-code]`. Argument 3 is captured directly, argument 4 comes
+from the caller stack for normal selectors but is forced to zero for selector
+11/13 construction, and argument 5 comes from the next caller-stack word.
+These are positional dataflow roles only. Human field names, named preset
+labels, the menu-selected-state join, equality of the independently supplied
+runtime indices, a write-followed-by-read transaction, and all
+renderer/live-view/JPEG/movie effects remain unresolved.
+The fail-closed record is
+`analysis/a6400-creative-style-selector-code.json`.
+
+The negative label/state result is now bounded more tightly. The nineteen-step
+case-0 scaffold contains no typed Creative Style process call, while case 16
+uses process-data ID 42 through a separate path. Generic CautionConfig selected
+state exists at object offset `+0x24`, but no root, menu-event, or process-data
+edge joins it to this view. English resources contain Creative Style words,
+but no table or resource-ID mapping binds those strings to the thirteen accepted
+selector indices. The indices therefore cannot yet be named or treated as the
+currently selected menu item.
+
+The request transport is now bounded through the exact queue producer, but not
+to a consumer or handler. Its local wrapper gets `CmnMRUtil` and preserves
+request code 38 and the same `ParamList` through a small helper into a bounded
+dispatcher. The dispatcher computes unsigned `38-40`; because that wraps above
+1, its unsigned-higher branch necessarily reaches the sole named
+`viewManagerIf::requestModelExecute` edge on the model-mapping helper's
+normal-return path. The helper's 23-entry table maps exact entry zero `@M00B`
+to `model/CAMERA`. This resolves the semantic model alias but does not preserve
+the literal input string.
+
+The shared `libObj.so` request API passes `model/CAMERA` to
+`IdGenerator::Get`; that runtime table lookup's numeric result reaches Event
+parameter key 7, but the number itself remains unresolved and may take the
+documented missing-entry sentinel route. The API independently captures code
+38 in `r9` across the ID-generator call. Its `.ARM.attributes` section omits
+both `Tag_ABI_PCS_R9_use` and `Tag_nodefaults`, making the effective ABI value
+zero and `r9` the callee-saved `v6`; the exporter rejects any local write in
+the exact capture-to-use span. A second mapper receives code 38, but only that
+mapper's opaque return, or a sentinel on alternate routes, becomes Event key 8.
+Literal 38 is therefore not proven in the Event.
+
+The builder fixes Event ID `0x11004003`, destination `2`, and queue tag `0`,
+attaches the `ParamList`, and adds the scalar parameters. Its continuation adds
+key 6 and reaches `EventManager::push(Event*,true)` through an exact
+interworking PLT relocation. The push owner reads tag 0, bypasses all three
+indirect callback sites, and takes the direct queue-zero helper. The AppConfig default route selector
+captures its input from `r1` into callee-saved `r5`; both `strncmp` calls pass
+the `AppConfig.so` literal in `r0`, that captured input in `r1`, and length 20
+in `r2`. Their nonmatch branches select the generic initialize/getConfig path,
+while the fallthrough paths select the AppConfig initialize/getConfig imports.
+This bounds the static branch ABI, not the runtime buffer contents.
+
+The remaining boundary is the runtime BSS selector at `0x1424d78`. The thread
+passes that zero-fill buffer to the configuration factory, which recognizes
+`AppConfig.so` only through a runtime comparison. Static file data does not
+prove the buffer contents or select that route. The non-AppConfig route creates
+a separate `0x10`-byte generic singleton with a distinct generic vtable: its
+`+0x40`, `+0x50`, and `+0x54` slots resolve to different owners, and the
+`+0x54` path does not reuse the default producer initializer. The later outer
+constructor/handoff does prove the local wrapper-to-EventManager stores, but
+no factory-result capture or store joins a selector result to the outer
+receiver used there. No static assignment proves `UtilityManager+0x0c` is that
+`outer`; consequently neither selector route proves a producer/consumer
+EventManager identity join. Unconditional operation-38 delivery to the
+consumer and its ModelManager branch remains unproven.
+
+A separately bounded ModelManager candidate branch matches Event ID
+`0x11004003` and destination bit 2, reads keys 6, 7, and 8, performs the key-7
+record lookup, and conditionally loads an executor from record offset `+0x1c`
+before a virtual call at slot `+0x18`. It is not unconditionally joined to the
+operation-38 producer. A co-located `@M00B` / `modelCamera.so` /
+`ModelCameraToInstance` component, `ModelCamera` RTTI, and factory are concrete
+component candidates, but no static registration edge binds the key-7 record
+to that factory or executor. The resolved ModelCamera slot `+0x18` is inherited
+generic `ModelBase` scheduling of a new Event ID `0x11004001`, destination 4,
+tag 0—not a Creative Style-specific operation handler. No named handler or
+renderer/live-view/still-JPEG/movie sink is proven. The fail-closed record is
+`analysis/a6400-creative-style-model-request-transport.json`.
+
+The follow-on runtime-binding slice proves generic machinery and one qualified
+registration result without promoting the candidate identity. On the
+statically identified AppConfig default-route branch only, AppConfig obtains
+`ModelConfig`, whose descriptor-table slot registers `@M00B` with
+`modelCamera.so` and `ModelCameraToInstance`. The runtime selector remains
+unresolved. `model/CAMERA` reaches `IdGenerator::Get`; the splitter now proves
+`/` as its delimiter, so the lookup uses outer table key `model` and row key
+`CAMERA`. The validated direct `SetTable` call instead registers the unrelated
+`view` namespace. Its statically initialized 191-row table maps ID 11 to
+`AUTO_SELECTION` and has no exact `CAMERA` row. No static `model` table
+registration or `CAMERA` numeric value is proven, so equality to the separate
+`@M00B` descriptor ID 11 remains unproven. The ModelManager record
+layout, `dlopen`/`dlsym` loader chain, ParamList clone into the secondary Event,
+generic scheduler slot, and destination-bit-4 receiver/default-predicate
+structure are bounded. That branch-local registration does not resolve the
+runtime selector, prove that `model/CAMERA`'s numeric ID equals 11, or join
+operation 38/key 7 to that record or executor. All route-to-producer/consumer
+EventManager identity claims remain false. It does not promote runtime
+behavior, any live-view/JPEG/movie pipeline sink, or installability. The
+fail-closed record is
+`analysis/a6400-creative-style-runtime-binding.json`.
+
+A separate controller field at object offset `0x15c` takes observed values
+0 through 4 and is backed by item `0x01070763`. Slot 57 resets the field to zero
+and persists that reset. The object field uses word stores while its backup
+helper serializes one byte, so it is classified as controller mode rather than
+the selected Creative Style value. `WrapperCreativeStyle` RTTI/vtable is
+present, but no exact instantiation or view edge was found; the verified setter
+uses the generic `WrapperSettingUtil` service instead.
+
+The follow-on view-lifecycle slice closes part of that older registration gap
+without promoting runtime execution. The typed process-element slot 25 is the
+inherited `execProcWithCondition(int)` surface; its Creative Style override
+passes the caller's condition unchanged to
+`openView("view/CREATIVE_STYLE", condition)`. A backup-controlled registration
+owner publishes two mutually exclusive registration rows for that alias: branch
+1 uses `viewCreativeStyle.so` / `ViewCreativeStyleToInstance`, while branch 2
+uses `viewUnified2.so` / the same factory name. The runtime backup value and
+therefore the active row remain unresolved.
+
+On the conditional AppConfig route, the ViewConfig `+0x14` table getter and the
+loader wrapper `+0x08` store imply the same ViewIdSoTable pointer
+only under the AppConfig selector and pinned provider bindings. This implication
+uses corrected singleton storage `0x14250D4`; the selector buffer is runtime BSS, and
+`viewUnified2.so` does not directly declare `libObj.so` as a dependency. The
+candidate `openView` provider builds Event `0x11012001` for destination 4 with
+the resolved alias ID at key 6 and caller condition at key 26, and the bounded
+handler reaches a generic record-loader ABI with `dlopen(component, 0x101)`,
+`dlsym(factory)`, and an indirect factory call. These are conditional substrate
+facts: they do not select a registration row, prove event delivery, or prove
+the returned object's type. The local `ViewCreativeStyleToInstance` function
+remains available, but this evidence does not prove runtime factory invocation,
+menu activation, Creative Look equivalence, installability, recovery, or camera
+readiness. The fail-closed record is
+`analysis/a6400-creative-style-view-lifecycle-boundary.json`.
+
+The activation-caller follow-up pins the concrete process-manager singleton at
+`0xB06BB0`: its accessor and constructor install manager vptr `0x905930`.
+A typed `ViewSettingMenu` slot-54 owner stores that exact accessor result at
+the same receiver's `+0x16c` field. Slot-64 selector 10 reaches a bounded
+action owner which obtains selected-node property-key 14, preserves the
+returned integer, and sends it through manager slots 19 and 20 while forwarding
+the same menu receiver's `+0x174` field as the condition.
+
+In authenticated `CautionConfig.so`, the Creative Style root's eight-record
+property list contains exact `{14, 1, 42}` metadata, and its typed slot 23 is
+the generic `getIntProperty` implementation invoked by the VU2 helper. These
+facts prove the typed menu-action-to-process-manager route and prove what the
+constructed Creative Style root would return for key 14. The runtime
+selected-node pointer is not joined to that root, however, so the route does
+not prove that its returned integer is process ID 42 and remains unaccepted as
+the activation caller.
+
+The wider bounded scan still covers 28,869 fully decoded exception-index
+owners, keeps 1,594 decode-incomplete or terminal owners outside its negative
+universe, and inventories sixteen canonical slot-20 call shapes. This is not a
+whole-program absence claim. Noncanonical virtual dispatch, indirect callbacks,
+runtime-selected node identity, cross-module delivery, and the excluded owners
+remain unresolved. The result therefore does not prove process ID 42
+activation, menu-root activation, runtime `openView` delivery, factory
+invocation, returned `ViewCreativeStyle` identity, or any first-class Creative
+Look/output behavior. The fail-closed record is
+`analysis/a6400-creative-style-activation-caller-boundary.json`.
+
+The selected-node identity follow-up narrows that remaining pointer boundary
+without converting it into runtime proof. The product-root selector reads
+backup record `0x01070316`; its 75-entry table has 49 distinct return values,
+and the default product root is `0xB09B5C`. The typed `ViewSettingMenu` slot-54
+owner stores that exact helper result at the same receiver's `+0x1a0` field.
+A control-flow-aware traversal of the oversized constructor owner
+`[0x213b8c,0x228ba4)` reaches 23,355 instructions and 1,748 direct generic
+node-constructor calls while skipping embedded literal pools.
+
+Within that graph, three constructor-bounded lists and exact relocations form
+one static path from the default product root to the Creative Style root:
+zero-based child indices `0 -> 4 -> 1`. The candidate base
+`CmnViewSettingNode::getSelectedItem` implementation uses a one-based selected
+ordinal from `this+0x18`, clamps it to the child count, subtracts one, and
+returns the indexed child. Under that candidate provider, the static path
+would therefore require runtime ordinals `1 -> 5 -> 2`.
+
+The same typed slot-54 owner then preserves the product-root pointer, stores it
+at the menu receiver's `+0x1a0`, obtains the root's virtual target at
+`vptr+0x08`, and invokes it with a copied default-root pointer list and its
+exact count. The list helper is tied to the `cmnViewSettingNodesRootDefault`
+and `cmnViewSettingNodesNumOfRootDefault` GOT relocations. Candidate
+`CautionConfig.so` lifecycle implementations assign each child a one-based
+ordinal at `+0x20`, carry generic selection state through `+0x18` and `+0x24`,
+recurse through `vptr+0xf8`, restore selected children through `vptr+0xb8`, and
+fall back to selectable child one through `vptr+0x38`. A source-derived inventory
+of four typed owners finds exactly five writes to the selected-ordinal field:
+the clamped cache update at `0x7c6c00`, the parent update at `0x7c70aa`, and
+three `-1` initialization/fallback writes at `0x7c7358`, `0x7c73ce`, and
+`0x7c7470`. The parent update is concrete: `setItemSelected` loads the selected
+child's one-based ordinal from `+0x20` and stores it into the resolved parent's
+`+0x18`. Conditional on the pinned generic provider, recursive initialization
+sets the static index-4 intermediate child to state 1 before it tests that same
+child with the generic selected-state predicate. That predicate accepts only
+states 2, 4, and 6, so the intermediate ordinal 5 is not restored by this
+candidate initialization path and the exact `1 -> 5 -> 2` triplet is refuted
+for initialization alone. Later runtime callbacks or selection can still alter
+the state, and provider interposition remains unresolved; this is not a
+whole-runtime absence claim.
+
+The post-initialization follow-up now proves a typed, conditional persistence
+roundtrip without promoting the stored values to runtime facts. Slot-64
+selector 0 enters the owner at `0x2114fc`, performs the existing preselection
+step, and tails into the selection driver. One bounded branch in that driver
+calls the restore helper at `0x208180`. The helper reads three 16-bit backup
+records through the `ViewBaseForMR::Bkup_Read` interface: `0x01070910`,
+`0x01070b74`, and `0x01070b75` in call order. It presents them to the resolver
+in the reverse structural order `0x01070b75`, `0x01070b74`, `0x01070910`; a raw
+zero in the third value is normalized to one. The resolver starts at the
+product root in `ViewSettingMenu+0x1a0` and performs three successive virtual
+`getSubItemByIndex` calls. If the result is non-null, the ancestor helper calls
+`setItemSelected` on the leaf and then on each parent until it reaches that
+same product root. Effective indices `0,4,1` would therefore select the exact
+static Creative Style path and populate the candidate one-based caches through
+ordinary selection rather than initialization.
+
+The save side is symmetric and independently typed. `ViewSettingMenu` vtable
+slot 57 points to owner `[0x210e70,0x210fe4)`, which calls three current-index
+helpers at `0x2081de`, `0x2081e6`, and `0x2081ee`, then writes the results back
+through the `ViewBaseForMR::Bkup_Write` slot. The writer stores the third,
+second, and first structural positions under `0x01070910`, `0x01070b74`, and
+`0x01070b75`, respectively, so the same IDs and positions roundtrip exactly.
+The relevant candidate `CmnViewSettingNode` vtable cells for parent lookup,
+indexed child lookup, selected-index lookup, and `setItemSelected` are pinned
+to their defined `CautionConfig.so` implementations. Runtime interposition is
+still possible, however, and neither selector-0 restore invocation, slot-57
+save invocation, nor the effective backup values `0,4,1` are proven. This is a
+conditional persistence mechanism, not evidence that the camera currently
+selects Creative Style through it.
+
+The `ViewSettingMenu` vtable separately installs
+`ViewBaseProduct::ProductAction(int)` in slot 37 and the menu action dispatcher
+in slot 64. Dynsym 2323 has exact function range `[0x2f1350,0x2f135e)` inside
+EXIDX owner `[0x2f12ec,0x2f135e)`; all six function instructions preserve the
+incoming `r1` selector while forwarding the receiver through `vptr+0x100`.
+A function-aware scan covers 28,869 fully decoded EXIDX owners, leaves 1,594
+incomplete or terminal owners outside the negative universe, and inventories
+six canonical slot-37 calls. Four calls in owner `[0x310cd8,0x310e30)` retain
+an untyped entry receiver after calls that invalidate selector provenance. The
+named AF wrapper at `[0x35f66c,0x35f67e)` dispatches on a helper-return receiver
+with a call-clobbered selector. The remaining owner `[0x3e11d4,0x3e134c)` is
+address-taken by relative relocation 23651, but its receiver is preserved from
+entry `r2` and its selector is a helper return captured at `0x3e1300`, not
+immediate 10. None proves both a `ViewSettingMenu` receiver and selector value
+10, so the accepted set remains empty and whole-program absence is explicitly
+false. Noncanonical dispatch, runtime callbacks, cross-module delivery, and the
+decode-incomplete owner universe remain unresolved.
+
+The follow-on cross-ELF scan widens only that canonical negative universe. It
+starts from the authenticated inventory of 324 ELF files; 222 expose usable
+ARM EXIDX ownership and 102 do not. Across 195,837 fully decoded owners it
+finds 111 canonical receiver-vptr to slot-37 register transfers. The only
+selectors that remain statically live as immediates at those calls are `0`,
+`0`, and `1`, all in `libmpr.so` owners; selector `10` does not occur.
+Within VU2, the two decoded inbound routes to helpers at `0x3110bc` and
+`0x3112dc` come from slot 36 of the distinct RTTI-backed
+`AfImplForOrientationRegisterAF` table at address point `0x8e6228`, not the
+`ViewSettingMenu` table at `0x8e2270`. The remaining helper at `0x310e30` has
+neither a decoded direct inbound edge nor relocation-backed publication. This
+does not establish whole-runtime absence: 13,885 owners remain incomplete,
+the 102 no-EXIDX files are excluded, and noncanonical or runtime-indirect
+dispatch is outside the scan. The fail-closed record is
+`analysis/a6400-creative-style-productaction-delivery-boundary.json`.
+
+The same bounded owner universe also contains 50 canonical direct slot-64 transfers.
+Twelve have statically live immediate selectors—`0`, `6`, `15`,
+`16`, `18`, `19`, `191`, or `262`—and none carries selector `10`; the other
+38 retain unresolved selector provenance. A separate dynamic-symbol audit
+finds the ProductAction interface in VU2 through VU8 and inventories 186 `R_ARM_ABS32` publication cells,
+but no corresponding PLT or `GLOB_DAT`
+binding and no decoded direct call to VU2's ProductAction wrapper. These cells
+publish interface entries, mostly in vtables; they do not prove invocation or
+cross-module provider binding. Receiver identity was not established for the
+50 direct slot-64 calls, so this extension remains a canonical bounded
+negative rather than a whole-runtime absence claim.
+
+Resolving the publication geometry further shows that all 186 cells belong to
+186 zero-offset RTTI-backed primary vtables, each with a concrete slot-64 cell.
+The typed set includes `ViewSettingMenu` at address point `0x8e2270` and
+`ViewCreativeStyle` at `0x93ecc0`. Expanding slot-37 matching from the short
+instruction window to whole-basic-block def-use yields 112 whole-basic-block slot-37 transfers.
+Eight explicit selector candidates are `0`, `0`, `1`, `4`, `16`, `16`,
+`4103`, and `4138`; none is selector `10`. The sole newly admitted transfer is
+a `SequenceDecodeBackground` receiver, not a `ViewSettingMenu` receiver.
+
+VU2 also defines `ViewSettingMenuToInstance`: its local factory allocates
+`0x3d0` bytes, calls the local constructor, and that constructor installs the
+exact `ViewSettingMenu` address point. The static registration owner contains
+the complete `view/SETTINGMENUX`, `viewSettingMenu.so`, and
+`ViewSettingMenuToInstance` row. The named component file is absent from the
+authenticated filesystem, and no direct factory caller, runtime registration,
+loader selection, or factory invocation is proven. This is typed lifecycle
+availability, not ProductAction delivery.
+
+The candidate generic initialization path cannot make ordinals `1,5,2` live,
+but the typed persistence route explains how later selection could establish
+them if the effective stored indices are `0,4,1`. Those runtime values and the
+selector-0 invocation are not established, and no accepted ProductAction
+caller supplies the other required runtime delivery. A receiver-proven
+`ProductAction(10)` edge, runtime provider binding, and selected-node pointer
+identity therefore remain unproven.
+Consequently process ID 42 activation, `ViewCreativeStyle` factory invocation,
+first-class Creative Look, processing/output behavior, installability,
+recovery, and camera-test eligibility remain false. The next safe experiment
+is the runtime source/delivery of `ViewSettingMenu` selector 0 with effective
+backup indices `0,4,1`, together with a receiver-proven ProductAction
+selector-10 delivery edge through a noncanonical, decode-incomplete, or
+runtime-indirect path, not a firmware modification. The fail-closed records are
+`analysis/a6400-creative-style-selected-node-identity-boundary.json` and
+`analysis/a6400-creative-style-productaction-delivery-boundary.json`.
+
+### Target-native Creative Style interaction surface
+
+The concrete view also owns a target-native interaction scaffold rather than
+only a model boundary. Slot 54 installs layout key `0x1fa14683` through a local
+layout-converter callback, then allocates and stores `CmnViewMenuData`,
+`CmnMenuTableUtil`, and `CmnZakoMenuUtil` helpers. Dispatcher case 0 supplies
+the menu-data and a local table expression to `initMenuData`, runs a fixed
+index loop for values 0 through 18, and contains twelve bounded
+`setGreyout(int,bool)` call sites. These are static construction/call-site
+facts; the nineteen indices are not promoted to named items or a table
+cardinality.
+
+Case 16 passes the pre-existing pointer at object offset `0x14c` to
+`CmnMenuTableUtil::_updateCursorForBeltWidget` with flags `(true,false)`, then
+continues through menu-ID and branch-selected widget lookup boundaries. The
+slice proves no construction, store, or typed cast for that pointer, so it
+remains a `PAS_MenuDataSelectBelt*` interface
+boundary rather than a concrete belt implementation. Case 13 separately uses
+the word at `+0x190` to open `view/FNMENU` for value 3, open
+`view/QUICK_NAVI` for value 2, or close `@V01D` otherwise. That navigation
+selector is not selected Creative Style state. The preceding binding report
+separately classifies the resettable controller-mode word at `+0x15c`.
+
+After the widget lookup, the exact thunk/interworking edge reaches the defined
+default implementation of `PAS_BtnCombo::cast(Widget*)`. That generic virtual
+type filter returns the original widget or null. It does not type the belt
+member at `+0x14c`; bounded derived/default-base constructors contain no direct
+store to that field. The `viewUnified2.so` call is an undefined
+`ViewBase::C2(ViewManager*)` relocation, while a matching global definition in
+`libObj.so` is only a candidate because `viewUnified2.so` does not declare that
+module as a dependency. The candidate constructor also has no direct `+0x14c`
+store and immediately reaches another PLT/GOT-mediated call. Neither fact
+proves the binding, belt ownership, or a concrete input-event route.
+
+A separate, explicitly conditional belt path now narrows the generic input
+surface. `PAS_MenuDataSelectBelt` constructs an embedded base at `+0x410`; that
+base prepares a grid at `+0x3f8` through an undefined `GEN_GridList`
+constructor import. The pinned `libObj.so` candidate installs the typed
+`GEN_GridList` vtable. Its event-type-4 slot-27 handler computes local mouse
+coordinates, calls a custom slot-126 rectangle test, and then reaches the
+slot-121 selection-update method. The fully decoded handler owner has no direct
+call or vtable-slot load for the inherited `Widget::sys_isHit`/`Widget::isHit`
+offsets; this path uses the custom region test instead.
+
+The continuation remains gated. The candidate constructor initializes the
+grid callback-enable byte at `+0x314` to zero, and the selection-update method
+calls the registered callback only when a later runtime state makes that byte
+nonzero. Conditional on that enable state and prior execution of the base's
+slot-107 callback-registration method, the callback continuation returns to
+the same embedded grid, calls `GEN_GridList::setItemSelect`, checks the parent
+as `PAS_MenuDataSelectBelt`, and reaches the imported
+`AppWidgetBase::pushEvent` boundary.
+
+The same provider-candidate constructor chain now closes a bounded delivery
+substrate: it inserts the PAS root into the WidgetSystem layer list at
+`layer+0x18`; the PAS-to-base-to-grid `setParent` calls use the same `+0x4`
+child lists traversed by recursive hit testing; and the hit receiver is passed
+to the slot-26/27 mouse dispatcher. This remains conditional on the unresolved
+`viewUnified2.so`-to-`libObj.so` provider binding. Static evidence also does not
+prove invocation of the callback-registration method, the later enable state,
+identity with `ViewCreativeStyle+0x14c`, or the case-16 selector source.
+
+The upstream generic post pipeline is now bounded as well. The exported
+`WidgetSystem::postMouseMove`, `postMousePress`, and `postMouseRelease` entries
+construct fixed `0x20`-byte records with event types 0, 1, and 2. They enqueue
+through relocated BSS queue `0x13ef6f4`; `0x5f2904` transfers records to the
+second queue at `0x13ef700`; and the member table at `0x134a480` selects the
+move/press/release handlers that call the per-mouse hit updater at `0x5f1bb0`.
+This proves a static post-API-to-hit-delivery pipeline, not the raw input source
+that invokes those APIs or an actual runtime input occurrence. That upstream
+producer remains unresolved.
+
+A separate firmware-universe scan now bounds that producer edge. Across 799
+regular files and 324 ELF files, the three exact public symbols and short names
+occur only in `lib/libObj.so`. The libObj scan covers 59,614 exception-index owners:
+56,271 fully decoded and 3,343 incomplete. Within the named direct-branch,
+dynamic-relocation, allocated-pointer, ADR/PC-relative, literal-add, and
+MOVW/MOVT methods, it found no decoded direct caller or static publication for
+the three APIs or queue processor. That bounded negative does not prove that no runtime or computed producer exists;
+arbitrary indirect, computed, external,
+opaque, and incompletely decoded paths remain outside the conclusion. The
+fail-closed record is `analysis/a6400-mouse-post-producer-boundary.json`.
+
+It is therefore a conditional generic PAS belt mechanism, not a Creative
+Style touch or selection route.
+
+The nearest concrete touchability lead does not yet solve touch. A typed
+`ViewMovieRecPatch` path gets and checks a `PAS_BarCtrlDial`, then passes the
+exact value false to `setTouchable(bool)` before entering Movie/Iris data
+management. A typed `PAS_BarCtrlDialConverter` elsewhere forwards an incoming
+value to the same setter, but the value semantics and all coordinate, hit-test,
+gesture, selection, and Creative Style edges remain unresolved. This proves a
+native UI scaffold and touchability-flag boundary, not a reusable touch route;
+the explicit false value on the Movie path is not positive routing evidence.
+No Creative Style coordinate transform, hit test, gesture, menu-selection, or
+reusable touch dispatch is proven. The fail-closed record is
+`analysis/a6400-creative-style-interaction-surface.json`.
+
+## α6400 bounded UI-dispatch and UXC correlation
+
+Read-only Ghidra analysis of the pinned α6400 2.00 `viewUnified2.so` used four
+explicit traversal entries: the `ViewSettingMenu` event switch at analysis address
+`0x22355e`, plus three `ViewStlrec` source file offsets (`0x1ab41c`,
+`0x1ab2d2`, and `0x1b1e76`) normalized to analysis addresses `0x1bb41c`,
+`0x1bb2d2`, and `0x1c1e76`. The bounded export recorded 2,046 call sites:
+1,697 resolved direct calls and 349 unresolved indirect calls. Unresolved
+indirect calls were terminal blockers, never traversed graph edges. The search
+depth cap was 32.
+
+The two previously recovered direct `ViewSettingMenu` paths remain useful
+semantic boundaries:
 
 - `0x22355e -> 0x222f68 -> 0x43156c -> 0x1613f0`: `0x222f68` reads
   `ViewBase::GetEventId`; event `0x22` initializes recording state and reaches
@@ -174,18 +802,47 @@ from that switch contain touch-named endpoints:
   and may force-release the touch panel. This is display/input configuration,
   not menu selection.
 
-A bounded static direct-call search resolved all 21 supplied
-`ViewSettingMenu` candidate roots and found no path to the master layout factory
-at `0x181f18`, the vertical-info layout factory at `0x24222c`, the function
-owning the resource-touch call at `0x2307d0`, or the function owning SampleView
-setup at `0x6666a4`. The matching `ViewStlrec` search resolved 10 of 25 supplied
-candidate addresses and found no direct path to either layout factory.
+The earlier address classifications are corrected. `0x181f18` is an internal
+selector branch that returns an ID on its equality path, not a layout factory.
+`0x24222c`, `0x3ba6dc`, and `0x651684` are second halfwords of Thumb-2
+instructions and are not executable entries. Five other `viewUnified2` sites
+are constructor/vptr-material paths, not class-ID loads. The two nominated
+handoff terminals are also resolved negatively: `0x1b9b6a` is a local branch
+landing and `0x1bb30e` is an exposure-mode getter PLT call.
 
-These negative results apply only to the recovered direct-call graph. Virtual,
-indirect, and UXC/data-driven dispatch remain possible. No settings-menu touch
-coordinate consumer, hit-test path, selection dispatcher, orientation-to-layout
-selector, or production resource hook is established, so the full-menu-touch
-and modern-vertical-UI claims remain false.
+The UXC scanner still finds the same five little-endian class IDs in both
+target resources: five references in `share/app/master_camera.uxc` and five in
+`share/app/viewStlrec.uxc`. These ten findings are reference-only; they do not
+identify executable owners, selector predicates, geometry, or invocation.
+
+The real vertical-classical factory is in `viewUnified7.so` at
+`0x52840..0x529b8`. Its exact group/class decision tree has twelve constructor
+arms, including five vertical-classical layout constructors. Wrapper
+`0x529cc..0x529e8` forwards to that factory and has five address-taken
+registrations in read-only data. Address-taken registration does not prove runtime
+invocation: there is no resolved `viewUnified2`-to-factory edge, no
+orientation-to-factory join, and no geometry, control-direction, touch, hit
+test, or menu-selection dataflow through the factory/wrapper slice.
+
+The next static boundary is now narrower but still unresolved. `viewUnified2`
+contains separate exact NUL-terminated occurrences of `viewUnified7.so` and
+`17LkmLayoutModeMngr`; their shared registry or container is not proven.
+The pinned `viewUnified2`/`viewUnified7` pair has no reciprocal `DT_NEEDED`
+edge and no typed `LayoutST_DIAL` or `LayoutConverterBase` dynamic-symbol
+linkage. Together with the empty bounded slot-34 dispatch scan, this leaves
+runtime loading, layout-object selection, and indirect dispatch consumption as
+the first unresolved edge. It does not prove that the target ever invokes the
+five vertical factory registrations.
+
+The corrected dispatch report retains four bounded negative searches for the
+two real `ViewSettingMenu` resource/sample-owner questions and their mixed
+graphs. No invalid offset is treated as a function target. All nine
+modern-interface behavior-contract items remain `UNESTABLISHED`: landscape
+layout, both portrait layouts, orientation-based layout selection,
+control-direction transform, touch-coordinate transform, menu hit testing,
+menu selection dispatch, and UI-state persistence. Unresolved indirect
+registration/invocation remains an open static-analysis boundary, not a
+positive capability claim.
 
 ## Donor roles and remaining portability gap
 
@@ -196,20 +853,106 @@ and modern-vertical-UI claims remain false.
 - α6400A: closest updater/trust-boundary control sample; not a modern UI donor.
 
 Feature existence on a donor and feature portability to α6400 are different
-claims. Portability still lacks authenticated evidence for the α6400 layout
-engine, portrait geometry, menu-wide touch dispatcher, widget resources,
-Creative Look tables and axes, image-pipeline ABI, memory budget, signature
-reconstruction, and recovery path.
+claims. The target now has pinned vertical-layout class and UXC references, but
+portability still lacks an orientation-to-layout selector, verified portrait
+geometry, a menu coordinate consumer/hit-test/selection chain, widget
+resources, Creative Look tables and axes, image-pipeline ABI, memory budget,
+signature reconstruction, and an independently verified recovery path.
+
+## Exact stock-recovery boundary
+
+The exact stock source is now authenticated independently of feature work:
+
+- Source key: `a6400-tw-v2.00`
+- Identity: `ILCE-6400`, model `0x81030011`, `TW`, region code `0`, version
+  `2.00`
+- Official updater SHA-256:
+  `ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6`
+- Embedded stock container SHA-256:
+  `78a6881eddd16609758951c80d533ac82042858eac919bd94453941ba6b766f2`
+
+This authenticates the exact stock updater/container source a prospective
+restoration path would need to use; it does not establish complete restored
+coverage or a way to perform that restoration. The strict result is
+`BLOCKED_STATIC_EVIDENCE`, with `recovery_validated=false`,
+`camera_test_eligible=false`, and `installable=false`.
+
+All three candidates remain independently `UNESTABLISHED`:
+`official-updater-reinstall`, `usb-recovery-or-updater-mode`, and
+`independent-maintenance-path`. No runtime-independent camera entry, complete
+write scope/order, or terminal verification has been proven. All six mandatory
+failure scenarios also remain `UNESTABLISHED` for every candidate: modified UI
+runtime failure, interrupted feature update, nonbooting application layer,
+version/downgrade rejection, boot-chain failure, and power loss during stock
+restore.
+
+The recovered target-system updater components are post-install 2.00 artifacts.
+The separately recovered α6400A updater partition is a control sample, not the
+exact α6400 2.00 installing path. The pre-normal-runtime selector or authentic
+earlier receiver that installs 2.00 is still missing. A settings or factory
+reset changes configuration; it is not firmware restoration and cannot satisfy
+this gate.
+
+The packaged-selector scan narrows this missing edge without closing it.
+`up.sh` creates updater mode flags and sends the corresponding numeric LSI
+notification. The packaged `ud_send_lsi.elf` writes the numeric argument into
+an OSAL message for queue `0x804b0376`; `libObj.so` registers its updater-mode
+callback on `0x004b0376`. Both `libosal_uipc.so` paths mask queue identifiers to
+the same low-15-bit value `0x376`, and the registered generic wrapper forwards
+the message payload to the callback. That callback clears and recreates only
+the known `/setting/updater/mode*` flags. Its successful flag-creation and
+acknowledgement-allocation path sends a reply; error paths release the input
+without proving a reply. This proves the packaged LSI-to-local-flag delivery
+path plus a conditional success acknowledgement, not an unconditional response
+for every payload and not the pre-normal partition selector.
+
+The nested updater script, four exact `libObj.so` path-literal owners, and
+crypter flag classes independently prove packaged flag-state producers and
+references. `bootin.elf` documents `normal`, `adj`, and `usbj` modes and has
+zero printable-string hits for the named updater-partition terms. That remains
+only a bounded named-reference result: numeric or indirect selector analysis
+is incomplete, and an unavailable or opaque component remains possible. The
+missing consumer that converts mode/LSI state into `/dev/nflasha1` selection
+therefore still blocks an exact external stock restore procedure and does not
+change `BLOCKED_STATIC_EVIDENCE`.
+
+The α6400A control is now bounded further by a canonical read-only `sauu`
+graph: 37 functions, 71 calls, three unresolved indirect calls, and maximum
+depth two. It confirms model/region/version guards and a signature workflow in
+the related model `0x81030017`, but no write orchestrator or completion
+verification was identified and transfer to α6400 model `0x81030011` remains
+false. The strict recovery report classifies this as `NON_TRANSFERABLE_CONTROL`
+and derives no recovery promotion from it.
 
 ## Next safe experiments
 
-1. Extend the α6400 `viewUnified2.so` trace through virtual calls and UXC/data
-   bindings to search for a settings-menu coordinate consumer or hit-test path.
-2. Build an α6400-only static call graph from orientation state to shooting UI
-   layout selection, without importing donor code.
-3. Compare α6400 and α6400A UI resources to separate harmless maintenance nodes
-   from model-gated dormant components.
-4. Continue α6700/α7 V donor analysis only after their authenticated decryption
-   boundary is solved; do not infer code or tables from opaque data.
-5. Keep every modified runtime file outside a Sony updater package until a valid
-   signature reconstruction and independent α6400 recovery route both exist.
+1. Resolve the runtime BSS configuration selector at `0x1424d78`, and prove a
+   factory-result capture/store join to the outer receiver before claiming any
+   route-to-producer or producer-to-consumer EventManager identity. Do not
+   promote ModelManager delivery from the currently unjoined route branches.
+2. Locate the runtime/indirect `SetTable("model", ...)` mutation and its exact
+   `CAMERA` row, then resolve the ModelManager record-registration path. Join
+   the resulting key-7 numeric ID
+   to a record, its `+0x1c` executor, and a concrete factory before treating
+   `ModelCamera` as the operation-38 handler. Trace the generic destination-4
+   scheduling path separately rather than treating it as Creative Style logic.
+3. Resolve the human meanings of the four fixed dynamic record-ID families and
+   join the independently supplied runtime indices so each setter write reaches
+   its branch-dependent getter output. Do not label an argument or output
+   without an exact dataflow edge.
+4. Compare that verified five-value ABI with the first-class Creative Look
+   contract, then locate independent storage and processing boundaries for the
+   three missing axes before changing any layer or axis from `UNESTABLISHED`.
+5. Join the thirteen accepted selector indices to exact resource IDs and
+   selected-state storage. Continue the settings-menu touch trace from real
+   widget/event owners to a coordinate transform, hit test, and selection
+   dispatcher. Existing wheel, repeat-key, cursor, widget, and touchability-flag
+   behavior is not evidence of touch navigation.
+6. Use α6700 for Creative Look/menu behavior and α7 V for vertical-display
+   behavior, without assuming donor code or hardware-dependent processing is
+   portable to α6400.
+7. Keep every modified runtime file outside a Sony updater package. Continue
+   static recovery research at the missing pre-normal-runtime selector or
+   authentic earlier installing receiver. Do not draft camera steps until the
+   strict report reaches a separately reviewed future-validation-design gate;
+   a settings reset cannot substitute for the required external stock restore.

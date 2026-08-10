@@ -1,7 +1,32 @@
 """Fail-closed validation for offline ILCE-6400 target feature evidence."""
 
 import copy
+import json
 import re
+from pathlib import Path
+
+from pmca.analysis.creative_look_sources import (
+    CreativeLookSourceError,
+    validate_creative_look_sources,
+)
+from pmca.analysis.creative_look_stack import (
+    CreativeLookStackError,
+    validate_creative_look_stack,
+)
+from pmca.analysis.creative_look_trace import (
+    CreativeLookTraceError,
+    validate_creative_look_boundary,
+)
+
+from pmca.analysis.modern_ui_contract import (
+    ModernUiContractError,
+    validate_modern_ui_contract,
+)
+from pmca.analysis.ui_dispatch import (
+    UiDispatchError,
+    build_ui_dispatch_report,
+    validate_ui_dispatch_report,
+)
 
 
 class TargetFeatureError(ValueError):
@@ -9,6 +34,12 @@ class TargetFeatureError(ValueError):
 
 
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
+_ANALYSIS_DIRECTORY = Path(__file__).resolve().parents[2] / "analysis"
+_NESTED_CREATIVE_REPORTS = {
+    "creative_look_stack": "a6400-creative-look-stack.json",
+    "creative_look_sources": "a6400-creative-look-sources.json",
+    "creative_look_boundary": "a6400-creative-look-boundary.json",
+}
 _TOP_FIELDS = {
     "schema_version",
     "subject",
@@ -23,6 +54,11 @@ _TOP_FIELDS = {
     "vertical_ui",
     "touch_ui",
     "ui_static_trace",
+    "modern_ui_contract",
+    "ui_indirect_trace",
+    "creative_look_stack",
+    "creative_look_sources",
+    "creative_look_boundary",
     "creative_rendering",
     "observations",
     "inferences",
@@ -187,6 +223,17 @@ _FORBIDDEN_KEYS = {
     "hex_dump",
     "private_key",
 }
+_ESTABLISHED_CONTRACT_STATUSES = {
+    "TARGET_NATIVE",
+    "TARGET_REIMPLEMENTABLE",
+    "DONOR_COMPATIBLE",
+}
+_ANALYSIS_ROOT = Path(__file__).resolve().parents[2] / "analysis"
+_CREATIVE_LOOK_REPORTS = {
+    "creative_look_stack": "a6400-creative-look-stack.json",
+    "creative_look_sources": "a6400-creative-look-sources.json",
+    "creative_look_boundary": "a6400-creative-look-boundary.json",
+}
 _MODULES = {
     "lib/CautionConfig.so": (
         12070800,
@@ -282,6 +329,46 @@ def _require_fields(value: object, fields: set[str], label: str) -> dict:
     return value
 
 
+def build_target_feature_report(
+    source_document: dict,
+    ui_dispatch_report: dict | None = None,
+    creative_reports: dict[str, dict] | None = None,
+) -> dict:
+    """Migrate pinned target evidence to the corrected UI dispatch contract."""
+
+    document = copy.deepcopy(source_document)
+    trace = document.get("ui_static_trace")
+    if not isinstance(trace, dict) or not isinstance(
+        trace.get("negative_searches"), list
+    ):
+        raise TargetFeatureError("UI static trace cannot be migrated")
+
+    trace["negative_searches"] = [
+        copy.deepcopy(search)
+        for search in trace["negative_searches"]
+        if isinstance(search, dict)
+        and search.get("target_name")
+        in {"root_resource_call_owner", "sample_view_resource_setup_owner"}
+    ]
+    if ui_dispatch_report is None:
+        ui_dispatch_report = build_ui_dispatch_report(document["ui_indirect_trace"])
+    document["ui_indirect_trace"] = copy.deepcopy(ui_dispatch_report)
+    document["schema_version"] = 5
+    if creative_reports is not None and set(creative_reports) != set(
+        _NESTED_CREATIVE_REPORTS
+    ):
+        raise TargetFeatureError("Creative report injection fields are invalid")
+    for field, filename in _NESTED_CREATIVE_REPORTS.items():
+        if creative_reports is None:
+            with (_ANALYSIS_DIRECTORY / filename).open(
+                "r", encoding="utf-8"
+            ) as stream:
+                document[field] = json.load(stream)
+        else:
+            document[field] = copy.deepcopy(creative_reports[field])
+    return validate_target_feature_report(document, creative_reports=creative_reports)
+
+
 def _bounded_text(value: object, label: str, maximum: int = 1000) -> str:
     if (
         not isinstance(value, str)
@@ -322,11 +409,23 @@ def _validate_claims(document: dict) -> None:
             _bounded_text(claim["claim"], "Target feature claim")
 
 
-def validate_target_feature_report(document: object) -> dict:
+def _load_committed_report(filename: str) -> dict:
+    try:
+        value = json.loads((_ANALYSIS_ROOT / filename).read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise TargetFeatureError("Committed Creative Look evidence is unavailable") from error
+    if not isinstance(value, dict):
+        raise TargetFeatureError("Committed Creative Look evidence is invalid")
+    return value
+
+
+def validate_target_feature_report(
+    document: object, creative_reports: dict[str, dict] | None = None
+) -> dict:
     """Validate target-only metadata without claiming a portable or installable patch."""
     _require_fields(document, _TOP_FIELDS, "Target feature report")
     _reject_reconstructive_fields(document)
-    if document["schema_version"] != 2:
+    if document["schema_version"] != 5:
         raise TargetFeatureError("Target feature schema is unsupported")
     if document["subject"] != "ILCE-6400 Taiwan 2.00 target feature boundaries":
         raise TargetFeatureError("Target feature subject is invalid")
@@ -545,26 +644,6 @@ def validate_target_feature_report(document: object) -> dict:
                 "root_set": "ViewSettingMenu-candidate-functions",
                 "requested_roots": 21,
                 "resolved_roots": 21,
-                "target_name": "master_layout_factory",
-                "target_requested_offset": "0x181f18",
-                "target_function_offset": "0x181f18",
-                "search_method": "static-direct-call-graph",
-                "path_found": False,
-            },
-            {
-                "root_set": "ViewSettingMenu-candidate-functions",
-                "requested_roots": 21,
-                "resolved_roots": 21,
-                "target_name": "vertical_info_layout_factory",
-                "target_requested_offset": "0x24222c",
-                "target_function_offset": "0x24222c",
-                "search_method": "static-direct-call-graph",
-                "path_found": False,
-            },
-            {
-                "root_set": "ViewSettingMenu-candidate-functions",
-                "requested_roots": 21,
-                "resolved_roots": 21,
                 "target_name": "root_resource_call_owner",
                 "target_requested_offset": "0x2307d0",
                 "target_function_offset": "0x223b8c",
@@ -581,31 +660,65 @@ def validate_target_feature_report(document: object) -> dict:
                 "search_method": "static-direct-call-graph",
                 "path_found": False,
             },
-            {
-                "root_set": "ViewStlrec-candidate-functions",
-                "requested_roots": 25,
-                "resolved_roots": 10,
-                "target_name": "master_layout_factory",
-                "target_requested_offset": "0x181f18",
-                "target_function_offset": "0x181f18",
-                "search_method": "static-direct-call-graph",
-                "path_found": False,
-            },
-            {
-                "root_set": "ViewStlrec-candidate-functions",
-                "requested_roots": 25,
-                "resolved_roots": 10,
-                "target_name": "vertical_info_layout_factory",
-                "target_requested_offset": "0x24222c",
-                "target_function_offset": "0x24222c",
-                "search_method": "static-direct-call-graph",
-                "path_found": False,
-            },
         ],
         "coordinate_consumer_found": False,
         "menu_selection_dispatch_found": False,
     }:
         raise TargetFeatureError("UI static trace is invalid or overclaimed")
+
+    try:
+        modern_contract = validate_modern_ui_contract(document["modern_ui_contract"])
+        indirect_trace = validate_ui_dispatch_report(document["ui_indirect_trace"])
+    except (ModernUiContractError, UiDispatchError) as error:
+        raise TargetFeatureError("Nested modern UI evidence is invalid") from error
+
+    inventory = {
+        module["name"]: (module["size"], module["sha256"])
+        for module in document["module_inventory"]
+    }
+    for module in indirect_trace["modules"]:
+        if inventory.get(module["name"]) != (module["size"], module["sha256"]):
+            raise TargetFeatureError("Indirect UI module identity is inconsistent")
+
+    trace_paths = {path["id"]: path for path in indirect_trace["paths"]}
+    for behavior in modern_contract["behaviors"]:
+        behavior_id = behavior["id"]
+        supported = indirect_trace["behavior_support"][behavior_id]
+        established = behavior["status"] in _ESTABLISHED_CONTRACT_STATUSES
+        if supported != established:
+            raise TargetFeatureError("Modern UI contract support is inconsistent")
+        for evidence in behavior["evidence"]:
+            path = trace_paths.get(evidence["path_id"])
+            if path is None or path["semantic"] != behavior_id:
+                raise TargetFeatureError("Modern UI contract path is not in the trace")
+
+    if (
+        vertical["orientation_layout_selector_established"]
+        is not indirect_trace["claims"]["orientation_layout_selector_found"]
+    ):
+        raise TargetFeatureError("Orientation selector evidence is inconsistent")
+    factory_reference = indirect_trace["vertical_factory_reference"]
+    if (
+        factory_reference["factory_owner"]["start"]
+        != vertical["layout_factory_offset"]
+        or factory_reference["total_constructor_arm_count"] != 12
+        or factory_reference["vertical_constructor_arm_count"]
+        != len(vertical["vertical_named_layouts"])
+        or factory_reference["wrapper_registration_count"] != 5
+        or any(
+            factory_reference[field] is not False
+            for field in (
+                "runtime_factory_invocation_proven",
+                "view_unified2_to_factory_edge_found",
+                "orientation_to_factory_join_proven",
+            )
+        )
+    ):
+        raise TargetFeatureError("Vertical factory provenance is inconsistent")
+    if vertical["modern_vertical_menu_established"] is not False:
+        raise TargetFeatureError("Modern vertical menu was overclaimed")
+    if touch["full_setting_menu_touch_established"] is not False:
+        raise TargetFeatureError("Full setting-menu touch was overclaimed")
 
     creative = _require_fields(
         document["creative_rendering"], _CREATIVE_FIELDS, "Creative rendering"
@@ -654,6 +767,57 @@ def validate_target_feature_report(document: object) -> dict:
         "label_reuse_is_concept_only": True,
     }:
         raise TargetFeatureError("Creative rendering evidence is invalid or overclaimed")
+
+    try:
+        creative_stack = validate_creative_look_stack(document["creative_look_stack"])
+        creative_sources = validate_creative_look_sources(
+            document["creative_look_sources"]
+        )
+        creative_boundary = validate_creative_look_boundary(
+            document["creative_look_boundary"]
+        )
+    except (
+        CreativeLookStackError,
+        CreativeLookSourceError,
+        CreativeLookTraceError,
+    ) as error:
+        raise TargetFeatureError("Nested Creative Look evidence is invalid") from error
+
+    nested_reports = {
+        "creative_look_stack": creative_stack,
+        "creative_look_sources": creative_sources,
+        "creative_look_boundary": creative_boundary,
+    }
+    if creative_reports is not None and set(creative_reports) != set(
+        _CREATIVE_LOOK_REPORTS
+    ):
+        raise TargetFeatureError("Creative report validation fields are invalid")
+    for field, filename in _CREATIVE_LOOK_REPORTS.items():
+        expected_report = (
+            _load_committed_report(filename)
+            if creative_reports is None
+            else creative_reports[field]
+        )
+        if nested_reports[field] != expected_report:
+            raise TargetFeatureError(
+                "Nested Creative Look evidence does not match its expected report"
+            )
+
+    boundary_native = (
+        creative_boundary["claims"]["native_creative_look_interface_found"]
+        and creative_boundary["claims"]["state_persistence_found"]
+        and creative_boundary["claims"]["base_look_processing_found"]
+        and creative_boundary["claims"]["pipeline_binding_found"]
+        and all(creative_boundary["output_support"].values())
+    )
+    expected_native_creative_look = (
+        creative_stack["native_creative_look_established"] and boundary_native
+    )
+    if (
+        creative["native_creative_look_established"]
+        is not expected_native_creative_look
+    ):
+        raise TargetFeatureError("Native Creative Look evidence is inconsistent")
 
     _validate_claims(document)
     _bounded_text(document["conclusion"], "Target feature conclusion")

@@ -1,63 +1,7 @@
 {
-  "schema_version": 2,
-  "subject": "ILCE-6400 Taiwan 2.00 target feature boundaries",
-  "camera_policy": "physically-disconnected",
-  "camera_connected": false,
-  "camera_executed": false,
-  "bypass_established": false,
-  "installable": false,
-  "target": {
-    "outer_updater_sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6",
-    "firmware_dat_sha256": "78a6881eddd16609758951c80d533ac82042858eac919bd94453941ba6b766f2",
-    "firmware_dat_offset": 715220,
-    "fdat_size": 304833808,
-    "architecture": "CXD90045",
-    "model_id": "0x81030011",
-    "region": 0,
-    "version": "2.00",
-    "filesystem_count": 1079,
-    "offline_unpack_succeeded": true
-  },
-  "module_inventory": [
-    {
-      "name": "lib/CautionConfig.so",
-      "size": 12070800,
-      "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7"
-    },
-    {
-      "name": "lib/libObj.so",
-      "size": 20860436,
-      "sha256": "60ffd2b0f31f4bc139a7c13a4f62c25cdeb6a531ad5ef35df48471e6e36e88b1"
-    },
-    {
-      "name": "lib/viewUnified2.so",
-      "size": 11530552,
-      "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
-    },
-    {
-      "name": "lib/viewUnified7.so",
-      "size": 541024,
-      "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
-    },
-    {
-      "name": "share/app/master_camera.uxc",
-      "size": 101720,
-      "sha256": "5a0370408dff25dab43ed677c3b8e6c9be3b8bb8630d7ea15273d4f996cca7ec"
-    },
-    {
-      "name": "share/app/viewStlrec.uxc",
-      "size": 32104,
-      "sha256": "f5aaa2f70f9b262b515a529ee2d80bf21928f0898504643cc7f174efa405d4f5"
-    }
-  ],
   "backup_images": {
-    "source_directory": "0110_backup/SYSASTRA-DSLR/DX2",
-    "main_destination": "CX62600_UC2.bin",
-    "regional_image_count": 11,
-    "image_size": 1148036,
-    "backup_revision": 4,
-    "property_count": 28900,
     "all_regions_agree": true,
+    "backup_revision": 4,
     "image_fingerprints": [
       {
         "name": "CX62600_ALLLANG.bin",
@@ -104,240 +48,1504 @@
         "sha256": "9edc4aec8a5e90f8a52853e2988400957fc2dbee232dd44f95d9c2defadb57b1"
       }
     ],
+    "image_size": 1148036,
+    "main_destination": "CX62600_UC2.bin",
     "properties": [
       {
+        "attribute": "0x01",
         "id": "0x01070316",
-        "value_hex": "43",
+        "read_only": true,
         "size": 1,
-        "attribute": "0x01",
-        "read_only": true
+        "value_hex": "43"
       },
       {
+        "attribute": "0x00",
         "id": "0x002a000a",
-        "value_hex": "01",
+        "read_only": false,
         "size": 1,
-        "attribute": "0x00",
-        "read_only": false
+        "value_hex": "01"
       },
       {
+        "attribute": "0x00",
         "id": "0x01050002",
-        "value_hex": "01",
+        "read_only": false,
         "size": 1,
-        "attribute": "0x00",
-        "read_only": false
+        "value_hex": "01"
       },
       {
-        "id": "0x010704cb",
-        "value_hex": "28",
-        "size": 1,
         "attribute": "0x01",
-        "read_only": true
-      },
-      {
-        "id": "0x010701cf",
-        "value_hex": "00",
+        "id": "0x010704cb",
+        "read_only": true,
         "size": 1,
+        "value_hex": "28"
+      },
+      {
         "attribute": "0x58",
-        "read_only": false
-      }
-    ]
-  },
-  "vertical_ui": {
-    "classification": "target-shooting-components",
-    "view": "ViewStlrec",
-    "orientation_module": "lib/viewUnified2.so",
-    "orientation_api": "startOrientationRollNotify_new",
-    "orientation_start_offset": "0x1ab41c",
-    "orientation_stop_offset": "0x1ba780",
-    "orientation_consumer": 2,
-    "orientation_owner_vtable_offset": "0x8ded88",
-    "orientation_owner_rtti_name": "ViewStlrec",
-    "layout_mode_attach_offset": "0x1ab2d2",
-    "layout_mode_set_call_found": false,
-    "af_orientation_dispatch_offset": "0x1b1e76",
-    "af_orientation_read_offsets": [
-      "0x1b1e7c",
-      "0x1b1e90",
-      "0x1b1ea4"
-    ],
-    "layout_factory_module": "lib/viewUnified7.so",
-    "layout_factory_offset": "0x52840",
-    "layout_group_id": "0x1b906244",
-    "factory_model_predicate_absent": true,
-    "orientation_layout_selector_established": false,
-    "vertical_named_layouts": [
-      {
-        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_INFO_LR",
-        "class_id": "0x61dc811c"
-      },
-      {
-        "name": "Layoutlayout_CMN_M_REC_FOOTER_VERTICAL_CLASSICAL_LR",
-        "class_id": "0x186c17f6"
-      },
-      {
-        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_HEADER_MANUALINFO_LR",
-        "class_id": "0x8e7fdf88"
-      },
-      {
-        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_MANUAL_LR",
-        "class_id": "0x7be1c309"
-      },
-      {
-        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_ERROR_LR",
-        "class_id": "0xbdbc36bd"
+        "id": "0x010701cf",
+        "read_only": false,
+        "size": 1,
+        "value_hex": "00"
       }
     ],
-    "uxc_resources": [
-      "share/app/master_camera.uxc",
-      "share/app/viewStlrec.uxc"
-    ],
-    "vertical_name_device_rotation_semantics_established": false,
-    "modern_vertical_menu_established": false,
-    "vertical_input_transform_established": false
+    "property_count": 28900,
+    "regional_image_count": 11,
+    "source_directory": "0110_backup/SYSASTRA-DSLR/DX2"
   },
-  "touch_ui": {
-    "view_module": "lib/viewUnified2.so",
-    "input_module": "lib/libObj.so",
-    "root_resource_call_offset": "0x2307d0",
-    "configuration_backup_id": "0x010704cb",
-    "configuration_default_value": "0x28",
-    "configuration_backup_attribute": "0x01",
-    "configuration_read_only": true,
-    "sample_view_resource_setup_offset": "0x6666a4",
-    "sample_view_owner_rtti_name": "10SampleView",
-    "sample_view_rtti_name_offset": "0xfafd26",
-    "sample_view_vtable_function_pointer_offset": "0x134d9c4",
-    "sample_view_production_menu_link_established": false,
-    "root_setup_gate_backup_id": "0x01050002",
-    "root_setup_gate_read_offset": "0x6666c0",
-    "root_setup_gate_default_value": "0x01",
-    "root_setup_gate_backup_attribute": "0x00",
-    "root_setup_gate_read_only": false,
-    "root_setup_gate_nonzero_skips_resource_setup": true,
-    "root_setup_gate_label_established": false,
-    "device_capability_backup_id": "0x002a000a",
-    "device_capability_backup_label": "BKID_DISPLAY_TP_DEVICE",
-    "device_capability_read_offsets": [
-      "0xdc30b6",
-      "0xdc597a"
-    ],
-    "device_capability_default_value": "0x01",
-    "device_capability_backup_attribute": "0x00",
-    "device_capability_read_only": false,
-    "device_capability_linked_to_root_gate": false,
-    "restore_modes": [
-      0,
-      40
-    ],
-    "view_specific_mode": 20,
-    "low_level_resource_routing_present": true,
-    "select_widget_touch_mode_present": true,
-    "setting_menu_instance_offset": "0x205575",
-    "setting_menu_resource_hooks_found": false,
-    "full_setting_menu_touch_established": false
-  },
-  "ui_static_trace": {
-    "analysis_scope": "offline-static-target-filesystem",
-    "module": "lib/viewUnified2.so",
-    "candidate_paths": [
+  "bypass_established": false,
+  "camera_connected": false,
+  "camera_executed": false,
+  "camera_policy": "physically-disconnected",
+  "conclusion": "The stock ILCE-6400 image contains vertical-named shooting layouts, orientation-aware AF handling, low-level touch machinery, and a richer Creative Style graph than its interface exposes. Sony backup images prove the selected read-only 0x43 TypeEmnt graph, while vtable evidence limits the writable touch gate to SampleView rather than the production menu. The ViewSettingMenu event graph reaches touch-status reads and display-transition touch-pad reconfiguration, but no recovered direct path consumes coordinates or dispatches a menu selection. ViewStlrec subscribes to the new roll service and separately attaches layout-mode updates, but no call or UXC predicate links roll state to the vertical-named layouts; their names alone do not prove device-rotation semantics. The evidence does not establish the modern rotating menu, full menu touch, native Creative Look, a safe selector mutation, a bypass, or an installable package.",
+  "creative_look_boundary": {
+    "schema_version": 1,
+    "analysis_scope": "offline-static-creative-look-boundaries",
+    "source_states": [
       {
-        "entry_name": "ViewSettingMenu",
-        "entry_offset": "0x22355e",
-        "target_name": "touch_detect_mode_status_read",
-        "target_offset": "0x1613f0",
-        "path_offsets": [
-          "0x22355e",
-          "0x222f68",
-          "0x43156c",
-          "0x1613f0"
-        ],
-        "semantic_boundary": "status-read-not-coordinate-dispatch"
+        "id": "a6400-tw-v2.00",
+        "state": "AUTHENTICATED_EXTRACTED",
+        "executable_evidence_available": true
       },
       {
-        "entry_name": "ViewSettingMenu",
-        "entry_offset": "0x22355e",
-        "target_name": "display_transition_touchpad_area_reconfiguration",
-        "target_offset": "0x41ae08",
-        "path_offsets": [
-          "0x22355e",
-          "0x21c644",
-          "0x1626cc",
-          "0x41b244",
-          "0x41ae08"
-        ],
-        "semantic_boundary": "configuration-not-menu-selection"
+        "id": "a6400a-eu-v1.01",
+        "state": "AUTHENTICATED_EXTRACTED",
+        "executable_evidence_available": true
+      },
+      {
+        "id": "a6700-tw-v2.00",
+        "state": "AUTHENTICATED_OPAQUE",
+        "executable_evidence_available": false
+      },
+      {
+        "id": "a7v-tw-v2.00",
+        "state": "AUTHENTICATED_OPAQUE",
+        "executable_evidence_available": false
+      }
+    ],
+    "modules": [
+      {
+        "source_id": "a6400-tw-v2.00",
+        "name": "lib/CautionConfig.so",
+        "size": 12070800,
+        "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7"
+      },
+      {
+        "source_id": "a6400a-eu-v1.01",
+        "name": "lib/CautionConfig.so",
+        "size": 12070832,
+        "sha256": "5ff622c8a30595fe88195d3e492643ceeb5ad2da68e556076eed593851a4d3e9"
+      }
+    ],
+    "bounded_export_summary": {
+      "root_count": 11,
+      "function_root_count": 10,
+      "data_root_count": 1,
+      "call_count": 9,
+      "direct_call_count": 9,
+      "unresolved_direct_call_count": 0,
+      "unresolved_indirect_call_count": 0,
+      "reference_count": 1,
+      "truncated": false,
+      "depth_cap": 16,
+      "artifact_sha256": "6913dae65b94671c4c9162b818c7b8c7c19eace86c7f4a8be48c80f03a55227c"
+    },
+    "roots": [
+      {
+        "id": "selector-function",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-selector",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7db958",
+        "analysis_address": "0x7eb958",
+        "symbol": "CmnViewSettingNodeCreativeStyle::_getSubNodeEv"
+      },
+      {
+        "id": "compiled-default-graph",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "compiled-creative-style-graph",
+        "kind": "data",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0xb836cc",
+        "analysis_address": "0xb936cc",
+        "symbol": "Default"
+      },
+      {
+        "id": "creative-style-function-001",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7b7eac",
+        "analysis_address": "0x7c7eac",
+        "symbol": "CmnViewSettingNodeCreativeStyle::_getSubNode"
+      },
+      {
+        "id": "creative-style-function-002",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7bd2bc",
+        "analysis_address": "0x7cd2bc",
+        "symbol": "CmnViewSettingNodeCreativeStyle::~CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-003",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7bdae4",
+        "analysis_address": "0x7cdae4",
+        "symbol": "CmnViewSettingNodeCreativeStyle::CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-004",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7be79c",
+        "analysis_address": "0x7ce79c",
+        "symbol": "CmnViewSettingNodeCreativeStyle::CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-005",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7c7d78",
+        "analysis_address": "0x7d7d78",
+        "symbol": "CmnViewSettingNodeCreativeStyle::~CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-006",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7c7d9c",
+        "analysis_address": "0x7d7d9c",
+        "symbol": "CmnViewSettingNodeCreativeStyle::~CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-007",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7db910",
+        "analysis_address": "0x7eb910",
+        "symbol": "CmnViewSettingNodeCreativeStyle::CmnViewSettingNodeCreativeStyle"
+      },
+      {
+        "id": "creative-style-function-008",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7db934",
+        "analysis_address": "0x7eb934",
+        "symbol": "CmnViewSettingNodeCreativeStyle::clone"
+      },
+      {
+        "id": "creative-style-function-010",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "role": "creative-style-named-function",
+        "kind": "function",
+        "source_kind": "elf-virtual-address",
+        "source_offset": "0x7dba40",
+        "analysis_address": "0x7eba40",
+        "symbol": "CmnViewSettingNodeCreativeStyle::CmnViewSettingNodeCreativeStyle"
+      }
+    ],
+    "paths": [
+      {
+        "id": "selector-graph-reference-001",
+        "source_id": "a6400-tw-v2.00",
+        "source_module": "lib/CautionConfig.so",
+        "source": "0x7eb958",
+        "sink_module": "lib/CautionConfig.so",
+        "sink": "0xb936cc",
+        "semantic": "menu-graph-selection",
+        "resolved": true,
+        "output_scope": [],
+        "evidence_kind": "compiled-graph-selector"
       }
     ],
     "negative_searches": [
       {
-        "root_set": "ViewSettingMenu-candidate-functions",
-        "requested_roots": 21,
-        "resolved_roots": 21,
-        "target_name": "master_layout_factory",
-        "target_requested_offset": "0x181f18",
-        "target_function_offset": "0x181f18",
-        "search_method": "static-direct-call-graph",
-        "path_found": false
+        "id": "first-class-interface-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "first-class-interface",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No first-class Creative Look interface root or sink was identified in the bounded Creative Style call graph."
       },
       {
-        "root_set": "ViewSettingMenu-candidate-functions",
-        "requested_roots": 21,
-        "resolved_roots": 21,
-        "target_name": "vertical_info_layout_factory",
-        "target_requested_offset": "0x24222c",
-        "target_function_offset": "0x24222c",
-        "search_method": "static-direct-call-graph",
-        "path_found": false
+        "id": "preset-state-read-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "preset-state-read",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No Creative Look preset-state read boundary was identified in the bounded Creative Style call graph."
       },
       {
-        "root_set": "ViewSettingMenu-candidate-functions",
-        "requested_roots": 21,
-        "resolved_roots": 21,
-        "target_name": "root_resource_call_owner",
-        "target_requested_offset": "0x2307d0",
-        "target_function_offset": "0x223b8c",
-        "search_method": "static-direct-call-graph",
-        "path_found": false
+        "id": "preset-state-write-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "preset-state-write",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No Creative Look preset-state write boundary was identified in the bounded Creative Style call graph."
       },
       {
-        "root_set": "ViewSettingMenu-candidate-functions",
-        "requested_roots": 21,
-        "resolved_roots": 21,
-        "target_name": "sample_view_resource_setup_owner",
-        "target_requested_offset": "0x6666a4",
-        "target_function_offset": "0x6695d8",
-        "search_method": "static-direct-call-graph",
-        "path_found": false
+        "id": "axis-range-validation-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No validation boundary for the eight Creative Look axes was identified in the bounded Creative Style call graph."
       },
       {
-        "root_set": "ViewStlrec-candidate-functions",
-        "requested_roots": 25,
-        "resolved_roots": 10,
-        "target_name": "master_layout_factory",
-        "target_requested_offset": "0x181f18",
-        "target_function_offset": "0x181f18",
-        "search_method": "static-direct-call-graph",
-        "path_found": false
+        "id": "axis-contrast-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent contrast UI, state, range, and Creative Look processing boundary was identified."
       },
       {
-        "root_set": "ViewStlrec-candidate-functions",
-        "requested_roots": 25,
-        "resolved_roots": 10,
-        "target_name": "vertical_info_layout_factory",
-        "target_requested_offset": "0x24222c",
-        "target_function_offset": "0x24222c",
-        "search_method": "static-direct-call-graph",
-        "path_found": false
+        "id": "axis-highlights-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent highlights UI, state, range, and processing boundary was identified."
+      },
+      {
+        "id": "axis-shadows-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent shadows UI, state, range, and processing boundary was identified."
+      },
+      {
+        "id": "axis-fade-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent fade UI, state, range, and processing boundary was identified."
+      },
+      {
+        "id": "axis-saturation-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent saturation UI, state, range, and Creative Look processing boundary was identified."
+      },
+      {
+        "id": "axis-sharpness-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No independent sharpness UI, state, range, and Creative Look processing boundary was identified."
+      },
+      {
+        "id": "axis-sharpness-range-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No sharpness-range UI, state, range, and processing boundary distinct from sharpness was identified."
+      },
+      {
+        "id": "axis-clarity-boundaries-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "axis-range-validation",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No clarity UI, state, range, and processing boundary distinct from sharpening was identified."
+      },
+      {
+        "id": "base-look-table-load-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "base-look-table-load",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "The compiled Creative Style menu graph does not identify a native Creative Look base-look table load."
+      },
+      {
+        "id": "live-view-sink-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "live-view-sink",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No path from the bounded Creative Style roots to a live-view processing sink was identified."
+      },
+      {
+        "id": "still-jpeg-sink-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "still-jpeg-sink",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No path from the bounded Creative Style roots to a still-JPEG processing sink was identified."
+      },
+      {
+        "id": "movie-sink-not-found",
+        "source_id": "a6400-tw-v2.00",
+        "module": "lib/CautionConfig.so",
+        "semantic": "movie-sink",
+        "root_count": 10,
+        "edge_kinds": [
+          "direct"
+        ],
+        "depth_cap": 16,
+        "path_found": false,
+        "blocker": "No path from the bounded Creative Style roots to a movie processing sink was identified."
       }
     ],
-    "coordinate_consumer_found": false,
-    "menu_selection_dispatch_found": false
+    "source_skips": [
+      {
+        "source_id": "a6700-tw-v2.00",
+        "state": "AUTHENTICATED_OPAQUE",
+        "reason": "source-not-extracted"
+      },
+      {
+        "source_id": "a7v-tw-v2.00",
+        "state": "AUTHENTICATED_OPAQUE",
+        "reason": "source-not-extracted"
+      }
+    ],
+    "claims": {
+      "native_creative_look_interface_found": false,
+      "state_persistence_found": false,
+      "base_look_processing_found": false,
+      "pipeline_binding_found": false
+    },
+    "output_support": {
+      "live_view": false,
+      "still_jpeg": false,
+      "movie": false
+    }
+  },
+  "creative_look_sources": {
+    "schema_version": 1,
+    "target": "ILCE-6400",
+    "sources": [
+      {
+        "id": "a6400-tw-v2.00",
+        "display_name": "\u03b16400",
+        "model": "ILCE-6400",
+        "region": "TW",
+        "version": "2.00",
+        "role": "target",
+        "state": "AUTHENTICATED_EXTRACTED",
+        "executable_evidence_available": true,
+        "artifact": {
+          "filename": "Update_ILCE6400V200.exe",
+          "size": 314230712,
+          "sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6",
+          "source_kind": "official-windows-updater"
+        },
+        "extracted_evidence": [
+          {
+            "artifact_kind": "module",
+            "name": "lib/CautionConfig.so",
+            "size": 12070800,
+            "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7"
+          }
+        ],
+        "committed_evidence": [
+          "analysis/firmware-manifest.json",
+          "analysis/a6400-target-features.json"
+        ],
+        "creative_look_limit": "The extracted target module proves Creative Style selector and graph structure only; it does not establish native Creative Look processing."
+      },
+      {
+        "id": "a6400a-eu-v1.01",
+        "display_name": "\u03b16400A",
+        "model": "ILCE-6400A",
+        "region": "EU",
+        "version": "1.01",
+        "role": "control-sample",
+        "state": "AUTHENTICATED_EXTRACTED",
+        "executable_evidence_available": true,
+        "artifact": {
+          "filename": "Update_ILCE6400AV101.exe",
+          "size": 324175032,
+          "sha256": "fd6ae50755a9202a8b506b6b77aa27ab41ae717e96f05a0d4e2ad699b40d9ad1",
+          "source_kind": "official-windows-updater"
+        },
+        "extracted_evidence": [
+          {
+            "artifact_kind": "module",
+            "name": "lib/CautionConfig.so",
+            "size": 12070832,
+            "sha256": "5ff622c8a30595fe88195d3e492643ceeb5ad2da68e556076eed593851a4d3e9"
+          }
+        ],
+        "committed_evidence": [
+          "analysis/a6400a-updater-and-creative-style-deep-dive.md"
+        ],
+        "creative_look_limit": "Static comparison found maintenance changes and no Creative Look symbol or resource; \u03b16400A is a control sample, not a modern UI or Creative Look donor."
+      },
+      {
+        "id": "a6700-tw-v2.00",
+        "display_name": "\u03b16700",
+        "model": "ILCE-6700",
+        "region": "TW",
+        "version": "2.00",
+        "role": "interface-reference",
+        "state": "AUTHENTICATED_OPAQUE",
+        "executable_evidence_available": false,
+        "artifact": {
+          "filename": "BODYDATA.DAT",
+          "size": 1024017848,
+          "sha256": "d3c7db5b9b40c89b11ecf03addf0f6ff1d9b917acf9f55e46360462e86db847c",
+          "source_kind": "official-bodydata"
+        },
+        "extracted_evidence": [],
+        "committed_evidence": [
+          "analysis/firmware-manifest.json",
+          "analysis/reports/a6700-tw-v2.00.json",
+          "analysis/structures/a6700-tw-v2.00.json",
+          "analysis/a6400-feasibility-report.md"
+        ],
+        "creative_look_limit": "The authenticated FDAT remains opaque and cannot provide donor functions, offsets, tables, decryption, or processing evidence."
+      },
+      {
+        "id": "a7v-tw-v2.00",
+        "display_name": "\u03b17 V",
+        "model": "ILCE-7M5",
+        "region": "TW",
+        "version": "2.00",
+        "role": "interface-reference",
+        "state": "AUTHENTICATED_OPAQUE",
+        "executable_evidence_available": false,
+        "artifact": {
+          "filename": "BODYDATA.DAT",
+          "size": 376540720,
+          "sha256": "098290778a84236a0f2be44ac8398fd428d522b5c2c6676f19df23d09ee293d6",
+          "source_kind": "official-bodydata"
+        },
+        "extracted_evidence": [],
+        "committed_evidence": [
+          "analysis/firmware-manifest.json",
+          "analysis/reports/a7v-tw-v2.00.json",
+          "analysis/structures/a7v-tw-v2.00.json",
+          "analysis/a6400-feasibility-report.md"
+        ],
+        "creative_look_limit": "The authenticated FDAT remains opaque and cannot provide donor functions, offsets, tables, decryption, or processing evidence."
+      }
+    ],
+    "claim_boundary": "Opaque FDAT sources provide container and format evidence only; they do not provide donor functions, offsets, tables, decryption, or processing behavior."
+  },
+  "creative_look_stack": {
+    "schema_version": 2,
+    "target": "ILCE-6400",
+    "reference": "ILCE-7M5-creative-look-behavior",
+    "reference_catalog": {
+      "source": "https://helpguide.sony.net/ilc/2540/v1/en/contents/0411B_creative_look.html",
+      "built_in_looks": [
+        "ST",
+        "PT",
+        "NT",
+        "VV",
+        "VV2",
+        "FL",
+        "FL2",
+        "FL3",
+        "IN",
+        "SH",
+        "BW",
+        "SE"
+      ],
+      "custom_slots": [
+        "Custom1",
+        "Custom2",
+        "Custom3",
+        "Custom4",
+        "Custom5",
+        "Custom6"
+      ],
+      "axes": {
+        "contrast": {
+          "minimum": -9,
+          "maximum": 9,
+          "default": null
+        },
+        "highlights": {
+          "minimum": -9,
+          "maximum": 9,
+          "default": null
+        },
+        "shadows": {
+          "minimum": -9,
+          "maximum": 9,
+          "default": null
+        },
+        "fade": {
+          "minimum": 0,
+          "maximum": 9,
+          "default": null
+        },
+        "saturation": {
+          "minimum": -9,
+          "maximum": 9,
+          "default": null
+        },
+        "sharpness": {
+          "minimum": 0,
+          "maximum": 9,
+          "default": null
+        },
+        "sharpness_range": {
+          "minimum": 1,
+          "maximum": 5,
+          "default": null
+        },
+        "clarity": {
+          "minimum": 0,
+          "maximum": 9,
+          "default": null
+        }
+      },
+      "workflow_actions": [
+        "select_look",
+        "edit_axes",
+        "modified_marker",
+        "reset_one_look",
+        "select_custom_base"
+      ],
+      "restrictions": {
+        "intelligent_auto": {
+          "condition": "INTELLIGENT_AUTO",
+          "scope": "creative_look",
+          "effect": "UNAVAILABLE"
+        },
+        "picture_profile_not_off": {
+          "condition": "PICTURE_PROFILE_NOT_OFF",
+          "scope": "creative_look",
+          "effect": "UNAVAILABLE"
+        },
+        "flexible_iso_log": {
+          "condition": "FLEXIBLE_ISO_LOG",
+          "scope": "creative_look",
+          "effect": "UNAVAILABLE"
+        },
+        "bw_se_saturation": {
+          "condition": "LOOK_IS_BW_OR_SE",
+          "scope": "saturation",
+          "effect": "UNAVAILABLE"
+        },
+        "movie_sharpness_range": {
+          "condition": "MOVIE_MODE",
+          "scope": "sharpness_range",
+          "effect": "UNAVAILABLE"
+        }
+      }
+    },
+    "layers": {
+      "interface": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No resolved target path establishes the dedicated \u03b17 V Creative Look browser, editor, marker, reset, and Custom-base workflow.",
+        "acceptance": "A dedicated workflow presents all twelve built-ins and six Custom slots without relabeling Creative Style."
+      },
+      "state": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No target state model is proven for twelve built-ins, six Custom slots, per-look adjustments, defaults, reset, and persistence.",
+        "acceptance": "Validated per-look and per-Custom records preserve exact supported values across documented transitions."
+      },
+      "base_looks": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No authenticated Creative Look base table or evidence-backed target-native representation is established.",
+        "acceptance": "All twelve built-ins have authenticated or independently validated processing representations with explicit provenance."
+      },
+      "adjustment_axes": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "The eight axes are not independently connected to target UI, state, range, default, and processing boundaries.",
+        "acceptance": "Every axis has proven UI handling, state, exact range, default semantics, and a target processing path."
+      },
+      "pipeline_binding": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No Creative Look path is bound to live view, still JPEG, or movie output on the target.",
+        "acceptance": "Each supported output uses the selected look and adjustments consistently."
+      }
+    },
+    "look_records": {
+      "ST": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native ST representation, state, and output binding is established."
+      },
+      "PT": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native PT representation, state, and output binding is established."
+      },
+      "NT": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native NT representation, state, and output binding is established."
+      },
+      "VV": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native VV representation, state, and output binding is established."
+      },
+      "VV2": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native VV2 representation, state, and output binding is established."
+      },
+      "FL": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native FL representation, state, and output binding is established."
+      },
+      "FL2": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No target-native FL2 representation, state, output binding, or honest fallback representation is established."
+      },
+      "FL3": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No target-native FL3 representation, state, output binding, or honest fallback representation is established."
+      },
+      "IN": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native IN representation, state, and output binding is established."
+      },
+      "SH": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native SH representation, state, and output binding is established."
+      },
+      "BW": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native BW representation, state, and output binding is established."
+      },
+      "SE": {
+        "status": "UNESTABLISHED",
+        "base_representation": false,
+        "selectable_state": false,
+        "output_bindings": {
+          "live_view": false,
+          "still_jpeg": false,
+          "movie": false
+        },
+        "evidence": [],
+        "blocker": "No complete target-native SE representation, state, and output binding is established."
+      }
+    },
+    "custom_records": {
+      "Custom1": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom1 base selection, state, adjustment, reset, and persistence path is established."
+      },
+      "Custom2": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom2 base selection, state, adjustment, reset, and persistence path is established."
+      },
+      "Custom3": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom3 base selection, state, adjustment, reset, and persistence path is established."
+      },
+      "Custom4": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom4 base selection, state, adjustment, reset, and persistence path is established."
+      },
+      "Custom5": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom5 base selection, state, adjustment, reset, and persistence path is established."
+      },
+      "Custom6": {
+        "status": "UNESTABLISHED",
+        "base_selection": false,
+        "slot_state": false,
+        "adjustments": false,
+        "reset": false,
+        "persistence": false,
+        "evidence": [],
+        "blocker": "No independent Custom6 base selection, state, adjustment, reset, and persistence path is established."
+      }
+    },
+    "workflow_records": {
+      "select_look": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No production dispatcher selects a first-class built-in or Custom Look."
+      },
+      "edit_axes": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No first-class editor is wired to eight independently validated axes."
+      },
+      "modified_marker": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No target state-to-UI path establishes the per-look modified marker."
+      },
+      "reset_one_look": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No per-look reset transition with validated defaults is established."
+      },
+      "select_custom_base": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No Custom-slot base-look selection and persistence path is established."
+      }
+    },
+    "axis_records": {
+      "contrast": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "range": false,
+        "default": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "Creative Style contrast is fallback evidence only; matching Creative Look boundaries remain unproven."
+      },
+      "highlights": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "range": false,
+        "default": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "No independent Highlights UI, state, range, default, and processing path is established."
+      },
+      "shadows": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "range": false,
+        "default": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "No independent Shadows UI, state, range, default, and processing path is established."
+      },
+      "fade": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "range": false,
+        "default": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "No independent Fade UI, state, range, default, and processing path is established."
+      },
+      "saturation": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "range": false,
+        "default": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "Creative Style saturation is fallback evidence only; matching Creative Look boundaries remain unproven."
+      },
+      "sharpness": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "range": false,
+        "default": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "Creative Style sharpness is fallback evidence only; matching nonnegative Creative Look semantics remain unproven."
+      },
+      "sharpness_range": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "range": false,
+        "default": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "No Sharpness Range control distinct from Sharpness is established."
+      },
+      "clarity": {
+        "status": "UNESTABLISHED",
+        "ui": false,
+        "state": false,
+        "range": false,
+        "default": false,
+        "pipeline": false,
+        "evidence": [],
+        "blocker": "No Clarity control distinct from sharpening is established."
+      }
+    },
+    "restriction_records": {
+      "intelligent_auto": {
+        "status": "UNESTABLISHED",
+        "implemented": false,
+        "evidence": [],
+        "blocker": "The \u03b17 V Intelligent Auto restriction is reference behavior only; no \u03b16400 Creative Look mode join is established."
+      },
+      "picture_profile_not_off": {
+        "status": "UNESTABLISHED",
+        "implemented": false,
+        "evidence": [],
+        "blocker": "The \u03b17 V Picture Profile restriction is reference behavior only; no \u03b16400 Creative Look mode join is established."
+      },
+      "flexible_iso_log": {
+        "status": "UNESTABLISHED",
+        "implemented": false,
+        "evidence": [],
+        "blocker": "The \u03b17 V Flexible ISO Log restriction is reference behavior only; no \u03b16400 Creative Look mode join is established."
+      },
+      "bw_se_saturation": {
+        "status": "UNESTABLISHED",
+        "implemented": false,
+        "evidence": [],
+        "blocker": "The \u03b17 V BW/SE Saturation restriction is reference behavior only; no target implementation is established."
+      },
+      "movie_sharpness_range": {
+        "status": "UNESTABLISHED",
+        "implemented": false,
+        "evidence": [],
+        "blocker": "The \u03b17 V movie Sharpness Range restriction is reference behavior only; no target implementation is established."
+      }
+    },
+    "pipeline_outputs": {
+      "live_view": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No live-view Creative Look sink is resolved."
+      },
+      "still_jpeg": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No still-JPEG Creative Look sink is resolved."
+      },
+      "movie": {
+        "status": "UNESTABLISHED",
+        "evidence": [],
+        "blocker": "No movie Creative Look sink is resolved."
+      }
+    },
+    "presentation": {
+      "looks": {
+        "ST": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "PT": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "NT": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "VV": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "VV2": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "FL": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "FL2": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "FL3": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "IN": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "SH": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "BW": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        },
+        "SE": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "BASE_LOOK_REPRESENTATION_UNPROVEN",
+            "WORKFLOW_DISPATCH_UNPROVEN",
+            "LIVE_VIEW_BINDING_UNPROVEN",
+            "STILL_JPEG_BINDING_UNPROVEN",
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        }
+      },
+      "custom_slots": {
+        "Custom1": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        },
+        "Custom2": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        },
+        "Custom3": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        },
+        "Custom4": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        },
+        "Custom5": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        },
+        "Custom6": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "CUSTOM_LOOK_STATE_UNPROVEN",
+            "PERSISTENCE_UNPROVEN"
+          ]
+        }
+      },
+      "axes": {
+        "contrast": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "highlights": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "shadows": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "fade": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "saturation": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "sharpness": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "sharpness_range": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        },
+        "clarity": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "AXIS_UI_UNPROVEN",
+            "AXIS_STATE_UNPROVEN",
+            "AXIS_PIPELINE_UNPROVEN"
+          ]
+        }
+      },
+      "workflow_actions": {
+        "select_look": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "WORKFLOW_DISPATCH_UNPROVEN"
+          ]
+        },
+        "edit_axes": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "WORKFLOW_DISPATCH_UNPROVEN"
+          ]
+        },
+        "modified_marker": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "WORKFLOW_DISPATCH_UNPROVEN"
+          ]
+        },
+        "reset_one_look": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "WORKFLOW_DISPATCH_UNPROVEN"
+          ]
+        },
+        "select_custom_base": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "WORKFLOW_DISPATCH_UNPROVEN"
+          ]
+        }
+      },
+      "restriction_rules": {
+        "intelligent_auto": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MODE_MATRIX_UNPROVEN"
+          ]
+        },
+        "picture_profile_not_off": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MODE_MATRIX_UNPROVEN"
+          ]
+        },
+        "flexible_iso_log": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MODE_MATRIX_UNPROVEN"
+          ]
+        },
+        "bw_se_saturation": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MODE_MATRIX_UNPROVEN"
+          ]
+        },
+        "movie_sharpness_range": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MODE_MATRIX_UNPROVEN"
+          ]
+        }
+      },
+      "output_bindings": {
+        "live_view": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "LIVE_VIEW_BINDING_UNPROVEN"
+          ]
+        },
+        "still_jpeg": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "STILL_JPEG_BINDING_UNPROVEN"
+          ]
+        },
+        "movie": {
+          "visibility": "VISIBLE",
+          "availability": "DISABLED_UNPROVEN",
+          "reasons": [
+            "MOVIE_BINDING_UNPROVEN"
+          ]
+        }
+      }
+    },
+    "fallback": {
+      "creative_style_available": true,
+      "status": "APPROXIMATION_ONLY",
+      "policy": "LAST_RESORT_ONLY",
+      "source": "analysis/creative-look-recipes.json",
+      "represented_reference_looks": [
+        "ST",
+        "PT",
+        "NT",
+        "VV",
+        "VV2",
+        "FL",
+        "IN",
+        "SH",
+        "BW",
+        "SE"
+      ],
+      "unrepresented_reference_looks": [
+        "FL2",
+        "FL3"
+      ],
+      "native_claim_basis": false
+    },
+    "safety": {
+      "reference": "analysis/a6400-stock-200-recovery.json",
+      "canonical_report_sha256": "008b850abd51e75b76adf56640ef5168dde9498473097b84e3a7bfce175fcd2b",
+      "readiness": "BLOCKED_STATIC_EVIDENCE",
+      "recovery_validated": false,
+      "camera_test_eligible": false,
+      "installable": false
+    },
+    "native_creative_look_established": false
   },
   "creative_rendering": {
-    "module": "lib/CautionConfig.so",
-    "compiled_default_graph_offset": "0xb836cc",
+    "base_styles_per_box": 13,
     "compiled_default_graph_nodes": 98,
+    "compiled_default_graph_offset": "0xb836cc",
     "compiled_default_top_level_nodes": 20,
+    "compiled_extra_fixed_style": "Real",
+    "compiled_fixed_styles": [
+      "Standard",
+      "Vivid",
+      "Neutral",
+      "Clear",
+      "Deep",
+      "Light",
+      "Portrait",
+      "Landscape",
+      "Sunset",
+      "NightScene",
+      "Autumnleaves",
+      "Black_White",
+      "Real",
+      "Sepia"
+    ],
     "compiled_graph_variants": [
       {
         "name": "Default",
@@ -364,17 +1572,16 @@
         "nodes": 19
       }
     ],
-    "graph_selector_backup_id": "0x01070316",
-    "graph_selector_function_offset": "0x7db958",
-    "type07_selector_value": "0x45",
-    "documented_visible_graph_shape": "TypeEmnt",
-    "target_selector_value_confirmed": true,
-    "target_selector_value": "0x43",
-    "target_selector_graph": "TypeEmnt",
-    "selector_backup_attribute": "0x01",
-    "selector_read_only": true,
-    "selector_mutation_tested": false,
-    "compiled_extra_fixed_style": "Real",
+    "creative_box_names": [
+      "CreativeBox1",
+      "CreativeBox2",
+      "CreativeBox3",
+      "CreativeBox4",
+      "CreativeBox5",
+      "CreativeBox6"
+    ],
+    "creative_boxes": 6,
+    "creative_look_symbol_found": false,
     "documented_visible_fixed_styles": [
       "Standard",
       "Vivid",
@@ -390,132 +1597,801 @@
       "Black_White",
       "Sepia"
     ],
-    "creative_boxes": 6,
-    "base_styles_per_box": 13,
+    "documented_visible_graph_shape": "TypeEmnt",
+    "donor_adjustment_axes": 8,
     "enum_range": [
       0,
       97
     ],
-    "compiled_fixed_styles": [
-      "Standard",
-      "Vivid",
-      "Neutral",
-      "Clear",
-      "Deep",
-      "Light",
-      "Portrait",
-      "Landscape",
-      "Sunset",
-      "NightScene",
-      "Autumnleaves",
-      "Black_White",
-      "Real",
-      "Sepia"
-    ],
-    "creative_box_names": [
-      "CreativeBox1",
-      "CreativeBox2",
-      "CreativeBox3",
-      "CreativeBox4",
-      "CreativeBox5",
-      "CreativeBox6"
-    ],
-    "target_adjustment_axes": 3,
-    "donor_adjustment_axes": 8,
-    "creative_look_symbol_found": false,
+    "graph_selector_backup_id": "0x01070316",
+    "graph_selector_function_offset": "0x7db958",
+    "label_reuse_is_concept_only": true,
+    "module": "lib/CautionConfig.so",
     "native_creative_look_established": false,
-    "label_reuse_is_concept_only": true
+    "selector_backup_attribute": "0x01",
+    "selector_mutation_tested": false,
+    "selector_read_only": true,
+    "target_adjustment_axes": 3,
+    "target_selector_graph": "TypeEmnt",
+    "target_selector_value": "0x43",
+    "target_selector_value_confirmed": true,
+    "type07_selector_value": "0x45"
   },
-  "observations": [
-    {
-      "classification": "OBSERVATION",
-      "source": "ILCE-6400 Taiwan 2.00 FirmwareData.dat and extracted target filesystem fingerprints in this report",
-      "claim": "The official updater contains a bounded CXD90045 target for model 0x81030011, and the historical reader successfully unpacked 1,079 target filesystem entries offline."
-    },
-    {
-      "classification": "OBSERVATION",
-      "source": "lib/viewUnified2.so, lib/viewUnified7.so, master_camera.uxc, and viewStlrec.uxc fingerprints in this report",
-      "claim": "ViewStlrec registers the new orientation-roll service as consumer bit 2, attaches layout-mode updates, and five vertical-named shooting layout classes are accepted by the layout factory and referenced by target UXC resources."
-    },
-    {
-      "classification": "OBSERVATION",
-      "source": "lib/viewUnified2.so fingerprint and recorded call offsets in this report",
-      "claim": "The target has low-level resource touch routing and a touch-capable selection widget, but no direct resource touch start or stop call was found in the ViewSettingMenu region."
-    },
-    {
-      "classification": "OBSERVATION",
-      "source": "lib/viewUnified2.so ViewSettingMenu event switch at 0x22355e and schema-v2 offline direct-call trace",
-      "claim": "The recovered settings-menu event graph reaches a touch detect-mode status read through 0x222f68 and 0x43156c, plus display-transition touch-pad area reconfiguration through 0x21c644 and 0x41ae08; neither path consumes coordinates or dispatches a menu selection."
-    },
-    {
-      "classification": "OBSERVATION",
-      "source": "lib/libObj.so SampleView vtable/RTTI, resource setup at 0x6666a4, and ObjDisplay backup reads at 0xdc30b6 and 0xdc597a",
-      "claim": "Backup 0x01050002 conditionally skips resource touch setup inside SampleView, while the separately identified BKID_DISPLAY_TP_DEVICE key is 0x002a000a; no production-menu link or code link between these two keys has been established."
-    },
-    {
-      "classification": "OBSERVATION",
-      "source": "eleven parsed Sony backup images, lib/CautionConfig.so graph selector at 0x7db958, and compiled node tables",
-      "claim": "Every regional backup image stores read-only selector 0x01070316 as 0x43, which maps to the 91-node TypeEmnt Creative Style graph; the 98-node Default graph and 19-node Type07 graph are compiled but not selected."
-    },
-    {
-      "classification": "OBSERVATION",
-      "source": "eleven parsed revision-4 Sony backup images in 0110_backup/SYSASTRA-DSLR/DX2",
-      "claim": "All regional images agree that BKID_DISPLAY_TP_DEVICE and the SampleView touch gate default to 1, while the read-only resource-touch configuration defaults to 0x28."
-    },
-    {
-      "classification": "OBSERVATION",
-      "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html",
-      "claim": "Sony documents three adjustable Creative Style parameters on the ILCE-6400: contrast, saturation, and sharpness."
-    },
-    {
-      "classification": "OBSERVATION",
-      "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html",
-      "claim": "Sony documents eight adjustable Creative Look parameters on the ILCE-6700, including highlights, shadows, fade, sharpness range, and clarity beyond the three target axes."
-    }
-  ],
   "inferences": [
     {
+      "claim": "The vertical-named layouts are target-resident shooting components rather than strings alone, but their names do not establish device-rotation semantics and no orientation-to-layout selector was found.",
       "classification": "INFERENCE",
-      "source": "ViewStlrec vtable/RTTI ownership, orientation registration, target UXC records, and the unguarded target layout factory",
-      "claim": "The vertical-named layouts are target-resident shooting components rather than strings alone, but their names do not establish device-rotation semantics and no orientation-to-layout selector was found."
+      "source": "ViewStlrec vtable/RTTI ownership, orientation registration, target UXC records, and the unguarded target layout factory"
     },
     {
+      "claim": "The \u03b16400's shipped 0x43 selector and 91-node TypeEmnt graph account for 13 fixed styles plus six groups of 13 selectable box bases; those six Style Boxes remain the safest target-native storage for approximate Creative Look recipes.",
       "classification": "INFERENCE",
-      "source": "Shipped backup defaults, TypeEmnt graph shape, and official adjustment-axis documentation",
-      "claim": "The α6400's shipped 0x43 selector and 91-node TypeEmnt graph account for 13 fixed styles plus six groups of 13 selectable box bases; those six Style Boxes remain the safest target-native storage for approximate Creative Look recipes."
+      "source": "Shipped backup defaults, TypeEmnt graph shape, and official adjustment-axis documentation"
     },
     {
+      "claim": "The production settings menu is aware of touch status and display-transition touch-pad state, but full menu touch still requires an unlocated coordinate consumer, selection dispatcher, and production resource binding; the writable SampleView gate is not evidence of a hidden global enable switch.",
       "classification": "INFERENCE",
-      "source": "ViewSettingMenu direct-call trace, SampleView ownership, and low-level target touch APIs",
-      "claim": "The production settings menu is aware of touch status and display-transition touch-pad state, but full menu touch still requires an unlocated coordinate consumer, selection dispatcher, and production resource binding; the writable SampleView gate is not evidence of a hidden global enable switch."
+      "source": "ViewSettingMenu direct-call trace, SampleView ownership, and low-level target touch APIs"
     }
   ],
+  "installable": false,
+  "modern_ui_contract": {
+    "behaviors": [
+      {
+        "acceptance": "The shooting display uses a verified landscape geometry with all required information visible and no portrait-only coordinate assumptions.",
+        "evidence": [],
+        "id": "shooting-layout-landscape",
+        "status": "UNESTABLISHED"
+      },
+      {
+        "acceptance": "The shooting display rearranges the required information for portrait shutter-up orientation without clipping, overlap, or a landscape-only fallback.",
+        "evidence": [],
+        "id": "shooting-layout-portrait-shutter-up",
+        "status": "UNESTABLISHED"
+      },
+      {
+        "acceptance": "The shooting display rearranges the required information for portrait shutter-down orientation without clipping, overlap, or a landscape-only fallback.",
+        "evidence": [],
+        "id": "shooting-layout-portrait-shutter-down",
+        "status": "UNESTABLISHED"
+      },
+      {
+        "acceptance": "A verified target path selects the matching landscape or portrait layout from camera orientation state and updates it at the required transition points.",
+        "evidence": [],
+        "id": "orientation-layout-selection",
+        "status": "UNESTABLISHED"
+      },
+      {
+        "acceptance": "Wheel and directional-control behavior stays visually coherent with the selected landscape or portrait layout in both vertical orientations.",
+        "evidence": [],
+        "id": "control-direction-transform",
+        "status": "UNESTABLISHED"
+      },
+      {
+        "acceptance": "Touch coordinates are transformed into the same orientation and geometry used to render the active interface layout.",
+        "evidence": [],
+        "id": "touch-coordinate-transform",
+        "status": "UNESTABLISHED"
+      },
+      {
+        "acceptance": "A verified production-menu path consumes transformed touch coordinates and resolves them against the visible target widget hit area.",
+        "evidence": [],
+        "id": "menu-touch-hit-test",
+        "status": "UNESTABLISHED"
+      },
+      {
+        "acceptance": "A successful production-menu hit test reaches the corresponding selection or state-change dispatcher exactly once.",
+        "evidence": [],
+        "id": "menu-touch-selection",
+        "status": "UNESTABLISHED"
+      },
+      {
+        "acceptance": "The enabled interface behavior and user-visible state persist through supported mode and power transitions without corrupting unrelated settings.",
+        "evidence": [],
+        "id": "ui-state-persistence",
+        "status": "UNESTABLISHED"
+      }
+    ],
+    "reference": "ILCE-7M5-interface-behavior",
+    "schema_version": 1,
+    "target": "ILCE-6400"
+  },
+  "module_inventory": [
+    {
+      "name": "lib/CautionConfig.so",
+      "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7",
+      "size": 12070800
+    },
+    {
+      "name": "lib/libObj.so",
+      "sha256": "60ffd2b0f31f4bc139a7c13a4f62c25cdeb6a531ad5ef35df48471e6e36e88b1",
+      "size": 20860436
+    },
+    {
+      "name": "lib/viewUnified2.so",
+      "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+      "size": 11530552
+    },
+    {
+      "name": "lib/viewUnified7.so",
+      "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538",
+      "size": 541024
+    },
+    {
+      "name": "share/app/master_camera.uxc",
+      "sha256": "5a0370408dff25dab43ed677c3b8e6c9be3b8bb8630d7ea15273d4f996cca7ec",
+      "size": 101720
+    },
+    {
+      "name": "share/app/viewStlrec.uxc",
+      "sha256": "f5aaa2f70f9b262b515a529ee2d80bf21928f0898504643cc7f174efa405d4f5",
+      "size": 32104
+    }
+  ],
+  "observations": [
+    {
+      "claim": "The official updater contains a bounded CXD90045 target for model 0x81030011, and the historical reader successfully unpacked 1,079 target filesystem entries offline.",
+      "classification": "OBSERVATION",
+      "source": "ILCE-6400 Taiwan 2.00 FirmwareData.dat and extracted target filesystem fingerprints in this report"
+    },
+    {
+      "claim": "ViewStlrec registers the new orientation-roll service as consumer bit 2, attaches layout-mode updates, and five vertical-named shooting layout classes are accepted by the layout factory and referenced by target UXC resources.",
+      "classification": "OBSERVATION",
+      "source": "lib/viewUnified2.so, lib/viewUnified7.so, master_camera.uxc, and viewStlrec.uxc fingerprints in this report"
+    },
+    {
+      "claim": "The target has low-level resource touch routing and a touch-capable selection widget, but no direct resource touch start or stop call was found in the ViewSettingMenu region.",
+      "classification": "OBSERVATION",
+      "source": "lib/viewUnified2.so fingerprint and recorded call offsets in this report"
+    },
+    {
+      "claim": "The recovered settings-menu event graph reaches a touch detect-mode status read through 0x222f68 and 0x43156c, plus display-transition touch-pad area reconfiguration through 0x21c644 and 0x41ae08; neither path consumes coordinates or dispatches a menu selection.",
+      "classification": "OBSERVATION",
+      "source": "lib/viewUnified2.so ViewSettingMenu event switch at 0x22355e and schema-v2 offline direct-call trace"
+    },
+    {
+      "claim": "Backup 0x01050002 conditionally skips resource touch setup inside SampleView, while the separately identified BKID_DISPLAY_TP_DEVICE key is 0x002a000a; no production-menu link or code link between these two keys has been established.",
+      "classification": "OBSERVATION",
+      "source": "lib/libObj.so SampleView vtable/RTTI, resource setup at 0x6666a4, and ObjDisplay backup reads at 0xdc30b6 and 0xdc597a"
+    },
+    {
+      "claim": "Every regional backup image stores read-only selector 0x01070316 as 0x43, which maps to the 91-node TypeEmnt Creative Style graph; the 98-node Default graph and 19-node Type07 graph are compiled but not selected.",
+      "classification": "OBSERVATION",
+      "source": "eleven parsed Sony backup images, lib/CautionConfig.so graph selector at 0x7db958, and compiled node tables"
+    },
+    {
+      "claim": "All regional images agree that BKID_DISPLAY_TP_DEVICE and the SampleView touch gate default to 1, while the read-only resource-touch configuration defaults to 0x28.",
+      "classification": "OBSERVATION",
+      "source": "eleven parsed revision-4 Sony backup images in 0110_backup/SYSASTRA-DSLR/DX2"
+    },
+    {
+      "claim": "Sony documents three adjustable Creative Style parameters on the ILCE-6400: contrast, saturation, and sharpness.",
+      "classification": "OBSERVATION",
+      "source": "https://helpguide.sony.net/ilc/1810/v1/en/contents/TP0002264693.html"
+    },
+    {
+      "claim": "Sony documents eight adjustable Creative Look parameters on the ILCE-6700, including highlights, shadows, fade, sharpness range, and clarity beyond the three target axes.",
+      "classification": "OBSERVATION",
+      "source": "https://helpguide.sony.net/ilc/2320/v1/en/contents/0411B_creative_look.html"
+    }
+  ],
+  "schema_version": 5,
+  "subject": "ILCE-6400 Taiwan 2.00 target feature boundaries",
+  "target": {
+    "architecture": "CXD90045",
+    "fdat_size": 304833808,
+    "filesystem_count": 1079,
+    "firmware_dat_offset": 715220,
+    "firmware_dat_sha256": "78a6881eddd16609758951c80d533ac82042858eac919bd94453941ba6b766f2",
+    "model_id": "0x81030011",
+    "offline_unpack_succeeded": true,
+    "outer_updater_sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6",
+    "region": 0,
+    "version": "2.00"
+  },
+  "touch_ui": {
+    "configuration_backup_attribute": "0x01",
+    "configuration_backup_id": "0x010704cb",
+    "configuration_default_value": "0x28",
+    "configuration_read_only": true,
+    "device_capability_backup_attribute": "0x00",
+    "device_capability_backup_id": "0x002a000a",
+    "device_capability_backup_label": "BKID_DISPLAY_TP_DEVICE",
+    "device_capability_default_value": "0x01",
+    "device_capability_linked_to_root_gate": false,
+    "device_capability_read_offsets": [
+      "0xdc30b6",
+      "0xdc597a"
+    ],
+    "device_capability_read_only": false,
+    "full_setting_menu_touch_established": false,
+    "input_module": "lib/libObj.so",
+    "low_level_resource_routing_present": true,
+    "restore_modes": [
+      0,
+      40
+    ],
+    "root_resource_call_offset": "0x2307d0",
+    "root_setup_gate_backup_attribute": "0x00",
+    "root_setup_gate_backup_id": "0x01050002",
+    "root_setup_gate_default_value": "0x01",
+    "root_setup_gate_label_established": false,
+    "root_setup_gate_nonzero_skips_resource_setup": true,
+    "root_setup_gate_read_offset": "0x6666c0",
+    "root_setup_gate_read_only": false,
+    "sample_view_owner_rtti_name": "10SampleView",
+    "sample_view_production_menu_link_established": false,
+    "sample_view_resource_setup_offset": "0x6666a4",
+    "sample_view_rtti_name_offset": "0xfafd26",
+    "sample_view_vtable_function_pointer_offset": "0x134d9c4",
+    "select_widget_touch_mode_present": true,
+    "setting_menu_instance_offset": "0x205575",
+    "setting_menu_resource_hooks_found": false,
+    "view_module": "lib/viewUnified2.so",
+    "view_specific_mode": 20
+  },
+  "ui_indirect_trace": {
+    "analysis_scope": "offline-static-target-filesystem",
+    "behavior_support": {
+      "control-direction-transform": false,
+      "menu-touch-hit-test": false,
+      "menu-touch-selection": false,
+      "orientation-layout-selection": false,
+      "shooting-layout-landscape": false,
+      "shooting-layout-portrait-shutter-down": false,
+      "shooting-layout-portrait-shutter-up": false,
+      "touch-coordinate-transform": false,
+      "ui-state-persistence": false
+    },
+    "bounded_export_summary": {
+      "artifact_sha256": "d19fc94fd52583f3d321535fd8b6a01aa03f4efc0c4dadde52adce3a9d246f22",
+      "depth_cap": 32,
+      "direct_edge_count": 1697,
+      "edge_count": 2046,
+      "root_count": 4,
+      "truncated": false,
+      "unresolved_indirect_edge_count": 349,
+      "unresolved_indirect_terminal": true
+    },
+    "claims": {
+      "coordinate_consumer_found": false,
+      "menu_selection_dispatch_found": false,
+      "orientation_layout_selector_found": false
+    },
+    "edges": [],
+    "invalid_offset_classifications": [
+      {
+        "module": "lib/viewUnified2.so",
+        "offset": "0x181f18",
+        "owner": {
+          "start": "0x1729e8",
+          "end": "0x184ac4"
+        },
+        "instruction_boundary": true,
+        "classification": "internal-selector-branch",
+        "callable_owner": false,
+        "factory": false,
+        "class_id_load": false
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "offset": "0x24222c",
+        "owner": {
+          "start": "0x23a8c0",
+          "end": "0x2a3680"
+        },
+        "instruction_boundary": false,
+        "classification": "thumb2-second-halfword",
+        "callable_owner": false,
+        "factory": false,
+        "class_id_load": false
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "offset": "0x3ba6dc",
+        "owner": {
+          "start": "0x3b6940",
+          "end": "0x3bbed8"
+        },
+        "instruction_boundary": false,
+        "classification": "thumb2-second-halfword",
+        "callable_owner": false,
+        "factory": false,
+        "class_id_load": false
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "offset": "0x651684",
+        "owner": {
+          "start": "0x64da44",
+          "end": "0x6549e4"
+        },
+        "instruction_boundary": false,
+        "classification": "thumb2-second-halfword",
+        "callable_owner": false,
+        "factory": false,
+        "class_id_load": false
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "offset": "0x37b614",
+        "owner": {
+          "start": "0x37b60c",
+          "end": "0x37b630"
+        },
+        "instruction_boundary": true,
+        "classification": "constructor-vptr-material",
+        "callable_owner": false,
+        "factory": false,
+        "class_id_load": false
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "offset": "0x37aa18",
+        "owner": {
+          "start": "0x37aa10",
+          "end": "0x37aa34"
+        },
+        "instruction_boundary": true,
+        "classification": "constructor-vptr-material",
+        "callable_owner": false,
+        "factory": false,
+        "class_id_load": false
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "offset": "0x37b5e0",
+        "owner": {
+          "start": "0x37b5d8",
+          "end": "0x37b5fc"
+        },
+        "instruction_boundary": true,
+        "classification": "constructor-vptr-material",
+        "callable_owner": false,
+        "factory": false,
+        "class_id_load": false
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "offset": "0x37b648",
+        "owner": {
+          "start": "0x37b640",
+          "end": "0x37b664"
+        },
+        "instruction_boundary": true,
+        "classification": "constructor-vptr-material",
+        "callable_owner": false,
+        "factory": false,
+        "class_id_load": false
+      },
+      {
+        "module": "lib/viewUnified2.so",
+        "offset": "0x37b578",
+        "owner": {
+          "start": "0x37b570",
+          "end": "0x37b594"
+        },
+        "instruction_boundary": true,
+        "classification": "constructor-vptr-material",
+        "callable_owner": false,
+        "factory": false,
+        "class_id_load": false
+      }
+    ],
+    "modules": [
+      {
+        "name": "lib/viewUnified2.so",
+        "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+        "size": 11530552
+      },
+      {
+        "name": "lib/viewUnified7.so",
+        "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538",
+        "size": 541024
+      },
+      {
+        "name": "share/app/master_camera.uxc",
+        "sha256": "5a0370408dff25dab43ed677c3b8e6c9be3b8bb8630d7ea15273d4f996cca7ec",
+        "size": 101720
+      },
+      {
+        "name": "share/app/viewStlrec.uxc",
+        "sha256": "f5aaa2f70f9b262b515a529ee2d80bf21928f0898504643cc7f174efa405d4f5",
+        "size": 32104
+      }
+    ],
+    "negative_searches": [
+      {
+        "depth_cap": null,
+        "edge_kinds": [
+          "direct"
+        ],
+        "path_found": false,
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "search_method": "static-direct-call-graph",
+        "target_function_offset": "0x223b8c",
+        "target_module": "lib/viewUnified2.so",
+        "target_name": "root_resource_call_owner",
+        "target_requested_offset": "0x2307d0"
+      },
+      {
+        "depth_cap": null,
+        "edge_kinds": [
+          "direct"
+        ],
+        "path_found": false,
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "search_method": "static-direct-call-graph",
+        "target_function_offset": "0x6695d8",
+        "target_module": "lib/viewUnified2.so",
+        "target_name": "sample_view_resource_setup_owner",
+        "target_requested_offset": "0x6666a4"
+      },
+      {
+        "depth_cap": 32,
+        "edge_kinds": [
+          "direct"
+        ],
+        "path_found": false,
+        "requested_roots": 1,
+        "resolved_roots": 1,
+        "root_set": "ViewSettingMenuEventSwitch",
+        "search_method": "static-mixed-call-graph",
+        "target_function_offset": "0x223b8c",
+        "target_module": "lib/viewUnified2.so",
+        "target_name": "root_resource_call_owner",
+        "target_requested_offset": "0x2307d0",
+        "terminal_edge_kinds": [
+          "unresolved-indirect"
+        ]
+      },
+      {
+        "depth_cap": 32,
+        "edge_kinds": [
+          "direct"
+        ],
+        "path_found": false,
+        "requested_roots": 1,
+        "resolved_roots": 1,
+        "root_set": "ViewSettingMenuEventSwitch",
+        "search_method": "static-mixed-call-graph",
+        "target_function_offset": "0x6695d8",
+        "target_module": "lib/viewUnified2.so",
+        "target_name": "sample_view_resource_setup_owner",
+        "target_requested_offset": "0x6666a4",
+        "terminal_edge_kinds": [
+          "unresolved-indirect"
+        ]
+      }
+    ],
+    "paths": [
+      {
+        "edge_ids": [],
+        "id": "direct-status-read",
+        "offsets": [
+          {
+            "module": "lib/viewUnified2.so",
+            "offset": "0x22355e"
+          },
+          {
+            "module": "lib/viewUnified2.so",
+            "offset": "0x222f68"
+          },
+          {
+            "module": "lib/viewUnified2.so",
+            "offset": "0x43156c"
+          },
+          {
+            "module": "lib/viewUnified2.so",
+            "offset": "0x1613f0"
+          }
+        ],
+        "resolved": true,
+        "root": "ViewSettingMenuEventSwitch",
+        "semantic": "status-read-not-coordinate-dispatch"
+      },
+      {
+        "edge_ids": [],
+        "id": "direct-touchpad-reconfiguration",
+        "offsets": [
+          {
+            "module": "lib/viewUnified2.so",
+            "offset": "0x22355e"
+          },
+          {
+            "module": "lib/viewUnified2.so",
+            "offset": "0x21c644"
+          },
+          {
+            "module": "lib/viewUnified2.so",
+            "offset": "0x1626cc"
+          },
+          {
+            "module": "lib/viewUnified2.so",
+            "offset": "0x41b244"
+          },
+          {
+            "module": "lib/viewUnified2.so",
+            "offset": "0x41ae08"
+          }
+        ],
+        "resolved": true,
+        "root": "ViewSettingMenuEventSwitch",
+        "semantic": "configuration-not-menu-selection"
+      }
+    ],
+    "roots": [
+      {
+        "analysis_address": "0x22355e",
+        "module": "lib/viewUnified2.so",
+        "name": "ViewSettingMenuEventSwitch",
+        "role": "setting-menu-event-switch",
+        "source_kind": "analysis-address",
+        "source_offset": "0x22355e",
+        "traversal_entry_address": "0x22355e"
+      },
+      {
+        "analysis_address": "0x1bb41c",
+        "module": "lib/viewUnified2.so",
+        "name": "ViewStlrecOrientationRegistration",
+        "role": "orientation-registration",
+        "source_kind": "elf-file-offset",
+        "source_offset": "0x1ab41c",
+        "traversal_entry_address": "0x1bb41c"
+      },
+      {
+        "analysis_address": "0x1bb2d2",
+        "module": "lib/viewUnified2.so",
+        "name": "ViewStlrecLayoutModeAttach",
+        "role": "layout-mode-attach",
+        "source_kind": "elf-file-offset",
+        "source_offset": "0x1ab2d2",
+        "traversal_entry_address": "0x1bb2d2"
+      },
+      {
+        "analysis_address": "0x1c1e76",
+        "module": "lib/viewUnified2.so",
+        "name": "ViewStlrecAfOrientationDispatch",
+        "role": "af-orientation-dispatch",
+        "source_kind": "elf-file-offset",
+        "source_offset": "0x1b1e76",
+        "traversal_entry_address": "0x1c1e76"
+      }
+    ],
+    "schema_version": 1,
+    "uxc_references": [
+      {
+        "kind": "class-id",
+        "offset": 53454,
+        "semantic": "reference-only",
+        "source": "share/app/master_camera.uxc",
+        "value": "0x61dc811c"
+      },
+      {
+        "kind": "class-id",
+        "offset": 53646,
+        "semantic": "reference-only",
+        "source": "share/app/master_camera.uxc",
+        "value": "0xbdbc36bd"
+      },
+      {
+        "kind": "class-id",
+        "offset": 56566,
+        "semantic": "reference-only",
+        "source": "share/app/master_camera.uxc",
+        "value": "0x186c17f6"
+      },
+      {
+        "kind": "class-id",
+        "offset": 56910,
+        "semantic": "reference-only",
+        "source": "share/app/master_camera.uxc",
+        "value": "0x7be1c309"
+      },
+      {
+        "kind": "class-id",
+        "offset": 61502,
+        "semantic": "reference-only",
+        "source": "share/app/master_camera.uxc",
+        "value": "0x8e7fdf88"
+      },
+      {
+        "kind": "class-id",
+        "offset": 30380,
+        "semantic": "reference-only",
+        "source": "share/app/viewStlrec.uxc",
+        "value": "0x8e7fdf88"
+      },
+      {
+        "kind": "class-id",
+        "offset": 30440,
+        "semantic": "reference-only",
+        "source": "share/app/viewStlrec.uxc",
+        "value": "0xbdbc36bd"
+      },
+      {
+        "kind": "class-id",
+        "offset": 30500,
+        "semantic": "reference-only",
+        "source": "share/app/viewStlrec.uxc",
+        "value": "0x61dc811c"
+      },
+      {
+        "kind": "class-id",
+        "offset": 30560,
+        "semantic": "reference-only",
+        "source": "share/app/viewStlrec.uxc",
+        "value": "0x186c17f6"
+      },
+      {
+        "kind": "class-id",
+        "offset": 30680,
+        "semantic": "reference-only",
+        "source": "share/app/viewStlrec.uxc",
+        "value": "0x7be1c309"
+      }
+    ],
+    "vertical_factory_reference": {
+      "factory_report": "analysis/a6400-vertical-layout-factory.json",
+      "factory_report_sha256": "d21e73a1307be4709b6f30e3326a4e7d658fe01da6d18098db41b4c25b6825ce",
+      "owner_registration_report": "analysis/a6400-ui-factory-owner-registration.json",
+      "owner_registration_report_sha256": "5406b615542a0af4ab6ad07060126b98e00e673456d9958dbd9733a2f3508bab",
+      "factory_owner": {
+        "start": "0x52840",
+        "end": "0x529b8"
+      },
+      "wrapper_owner": {
+        "start": "0x529cc",
+        "end": "0x529e8"
+      },
+      "resource_reference_count": 10,
+      "total_constructor_arm_count": 12,
+      "vertical_constructor_arm_count": 5,
+      "wrapper_registration_count": 5,
+      "runtime_factory_invocation_proven": false,
+      "view_unified2_to_factory_edge_found": false,
+      "orientation_to_factory_join_proven": false
+    }
+  },
+  "ui_static_trace": {
+    "analysis_scope": "offline-static-target-filesystem",
+    "candidate_paths": [
+      {
+        "entry_name": "ViewSettingMenu",
+        "entry_offset": "0x22355e",
+        "path_offsets": [
+          "0x22355e",
+          "0x222f68",
+          "0x43156c",
+          "0x1613f0"
+        ],
+        "semantic_boundary": "status-read-not-coordinate-dispatch",
+        "target_name": "touch_detect_mode_status_read",
+        "target_offset": "0x1613f0"
+      },
+      {
+        "entry_name": "ViewSettingMenu",
+        "entry_offset": "0x22355e",
+        "path_offsets": [
+          "0x22355e",
+          "0x21c644",
+          "0x1626cc",
+          "0x41b244",
+          "0x41ae08"
+        ],
+        "semantic_boundary": "configuration-not-menu-selection",
+        "target_name": "display_transition_touchpad_area_reconfiguration",
+        "target_offset": "0x41ae08"
+      }
+    ],
+    "coordinate_consumer_found": false,
+    "menu_selection_dispatch_found": false,
+    "module": "lib/viewUnified2.so",
+    "negative_searches": [
+      {
+        "path_found": false,
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "search_method": "static-direct-call-graph",
+        "target_function_offset": "0x223b8c",
+        "target_name": "root_resource_call_owner",
+        "target_requested_offset": "0x2307d0"
+      },
+      {
+        "path_found": false,
+        "requested_roots": 21,
+        "resolved_roots": 21,
+        "root_set": "ViewSettingMenu-candidate-functions",
+        "search_method": "static-direct-call-graph",
+        "target_function_offset": "0x6695d8",
+        "target_name": "sample_view_resource_setup_owner",
+        "target_requested_offset": "0x6666a4"
+      }
+    ]
+  },
   "unresolved": [
     {
+      "claim": "ViewStlrec uses camera orientation for AF-coordinate handling, but no exact orientation event that selects the vertical-named layouts or any matching touch-coordinate transform has been proven.",
       "classification": "UNRESOLVED",
-      "source": "ViewStlrec event dispatch, AF-orientation branch, and layout-mode handlers",
-      "claim": "ViewStlrec uses camera orientation for AF-coordinate handling, but no exact orientation event that selects the vertical-named layouts or any matching touch-coordinate transform has been proven."
+      "source": "ViewStlrec event dispatch, AF-orientation branch, and layout-mode handlers"
     },
     {
+      "claim": "No coordinate consumer, menu-selection dispatcher, or production resource hook was recovered from the bounded ViewSettingMenu direct-call graph; indirect and data-driven dispatch remain untested, and the blocking resource or product predicate has not been isolated.",
       "classification": "UNRESOLVED",
-      "source": "ViewSettingMenu UXC and widget event graph",
-      "claim": "No coordinate consumer, menu-selection dispatcher, or production resource hook was recovered from the bounded ViewSettingMenu direct-call graph; indirect and data-driven dispatch remain untested, and the blocking resource or product predicate has not been isolated."
+      "source": "ViewSettingMenu UXC and widget event graph"
     },
     {
+      "claim": "No native implementations of the five additional Creative Look adjustment axes or exact donor look algorithms have been located in the target.",
       "classification": "UNRESOLVED",
-      "source": "ILCE-6400 target rendering pipeline versus ILCE-6700 Creative Look behavior",
-      "claim": "No native implementations of the five additional Creative Look adjustment axes or exact donor look algorithms have been located in the target."
+      "source": "ILCE-6400 target rendering pipeline versus ILCE-6700 Creative Look behavior"
     },
     {
+      "claim": "The runtime consequences of forcing an alternate compiled graph are unknown, the normal backup API marks the selector read-only, and no mutation has been attempted.",
       "classification": "UNRESOLVED",
-      "source": "Read-only Creative Style selector 0x01070316 and compiled alternate graphs",
-      "claim": "The runtime consequences of forcing an alternate compiled graph are unknown, the normal backup API marks the selector read-only, and no mutation has been attempted."
+      "source": "Read-only Creative Style selector 0x01070316 and compiled alternate graphs"
     },
     {
+      "claim": "An authenticated package reconstruction and safe install path remain absent, so none of the target feature hypotheses can be installed.",
       "classification": "UNRESOLVED",
-      "source": "Sony CXD90045 protected update path",
-      "claim": "An authenticated package reconstruction and safe install path remain absent, so none of the target feature hypotheses can be installed."
+      "source": "Sony CXD90045 protected update path"
     }
   ],
-  "conclusion": "The stock ILCE-6400 image contains vertical-named shooting layouts, orientation-aware AF handling, low-level touch machinery, and a richer Creative Style graph than its interface exposes. Sony backup images prove the selected read-only 0x43 TypeEmnt graph, while vtable evidence limits the writable touch gate to SampleView rather than the production menu. The ViewSettingMenu event graph reaches touch-status reads and display-transition touch-pad reconfiguration, but no recovered direct path consumes coordinates or dispatches a menu selection. ViewStlrec subscribes to the new roll service and separately attaches layout-mode updates, but no call or UXC predicate links roll state to the vertical-named layouts; their names alone do not prove device-rotation semantics. The evidence does not establish the modern rotating menu, full menu touch, native Creative Look, a safe selector mutation, a bypass, or an installable package."
+  "vertical_ui": {
+    "af_orientation_dispatch_offset": "0x1b1e76",
+    "af_orientation_read_offsets": [
+      "0x1b1e7c",
+      "0x1b1e90",
+      "0x1b1ea4"
+    ],
+    "classification": "target-shooting-components",
+    "factory_model_predicate_absent": true,
+    "layout_factory_module": "lib/viewUnified7.so",
+    "layout_factory_offset": "0x52840",
+    "layout_group_id": "0x1b906244",
+    "layout_mode_attach_offset": "0x1ab2d2",
+    "layout_mode_set_call_found": false,
+    "modern_vertical_menu_established": false,
+    "orientation_api": "startOrientationRollNotify_new",
+    "orientation_consumer": 2,
+    "orientation_layout_selector_established": false,
+    "orientation_module": "lib/viewUnified2.so",
+    "orientation_owner_rtti_name": "ViewStlrec",
+    "orientation_owner_vtable_offset": "0x8ded88",
+    "orientation_start_offset": "0x1ab41c",
+    "orientation_stop_offset": "0x1ba780",
+    "uxc_resources": [
+      "share/app/master_camera.uxc",
+      "share/app/viewStlrec.uxc"
+    ],
+    "vertical_input_transform_established": false,
+    "vertical_name_device_rotation_semantics_established": false,
+    "vertical_named_layouts": [
+      {
+        "class_id": "0x61dc811c",
+        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_INFO_LR"
+      },
+      {
+        "class_id": "0x186c17f6",
+        "name": "Layoutlayout_CMN_M_REC_FOOTER_VERTICAL_CLASSICAL_LR"
+      },
+      {
+        "class_id": "0x8e7fdf88",
+        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_HEADER_MANUALINFO_LR"
+      },
+      {
+        "class_id": "0x7be1c309",
+        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_MANUAL_LR"
+      },
+      {
+        "class_id": "0xbdbc36bd",
+        "name": "Layoutlayout_CMN_M_REC_VERTICAL_CLASSICAL_ERROR_LR"
+      }
+    ],
+    "view": "ViewStlrec"
+  }
 }

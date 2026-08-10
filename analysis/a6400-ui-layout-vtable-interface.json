@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-ui-layout-vtable-interface",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {"module": "lib/viewUnified7.so", "size": 541024, "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"},
+  "export_summary": {"canonical_export_sha256": "5091e8d299df9b16b043b11578d3ed306c6d289dd778a1c72ccff0c76b0adca9", "table_count": 5, "slot_34_owner_count": 5},
+  "prior_owner_registration": {"analysis_contract": "ui_factory_owner_registration", "canonical_export_sha256": "a6a669db167c7335a65cd3015c59a20a08af4b8de46330a4ca1c3231fa2b8e0a"},
+  "owner": {"range": {"start": "0x529cc", "end": "0x529e8"}, "forwarding_edge": {"caller": "0x529cc", "site": "0x529d6", "target": "0x52840", "kind": "direct"}, "evidence": {"owner_kind": "ARM.exidx-function", "call_kind": "thumb-direct"}},
+  "tables": [
+    {"class_name": "N14LG_viewtridial13LayoutST_DIALE", "rtti": "0x70ef8", "header": "0x70e58", "address_point": "0x70e60", "end": "0x70ef8", "slot_34": {"address": "0x70ee8", "thumb_target": "0x529cd", "normalized_owner": "0x529cc"}},
+    {"class_name": "N14LG_viewtridial19LayoutConverterBaseE", "rtti": "0x70f04", "header": "0x70f10", "address_point": "0x70f18", "end": "0x70fb0", "slot_34": {"address": "0x70fa0", "thumb_target": "0x529cd", "normalized_owner": "0x529cc"}},
+    {"class_name": "N14LG_viewtridial23LayoutST_DIAL_CLASSICALE", "rtti": "0x71050", "header": "0x70fb0", "address_point": "0x70fb8", "end": "0x71050", "slot_34": {"address": "0x71040", "thumb_target": "0x529cd", "normalized_owner": "0x529cc"}},
+    {"class_name": "N14LG_viewtridial32LayoutST_DIAL_CLASSICAL_PANORAMAE", "rtti": "0x71100", "header": "0x71060", "address_point": "0x71068", "end": "0x71100", "slot_34": {"address": "0x710f0", "thumb_target": "0x529cd", "normalized_owner": "0x529cc"}},
+    {"class_name": "N14LG_viewtridial17LayoutST_DIAL_EVFE", "rtti": "0x711b0", "header": "0x71110", "address_point": "0x71118", "end": "0x711b0", "slot_34": {"address": "0x711a0", "thumb_target": "0x529cd", "normalized_owner": "0x529cc"}}
+  ],
+  "claims": {"common_layout_virtual_dispatch_hook_found": true, "target_native_layout_interface_types_found": 5, "factory_forwarding_owner_found": true, "orientation_layout_object_selector_found": false},
+  "behavior_support": {"orientation_layout_object_selection": false, "touch_coordinate_transform": false, "menu_touch_hit_test": false, "menu_touch_selection": false},
+  "readiness": "COMMON_VIRTUAL_DISPATCH_HOOK_OBJECT_SELECTION_UNESTABLISHED",
+  "conclusion": "Five RTTI-backed target-native layout vtables share slot 34, which resolves through typed relocations to the bounded forwarding owner. No ordered orientation or layout-mode path selecting one of these objects is established; coordinate and touch behavior remain unproven."
+}

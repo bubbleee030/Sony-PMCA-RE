@@ -1,0 +1,50 @@
+{
+  "analysis_scope": "offline-static-creative-style-selector-code",
+  "camera_executed": false,
+  "camera_policy": "physically-disconnected",
+  "camera_test_eligible": false,
+  "claims": {
+    "argument_2_fixed_record_encode_decode_found": true,
+    "branch_dependent_getter_buffer_geometry_found": true,
+    "caution_config_selected_state_join_found": false,
+    "creative_look_equivalence_found": false,
+    "dynamic_record_geometry_found": true,
+    "dynamic_record_ids_resolved": true,
+    "dynamic_setter_getter_record_join_found": false,
+    "five_argument_semantics_resolved": false,
+    "getter_argument_2_record_boundary_found": true,
+    "human_style_labels_mapped": false,
+    "menu_selected_state_join_found": false,
+    "record_id_source_initialization_resolved": true,
+    "renderer_or_output_sink_found": false,
+    "request_parameter_keys_found": true,
+    "runtime_execution_proven": false,
+    "selector_code_dynamic_record_boundary_found": true,
+    "selector_code_fixed_record_found": false,
+    "static_setter_getter_family_join_found": true,
+    "typed_element_selector_code_mapping_found": true
+  },
+  "conclusion": "The typed CustomCreativeStyle setter has a bounded selector-to-persisted-code table: inputs 0..13 reject 12 and map the other thirteen values to exact codes. That code reaches an adjacent dynamic backup-record boundary on the argument-2-nonzero path. Four fixed read-only record-ID tables are copied into both setter and getter frames, establishing their numeric domains and static family-value equality. Fixed backup item 0x01070762 separately carries a low-byte argument-2 encoding into the getter's second direct output reference: nonpositive input writes 0xff, positive n writes the low byte of n-1, signed -1 leaves the preinitialized output zero, and other signed bytes are incremented. No admissible input range is proven, so a universal round trip is not claimed. The four dynamic setter writes now have exact frame-relative record-source and value-pointer formulas, and the ten branch-dependent getter reads have exact scratch-buffer pointers. The independently supplied runtime indices are not joined, so no write-followed-by-read transaction is claimed. Five ParamList keys are exact, but named preset labels, menu-selected-state identity, full five-field semantics, renderer/output effects, Creative Look equivalence, runtime behavior, and installability remain unproven.",
+  "evidence_digest": "b5509550c1196aa56d11803231c0de7932f0cf2cba74c93d9e0bba75367634a8",
+  "installable": false,
+  "readiness": "TYPED_ELEMENT_SELECTOR_AND_STATIC_RECORD_TABLES",
+  "schema_version": 1,
+  "source": {
+    "module": "lib/viewUnified2.so",
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+    "size": 11530552
+  },
+  "summary": {
+    "accepted_selector_count": 13,
+    "branch_dependent_getter_buffer_count": 10,
+    "branch_dependent_getter_read_count": 10,
+    "canonical_export_sha256": "c661c34011ded64e627c348ee59c66f69c36eced785ecc0c003834c985c45621",
+    "dynamic_setter_write_count": 4,
+    "fixed_argument_2_record_count": 1,
+    "record_id_table_family_count": 4,
+    "record_id_table_row_count": 67,
+    "rejected_selector_count": 1,
+    "request_param_count": 5,
+    "selector_entry_count": 14
+  }
+}

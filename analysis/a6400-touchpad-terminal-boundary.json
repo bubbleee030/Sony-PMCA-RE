@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-touchpad-terminal-boundary",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "summary": {
+    "artifact_sha256": "d4b9a5520d65b5243db55f84651cc19dbeca92a351196de37532eea886ec1d78",
+    "owner_count": 4,
+    "reverse_reference_count": 0
+  },
+  "claims": {
+    "touch_configuration_found": false,
+    "coordinate_transform_found": false,
+    "hit_test_found": false,
+    "gesture_found": false,
+    "selection_dispatch_found": false,
+    "object_ownership_found": false
+  },
+  "readiness": "TERMINAL_BOUNDARY_UNRESOLVED",
+  "conclusion": "Only the first two touchpad-reconfiguration path edges are independently verified. The four terminal owners contain no dynamic typed identity, relocation, or direct call to the four bounded touch APIs; the one narrow internal edge has a callee with zero direct calls. The historical final two links are not independently proven, so no touch configuration or menu-touch behavior is established."
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-picture-profile-typed-vtable-interface",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "summary": {
+    "artifact_sha256": "e8772c3112c8eea444ab5778dfa8cd7b39bed1592b39dbe920e914f831368f59",
+    "typed_vtable_relocation_count": 66
+  },
+  "claims": {
+    "picture_profile_typed_interface_found": true,
+    "selected_slot_found": false,
+    "persistence_found": false,
+    "processing_found": false,
+    "output_found": false,
+    "interface_reuse_found": false,
+    "state_reuse_found": false,
+    "first_class_creative_look": false
+  },
+  "readiness": "TYPED_INTERFACE_METADATA_ONLY",
+  "conclusion": "The exact CmnViewSettingNodePictureProfile vtable, clone slot, adjacent lifecycle slots, inherited generic selection/state slots, vtable GLOB_DAT relocation, and constructor aliases are typed ELF metadata. No link from inherited generic methods to PP1-PP9, reusable Creative Look state, persistence, processing, output, or a first-class Creative Look interface is established."
+}

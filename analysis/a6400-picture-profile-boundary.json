@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-picture-profile-reimplementation-boundary",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "source_id": "a6400-tw-v2.00",
+    "module": "lib/CautionConfig.so",
+    "size": 12070800,
+    "sha256": "bfd1bd7bad0ab3478b894da5dbb51c15464b1bedc4201240ccb61cd743150ef7"
+  },
+  "roots": [
+    {"id": "picture-profile-selector", "role": "preset-selector", "elf_thumb_offset": "0x7dbc05", "analysis_address": "0x7ebc04", "symbol": "CmnViewSettingNodePictureProfile::_getSubNode()"},
+    {"id": "picture-profile-clone", "role": "preset-clone", "elf_thumb_offset": "0x7dbbe1", "analysis_address": "0x7ebbe0", "symbol": "CmnViewSettingNodePictureProfile::clone()"},
+    {"id": "picture-profile-copy", "role": "copy-subnode", "elf_thumb_offset": "0x7db825", "analysis_address": "0x7eb824", "symbol": "CmnViewSettingNodePictureProfileCopyPage1::_getSubNode()"},
+    {"id": "picture-profile-gamma", "role": "gamma-subnode", "elf_thumb_offset": "0x7db6bd", "analysis_address": "0x7eb6bc", "symbol": "CmnViewSettingNodePictureProfileGamma::_getSubNode()"},
+    {"id": "picture-profile-color-mode", "role": "color-mode-subnode", "elf_thumb_offset": "0x7ddf5d", "analysis_address": "0x7edf5c", "symbol": "CmnViewSettingNodePictureProfileColorMode::_getSubNode()"}
+  ],
+  "slot_nodes": [
+    {"id": "PP1", "elf_offset": "0xb9c208", "analysis_address": "0xbac208", "symbol": "cmnViewSettingNodePictureProfilePP1"},
+    {"id": "PP2", "elf_offset": "0xc4ee70", "analysis_address": "0xc5ee70", "symbol": "cmnViewSettingNodePictureProfilePP2"},
+    {"id": "PP3", "elf_offset": "0xc4ee98", "analysis_address": "0xc5ee98", "symbol": "cmnViewSettingNodePictureProfilePP3"},
+    {"id": "PP4", "elf_offset": "0xc4eec0", "analysis_address": "0xc5eec0", "symbol": "cmnViewSettingNodePictureProfilePP4"},
+    {"id": "PP5", "elf_offset": "0xc4eee8", "analysis_address": "0xc5eee8", "symbol": "cmnViewSettingNodePictureProfilePP5"},
+    {"id": "PP6", "elf_offset": "0xb9c240", "analysis_address": "0xbac240", "symbol": "cmnViewSettingNodePictureProfilePP6"},
+    {"id": "PP7", "elf_offset": "0xc4ef38", "analysis_address": "0xc5ef38", "symbol": "cmnViewSettingNodePictureProfilePP7"},
+    {"id": "PP8", "elf_offset": "0xc4ef60", "analysis_address": "0xc5ef60", "symbol": "cmnViewSettingNodePictureProfilePP8"},
+    {"id": "PP9", "elf_offset": "0xc4ef88", "analysis_address": "0xc5ef88", "symbol": "cmnViewSettingNodePictureProfilePP9"}
+  ],
+  "bounded_export_summary": {
+    "direct_call_count": 6,
+    "data_reference_count": 18,
+    "unresolved_indirect_count": 0,
+    "truncated": false,
+    "depth_cap": 16,
+    "artifact_sha256": "b69c884743e25d10fabdc6984d46ec4120755d4c9c8657f4773ae009d435ea32"
+  },
+  "direct_calls": [
+    {"caller": "0x7ebc04", "owner": "CmnViewSettingNodePictureProfile::_getSubNode", "site": "0x7ebc1c", "target": "0x7c81a0"},
+    {"caller": "0x7ebbe0", "owner": "CmnViewSettingNodePictureProfile::clone", "site": "0x7ebbe8", "target": "0x7c7528"},
+    {"caller": "0x7ebbe0", "owner": "CmnViewSettingNodePictureProfile::clone", "site": "0x7ebbf0", "target": "0x7c3540"},
+    {"caller": "0x7eb824", "owner": "CmnViewSettingNodePictureProfileCopyPage1::_getSubNode", "site": "0x7eb83c", "target": "0x7c81a0"},
+    {"caller": "0x7eb6bc", "owner": "CmnViewSettingNodePictureProfileGamma::_getSubNode", "site": "0x7eb6d4", "target": "0x7c81a0"},
+    {"caller": "0x7edf5c", "owner": "CmnViewSettingNodePictureProfileColorMode::_getSubNode", "site": "0x7edf74", "target": "0x7c81a0"}
+  ],
+  "data_references": [
+    {"owner": "0x8351f8", "site": "0x85285e", "symbol": "cmnViewSettingNodePictureProfilePP1", "target": "0xbac208"},
+    {"owner": "0x8351f8", "site": "0x85286a", "symbol": "cmnViewSettingNodePictureProfilePP1", "target": "0xbac208"},
+    {"owner": "0x8351f8", "site": "0x852880", "symbol": "cmnViewSettingNodePictureProfilePP2", "target": "0xc5ee70"},
+    {"owner": "0x8351f8", "site": "0x85288c", "symbol": "cmnViewSettingNodePictureProfilePP2", "target": "0xc5ee70"},
+    {"owner": "0x8351f8", "site": "0x8528a2", "symbol": "cmnViewSettingNodePictureProfilePP3", "target": "0xc5ee98"},
+    {"owner": "0x8351f8", "site": "0x8528ae", "symbol": "cmnViewSettingNodePictureProfilePP3", "target": "0xc5ee98"},
+    {"owner": "0x8351f8", "site": "0x8528c4", "symbol": "cmnViewSettingNodePictureProfilePP4", "target": "0xc5eec0"},
+    {"owner": "0x8351f8", "site": "0x8528d0", "symbol": "cmnViewSettingNodePictureProfilePP4", "target": "0xc5eec0"},
+    {"owner": "0x8351f8", "site": "0x8528e6", "symbol": "cmnViewSettingNodePictureProfilePP5", "target": "0xc5eee8"},
+    {"owner": "0x8351f8", "site": "0x8528f2", "symbol": "cmnViewSettingNodePictureProfilePP5", "target": "0xc5eee8"},
+    {"owner": "0x8351f8", "site": "0x852908", "symbol": "cmnViewSettingNodePictureProfilePP6", "target": "0xbac240"},
+    {"owner": "0x8351f8", "site": "0x852914", "symbol": "cmnViewSettingNodePictureProfilePP6", "target": "0xbac240"},
+    {"owner": "0x8351f8", "site": "0x85292a", "symbol": "cmnViewSettingNodePictureProfilePP7", "target": "0xc5ef38"},
+    {"owner": "0x8351f8", "site": "0x852936", "symbol": "cmnViewSettingNodePictureProfilePP7", "target": "0xc5ef38"},
+    {"owner": "0x8351f8", "site": "0x85294c", "symbol": "cmnViewSettingNodePictureProfilePP8", "target": "0xc5ef60"},
+    {"owner": "0x8351f8", "site": "0x852958", "symbol": "cmnViewSettingNodePictureProfilePP8", "target": "0xc5ef60"},
+    {"owner": "0x8351f8", "site": "0x85296e", "symbol": "cmnViewSettingNodePictureProfilePP9", "target": "0xc5ef88"},
+    {"owner": "0x8351f8", "site": "0x85297a", "symbol": "cmnViewSettingNodePictureProfilePP9", "target": "0xc5ef88"}
+  ],
+  "unresolved_indirect_edges": [],
+  "candidates": {
+    "named_slots": true,
+    "copy_subnode": true,
+    "uxc_reference": false
+  },
+  "claims": {
+    "reusable_target_interface_primitives": false,
+    "reusable_target_state_primitives": false,
+    "persistence_found": false,
+    "base_look_processing": false,
+    "live_view_binding": false,
+    "still_jpeg_binding": false,
+    "movie_binding": false
+  },
+  "readiness": "INFRASTRUCTURE_CANDIDATE_ONLY",
+  "conclusion": "Picture Profile exposes target-native preset, copy, gamma, color-mode, and PP1-PP9 node candidates, but no Creative Look state, persistence, processing, live-view, still-JPEG, or movie binding is established."
+}

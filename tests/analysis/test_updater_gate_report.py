@@ -13,6 +13,8 @@ from pmca.analysis.updater_gates import (
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 GATE_MAP_PATH = REPOSITORY_ROOT / "analysis" / "a6400-updater-gates.json"
 REPORT_PATH = REPOSITORY_ROOT / "analysis" / "a6400-updater-re-report.md"
+RECOVERY_PATH = REPOSITORY_ROOT / "analysis" / "a6400-stock-200-recovery.json"
+SCENARIOS_PATH = REPOSITORY_ROOT / "analysis" / "a6400-recovery-scenarios.json"
 
 
 def committed_gate_map():
@@ -88,6 +90,17 @@ class UpdaterGateReportTests(unittest.TestCase):
         self.assertIn("0x142", rendered)
         self.assertIn("Vertical UI", rendered)
         self.assertIn("Creative Looks", rendered)
+        self.assertIn("## Exact stock-recovery checkpoint", rendered)
+        self.assertIn("BLOCKED_STATIC_EVIDENCE", rendered)
+        self.assertIn("official-updater-reinstall", rendered)
+        self.assertIn("independent-maintenance-path", rendered)
+        self.assertIn("NON_TRANSFERABLE_CONTROL", rendered)
+        self.assertIn("0x81030017", rendered)
+        self.assertIn("settings reset", rendered)
+        self.assertIn("packaged updater flag state", rendered)
+        self.assertIn("LSI notification", rendered)
+        self.assertIn("/dev/nflasha1 selector join", rendered)
+        self.assertIn("numeric or indirect selector analysis remains incomplete", rendered)
 
     def test_claim_promotion_or_unknown_fields_are_rejected(self):
         document = committed_gate_map()
@@ -118,6 +131,18 @@ class UpdaterGateReportTests(unittest.TestCase):
             with self.subTest(candidate=candidate):
                 with self.assertRaises(UpdaterGateError):
                     validate_updater_gate_map(candidate)
+
+    def test_renderer_rejects_recovery_checkpoint_drift(self):
+        recovery = json.loads(RECOVERY_PATH.read_text(encoding="utf-8"))
+        scenarios = json.loads(SCENARIOS_PATH.read_text(encoding="utf-8"))
+        recovery["readiness"] = "READY_FOR_FUTURE_VALIDATION_DESIGN"
+
+        with self.assertRaises(UpdaterGateError):
+            render_updater_gate_report(
+                committed_gate_map(),
+                recovery_document=recovery,
+                scenario_document=scenarios,
+            )
 
 
 if __name__ == "__main__":

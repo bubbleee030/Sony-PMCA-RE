@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-creative-style-generic-model-consumers",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "sources": [
+    {
+      "module": "lib/viewUnified4.so",
+      "size": 2614628,
+      "sha256": "0fe8f852b0f028ac7d1d55c613726b3949879cf7fdd44074e525ae302a6f2e62"
+    },
+    {
+      "module": "lib/viewUnified7.so",
+      "size": 541024,
+      "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+    }
+  ],
+  "summary": {
+    "canonical_export_sha256": "c79bc139624e7df9338219af3292c97aa5f65551ea5b2a9cb8d669b219a922f9",
+    "module_count": 2,
+    "sequence_count": 3,
+    "direct_call_count": 7,
+    "creative_publication_count": 8
+  },
+  "sequence_summary": {
+    "owners": [
+      {"start": 843944, "end": 844356, "source": "arm-exidx", "nonzero_dynsym_owner": null},
+      {"start": 1550620, "end": 1550798, "source": "arm-exidx", "nonzero_dynsym_owner": null},
+      {"start": 184964, "end": 185006, "source": "arm-exidx", "nonzero_dynsym_owner": null}
+    ],
+    "sequence_digest": "235b7cc597da315e4c8dad910ac35ba4764b2c1659a97cada420ea978a8ffe57",
+    "publication_digest": "83db9f450b7aefd26791580237c1a98a94930b1923827b3fdec0d4ab7398926e"
+  },
+  "ownership_boundary": {
+    "generic_sequences_found": true,
+    "creative_root_co_contained": true,
+    "creative_root_bound_to_sequence_owner": false,
+    "sequence_owner_dynsym_names_resolved": false,
+    "publication_cells_are_data_only": true,
+    "path_sensitive_indirect_binding_proven": false
+  },
+  "claims": {
+    "generic_cursor_to_model_sequence_found": true,
+    "creative_style_root_publication_found": true,
+    "creative_style_specific_model_sequence_found": false,
+    "selected_model_value_storage_found": false,
+    "final_model_setter_or_commit_found": false,
+    "menu_event_binding_found": false,
+    "renderer_binding_found": false,
+    "touch_routing_found": false,
+    "commit_or_persistence_found": false,
+    "creative_look_equivalence_found": false,
+    "runtime_execution_proven": false
+  },
+  "readiness": "GENERIC_MODEL_CONSUMER_SEQUENCES_ONLY",
+  "conclusion": "Three exact anonymous owners call generic cursor-change and model-update helpers in order. Both modules separately publish Creative Style root data, but every publication cell is outside the executable owners and no typed ownership edge binds them. This is reusable generic UI/model control, not a proven Creative Style-specific commit path."
+}

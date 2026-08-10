@@ -1,0 +1,121 @@
+{
+  "analysis_scope": "offline-static-creative-style-view-lifecycle-boundary",
+  "camera_executed": false,
+  "camera_policy": "physically-disconnected",
+  "camera_test_eligible": false,
+  "claims": {
+    "alternative_registration_rows_proven": true,
+    "camera_test_eligible": false,
+    "conditional_registration_loader_table_identity_proven": true,
+    "first_class_creative_look_equivalence_proven": false,
+    "generic_open_view_event_loader_abi_found": true,
+    "installable": false,
+    "menu_root_to_typed_activation_join_proven": false,
+    "recovery_validated": false,
+    "renderer_or_output_sink_found": false,
+    "returned_viewcreative_style_identity_proven": false,
+    "runtime_config_route_selected": false,
+    "runtime_event_delivery_proven": false,
+    "runtime_execution_proven": false,
+    "runtime_factory_invocation_proven": false,
+    "runtime_provider_binding_proven": false,
+    "runtime_registration_row_selected": false,
+    "typed_creative_style_open_view_bridge_proven": true,
+    "typed_process_manager_slot25_bridge_proven": true
+  },
+  "conclusion": "The authenticated target publishes a typed Creative Style process-element slot 25 override for execProcWithCondition(int). The override replaces only the alias with view/CREATIVE_STYLE and forwards the caller's condition to viewManagerIf::openView. The VU2 registration owner publishes two alternative rows for the same alias and factory, using viewCreativeStyle.so on branch 1 and viewUnified2.so on branch 2; the runtime backup value does not select a row statically. The registration receiver and generic loader table are the same pointer only if the runtime selector equals AppConfig.so, the authenticated VU2 exports load successfully, and VU2's imported ViewIdSoTable/openView/IdGenerator/IdSoTable symbols bind to the pinned libObj providers. Under those conditions the corrected singleton storage is 0x14250D4. The candidate openView provider builds Event 0x11012001 with destination 4 and forwards the alias ID and condition into a generic record loader that contains dlopen, dlsym, and an indirect factory ABI. This establishes lifecycle substrate and conditional table identity, but does not prove runtime factory invocation, a returned ViewCreativeStyle instance, menu-root activation, first-class Creative Look equivalence, renderer/output behavior, installability, recovery, or camera-test eligibility.",
+  "dependencies": {
+    "model_request_transport": {
+      "canonical_export_sha256": "e03c61b1d71ebe628fb97f5ea93efdf8e925b6c61022b541e595bc232b66c1a7",
+      "report": "analysis/a6400-creative-style-model-request-transport.json",
+      "runtime_config_selector_resolved": false,
+      "same_event_manager_instance_proven": false
+    },
+    "runtime_binding": {
+      "canonical_export_sha256": "80ec7ea1160acc4362d2b5e869f885733003016727a878fd0091f88c02b2d459",
+      "generic_dynamic_loader_chain_proven": true,
+      "report": "analysis/a6400-creative-style-runtime-binding.json",
+      "runtime_route_selection_proven": false
+    },
+    "view_model_binding": {
+      "canonical_export_sha256": "7a1a92c3da8c597032d241e0f24fb2a1b0e77a4a55d7471be0862c54f00cb977",
+      "local_factory_found": true,
+      "report": "analysis/a6400-creative-style-view-model-binding.json",
+      "runtime_factory_invocation_proven": false
+    }
+  },
+  "evidence": {
+    "active_registration_row_resolved": false,
+    "conditional_table_identity": {
+      "conditional_identity_proven": true,
+      "conditions": [
+        "runtime-selector-equals-AppConfig.so",
+        "appconfig-loader-resolves-authenticated-viewUnified2-exports",
+        "viewUnified2-ViewIdSoTable-getInstance-binds-pinned-libObj-provider",
+        "viewUnified2-openView-and-registration-imports-bind-pinned-libObj-providers"
+      ],
+      "singleton_storage": 21123284,
+      "unconditional_identity_proven": false
+    },
+    "generic_loader": {
+      "condition_key": 26,
+      "destination": 4,
+      "dlopen_flags": 257,
+      "event_id": 285286401,
+      "factory_invocation_proven": false,
+      "returned_viewcreative_style_identity_proven": false,
+      "selected_row_to_loader_record_join_proven": false
+    },
+    "registration_rows": [
+      {
+        "alias": "view/CREATIVE_STYLE",
+        "branch_value": 1,
+        "component": "viewCreativeStyle.so",
+        "factory": "ViewCreativeStyleToInstance"
+      },
+      {
+        "alias": "view/CREATIVE_STYLE",
+        "branch_value": 2,
+        "component": "viewUnified2.so",
+        "factory": "ViewCreativeStyleToInstance"
+      }
+    ],
+    "typed_activation": {
+      "alias": "view/CREATIVE_STYLE",
+      "base_signature": "execProcWithCondition(int)",
+      "condition_forwarded_unchanged": true,
+      "slot": 25,
+      "type_name": "CmnViewProcessDataElementCustomCreativeStyle",
+      "typed_process_id_42_caller_proven": false
+    }
+  },
+  "evidence_digest": "6d1f51bd05f0bd2ba203ddef1a807aa8e25f5b924f41319cb1ad1ebddb44a572",
+  "first_unresolved_boundary": "menu-or-process-activation-and-runtime-binding-to-selected-registration-and-factory-invocation",
+  "installable": false,
+  "readiness": "TYPED_CREATIVE_STYLE_VIEW_LIFECYCLE_SUBSTRATE_PROVEN__RUNTIME_SELECTION_AND_FACTORY_INVOCATION_UNRESOLVED",
+  "recovery_validated": false,
+  "schema_version": 1,
+  "sources": {
+    "object": {
+      "module": "lib/libObj.so",
+      "sha256": "60ffd2b0f31f4bc139a7c13a4f62c25cdeb6a531ad5ef35df48471e6e36e88b1",
+      "size": 20860436
+    },
+    "view": {
+      "module": "lib/viewUnified2.so",
+      "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+      "size": 11530552
+    }
+  },
+  "summary": {
+    "canonical_export_sha256": "c79a4154ce6dd2cc3d2d9ecccec09db03f74423d975c50843b338cfb5b6b5451",
+    "conditional_table_identity_proven": true,
+    "generic_event_id": 285286401,
+    "generic_loader_abi_found": true,
+    "local_factory_available": true,
+    "registration_row_count": 2,
+    "runtime_factory_invocation_proven": false,
+    "typed_open_view_slot": 25,
+    "unconditional_table_identity_proven": false
+  }
+}

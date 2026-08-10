@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-widget-hit-test-vtables",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/viewUnified2.so",
+    "size": 11530552,
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
+  },
+  "export_summary": {
+    "artifact_sha256": "3d88983377538b2fc98ddc1170bdb5848cebf4a28d319c35365a105075ca2035",
+    "family_count": 407,
+    "sys_is_hit_reference_count": 407,
+    "is_hit_reference_count": 407,
+    "named_set_hit_margin_count": 397,
+    "typed_rtti_table_count": 1
+  },
+  "typed_boundary": {
+    "class_name": "LayoutableWidgetBase",
+    "rtti_cell_elf": 9457692,
+    "rtti_relocation_index": 89099,
+    "address_point_elf": 9457700,
+    "address_point_analysis": 9523236,
+    "address_point_relocation_index": 36807,
+    "sys_is_hit_slot": {
+      "slot": 36,
+      "elf_address": 9457844,
+      "analysis_address": 9523380,
+      "relocation_index": 102061
+    },
+    "is_hit_slot": {
+      "slot": 37,
+      "elf_address": 9457848,
+      "analysis_address": 9523384,
+      "relocation_index": 102468
+    },
+    "set_hit_margin_slot": {
+      "slot": 38,
+      "elf_address": 9457852,
+      "analysis_address": 9523388,
+      "relocation_index": 102875
+    }
+  },
+  "set_hit_margin_summary": {
+    "family_count": 397,
+    "exception_sys_is_hit_addresses": [9621780, 9628764, 9640428, 9643212, 9644220, 9667804, 9679156, 9680076, 9685636, 9690724],
+    "dynsym_index": 860
+  },
+  "ordered_root_paths": {
+    "touchpad_terminal_paths": [],
+    "touch_api_caller_paths": []
+  },
+  "claims": {
+    "generic_widget_hit_test_infrastructure_found": true,
+    "typed_layoutable_widget_base_boundary_found": true,
+    "menu_touch_hit_test_found": false,
+    "menu_touch_selection_found": false,
+    "touch_coordinate_transform_found": false,
+    "gesture_found": false,
+    "local_widget_identity_found": false
+  },
+  "readiness": "GENERIC_HIT_TEST_INFRASTRUCTURE_ONLY",
+  "conclusion": "The target contains a generic widget hit-test vtable family and one RTTI-typed LayoutableWidgetBase boundary. Local widget identity, menu hit-test routing, coordinate transforms, gesture paths, and selection dispatch remain unresolved; the ordered prior touch roots remain empty."
+}

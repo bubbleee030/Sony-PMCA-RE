@@ -71,15 +71,16 @@ Feature relevance: Passing this gate would only permit package acceptance; it wo
 
 Status: `INSUFFICIENT_EVIDENCE`
 
-No authenticated α6400 boot chain, recovery loader, firmware signature root, partition map, or rollback path has been recovered.
+Post-install α6400 2.00 system updater components have been recovered, but the pre-normal-runtime selector, earlier installing receiver, camera-side signature boundary for the 2.00 install, complete boot chain, and rollback behavior remain unestablished.
 
 Evidence:
 
 - **OBSERVATION** — `analysis/signature-experiments.json`: All mutations remain quarantined, camera execution is false, and no experiment produced an installable image.
-- **INFERENCE** — `analysis/feature-compatibility.json`: Host package acceptance cannot demonstrate that a modified image would pass camera boot verification or remain recoverable.
-- **UNRESOLVED** — `camera-boot-chain`: Boot ROM trust anchors, stage signatures, partition redundancy, rollback counters, and an independently verified unbrick route are unknown.
+- **OBSERVATION** — `analysis/a6400-stock-200-recovery.json`: All three external recovery candidates remain UNESTABLISHED; no candidate has a runtime-independent entry, complete write scope, or terminal verification path.
+- **INFERENCE** — `analysis/a6400-stock-200-recovery.json`: Host package acceptance and post-install system components cannot demonstrate that a modified image would pass camera boot verification or remain externally recoverable.
+- **UNRESOLVED** — `camera-boot-chain`: The selector before normal runtime, earlier installing receiver, Boot ROM trust anchors, stage signatures, partition redundancy, rollback counters, and an independently verified restore route are unknown.
 
-Next offline experiment: Recover authenticated partition and signature metadata from firmware contents and validate a restore path on a nonessential α6400 body before considering any camera execution.
+Next offline experiment: Locate the pre-normal-runtime updater selector or authentic earlier installing receiver using static evidence only. Do not design camera steps until the strict recovery report reaches the separately reviewed future-validation-design gate.
 
 Feature relevance: Even a correctly ported feature would be unusable if the modified image cannot boot or if a failed boot cannot be recovered.
 
@@ -100,6 +101,33 @@ Next offline experiment: After authenticated decryption, build symbol and struct
 
 Feature relevance: This is the layer where Vertical UI, full touch UI, and Creative Looks must actually execute; none of their target integration points has been recovered.
 
+## Exact stock-recovery checkpoint
+
+The official TW/region-0 α6400 2.00 updater and its embedded stock container are digest-pinned in `analysis/a6400-stock-200-bundle.json`. This authenticates the exact source needed for restoration; it does not establish same-version reinstall acceptance, complete write coverage, boot recovery, or safe interruption behavior.
+
+The strict recovery status is `BLOCKED_STATIC_EVIDENCE`, with `recovery_validated=false`, `camera_test_eligible=false`, and `installable=false`.
+
+The α6400A receiver graph is retained as `NON_TRANSFERABLE_CONTROL`: source model `0x81030017` differs from target `0x81030011`, so the related guard/signature architecture does not establish the original α6400 selector or receiver, target acceptance, complete write order, terminal verification, or recovery. It changes no recovery readiness input.
+
+The packaged updater flag state, LSI notification, and bounded flag-consumer evidence are proven. They do not establish a next-boot partition selector: the `/dev/nflasha1 selector join` remains unproven, numeric or indirect selector analysis remains incomplete, and an external or opaque selector remains possible.
+
+Candidate paths:
+
+- `official-updater-reinstall` — `UNESTABLISHED`
+- `usb-recovery-or-updater-mode` — `UNESTABLISHED`
+- `independent-maintenance-path` — `UNESTABLISHED`
+
+Mandatory failure scenarios:
+
+- `modified-ui-runtime-failure` — `UNESTABLISHED`; candidate coverage: official-updater-reinstall=UNESTABLISHED, usb-recovery-or-updater-mode=UNESTABLISHED, independent-maintenance-path=UNESTABLISHED
+- `interrupted-feature-update` — `UNESTABLISHED`; candidate coverage: official-updater-reinstall=UNESTABLISHED, usb-recovery-or-updater-mode=UNESTABLISHED, independent-maintenance-path=UNESTABLISHED
+- `nonbooting-application-layer` — `UNESTABLISHED`; candidate coverage: official-updater-reinstall=UNESTABLISHED, usb-recovery-or-updater-mode=UNESTABLISHED, independent-maintenance-path=UNESTABLISHED
+- `version-or-downgrade-rejection` — `UNESTABLISHED`; candidate coverage: official-updater-reinstall=UNESTABLISHED, usb-recovery-or-updater-mode=UNESTABLISHED, independent-maintenance-path=UNESTABLISHED
+- `boot-chain-failure` — `UNESTABLISHED`; candidate coverage: official-updater-reinstall=UNESTABLISHED, usb-recovery-or-updater-mode=UNESTABLISHED, independent-maintenance-path=UNESTABLISHED
+- `power-loss-during-stock-restore` — `UNESTABLISHED`; candidate coverage: official-updater-reinstall=UNESTABLISHED, usb-recovery-or-updater-mode=UNESTABLISHED, independent-maintenance-path=UNESTABLISHED
+
+No runtime-independent entry has been proven. An in-camera settings reset would reset configuration only; it is not a route back to the exact stock firmware image.
+
 ## Requested-feature assessment
 
 - **Vertical UI — `NATIVE_PORT_UNSUPPORTED`.** Orientation state exists on α6400, but the portrait layout selector, renderer transform, rotated hit testing, resources, and ABI are unlocated.
@@ -108,4 +136,4 @@ Feature relevance: This is the layer where Vertical UI, full touch UI, and Creat
 
 ## Current conclusion
 
-Static reverse engineering moved the boundary from an unknown Windows wrapper to a mapped host parser, storage transport, command state machine, and camera-returned model/version statuses. That is meaningful progress, but it is not a bypass: decryption, camera-side enforcement, boot trust, recovery, runtime integrity, and all native feature integration points remain unresolved.
+Static reverse engineering moved the boundary from an unknown Windows wrapper to a mapped host parser, storage transport, command state machine, camera-returned model/version statuses, post-install target-system updater components, and a digest-pinned exact stock source. That is meaningful progress, but it is not a bypass or a recovery procedure: the earlier installing receiver, runtime-independent entry, camera-side install signature boundary, complete restore behavior, boot trust, runtime integrity, and all native feature integration points remain unresolved. Camera execution and installable output remain prohibited.

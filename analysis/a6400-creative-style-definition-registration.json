@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "analysis_scope": "offline-static-creative-style-definition-registration",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "summary": {
+    "artifact_sha256": "febc2ce84490fcbf4072ce77b5323df8584a5c68dd41293a3bfa8e1a6587343a",
+    "publication_relocation_index": 87605,
+    "vtable_typed_relocation_count": 66
+  },
+  "claims": {
+    "creative_style_definition_found": true,
+    "publication_data_graph_found": true,
+    "typed_class_interface_found": true,
+    "broad_loader_registration_found": true,
+    "root_constructor_binding_found": true,
+    "root_constructor_runtime_provider_proven": false,
+    "selected_state_found": false,
+    "persistence_found": false,
+    "processing_found": false,
+    "output_found": false,
+    "first_class_creative_look": false
+  },
+  "readiness": "STATIC_DEFINITION_ROOT_CONSTRUCTION_CALL_AND_REGISTRATION_ONLY",
+  "conclusion": "The Creative Style root, properties, property list, default-root publication relocation, typed class interface, broad initializer membership, and an init-array-reachable static call that loads the exact root and properties before Creative Style C1 are exact. Runtime PLT-provider binding, selected state, persistence, processing, output, and first-class Creative Look behavior remain unproven."
+}

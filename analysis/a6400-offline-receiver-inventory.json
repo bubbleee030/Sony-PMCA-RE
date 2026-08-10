@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "subject": "ILCE-6400 offline pre-2.00 receiver and selector source inventory",
+  "snapshot_date": "2026-08-06",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "sony_binary_executed": false,
+  "installable": false,
+  "search_scopes": [
+    {
+      "id": "canonical-workspace",
+      "root_kind": "repository-ignored-artifacts",
+      "exact_target_packages": 1,
+      "exact_pre_2_00_target_packages": 0,
+      "inventory_method": "recursive-filename-and-metadata-only"
+    },
+    {
+      "id": "offline-downloads",
+      "root_kind": "existing-download-directory",
+      "exact_target_packages": 1,
+      "exact_pre_2_00_target_packages": 0,
+      "inventory_method": "recursive-filename-extension-size-and-hash"
+    }
+  ],
+  "exact_target": {
+    "model": "ILCE-6400",
+    "model_id": "0x81030011",
+    "region": "TW",
+    "region_code": 0,
+    "stock_version": "2.00",
+    "stock_source_key": "a6400-tw-v2.00",
+    "stock_updater_sha256": "ea460cbec5f8b62119630f0a653eeca4f4ffad887670e60c0fd9c0345e6b30a6",
+    "pre_2_00_package_present": false,
+    "installing_receiver_located": false,
+    "pre_normal_selector_located": false
+  },
+  "control_samples": [
+    {
+      "id": "a6400a-eu-v1.01",
+      "model": "ILCE-6400A",
+      "model_id": "0x81030017",
+      "region": "EU",
+      "version": "1.01",
+      "updater_sha256": "fd6ae50755a9202a8b506b6b77aa27ab41ae717e96f05a0d4e2ad699b40d9ad1",
+      "updater_partition_sha256": "c9040270ad886214c5656894b90fb1e839a3ab942cb65726633d8f1f1221c093",
+      "relationship": "older-same-family-different-model-control",
+      "persistent_updater_partition_present": true,
+      "target_transferable": false,
+      "target_recovery_supported": false,
+      "limit": "The control maps updater architecture and enforced guards only; it cannot establish original ILCE-6400 selection, acceptance, write scope, verification, or recovery."
+    }
+  ],
+  "evidence": [
+    {
+      "source": "analysis/a6400-updater-transition-boundary.json",
+      "claim": "The available 2.00 target-system receiver is post-install; an authentic pre-2.00 receiver or equivalent transition build is still required."
+    },
+    {
+      "source": "analysis/a6400-warm-boot-boundary.json",
+      "claim": "Packaged warm-resume and normal-system artifacts do not contain the pre-normal-runtime updater selector."
+    },
+    {
+      "source": "analysis/a6400a-updater-and-creative-style-deep-dive.md",
+      "claim": "The α6400A control contains a persistent updater partition and enforced different-model guard boundary but is not an original α6400 recovery image."
+    }
+  ],
+  "classification": "BLOCKED_MISSING_EXACT_PRE_2_00_SOURCE",
+  "next_action": "Obtain an authentic official original ILCE-6400 package older than 2.00 for offline analysis; until then, use α6400A only for non-transferable architecture control tracing and keep recovery readiness false."
+}

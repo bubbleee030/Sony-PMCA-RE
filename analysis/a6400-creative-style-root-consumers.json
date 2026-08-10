@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-creative-style-root-consumers",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "installable": false,
+  "camera_test_eligible": false,
+  "source": {
+    "module": "lib/viewUnified7.so",
+    "size": 541024,
+    "sha256": "c48cde43ff22d808ad23c42019ddae516fff7da060004eb81ed2bb85012aa538"
+  },
+  "export_summary": {
+    "canonical_export_sha256": "35e0eda6f4ffa817c14fa5c0c1cacf8d279bda7c8b58e83a4f8514a22e85f80d",
+    "root_relocation_count": 2,
+    "executable_range_count": 1358,
+    "accepted_candidate_count": 0,
+    "plt_relocation_count": 0
+  },
+  "prior_ui_layout_header_got_boundary": {
+    "analysis_contract": "ui_layout_header_got_boundary",
+    "canonical_export_sha256": "339ee0b43ca7f8e23dff6118733bf028e0d0446e5294130a4fe82f77815e51de"
+  },
+  "root_relocations": [
+    {"index": 3858, "site": "0x72434", "relocation_type": "R_ARM_GLOB_DAT", "section": ".got"},
+    {"index": 3859, "site": "0x8056c", "relocation_type": "R_ARM_ABS32", "section": ".data"}
+  ],
+  "data_cell_symbol_coverage": {
+    "dynamic": {"exact": [], "covering": []},
+    "static": {"table_present": false, "exact": [], "covering": []}
+  },
+  "executable_scan": {
+    "range_count": 1358,
+    "thumb_range_count": 1358,
+    "arm_range_count": 1358,
+    "accepted_candidate_count": 0
+  },
+  "root_path_summary": {
+    "pinned_layout_or_orientation_root_count": 20,
+    "paths_to_accepted_candidates": []
+  },
+  "claims": {
+    "creative_style_selection_found": false,
+    "layout_or_orientation_selection_found": false,
+    "touch_coordinate_transform": false,
+    "menu_touch_hit_test": false,
+    "menu_touch_selection": false
+  },
+  "readiness": "LOCAL_CREATIVE_STYLE_ROOT_CONSUMERS_NOT_FOUND_EXTERNAL_ROUTES_UNRESOLVED",
+  "conclusion": "No provenance-backed local load from either Creative Style root relocation cell was found across the bounded Thumb and ARM executable-range scan. External-module, callback, and unknown-base consumers remain unresolved."
+}
