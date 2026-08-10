@@ -152,6 +152,11 @@ def compiler_linker():
     linker = completed.stdout.strip()
     if not linker:
         raise AssertionError("gcc did not report its matching linker")
+    linker_path = Path(linker)
+    if not linker_path.is_absolute() or not linker_path.is_file():
+        raise AssertionError(
+            "gcc must report an absolute existing executable linker path"
+        )
     return linker
 
 

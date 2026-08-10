@@ -11,6 +11,7 @@ from tests.analysis.creative_look_native_abi import (
     assert_no_undefined_symbols,
     compile_freestanding_objects,
     compile_shared_library,
+    compiler_linker,
     link_relocatable,
     unload_library,
 )
@@ -369,6 +370,30 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
                 assert_no_undefined_symbols(
                     self.combined_object, "native core/view/bridge"
                 )
+
+    def test_compiler_linker_rejects_bare_relative_and_missing_paths(self):
+        reported_paths = (
+            "ld\n",
+            "toolchain/ld.exe\n",
+            f"{Path(self._temporary.name) / 'missing-ld.exe'}\n",
+        )
+        for reported_path in reported_paths:
+            completed = mock.Mock(stdout=reported_path)
+            with self.subTest(reported_path=reported_path.strip()):
+                with mock.patch(
+                    "tests.analysis.creative_look_native_abi._run_checked",
+                    return_value=completed,
+                ):
+                    with self.assertRaisesRegex(
+                        AssertionError,
+                        "absolute existing executable",
+                    ):
+                        compiler_linker()
+
+    def test_compiler_linker_is_an_absolute_existing_file(self):
+        linker = Path(compiler_linker())
+        self.assertTrue(linker.is_absolute())
+        self.assertTrue(linker.is_file())
 
     def test_bridge_source_is_offline_and_has_one_direct_dependency(self):
         source = BRIDGE_C.read_text(encoding="utf-8")
