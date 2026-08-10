@@ -1,11 +1,7 @@
 import ctypes
-import os
-import shutil
-import subprocess
 import tempfile
 import unittest
 import zlib
-from pathlib import Path
 
 from pmca.experience.creative_look import (
     AXIS_DEFINITIONS,
@@ -16,12 +12,17 @@ from pmca.experience.creative_look import (
     CreativeLookExperienceError,
     Orientation,
 )
+from tests.analysis.creative_look_native_abi import (
+    CORE_HEADER as HEADER,
+    CORE_SOURCE as SOURCE,
+    NativeState,
+    assert_no_undefined_symbols,
+    compile_freestanding_objects,
+    compile_shared_library,
+    configure_core_exports,
+    unload_library,
+)
 
-
-ROOT = Path(__file__).resolve().parents[2]
-NATIVE_DIRECTORY = ROOT / "native" / "a6400_creative_look"
-SOURCE = NATIVE_DIRECTORY / "creative_look_core.c"
-HEADER = NATIVE_DIRECTORY / "creative_look_core.h"
 
 CL_OK = 0
 CL_ERR_ARGUMENT = -1
@@ -48,144 +49,23 @@ MODE_BITS = {
 }
 
 
-class NativeState(ctypes.Structure):
-    _pack_ = 1
-    _fields_ = [
-        ("selected_look", ctypes.c_uint8),
-        ("screen", ctypes.c_uint8),
-        ("orientation", ctypes.c_uint8),
-        ("editing_axis", ctypes.c_uint8),
-        ("custom_bases", ctypes.c_uint8 * 6),
-        ("adjustments", (ctypes.c_int8 * 8) * 18),
-        ("modes", ctypes.c_uint8),
-    ]
-
-
 class CreativeLookNativeCoreTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        compiler = shutil.which("gcc")
-        if compiler is None:
-            raise unittest.SkipTest("a C99 compiler is unavailable")
         cls._temporary = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
-        directory = Path(cls._temporary.name)
-        cls.library_path = directory / "creative_look_core.dll"
-        cls.object_path = directory / "creative_look_core.o"
-        common = [
-            compiler,
-            "-std=c99",
-            "-Wall",
-            "-Wextra",
-            "-Werror",
-            "-pedantic",
-            "-I",
-            str(NATIVE_DIRECTORY),
-        ]
-        shared = subprocess.run(
-            [*common, "-shared", "-o", str(cls.library_path), str(SOURCE)],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            check=False,
+        cls.library_path = compile_shared_library(
+            cls._temporary.name, "creative_look_core", [SOURCE]
         )
-        if shared.returncode != 0:
-            raise AssertionError(shared.stderr)
-        freestanding = subprocess.run(
-            [
-                *common,
-                "-ffreestanding",
-                "-fno-builtin",
-                "-c",
-                "-o",
-                str(cls.object_path),
-                str(SOURCE),
-            ],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if freestanding.returncode != 0:
-            raise AssertionError(freestanding.stderr)
-        symbol_tool = shutil.which("nm")
-        if symbol_tool is not None:
-            undefined = subprocess.run(
-                [symbol_tool, "-u", str(cls.object_path)],
-                cwd=ROOT,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            if undefined.returncode != 0:
-                raise AssertionError(undefined.stderr)
-            if undefined.stdout.strip():
-                raise AssertionError(
-                    f"native core has undefined symbols:\n{undefined.stdout}"
-                )
+        cls.object_path = compile_freestanding_objects(
+            cls._temporary.name, [SOURCE]
+        )[0]
+        assert_no_undefined_symbols(cls.object_path, "native core")
         cls.core = ctypes.CDLL(str(cls.library_path))
-        state_pointer = ctypes.POINTER(NativeState)
-        cls.core.cl_state_size.restype = ctypes.c_size_t
-        cls.core.cl_blob_size.restype = ctypes.c_size_t
-        cls.core.cl_capability_flags.restype = ctypes.c_uint32
-        cls.core.cl_init.argtypes = [state_pointer]
-        cls.core.cl_init.restype = ctypes.c_int
-        cls.core.cl_validate.argtypes = [state_pointer]
-        cls.core.cl_validate.restype = ctypes.c_int
-        cls.core.cl_axis_range.argtypes = [
-            ctypes.c_uint8,
-            ctypes.POINTER(ctypes.c_int8),
-            ctypes.POINTER(ctypes.c_int8),
-        ]
-        cls.core.cl_axis_range.restype = ctypes.c_int
-        cls.core.cl_axis_status.argtypes = [state_pointer, ctypes.c_uint8]
-        cls.core.cl_axis_status.restype = ctypes.c_int
-        cls.core.cl_is_modified.argtypes = [
-            state_pointer,
-            ctypes.c_uint8,
-            ctypes.POINTER(ctypes.c_int),
-        ]
-        cls.core.cl_is_modified.restype = ctypes.c_int
-        cls.core.cl_set_orientation.argtypes = [state_pointer, ctypes.c_uint8]
-        cls.core.cl_set_orientation.restype = ctypes.c_int
-        cls.core.cl_set_mode.argtypes = [state_pointer, ctypes.c_uint8, ctypes.c_int]
-        cls.core.cl_set_mode.restype = ctypes.c_int
-        cls.core.cl_select_look.argtypes = [state_pointer, ctypes.c_uint8]
-        cls.core.cl_select_look.restype = ctypes.c_int
-        cls.core.cl_select_custom_base.argtypes = [
-            state_pointer,
-            ctypes.c_uint8,
-            ctypes.c_uint8,
-        ]
-        cls.core.cl_select_custom_base.restype = ctypes.c_int
-        cls.core.cl_open_axis.argtypes = [state_pointer, ctypes.c_uint8]
-        cls.core.cl_open_axis.restype = ctypes.c_int
-        cls.core.cl_set_axis.argtypes = [state_pointer, ctypes.c_uint8, ctypes.c_int]
-        cls.core.cl_set_axis.restype = ctypes.c_int
-        cls.core.cl_reset_selected.argtypes = [state_pointer]
-        cls.core.cl_reset_selected.restype = ctypes.c_int
-        cls.core.cl_back_to_catalog.argtypes = [state_pointer]
-        cls.core.cl_back_to_catalog.restype = ctypes.c_int
-        cls.core.cl_encode.argtypes = [
-            state_pointer,
-            ctypes.POINTER(ctypes.c_uint8),
-            ctypes.c_size_t,
-        ]
-        cls.core.cl_encode.restype = ctypes.c_int
-        cls.core.cl_decode.argtypes = [
-            state_pointer,
-            ctypes.POINTER(ctypes.c_uint8),
-            ctypes.c_size_t,
-        ]
-        cls.core.cl_decode.restype = ctypes.c_int
+        configure_core_exports(cls.core)
 
     @classmethod
     def tearDownClass(cls):
-        if os.name == "nt":
-            import _ctypes
-
-            handle = cls.core._handle
-            cls.core = None
-            _ctypes.FreeLibrary(handle)
+        unload_library(cls, "core")
         cls._temporary.cleanup()
 
     def _native_state(self):

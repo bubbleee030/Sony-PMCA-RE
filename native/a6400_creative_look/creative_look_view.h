@@ -53,18 +53,18 @@ typedef struct cl_view_frame {
     cl_ui_element elements[CL_UI_MAX_ELEMENTS];
 } cl_view_frame;
 
-typedef int (*cl_view_present_fn)(
+typedef int32_t (*cl_view_present_fn)(
     void *context,
     const cl_view_frame *frame
 );
 
-typedef int (*cl_storage_load_fn)(
+typedef int32_t (*cl_storage_load_fn)(
     void *context,
     uint8_t *data,
     size_t size
 );
 
-typedef int (*cl_storage_save_fn)(
+typedef int32_t (*cl_storage_save_fn)(
     void *context,
     const uint8_t *data,
     size_t size
