@@ -486,7 +486,8 @@ build the retained processing snapshot, present the initial frame, attach the
 internal sink, set open/attached flags, and leave the initial non-presentation
 dirty bits for Task 4 synchronization. Initial presentation is an admission gate
 and is not dirty/retryable. A failed attach must retain no sink. On either
-failure, call close and report both the primary and cleanup raw results.
+failure, call close, clear the provisional dirty mask, and report both the
+primary and cleanup raw results.
 
 Attach failure is contractually atomic. Detach and close must complete teardown
 even when returning a diagnostic failure. Close must attempt detach before

@@ -293,7 +293,8 @@ If lifecycle open fails, no state is opened. If presentation or input attach
 fails after lifecycle open, the bridge calls lifecycle close, returns to closed
 state, and retains both the primary and cleanup callback results. Failed attach
 is atomic, so that path never calls detach. Initial presentation failure is not
-left dirty or retryable; reopening requires reinitialization. An initial
+left dirty or retryable; admission cleanup clears the provisional dirty mask,
+and reopening requires reinitialization. An initial
 post-attach synchronization failure instead leaves the bridge open and the
 failed domain dirty.
 
