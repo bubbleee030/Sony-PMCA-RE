@@ -337,21 +337,23 @@ report = Report()
 self.assertEqual(lib.cl_bridge_open(byref(bridge), byref(report)), CL_OK)
 self.assertEqual(
     fixture.calls,
-    ["load", "open", "present", "attach", "save", "model",
-     "live_view", "still_jpeg", "movie"],
+    ["load", "open", "present", "attach"],
 )
+self.assertEqual(lib.cl_bridge_dirty_mask(byref(bridge)), 0x3E)
 self.assertEqual(report.opened, 1)
 self.assertEqual(lib.cl_bridge_close(byref(bridge), byref(report)), CL_OK)
 self.assertEqual(fixture.calls[-2:], ["detach", "close"])
 ```
 
-For restored storage assert the same sequence without `save`. Add separate tests
-for load error, corrupt loaded blob, lifecycle-open failure, presentation
-failure, and input-attach failure. Presentation failure must be exactly
+At this task boundary synchronization is not implemented: missing storage leaves
+persistence/model/live/still/movie dirty (`0x3E`), while restored storage leaves
+only model/live/still/movie dirty (`0x3C`). Task 4 replaces these prefix checks
+with the final full startup sequences. Add separate tests for load error, corrupt
+loaded blob, lifecycle-open failure, presentation failure, and input-attach
+failure. Presentation failure must be exactly
 `load, open, present, close`; attach failure must be exactly
 `load, open, present, attach, close`. Each test asserts every raw report field,
-cleanup result, dirty mask, and closed state. Initial post-attach synchronization
-failure instead leaves the bridge open and only failed domains dirty.
+cleanup result, dirty mask, and closed state.
 
 - [ ] **Step 2: Run the lifecycle tests and verify red**
 
@@ -481,8 +483,9 @@ Open must use a local candidate and a local 164-byte blob. Interpret load return
 `0` as decode-required, `1` as exact default, and all other values as failure.
 After lifecycle open succeeds, commit state at state/processing revision `1`,
 build the retained processing snapshot, present the initial frame, attach the
-internal sink, and set open/attached flags. Initial presentation is an admission
-gate and is not dirty/retryable. A failed attach must retain no sink. On either
+internal sink, set open/attached flags, and leave the initial non-presentation
+dirty bits for Task 4 synchronization. Initial presentation is an admission gate
+and is not dirty/retryable. A failed attach must retain no sink. On either
 failure, call close and report both the primary and cleanup raw results.
 
 Attach failure is contractually atomic. Detach and close must complete teardown
@@ -745,8 +748,11 @@ When startup load returns missing, mark persistence dirty. For both missing and
 restored state, mark model/live/still/movie dirty. After admission present and
 attach succeed, call synchronization starting after presentation so it is not
 presented twice. Sync failure leaves the bridge open, returns `CL_ERR_ADAPTER`,
-and retains failed dirty bits for retry. Assert the exact missing/restored call
-sequences pinned in Task 2.
+and retains failed dirty bits for retry. Replace Task 2's prefix-only assertions
+with the final exact sequences: missing storage calls
+`load, open, present, attach, save, model, live_view, still_jpeg, movie`; restored
+storage calls the same sequence without `save`. Add an initial post-attach sync
+failure test proving the bridge remains open with only failed domains dirty.
 
 - [ ] **Step 7: Run focused tests and mutation checks**
 
