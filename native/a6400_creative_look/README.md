@@ -1,26 +1,117 @@
-# α6400 Creative Look Native Core
+# α6400 Creative Look Native Core and Bridge
 
-This directory contains the portable C99 state and interaction core for the
-offline α6400-native Creative Look implementation. It is allocation-free,
-freestanding-compatible, and uses only fixed-width integer fields.
+This directory contains the portable C99 state, interaction, and offline
+integration layers for the α6400 Creative Look work. The code is
+allocation-free, freestanding-compatible, and fixed-memory. Product state and
+public wire/data fields use fixed-width integers; pointer-bearing adapter and
+bridge structs follow the compiling host ABI.
 
-It implements:
+The bridge is an **offline integration simulator and ABI contract**. It is not
+camera-ready or installable firmware, and it supplies no device procedure. Its
+callbacks are exercised by host fixtures only; no Sony runtime identity or
+target-execution profile is assigned.
+
+## Portable product behavior
+
+`creative_look_core.c` and `creative_look_view.c` remain authoritative for:
 
 - the fixed `ST, PT, NT, VV, VV2, FL, FL2, FL3, IN, SH, BW, SE` order;
 - six independent Custom slots;
 - landscape and both portrait orientations;
-- catalog, Custom-base, editor, and axis-picker states;
+- catalog, Custom-base, editor, and axis-picker screens;
 - all eight exact adjustment ranges and unknown/default sentinels;
-- modified markers, per-Look reset, and the complete restriction matrix; and
+- modified markers, per-Look reset, and the complete restriction matrix;
+- fixed 20-element frames, logical milli-unit layout, and touch hit-testing;
+  and
 - a strict 164-byte, versioned, CRC-32-protected persistence blob.
 
-`creative_look_view.c` adds a fixed 20-element presentation frame, integer
-layout in logical milli-units, stale-frame-resistant touch dispatch, and
-caller-owned presentation/storage callbacks. It remains allocation-free and
-does not name or link any Sony class, event, storage record, or processor.
+The runtime state is 155 bytes. The complete portable layer performs no
+allocation, file I/O, dynamic loading, networking, USB access, image
+processing, or firmware operation.
 
-The runtime state is 155 bytes. It performs no allocation, file I/O, dynamic
-loading, networking, USB access, image processing, or firmware operation.
+## Six-adapter bridge boundary
+
+`creative_look_bridge.c` coordinates exactly six caller-owned synchronous
+adapters. Host fixtures provide every callback and retain ownership of their
+contexts.
+
+| Adapter | Exact bridge contract |
+|---|---|
+| Lifecycle | `open(context, initial_state)` and `close(context)`; every successful open receives exactly one close. |
+| Presentation | `present(context, frame)` receives a validated, stack-built frame. |
+| Input | `attach(context, sink, sink_context)` and `detach(context)` register the bridge-owned canonical touch/orientation sink only for the attached interval. |
+| Persistence | `load(context, blob, 164)` and `save(context, blob, 164)` exchange the exact encoded state. |
+| Model request | `submit(context, snapshot)` receives one complete immutable processing snapshot. |
+| Output | `apply(context, kind, snapshot)` independently addresses live view, still JPEG, and movie. |
+
+Callbacks must not reenter the bridge or deliver input while any adapter
+callback, attach, or detach is active. The busy guard rejects that attempt
+without nested state or report mutation.
+
+## Open, event, synchronization, and close contract
+
+Open has one fixed transaction:
+
+1. load persistence into an exact default candidate or decode an exact
+   164-byte blob;
+2. call lifecycle open with that candidate;
+3. commit state revision `1` and, only when processing-ready, processing
+   revision `1` plus a retained snapshot;
+4. present the initial frame as an admission gate;
+5. attach the canonical input sink; and
+6. synchronize every initially dirty domain.
+
+For missing storage, the observable callback order is `load, open, present,
+attach, save, model, live_view, still_jpeg, movie`. A processing-ready restored
+blob omits only `save`. A restored unconfigured Custom picker calls exactly
+`load, open, present, attach`, begins at processing revision `0`, retains an
+all-zero snapshot, and creates no model/output work. Presentation or attach
+failure closes an already-opened lifecycle; a failed attach is atomic and is
+not detached.
+
+Touch and orientation events enter only through the registered canonical sink.
+The bridge applies each event to a candidate, validates it, and commits it only
+after all checks pass. Invalid, restricted, and no-hit events leave state,
+revisions, dirtiness, and callbacks unchanged. A successful change increments
+the state revision and dirties presentation and persistence. A
+processing-relevant change increments the processing revision and replaces the
+retained processing snapshot only when the resulting selection is
+processing-ready.
+
+Selecting an unconfigured Custom slot is a valid staged UI state on the
+Custom-base picker. It synchronizes only presentation and persistence, does not
+create a processing revision, and preserves both an older retained snapshot and
+any older failed processing-domain dirtiness. Mode changes made in the picker
+are staged too. Explicit sync/retry may still retry the byte-identical older
+snapshot. Selecting a valid Custom base completes the state, creates one current
+full-state processing revision, and coalesces older dirty processing work to
+that newest snapshot. This also applies after a restored picker starts at
+processing revision `0`.
+
+Synchronization always attempts dirty domains in this order: presentation,
+persistence, model request, live view, still JPEG, movie. Each domain has its
+own dirty bit and raw result. A failure does not stop later independent domains;
+only successful domains clear. Retry uses the retained byte-identical snapshot
+for model and output work at the same processing revision, while presentation
+and persistence retries use current state. If a newer processing change arrives
+first, the bridge replaces the retained snapshot once and coalesces outstanding
+model and output work to the new desired revision.
+
+Close always attempts input detach first and lifecycle close second, even when
+detach reports a diagnostic failure. Both callbacks must complete teardown
+before returning. Close retains state and unsynchronized dirty bits for offline
+inspection; a new open requires bridge reinitialization.
+
+## Complete processing snapshots
+
+The bridge retains the complete immutable snapshot by value. Model and output
+callbacks synchronously receive a const pointer to that bridge-owned snapshot
+and must not retain it. The snapshot contains the bridge ABI version,
+processing revision, effective built-in base, three-output mask, and the
+complete `cl_state`: selected Look, all six Custom bases, all `18 × 8`
+adjustment bytes, screen/orientation/editor state, and mode flags. This boundary
+does not translate Creative Look state into the five Creative Style setter
+integers.
 
 ## Persistence layout
 
@@ -37,37 +128,58 @@ loading, networking, USB access, image processing, or firmware operation.
 | 16 | 144 | 18 × 8 signed adjustment bytes (`0x80` = Default) |
 | 160 | 4 | little-endian CRC-32 over bytes `0..159` |
 
-This blob has no assigned α6400 Backup record, filesystem path, or Sony storage
-identity. A future persistence adapter must prove that target binding before it
-can consume or emit the blob on camera.
+This is an exact host persistence format, not a Sony storage binding. No safe
+α6400 BK4 164-byte record or dynamic-store identity has been proved. The bridge
+assigns no Backup record, filesystem path, or other target persistence
+provider.
 
-## Integration boundary
+## Evidence, runtime, and safety status
 
-The core and view adapter are the portable product-state and interaction
-layers only. A future target integration still needs to bind:
+Evidence and execution are independent manifest axes. `UNBOUND`,
+`STATIC_CANDIDATE`, or `STATIC_PROVEN` evidence never enables a callback. The
+only executable manifest accepted by this milestone uses the exact
+`CL_EXECUTION_PROFILE_OFFLINE_HOST` profile and marks all six records
+`CL_BINDING_RUNTIME_HOST_SIMULATED`. Simulation is not Sony runtime evidence,
+and there is no target-executable runtime state.
 
-1. the α6400 view/factory lifecycle to this state;
-2. concrete target touch/orientation delivery to `cl_view_touch` and
-   `cl_view_present`;
-3. a proven target persistence record to `cl_storage_load`/`cl_storage_save`;
-   and
-4. the selected Look and eight axes to live-view, still-JPEG, and movie
-   processing consumers.
-
-The compile-time boundary remains unambiguous:
+The compile-time and manifest safety gates remain exactly false:
 
 - `CL_PROCESSING_BINDING_UNBOUND = 0`
 - `CL_RECOVERY_VALIDATED = 0`
 - `CL_CAMERA_TEST_ELIGIBLE = 0`
 - `CL_INSTALLABLE = 0`
 
-No camera build, package, or test is authorized by this source.
+The exact Sony view lifecycle/provider registration is unresolved. There is no
+proved target persistence identity, model provider, or live-view/still-JPEG/
+movie output sink. Donor decryption and runnable donor processing provenance are
+unresolved. Stock recovery remains unvalidated, including exact restoration of
+the TW/region-0 2.00 firmware state.
+
+## Objective coverage and remaining gates
+
+| Objective | Current evidence/status |
+|---|---|
+| 12 built-in Looks | Bridge-exercised offline |
+| 6 Custom slots | Bridge-exercised offline |
+| 8 adjustment axes | Bridge-exercised offline at minimum, default, and maximum |
+| Landscape plus both portrait orientations | Bridge-exercised offline |
+| Exact 164-byte persistence | Bridge-exercised through host load/save adapters |
+| Sony runtime identities | Absent and unproven |
+| Model and three output sinks | Host-simulated only |
+| Donor decryption/processing provenance | Unresolved |
+| Recovery | Unverified |
+| Exact TW/region-0 2.00 restoration | Unverified |
+| Camera eligibility/installability | False |
+
+The overall α6400-native project goal remains incomplete while the Sony
+bindings, processing sinks, donor provenance, exact stock restoration, and
+recovery gates remain unproven or false.
 
 ## Offline verification
 
-`tests/analysis/test_creative_look_native_core.py` and
-`tests/analysis/test_creative_look_native_view.py` compile the sources as a
-host shared library and as freestanding C99 objects with warnings treated as
-errors. They compare transitions and all four native frames against the Python
-reference model, drive touch-only interaction, exercise adapter failures, and
-mutation-test the persistence decoder.
+The native analysis suites compile the core, view, and bridge as a host shared
+library and strict hosted/freestanding C99 objects with warnings treated as
+errors. They execute the six adapters, canonical sink, lifecycle failures,
+complete snapshots, exact persistence, per-domain retries, exhaustive product
+matrix, ABI layout, relocatable link, undefined-symbol gate, analyzer, and
+operational-capability source mutations entirely offline.

@@ -33,6 +33,19 @@ from tests.analysis.creative_look_native_abi import (
 NATIVE = CORE_SOURCE.parent
 BRIDGE_H = NATIVE / "creative_look_bridge.h"
 BRIDGE_C = NATIVE / "creative_look_bridge.c"
+BRIDGE_PRODUCTION_SOURCES = (BRIDGE_H, BRIDGE_C)
+FORBIDDEN_BRIDGE_CAPABILITIES = (
+    "system(",
+    "popen(",
+    "CreateProcess",
+    "ShellExecute",
+    "dlopen(",
+    "libusb",
+    "CreateFile",
+    "DeviceIoControl",
+    "/dev/",
+    "nflasha",
+)
 
 CL_OK = 0
 CL_ERR_ARGUMENT = -1
@@ -896,6 +909,16 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             self._direct_include_operands(source),
             ['"creative_look_bridge.h"'],
         )
+
+    def _assert_bridge_sources_have_no_operational_capabilities(self, sources):
+        for source_path in sources:
+            source = source_path.read_text(encoding="utf-8")
+            for forbidden in FORBIDDEN_BRIDGE_CAPABILITIES:
+                self.assertNotIn(
+                    forbidden,
+                    source,
+                    f"{source_path.name} contains forbidden capability {forbidden}",
+                )
 
     @staticmethod
     def _literal_blob_for_state(state):
@@ -2605,6 +2628,39 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             CL_OK,
         )
 
+    def test_host_manifest_safety_fields_are_zero_and_each_promotion_is_rejected(self):
+        """Fails if the host manifest promotes or accepts any safety gate."""
+        self._require_exports()
+        safety_fields = (
+            "processing_binding_proven",
+            "recovery_validated",
+            "camera_test_eligible",
+            "installable",
+        )
+        manifest = self._host_manifest()
+        self.assertEqual(
+            tuple(getattr(manifest, field) for field in safety_fields),
+            (0, 0, 0, 0),
+        )
+
+        for promoted_field in safety_fields:
+            manifest = self._host_manifest()
+            setattr(manifest, promoted_field, 1)
+            with self.subTest(promoted_field=promoted_field):
+                self.assertEqual(
+                    tuple(getattr(manifest, field) for field in safety_fields),
+                    tuple(
+                        1 if field == promoted_field else 0
+                        for field in safety_fields
+                    ),
+                )
+                self.assertEqual(
+                    self.library.cl_bridge_validate_manifest(
+                        ctypes.byref(manifest)
+                    ),
+                    CL_ERR_MANIFEST,
+                )
+
     def test_manifest_validation_is_fail_closed(self):
         self._require_exports()
         self.assertEqual(
@@ -3940,6 +3996,31 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
             "ILCE-",
         ):
             self.assertNotIn(forbidden, source)
+
+    def test_bridge_production_sources_reject_exact_operational_capabilities(self):
+        """Fails if either production bridge file gains an operational API."""
+        self._assert_bridge_sources_have_no_operational_capabilities(
+            BRIDGE_PRODUCTION_SOURCES
+        )
+        source = BRIDGE_C.read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory(
+            dir=self._temporary.name,
+            prefix="task6-safety-mutation-",
+            ignore_cleanup_errors=True,
+        ) as directory:
+            for index, forbidden in enumerate(FORBIDDEN_BRIDGE_CAPABILITIES):
+                mutated_source = Path(directory) / f"bridge-mutation-{index}.c"
+                mutated_source.write_text(
+                    source + f"\n/* mutation: {forbidden} */\n",
+                    encoding="utf-8",
+                )
+                with self.subTest(forbidden=forbidden):
+                    with self.assertRaisesRegex(
+                        AssertionError, re.escape(forbidden)
+                    ):
+                        self._assert_bridge_sources_have_no_operational_capabilities(
+                            (mutated_source,)
+                        )
 
 
 if __name__ == "__main__":
