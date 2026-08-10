@@ -72,7 +72,10 @@ CL_UI_KIND_AXIS_VALUE = 3
 CL_UI_KIND_ACTION = 4
 CL_UI_ACTION_RESET = 5
 CL_UI_ACTION_CATALOG = 6
+CL_SCREEN_CATALOG = 0
 CL_SCREEN_CUSTOM_BASE = 1
+CL_SCREEN_EDITOR = 2
+CL_SCREEN_AXIS_PICKER = 3
 CL_LOOK_VV = 3
 CL_LOOK_BW = 10
 CL_LOOK_SE = 11
@@ -829,6 +832,69 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             (ctypes.c_uint8 * 2)(0, 0),
         )
 
+    def _captured_event_for_element(
+        self, fixture, kind, primary=None, action=None, value=None
+    ):
+        self.assertTrue(
+            fixture.presented_frames,
+            "no frame was captured by the presentation callback",
+        )
+        frame = fixture.presented_frames[-1]
+        matches = [
+            element
+            for element in frame.elements[:frame.count]
+            if element.kind == kind
+            and (primary is None or element.primary == primary)
+            and (action is None or element.action == action)
+            and (value is None or element.value == value)
+        ]
+        self.assertEqual(
+            len(matches),
+            1,
+            "captured presented frame did not contain exactly one expected element",
+        )
+        element = matches[0]
+        return InputEvent(
+            element.x + 1,
+            element.y + 1,
+            CL_INPUT_TOUCH,
+            0,
+            (ctypes.c_uint8 * 2)(0, 0),
+        )
+
+    @staticmethod
+    def _default_expected_state():
+        state = NativeState()
+        state.selected_look = BUILT_INS[0]
+        state.screen = CL_SCREEN_CATALOG
+        state.orientation = ORIENTATIONS[0]
+        state.editing_axis = CL_UNSET
+        for slot in range(len(CUSTOMS)):
+            state.custom_bases[slot] = CL_UNSET
+        for look in range(len(BUILT_INS) + len(CUSTOMS)):
+            for axis in range(len(AXIS_CASES)):
+                state.adjustments[look][axis] = CL_AXIS_DEFAULT
+        state.modes = 0
+        return state
+
+    @staticmethod
+    def _direct_include_operands(source):
+        source = re.sub(r"\\\r?\n", "", source)
+        source = re.sub(r"/\*.*?\*/", " ", source, flags=re.DOTALL)
+        remainders = re.findall(
+            r"^\s*#\s*include\b(.*)$", source, flags=re.MULTILINE
+        )
+        return [
+            re.sub(r"\s*//.*$", "", remainder).strip()
+            for remainder in remainders
+        ]
+
+    def _assert_only_bridge_header_include(self, source):
+        self.assertEqual(
+            self._direct_include_operands(source),
+            ['"creative_look_bridge.h"'],
+        )
+
     @staticmethod
     def _literal_blob_for_state(state):
         payload = bytearray(160)
@@ -858,15 +924,18 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             "retained": bytes(fixture.bridge.retained_processing_snapshot),
         }
 
-    def _assert_persisted_state_is_literal(self, fixture):
+    def _assert_expected_state(self, fixture, expected_state):
+        self.assertEqual(bytes(fixture.bridge.state), bytes(expected_state))
+
+    def _assert_persisted_state_is_literal(self, fixture, expected_state):
         self.assertEqual(len(fixture.saved_blobs[-1]), 164)
         self.assertEqual(
             fixture.saved_blobs[-1],
-            self._literal_blob_for_state(fixture.bridge.state),
+            self._literal_blob_for_state(expected_state),
         )
 
     def _assert_processing_transition_evidence(
-        self, fixture, baseline, report, effective_base
+        self, fixture, baseline, report, expected_state, effective_base
     ):
         self.assertEqual(
             (
@@ -895,7 +964,15 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             (0x3F, 0x3F, 0, 0),
         )
         self.assertEqual(report.state_committed, 1)
-        self._assert_persisted_state_is_literal(fixture)
+        self.assertEqual(
+            (report.state_revision, report.processing_revision),
+            (
+                baseline["state_revision"] + 1,
+                baseline["processing_revision"] + 1,
+            ),
+        )
+        self._assert_expected_state(fixture, expected_state)
+        self._assert_persisted_state_is_literal(fixture, expected_state)
 
         snapshots = [fixture.model_snapshots[-1]] + [
             snapshot for _, snapshot in fixture.output_snapshots[-3:]
@@ -919,7 +996,7 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
                     effective_base,
                     CL_BRIDGE_OUTPUT_MASK,
                     report.processing_revision,
-                    bytes(fixture.bridge.state),
+                    bytes(expected_state),
                     bytes(1),
                 ),
             )
@@ -930,7 +1007,7 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
         )
 
     def _assert_ui_only_transition_evidence(
-        self, fixture, baseline, report
+        self, fixture, baseline, report, expected_state
     ):
         self.assertEqual(
             (
@@ -956,7 +1033,15 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             (0x03, 0x03, 0, 0),
         )
         self.assertEqual(report.state_committed, 1)
-        self._assert_persisted_state_is_literal(fixture)
+        self.assertEqual(
+            (report.state_revision, report.processing_revision),
+            (
+                baseline["state_revision"] + 1,
+                baseline["processing_revision"],
+            ),
+        )
+        self._assert_expected_state(fixture, expected_state)
+        self._assert_persisted_state_is_literal(fixture, expected_state)
         self.assertEqual(
             bytes(fixture.bridge.retained_processing_snapshot),
             baseline["retained"],
@@ -1006,35 +1091,41 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
         """Fails if a rendered Look/base path skips the sink, blob, or full snapshot."""
         self._require_exports()
         fixture = self._open_fixture()
+        expected_state = self._default_expected_state()
+        self._assert_expected_state(fixture, expected_state)
         built_in_transitions = 0
         for look in BUILT_INS[1:] + BUILT_INS[:1]:
             with self.subTest(kind="built_in", look=look):
                 baseline = self._transition_baseline(fixture)
                 report = BridgeReport()
                 result, report = fixture.deliver(
-                    self._event_for_element(
+                    self._captured_event_for_element(
                         fixture, CL_UI_KIND_LOOK, primary=look
                     ),
                     report,
                 )
                 self.assertEqual(result, CL_OK)
-                self.assertEqual(fixture.bridge.state.selected_look, look)
+                expected_state.selected_look = look
+                expected_state.screen = CL_SCREEN_EDITOR
+                expected_state.editing_axis = CL_UNSET
                 self._assert_processing_transition_evidence(
-                    fixture, baseline, report, look
+                    fixture, baseline, report, expected_state, look
                 )
                 built_in_transitions += 1
 
                 baseline = self._transition_baseline(fixture)
                 result, navigation = fixture.deliver(
-                    self._event_for_element(
+                    self._captured_event_for_element(
                         fixture,
                         CL_UI_KIND_ACTION,
                         action=CL_UI_ACTION_CATALOG,
                     )
                 )
                 self.assertEqual(result, CL_OK)
+                expected_state.screen = CL_SCREEN_CATALOG
+                expected_state.editing_axis = CL_UNSET
                 self._assert_ui_only_transition_evidence(
-                    fixture, baseline, navigation
+                    fixture, baseline, navigation, expected_state
                 )
         self.assertEqual(built_in_transitions, 12)
         self.assertEqual(
@@ -1050,31 +1141,29 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             for base in BUILT_INS:
                 with self.subTest(kind="custom_base", custom=custom, base=base):
                     fixture = self._open_fixture()
+                    expected_state = self._default_expected_state()
+                    self._assert_expected_state(fixture, expected_state)
                     baseline = self._transition_baseline(fixture)
                     result, staged = fixture.deliver(
-                        self._event_for_element(
+                        self._captured_event_for_element(
                             fixture, CL_UI_KIND_LOOK, primary=custom
                         )
                     )
                     self.assertEqual(result, CL_OK)
+                    expected_state.selected_look = custom
+                    expected_state.screen = CL_SCREEN_CUSTOM_BASE
+                    expected_state.editing_axis = CL_UNSET
                     self._assert_ui_only_transition_evidence(
-                        fixture, baseline, staged
+                        fixture, baseline, staged, expected_state
                     )
                     slot = custom - CUSTOMS[0]
-                    self.assertEqual(
-                        (
-                            fixture.bridge.state.selected_look,
-                            fixture.bridge.state.custom_bases[slot],
-                            fixture.bridge.state.screen,
-                        ),
-                        (custom, CL_UNSET, CL_SCREEN_CUSTOM_BASE),
-                    )
+                    self.assertEqual(expected_state.custom_bases[slot], CL_UNSET)
                     staged_transitions += 1
 
                     baseline = self._transition_baseline(fixture)
                     report = BridgeReport()
                     result, report = fixture.deliver(
-                        self._event_for_element(
+                        self._captured_event_for_element(
                             fixture,
                             CL_UI_KIND_CUSTOM_BASE,
                             primary=base,
@@ -1082,15 +1171,11 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
                         report,
                     )
                     self.assertEqual(result, CL_OK)
-                    self.assertEqual(
-                        (
-                            fixture.bridge.state.selected_look,
-                            fixture.bridge.state.custom_bases[slot],
-                        ),
-                        (custom, base),
-                    )
+                    expected_state.custom_bases[slot] = base
+                    expected_state.screen = CL_SCREEN_EDITOR
+                    expected_state.editing_axis = CL_UNSET
                     self._assert_processing_transition_evidence(
-                        fixture, baseline, report, base
+                        fixture, baseline, report, expected_state, base
                     )
                     completed_transitions += 1
                     self.assertEqual(
@@ -1103,19 +1188,70 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
         self.assertEqual(staged_transitions, 6 * 12)
         self.assertEqual(completed_transitions, 6 * 12)
 
+    def test_exhaustive_touch_provenance_rejects_corrupted_or_stale_frames(self):
+        """Fails if exhaustive coordinates are rebuilt instead of read from captured frames."""
+        self._require_exports()
+        corrupted = self._open_fixture()
+        target = next(
+            element
+            for element in corrupted.presented_frames[-1].elements[
+                :corrupted.presented_frames[-1].count
+            ]
+            if element.kind == CL_UI_KIND_LOOK
+            and element.primary == CL_LOOK_VV
+        )
+        target.primary = CL_UNSET
+        calls_before = tuple(corrupted.calls)
+        with self.assertRaisesRegex(
+            AssertionError, "captured presented frame"
+        ):
+            self._captured_event_for_element(
+                corrupted, CL_UI_KIND_LOOK, primary=CL_LOOK_VV
+            )
+        self.assertEqual(tuple(corrupted.calls), calls_before)
+
+        stale = self._open_fixture()
+        stale_catalog = NativeFrame.from_buffer_copy(
+            stale.presented_frames[-1]
+        )
+        self.assertEqual(
+            stale.deliver(
+                self._captured_event_for_element(
+                    stale, CL_UI_KIND_LOOK, primary=CL_LOOK_VV
+                )
+            )[0],
+            CL_OK,
+        )
+        stale.presented_frames.append(stale_catalog)
+        calls_before = tuple(stale.calls)
+        with self.assertRaisesRegex(
+            AssertionError, "captured presented frame"
+        ):
+            self._captured_event_for_element(
+                stale,
+                CL_UI_KIND_ACTION,
+                action=CL_UI_ACTION_CATALOG,
+            )
+        self.assertEqual(tuple(stale.calls), calls_before)
+
     def test_exhaustive_axis_picker_and_orientation_flows_have_exact_evidence(self):
         """Fails if an axis case or orientation bypasses canonical bridge delivery."""
         self._require_exports()
         fixture = self._open_fixture()
+        expected_state = self._default_expected_state()
+        self._assert_expected_state(fixture, expected_state)
         baseline = self._transition_baseline(fixture)
         result, selected = fixture.deliver(
-            self._event_for_element(
+            self._captured_event_for_element(
                 fixture, CL_UI_KIND_LOOK, primary=CL_LOOK_VV
             )
         )
         self.assertEqual(result, CL_OK)
+        expected_state.selected_look = CL_LOOK_VV
+        expected_state.screen = CL_SCREEN_EDITOR
+        expected_state.editing_axis = CL_UNSET
         self._assert_processing_transition_evidence(
-            fixture, baseline, selected, CL_LOOK_VV
+            fixture, baseline, selected, expected_state, CL_LOOK_VV
         )
 
         picker_transitions = 0
@@ -1125,25 +1261,22 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
                 with self.subTest(axis=axis, value=value):
                     baseline = self._transition_baseline(fixture)
                     result, picker = fixture.deliver(
-                        self._event_for_element(
+                        self._captured_event_for_element(
                             fixture, CL_UI_KIND_AXIS, primary=axis
                         )
                     )
                     self.assertEqual(result, CL_OK)
-                    self.assertEqual(
-                        (fixture.bridge.state.screen,
-                         fixture.bridge.state.editing_axis),
-                        (3, axis),
-                    )
+                    expected_state.screen = CL_SCREEN_AXIS_PICKER
+                    expected_state.editing_axis = axis
                     self._assert_ui_only_transition_evidence(
-                        fixture, baseline, picker
+                        fixture, baseline, picker, expected_state
                     )
                     picker_transitions += 1
 
                     baseline = self._transition_baseline(fixture)
                     report = BridgeReport()
                     result, report = fixture.deliver(
-                        self._event_for_element(
+                        self._captured_event_for_element(
                             fixture,
                             CL_UI_KIND_AXIS_VALUE,
                             primary=axis,
@@ -1152,12 +1285,15 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
                         report,
                     )
                     self.assertEqual(result, CL_OK)
-                    self.assertEqual(
-                        fixture.bridge.state.adjustments[CL_LOOK_VV][axis],
-                        value,
-                    )
+                    expected_state.adjustments[CL_LOOK_VV][axis] = value
+                    expected_state.screen = CL_SCREEN_EDITOR
+                    expected_state.editing_axis = CL_UNSET
                     self._assert_processing_transition_evidence(
-                        fixture, baseline, report, CL_LOOK_VV
+                        fixture,
+                        baseline,
+                        report,
+                        expected_state,
+                        CL_LOOK_VV,
                     )
                     value_transitions += 1
         self.assertEqual(picker_transitions, 8 * 3)
@@ -1177,11 +1313,9 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
                     )
                 )
                 self.assertEqual(result, CL_OK)
-                self.assertEqual(
-                    fixture.bridge.state.orientation, orientation
-                )
+                expected_state.orientation = orientation
                 self._assert_ui_only_transition_evidence(
-                    fixture, baseline, report
+                    fixture, baseline, report, expected_state
                 )
                 frame = fixture.presented_frames[-1]
                 expected_dimensions = (
@@ -3745,16 +3879,40 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
                 "GCC bridge analyzer",
             )
 
+    def test_bridge_include_gate_rejects_macro_operands_and_accepts_whitespace(self):
+        self._assert_only_bridge_header_include(
+            '  # include   "creative_look_bridge.h"  // direct dependency\n'
+        )
+        source = BRIDGE_C.read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory(
+            dir=self._temporary.name,
+            prefix="task5-include-mutation-",
+            ignore_cleanup_errors=True,
+        ) as directory:
+            mutations = (
+                (
+                    "macro_operand",
+                    '#define EXTRA "unapproved.h"\n#include EXTRA\n',
+                ),
+                ("no_space", '#include"unapproved.h"\n'),
+                ("comment_separator", '#/**/include "unapproved.h"\n'),
+                ("line_splice", '#\\\ninclude "unapproved.h"\n'),
+            )
+            for label, prefix in mutations:
+                mutated_source = Path(directory) / f"{label}.c"
+                mutated_source.write_text(
+                    prefix + source,
+                    encoding="utf-8",
+                )
+                with self.subTest(mutation=label):
+                    with self.assertRaises(AssertionError):
+                        self._assert_only_bridge_header_include(
+                            mutated_source.read_text(encoding="utf-8")
+                        )
+
     def test_bridge_source_is_offline_and_has_one_direct_dependency(self):
         source = BRIDGE_C.read_text(encoding="utf-8")
-        self.assertEqual(
-            re.findall(
-                r'^\s*#\s*include\s*([<"][^>"]+[>"])',
-                source,
-                flags=re.MULTILINE,
-            ),
-            ['"creative_look_bridge.h"'],
-        )
+        self._assert_only_bridge_header_include(source)
         for forbidden in (
             "malloc(",
             "calloc(",
