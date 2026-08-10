@@ -33,7 +33,11 @@ processing, or firmware operation.
 
 `creative_look_bridge.c` coordinates exactly six caller-owned synchronous
 adapters. Host fixtures provide every callback and retain ownership of their
-contexts.
+contexts. Initialization copies the adapter structs, including their context
+pointers, but those pointers remain borrowed from and owned by the adapter
+provider for the complete bridge session. The bridge does not acquire ownership
+of a provider's target resources; the adapters remain responsible for completing
+actual teardown inside `detach` and `close`.
 
 | Adapter | Exact bridge contract |
 |---|---|
@@ -43,6 +47,18 @@ contexts.
 | Persistence | `load(context, blob, 164)` and `save(context, blob, 164)` exchange the exact encoded state. |
 | Model request | `submit(context, snapshot)` receives one complete immutable processing snapshot. |
 | Output | `apply(context, kind, snapshot)` independently addresses live view, still JPEG, and movie. |
+
+Every pointer the bridge passes into any adapter callback is borrowed, valid
+only for that synchronous callback invocation, and must not be retained because
+of the invocation. This rule covers lifecycle `initial_state`, presentation
+`frame`, persistence load/save blob buffers, and model/output `snapshot`. An
+adapter-owned `context` is merely passed back to its owner; its pre-existing
+lifetime and ownership do not come from the callback.
+
+The sole retention exemption is the input `sink` plus `sink_context` pair
+registered by a successful `attach`. The input adapter may retain that pair only
+until `detach` completes, the bridge storage must outlive that interval, and the
+adapter must never invoke the pair after detach.
 
 Callbacks must not reenter the bridge or deliver input while any adapter
 callback, attach, or detach is active. The busy guard rejects that attempt
