@@ -197,7 +197,7 @@ def unload_library(owner, attribute):
         setattr(owner, attribute, None)
 
 
-def retain_callback(owner, callback_type, function):
+def retain_callback(owner, callback_type, function, exception_result=1):
     if not hasattr(owner, "_native_callbacks"):
         owner._native_callbacks = []
         owner._native_callback_errors = []
@@ -207,7 +207,7 @@ def retain_callback(owner, callback_type, function):
             return function(*arguments)
         except BaseException as error:
             owner._native_callback_errors.append(error)
-            return 1
+            return exception_result
 
     callback = callback_type(guarded)
     owner._native_callbacks.append(callback)

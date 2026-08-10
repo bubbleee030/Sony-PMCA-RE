@@ -26,8 +26,8 @@ typedef char cl_processing_snapshot_size_is_164[
 typedef char cl_bridge_report_size_is_64[
     (sizeof(cl_bridge_report) == 64u) ? 1 : -1
 ];
-typedef char cl_bridge_adapters_offset_is_624[
-    (offsetof(cl_bridge, adapters) == 624u) ? 1 : -1
+typedef char cl_bridge_adapters_offset_is_632[
+    (offsetof(cl_bridge, adapters) == 632u) ? 1 : -1
 ];
 
 typedef struct cl_bridge_alignment_probe {
@@ -43,6 +43,19 @@ static void cl_zero_bytes(void *target, size_t size)
     for (index = 0u; index < size; ++index) {
         bytes[index] = 0u;
     }
+}
+
+static int cl_bytes_are_zero(const void *source, size_t size)
+{
+    size_t index;
+    const uint8_t *bytes = (const uint8_t *)source;
+
+    for (index = 0u; index < size; ++index) {
+        if (bytes[index] != 0u) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 static int cl_digest_is_zero(const uint8_t digest[32])
@@ -374,32 +387,54 @@ cl_result cl_bridge_init(
 )
 {
     size_t index;
+    cl_integration_manifest manifest_copy;
+    cl_bridge_adapters adapters_copy;
     cl_result result;
 
     if (bridge == NULL) {
         return CL_ERR_ARGUMENT;
     }
-    result = cl_bridge_validate_manifest(manifest);
+    if (bridge->initialization_marker ==
+        CL_BRIDGE_INITIALIZATION_MARKER) {
+        if (bridge->busy != 0u) {
+            return CL_ERR_BUSY;
+        }
+        if (bridge->opened != 0u || bridge->input_attached != 0u) {
+            return CL_ERR_ALREADY_OPEN;
+        }
+    } else if (!cl_bytes_are_zero(bridge, sizeof(*bridge))) {
+        return CL_ERR_STATE;
+    }
+    if (manifest == NULL) {
+        return CL_ERR_MANIFEST;
+    }
+    manifest_copy = *manifest;
+    result = cl_bridge_validate_manifest(&manifest_copy);
     if (result != CL_OK) {
         return result;
     }
-    if (!cl_adapters_complete(adapters)) {
+    if (adapters == NULL) {
+        return CL_ERR_BINDING;
+    }
+    adapters_copy = *adapters;
+    if (!cl_adapters_complete(&adapters_copy)) {
         return CL_ERR_BINDING;
     }
     for (index = 0u; index < CL_BRIDGE_BINDING_COUNT; ++index) {
-        if (manifest->bindings[index].runtime !=
+        if (manifest_copy.bindings[index].runtime !=
             CL_BINDING_RUNTIME_HOST_SIMULATED) {
             return CL_ERR_BINDING;
         }
     }
 
     cl_zero_bytes(bridge, sizeof(*bridge));
-    bridge->manifest = *manifest;
-    bridge->adapters = *adapters;
+    bridge->manifest = manifest_copy;
+    bridge->adapters = adapters_copy;
     result = cl_init(&bridge->state);
     if (result != CL_OK) {
         return result;
     }
+    bridge->initialization_marker = CL_BRIDGE_INITIALIZATION_MARKER;
     cl_report_initialize(&bridge->last_report, bridge);
     return CL_OK;
 }

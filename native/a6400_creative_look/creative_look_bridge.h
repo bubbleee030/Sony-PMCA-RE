@@ -17,6 +17,7 @@ enum {
 };
 
 #define CL_CALLBACK_NOT_ATTEMPTED ((int32_t)INT32_MIN)
+#define CL_BRIDGE_INITIALIZATION_MARKER UINT32_C(0x434C4231)
 
 typedef enum cl_binding_kind {
     CL_BINDING_LIFECYCLE = 0,
@@ -169,12 +170,14 @@ typedef struct cl_bridge {
     uint32_t state_revision;
     uint32_t processing_revision;
     cl_processing_snapshot retained_processing_snapshot;
+    uint32_t initialization_marker;
     cl_state state;
     uint8_t dirty_mask;
     uint8_t opened;
     uint8_t input_attached;
     uint8_t busy;
     uint8_t opened_once;
+    uint8_t reserved[4];
     cl_bridge_adapters adapters;
 } cl_bridge;
 

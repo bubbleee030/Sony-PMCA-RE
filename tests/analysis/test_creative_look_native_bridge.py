@@ -30,6 +30,7 @@ BRIDGE_H = NATIVE / "creative_look_bridge.h"
 BRIDGE_C = NATIVE / "creative_look_bridge.c"
 
 CL_OK = 0
+CL_ERR_STATE = -2
 CL_ERR_BLOB = -8
 CL_ERR_ADAPTER = -10
 CL_ERR_MANIFEST = -11
@@ -43,6 +44,7 @@ CL_ERR_BUSY = -19
 CL_BRIDGE_ABI_VERSION = 1
 CL_BRIDGE_BINDING_COUNT = 6
 CL_BRIDGE_OUTPUT_MASK = 7
+CL_BRIDGE_INITIALIZATION_MARKER = 0x434C4231
 CL_STORAGE_MISSING = 1
 CL_CALLBACK_NOT_ATTEMPTED = -(1 << 31)
 CL_EXECUTION_PROFILE_OFFLINE_HOST = 0
@@ -195,12 +197,14 @@ class Bridge(ctypes.Structure):
         ("state_revision", ctypes.c_uint32),
         ("processing_revision", ctypes.c_uint32),
         ("retained_processing_snapshot", ProcessingSnapshot),
+        ("initialization_marker", ctypes.c_uint32),
         ("state", NativeState),
         ("dirty_mask", ctypes.c_uint8),
         ("opened", ctypes.c_uint8),
         ("input_attached", ctypes.c_uint8),
         ("busy", ctypes.c_uint8),
         ("opened_once", ctypes.c_uint8),
+        ("reserved", ctypes.c_uint8 * 4),
         ("adapters", BridgeAdapters),
     ]
 
@@ -214,7 +218,9 @@ class LifecycleFixture:
         load_blob=None,
         callback_results=None,
         reenter_on=None,
+        reinit_on=None,
         deliver_on=None,
+        raise_on=None,
     ):
         self.library = library
         self.manifest = manifest
@@ -232,7 +238,9 @@ class LifecycleFixture:
             **(callback_results or {}),
         }
         self.reenter_on = set(reenter_on or ())
+        self.reinit_on = set(reinit_on or ())
         self.deliver_on = set(deliver_on or ())
+        self.raise_on = set(raise_on or ())
         self.calls = []
         self.presented_frames = []
         self.opened_states = []
@@ -243,12 +251,16 @@ class LifecycleFixture:
         self.sink_context = None
         self.resource_open = False
         self.reentry_observations = []
+        self.reinit_observations = []
         self.delivery_observations = []
         self.bridge = Bridge()
 
         def load(_context, data, size):
             self.calls.append("load")
             self._maybe_reenter("load")
+            self._maybe_reinitialize("load")
+            if "load" in self.raise_on:
+                raise RuntimeError("load callback failure")
             if self.load_result == 0:
                 if (
                     size != 164
@@ -263,6 +275,7 @@ class LifecycleFixture:
             self.calls.append("save")
             self.saved_blobs.append(ctypes.string_at(data, size))
             self._maybe_reenter("save")
+            self._maybe_reinitialize("save")
             return self.callback_results["save"]
 
         def lifecycle_open(_context, state_pointer):
@@ -272,12 +285,14 @@ class LifecycleFixture:
             )
             self.resource_open = self.callback_results["open"] == 0
             self._maybe_reenter("open")
+            self._maybe_reinitialize("open")
             return self.callback_results["open"]
 
         def lifecycle_close(_context):
             self.calls.append("close")
             self.resource_open = False
             self._maybe_reenter("close")
+            self._maybe_reinitialize("close")
             return self.callback_results["close"]
 
         def present(_context, frame_pointer):
@@ -286,27 +301,40 @@ class LifecycleFixture:
                 NativeFrame.from_buffer_copy(frame_pointer.contents)
             )
             self._maybe_reenter("present")
+            self._maybe_reinitialize("present")
             return self.callback_results["present"]
 
         def attach(_context, sink, sink_context):
             self.calls.append("attach")
             self.sink = sink
             self.sink_context = sink_context
-            self._maybe_deliver("attach")
-            self._maybe_reenter("attach")
-            result = self.callback_results["attach"]
-            if result != 0:
-                self.sink = None
-                self.sink_context = None
-            return result
+            succeeded = False
+            try:
+                self._maybe_deliver("attach")
+                self._maybe_reenter("attach")
+                self._maybe_reinitialize("attach")
+                if "attach" in self.raise_on:
+                    raise RuntimeError("attach callback failure")
+                result = self.callback_results["attach"]
+                succeeded = result == 0
+                return result
+            finally:
+                if not succeeded:
+                    self.sink = None
+                    self.sink_context = None
 
         def detach(_context):
             self.calls.append("detach")
-            self._maybe_deliver("detach")
-            self._maybe_reenter("detach")
-            self.sink = None
-            self.sink_context = None
-            return self.callback_results["detach"]
+            try:
+                self._maybe_deliver("detach")
+                self._maybe_reenter("detach")
+                self._maybe_reinitialize("detach")
+                if "detach" in self.raise_on:
+                    raise RuntimeError("detach callback failure")
+                return self.callback_results["detach"]
+            finally:
+                self.sink = None
+                self.sink_context = None
 
         def submit(_context, snapshot_pointer):
             self.calls.append("model")
@@ -314,6 +342,7 @@ class LifecycleFixture:
                 ProcessingSnapshot.from_buffer_copy(snapshot_pointer.contents)
             )
             self._maybe_reenter("model")
+            self._maybe_reinitialize("model")
             return self.callback_results["model"]
 
         def apply(_context, kind, snapshot_pointer):
@@ -327,10 +356,14 @@ class LifecycleFixture:
                 )
             )
             self._maybe_reenter("output")
+            self._maybe_reinitialize("output")
             return self.callback_results["output"]
 
         self.load_callback = retain_callback(
-            self, StorageLoadCallback, load
+            self,
+            StorageLoadCallback,
+            load,
+            exception_result=CL_ERR_ADAPTER,
         )
         self.save_callback = retain_callback(
             self, StorageSaveCallback, save
@@ -412,6 +445,20 @@ class LifecycleFixture:
         )
         self.reentry_observations.append(
             (callback_name, result, before == after, bytes(nested_report))
+        )
+
+    def _maybe_reinitialize(self, callback_name):
+        if callback_name not in self.reinit_on:
+            return
+        before = (bytes(self.bridge), tuple(self.calls))
+        result = self.library.cl_bridge_init(
+            ctypes.byref(self.bridge),
+            ctypes.byref(self.bridge.manifest),
+            ctypes.byref(self.bridge.adapters),
+        )
+        after = (bytes(self.bridge), tuple(self.calls))
+        self.reinit_observations.append(
+            (callback_name, result, before == after)
         )
 
     def _maybe_deliver(self, callback_name):
@@ -816,14 +863,13 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
 
     def test_bridge_layout_and_init_are_exact_and_callback_free(self):
         self._require_exports()
-        fixture = self._fixture()
-
-        self.assertEqual(Bridge.adapters.offset, 624)
-        self.assertEqual(self.library.cl_bridge_adapters_offset(), 624)
+        self.assertEqual(Bridge.adapters.offset, 632)
+        self.assertEqual(self.library.cl_bridge_adapters_offset(), 632)
         self.assertEqual(self.library.cl_bridge_size(), ctypes.sizeof(Bridge))
         self.assertEqual(
             self.library.cl_bridge_alignment(), ctypes.alignment(Bridge)
         )
+        fixture = self._fixture()
         self.assertEqual(bytes(fixture.bridge.manifest), bytes(fixture.manifest))
         retained_manifest = bytes(fixture.bridge.manifest)
         retained_adapters = bytes(fixture.bridge.adapters)
@@ -841,8 +887,20 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
                 fixture.bridge.input_attached,
                 fixture.bridge.busy,
                 fixture.bridge.opened_once,
+                fixture.bridge.initialization_marker,
+                bytes(fixture.bridge.reserved),
             ),
-            (0, 0, 0, 0, 0, 0, 0),
+            (
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                CL_BRIDGE_INITIALIZATION_MARKER,
+                bytes(4),
+            ),
         )
         self.assertEqual(
             bytes(fixture.bridge.retained_processing_snapshot), bytes(164)
@@ -877,6 +935,314 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
             0,
         )
         self.assertEqual(fixture.calls, [])
+
+    def test_retain_callback_uses_callback_specific_exception_result(self):
+        class Owner:
+            pass
+
+        owner = Owner()
+
+        def raises(_context):
+            raise RuntimeError("callback failure")
+
+        try:
+            callback = retain_callback(
+                owner,
+                LifecycleCloseCallback,
+                raises,
+                exception_result=73,
+            )
+        except TypeError as error:
+            self.fail(f"callback-specific exception result unsupported: {error}")
+        self.assertEqual(callback(None), 73)
+        self.assertEqual(len(owner._native_callback_errors), 1)
+
+    def test_first_init_requires_all_zero_storage_and_known_marker(self):
+        self._require_exports()
+        fixture = LifecycleFixture(self.library, self._host_manifest())
+
+        nonzero_storage = Bridge()
+        storage_bytes = (ctypes.c_uint8 * ctypes.sizeof(Bridge)).from_buffer(
+            nonzero_storage
+        )
+        storage_bytes[17] = 1
+        before = bytes(nonzero_storage)
+        self.assertEqual(
+            self.library.cl_bridge_init(
+                ctypes.byref(nonzero_storage),
+                ctypes.byref(fixture.manifest),
+                ctypes.byref(fixture.adapters),
+            ),
+            CL_ERR_STATE,
+        )
+        self.assertEqual(bytes(nonzero_storage), before)
+
+        unknown_marker = Bridge()
+        unknown_marker.initialization_marker = 0xDEADBEEF
+        before = bytes(unknown_marker)
+        self.assertEqual(
+            self.library.cl_bridge_init(
+                ctypes.byref(unknown_marker),
+                ctypes.byref(fixture.manifest),
+                ctypes.byref(fixture.adapters),
+            ),
+            CL_ERR_STATE,
+        )
+        self.assertEqual(bytes(unknown_marker), before)
+        self.assertEqual(fixture.calls, [])
+
+    def test_init_busy_and_live_guards_are_mutation_free(self):
+        self._require_exports()
+        busy_fixture = self._fixture()
+        busy_fixture.bridge.busy = 1
+        before = bytes(busy_fixture.bridge)
+        self.assertEqual(
+            self.library.cl_bridge_init(
+                ctypes.byref(busy_fixture.bridge),
+                ctypes.byref(busy_fixture.bridge.manifest),
+                ctypes.byref(busy_fixture.bridge.adapters),
+            ),
+            CL_ERR_BUSY,
+        )
+        self.assertEqual(bytes(busy_fixture.bridge), before)
+        self.assertEqual(busy_fixture.calls, [])
+
+        live_fixture = self._fixture()
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(live_fixture.bridge),
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+        retained_sink = live_fixture.sink
+        before = bytes(live_fixture.bridge)
+        before_calls = list(live_fixture.calls)
+        self.assertEqual(
+            self.library.cl_bridge_init(
+                ctypes.byref(live_fixture.bridge),
+                ctypes.byref(live_fixture.bridge.manifest),
+                ctypes.byref(live_fixture.bridge.adapters),
+            ),
+            CL_ERR_ALREADY_OPEN,
+        )
+        self.assertEqual(bytes(live_fixture.bridge), before)
+        self.assertEqual(live_fixture.calls, before_calls)
+        self.assertIs(live_fixture.sink, retained_sink)
+        self.assertTrue(live_fixture.resource_open)
+        self.assertEqual(
+            self.library.cl_bridge_close(
+                ctypes.byref(live_fixture.bridge),
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+
+    def test_closed_and_failed_admission_allow_alias_safe_reinit(self):
+        self._require_exports()
+        closed_fixture = self._fixture()
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(closed_fixture.bridge),
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+        self.assertEqual(
+            self.library.cl_bridge_close(
+                ctypes.byref(closed_fixture.bridge),
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+        calls_before_reinit = list(closed_fixture.calls)
+        self.assertEqual(
+            self.library.cl_bridge_init(
+                ctypes.byref(closed_fixture.bridge),
+                ctypes.byref(closed_fixture.bridge.manifest),
+                ctypes.byref(closed_fixture.bridge.adapters),
+            ),
+            CL_OK,
+        )
+        self.assertEqual(closed_fixture.calls, calls_before_reinit)
+        self.assertEqual(
+            (
+                closed_fixture.bridge.initialization_marker,
+                closed_fixture.bridge.state_revision,
+                closed_fixture.bridge.processing_revision,
+                closed_fixture.bridge.dirty_mask,
+                closed_fixture.bridge.opened,
+                closed_fixture.bridge.input_attached,
+                closed_fixture.bridge.opened_once,
+                bytes(closed_fixture.bridge.reserved),
+            ),
+            (
+                CL_BRIDGE_INITIALIZATION_MARKER,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                bytes(4),
+            ),
+        )
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(closed_fixture.bridge),
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+        self.assertEqual(
+            self.library.cl_bridge_close(
+                ctypes.byref(closed_fixture.bridge),
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+
+        failed_fixture = self._fixture(
+            callback_results={"present": 101}
+        )
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(failed_fixture.bridge),
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_ERR_ADAPTER,
+        )
+        self.assertFalse(failed_fixture.resource_open)
+        failed_fixture.callback_results["present"] = 0
+        calls_before_reinit = list(failed_fixture.calls)
+        self.assertEqual(
+            self.library.cl_bridge_init(
+                ctypes.byref(failed_fixture.bridge),
+                ctypes.byref(failed_fixture.bridge.manifest),
+                ctypes.byref(failed_fixture.bridge.adapters),
+            ),
+            CL_OK,
+        )
+        self.assertEqual(failed_fixture.calls, calls_before_reinit)
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(failed_fixture.bridge),
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+        self.assertEqual(
+            self.library.cl_bridge_close(
+                ctypes.byref(failed_fixture.bridge),
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+
+    def test_reentrant_init_from_each_lifecycle_callback_is_busy(self):
+        self._require_exports()
+        for callback_name in ("load", "open", "present", "attach"):
+            fixture = self._fixture(reinit_on={callback_name})
+            with self.subTest(callback=callback_name):
+                self.assertEqual(
+                    self.library.cl_bridge_open(
+                        ctypes.byref(fixture.bridge),
+                        ctypes.byref(BridgeReport()),
+                    ),
+                    CL_OK,
+                )
+                self.assertEqual(
+                    fixture.reinit_observations,
+                    [(callback_name, CL_ERR_BUSY, True)],
+                )
+                self.assertEqual(
+                    self.library.cl_bridge_close(
+                        ctypes.byref(fixture.bridge),
+                        ctypes.byref(BridgeReport()),
+                    ),
+                    CL_OK,
+                )
+
+        for callback_name in ("detach", "close"):
+            fixture = self._fixture(reinit_on={callback_name})
+            self.assertEqual(
+                self.library.cl_bridge_open(
+                    ctypes.byref(fixture.bridge),
+                    ctypes.byref(BridgeReport()),
+                ),
+                CL_OK,
+            )
+            with self.subTest(callback=callback_name):
+                self.assertEqual(
+                    self.library.cl_bridge_close(
+                        ctypes.byref(fixture.bridge),
+                        ctypes.byref(BridgeReport()),
+                    ),
+                    CL_OK,
+                )
+                self.assertEqual(
+                    fixture.reinit_observations,
+                    [(callback_name, CL_ERR_BUSY, True)],
+                )
+                self.assertEqual(fixture._native_callback_errors, [])
+
+    def test_callback_exceptions_keep_load_and_sink_ownership_fail_closed(self):
+        self._require_exports()
+        load_fixture = self._fixture(raise_on={"load"})
+        load_report = BridgeReport()
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(load_fixture.bridge), ctypes.byref(load_report)
+            ),
+            CL_ERR_ADAPTER,
+        )
+        self.assertEqual(load_fixture.calls, ["load"])
+        self.assertEqual(
+            load_report.persistence_load_result, CL_ERR_ADAPTER
+        )
+        self.assertEqual(len(load_fixture._native_callback_errors), 1)
+        self.assertIsNone(load_fixture.sink)
+        self.assertFalse(load_fixture.resource_open)
+
+        attach_fixture = self._fixture(raise_on={"attach"})
+        attach_report = BridgeReport()
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(attach_fixture.bridge),
+                ctypes.byref(attach_report),
+            ),
+            CL_ERR_INPUT_ATTACHMENT,
+        )
+        self.assertEqual(
+            attach_fixture.calls,
+            ["load", "open", "present", "attach", "close"],
+        )
+        self.assertEqual(attach_report.input_attach_result, 1)
+        self.assertEqual(len(attach_fixture._native_callback_errors), 1)
+        self.assertIsNone(attach_fixture.sink)
+        self.assertFalse(attach_fixture.resource_open)
+
+        detach_fixture = self._fixture(raise_on={"detach"})
+        self.assertEqual(
+            self.library.cl_bridge_open(
+                ctypes.byref(detach_fixture.bridge),
+                ctypes.byref(BridgeReport()),
+            ),
+            CL_OK,
+        )
+        detach_report = BridgeReport()
+        self.assertEqual(
+            self.library.cl_bridge_close(
+                ctypes.byref(detach_fixture.bridge),
+                ctypes.byref(detach_report),
+            ),
+            CL_ERR_ADAPTER,
+        )
+        self.assertEqual(detach_fixture.calls[-2:], ["detach", "close"])
+        self.assertEqual(detach_report.input_detach_result, 1)
+        self.assertEqual(len(detach_fixture._native_callback_errors), 1)
+        self.assertIsNone(detach_fixture.sink)
+        self.assertFalse(detach_fixture.resource_open)
 
     def test_init_rejects_manifest_runtime_and_each_missing_callback(self):
         self._require_exports()
