@@ -26,9 +26,13 @@
 | Path | Responsibility |
 |---|---|
 | `native/a6400_creative_look/creative_look_core.h` | Add bridge-specific `cl_result` values without changing existing values. |
+| `native/a6400_creative_look/creative_look_view.h` | Pin existing presentation/storage callback returns to `int32_t`. |
 | `native/a6400_creative_look/creative_look_bridge.h` | Public ABI: manifest, six adapters, events, snapshots, reports, bridge state, and entry points. |
 | `native/a6400_creative_look/creative_look_bridge.c` | Manifest validation, lifecycle, event transitions, revision comparison, dirty synchronization, and retry. |
 | `native/a6400_creative_look/README.md` | Document the bridge boundary, host-only execution status, and remaining Sony/recovery gaps. |
+| `tests/analysis/creative_look_native_abi.py` | Shared natural-alignment `ctypes` declarations, strict compiler helpers, and callback-lifetime utilities for all native suites. |
+| `tests/analysis/test_creative_look_native_core.py` | Import the shared `NativeState` declaration without changing existing core coverage. |
+| `tests/analysis/test_creative_look_native_view.py` | Import shared state/frame/adapter declarations without changing existing view coverage. |
 | `tests/analysis/test_creative_look_native_bridge.py` | Compile/load the real C sources and verify every public bridge behavior through real callbacks. |
 
 The bridge stays in one `.c` file for this milestone because lifecycle, event
@@ -41,8 +45,12 @@ implementation exceeds roughly 900 readable lines after refactoring.
 
 **Files:**
 - Modify: `native/a6400_creative_look/creative_look_core.h`
+- Modify: `native/a6400_creative_look/creative_look_view.h`
 - Create: `native/a6400_creative_look/creative_look_bridge.h`
 - Create: `native/a6400_creative_look/creative_look_bridge.c`
+- Create: `tests/analysis/creative_look_native_abi.py`
+- Modify: `tests/analysis/test_creative_look_native_core.py`
+- Modify: `tests/analysis/test_creative_look_native_view.py`
 - Create: `tests/analysis/test_creative_look_native_bridge.py`
 
 **Interfaces:**
@@ -86,7 +94,10 @@ CL_ERR_BINDING = -12,
 CL_ERR_LIFECYCLE = -13,
 CL_ERR_NOT_OPEN = -14,
 CL_ERR_ALREADY_OPEN = -15,
-CL_ERR_REVISION = -16
+CL_ERR_REVISION = -16,
+CL_ERR_INPUT_ATTACHMENT = -17,
+CL_ERR_REINIT_REQUIRED = -18,
+CL_ERR_BUSY = -19
 ```
 
 Create `creative_look_bridge.h` with these exact constants and enum values:
@@ -146,6 +157,12 @@ typedef enum cl_sync_domain {
 } cl_sync_domain;
 ```
 
+Change the three existing callback return typedefs in `creative_look_view.h`
+from implementation-defined `int` spelling to `int32_t`; behavior and callback
+arguments remain unchanged. All new cross-module callback results likewise use
+`int32_t`. Bridge public functions may continue returning the existing
+`cl_result` because caller and implementation compile against the same header.
+
 Define the fixed records exactly:
 
 ```c
@@ -188,7 +205,12 @@ typedef struct cl_processing_snapshot {
 
 typedef struct cl_bridge_report {
     int32_t transition_result;
-    int32_t callback_results[CL_BRIDGE_BINDING_COUNT];
+    int32_t lifecycle_open_result;
+    int32_t lifecycle_close_result;
+    int32_t input_attach_result;
+    int32_t input_detach_result;
+    int32_t persistence_load_result;
+    int32_t sync_results[CL_BRIDGE_BINDING_COUNT];
     uint32_t state_revision;
     uint32_t processing_revision;
     uint8_t attempted;
@@ -200,6 +222,12 @@ typedef struct cl_bridge_report {
     uint8_t reserved[2];
 } cl_bridge_report;
 ```
+
+`cl_bridge_report` is exactly 64 bytes. Every scalar callback field and every
+`sync_results` entry is initialized to `CL_CALLBACK_NOT_ATTEMPTED`; attempted
+callbacks retain their raw `int32_t` return. Synchronization indices are exactly
+presentation, persistence, model, live view, still JPEG, and movie in that
+order.
 
 Add declarations for:
 
@@ -233,7 +261,24 @@ ABI/profile/count, and write each binding kind in index order with
 
 Return `CL_ERR_MANIFEST` for every manifest-contract rejection.
 
-- [ ] **Step 5: Replace the existence test with real compile/behavior tests**
+- [ ] **Step 5: Extract the shared native ABI harness**
+
+Move the duplicated `NativeState`, `NativeElement`, `NativeFrame`, view/storage
+adapter declarations, constants, and strict compiler helpers from the core and
+view tests into `tests/analysis/creative_look_native_abi.py`. Both existing test
+modules and the new bridge test import that helper. Use `ctypes.CFUNCTYPE` on
+Windows; never use `WINFUNCTYPE`. Mirror normal C alignment and do not use
+`_pack_`; `NativeState` already has byte-only natural layout.
+
+The helper must compile hosted objects/libraries with exactly
+`-std=c99 -Wall -Wextra -Werror -pedantic -I <native-dir>`. It must retain every
+`CFUNCTYPE` object on the owning fixture for the full native-call lifetime and
+set `argtypes`/`restype` for every exported function before use. Callback bodies
+must capture Python exceptions and return a nonzero result instead of allowing
+an exception to escape through C. Give persistence load and save distinct
+callback type aliases even though their return types match.
+
+- [ ] **Step 6: Replace the existence test with real compile/behavior tests**
 
 Compile core, view, and bridge into one host shared library in `setUpClass`.
 Declare matching `ctypes.Structure` types. Test literal sizes:
@@ -243,14 +288,14 @@ self.assertEqual(lib.cl_binding_record_size(), 36)
 self.assertEqual(lib.cl_integration_manifest_size(), 228)
 self.assertEqual(lib.cl_input_event_size(), 12)
 self.assertEqual(lib.cl_processing_snapshot_size(), 164)
-self.assertEqual(lib.cl_bridge_report_size(), 44)
+self.assertEqual(lib.cl_bridge_report_size(), 64)
 ```
 
 Create a host manifest and assert exact binding order, all runtime fields equal
 `HOST_SIMULATED`, all evidence fields/digests zero, and all safety fields zero.
 Table-mutate every field listed in Step 4 and assert `CL_ERR_MANIFEST`.
 
-- [ ] **Step 6: Run focused core/view/bridge tests**
+- [ ] **Step 7: Run focused core/view/bridge tests**
 
 Run:
 
@@ -260,10 +305,10 @@ Run:
 
 Expected: all tests pass with no compiler warnings.
 
-- [ ] **Step 7: Commit the manifest contract**
+- [ ] **Step 8: Commit the manifest contract**
 
 ```powershell
-git add native/a6400_creative_look/creative_look_core.h native/a6400_creative_look/creative_look_bridge.h native/a6400_creative_look/creative_look_bridge.c tests/analysis/test_creative_look_native_bridge.py
+git add native/a6400_creative_look/creative_look_core.h native/a6400_creative_look/creative_look_view.h native/a6400_creative_look/creative_look_bridge.h native/a6400_creative_look/creative_look_bridge.c tests/analysis/creative_look_native_abi.py tests/analysis/test_creative_look_native_core.py tests/analysis/test_creative_look_native_view.py tests/analysis/test_creative_look_native_bridge.py
 git commit -m "add Creative Look bridge manifest"
 ```
 
@@ -290,15 +335,23 @@ and exact externally visible order:
 bridge = fixture.initialized_bridge(load_result=CL_STORAGE_MISSING)
 report = Report()
 self.assertEqual(lib.cl_bridge_open(byref(bridge), byref(report)), CL_OK)
-self.assertEqual(fixture.calls[:4], ["load", "open", "present", "attach"])
+self.assertEqual(
+    fixture.calls,
+    ["load", "open", "present", "attach", "save", "model",
+     "live_view", "still_jpeg", "movie"],
+)
 self.assertEqual(report.opened, 1)
 self.assertEqual(lib.cl_bridge_close(byref(bridge), byref(report)), CL_OK)
 self.assertEqual(fixture.calls[-2:], ["detach", "close"])
 ```
 
-Add separate tests for load error, corrupt loaded blob, lifecycle-open failure,
-presentation failure, and input-attach failure. Each test must assert exact
-cleanup calls and that bridge state is closed.
+For restored storage assert the same sequence without `save`. Add separate tests
+for load error, corrupt loaded blob, lifecycle-open failure, presentation
+failure, and input-attach failure. Presentation failure must be exactly
+`load, open, present, close`; attach failure must be exactly
+`load, open, present, attach, close`. Each test asserts every raw report field,
+cleanup result, dirty mask, and closed state. Initial post-attach synchronization
+failure instead leaves the bridge open and only failed domains dirty.
 
 - [ ] **Step 2: Run the lifecycle tests and verify red**
 
@@ -310,15 +363,15 @@ missing `cl_bridge_init/open/close` symbol.
 Define these signatures in the header:
 
 ```c
-typedef int (*cl_lifecycle_open_fn)(void *, const cl_state *);
-typedef int (*cl_lifecycle_close_fn)(void *);
-typedef cl_result (*cl_input_sink_fn)(
+typedef int32_t (*cl_lifecycle_open_fn)(void *, const cl_state *);
+typedef int32_t (*cl_lifecycle_close_fn)(void *);
+typedef int32_t (*cl_input_sink_fn)(
     void *, const cl_input_event *, cl_bridge_report *
 );
-typedef int (*cl_input_attach_fn)(void *, cl_input_sink_fn, void *);
-typedef int (*cl_input_detach_fn)(void *);
-typedef int (*cl_model_submit_fn)(void *, const cl_processing_snapshot *);
-typedef int (*cl_output_apply_fn)(
+typedef int32_t (*cl_input_attach_fn)(void *, cl_input_sink_fn, void *);
+typedef int32_t (*cl_input_detach_fn)(void *);
+typedef int32_t (*cl_model_submit_fn)(void *, const cl_processing_snapshot *);
+typedef int32_t (*cl_output_apply_fn)(
     void *, uint8_t, const cl_processing_snapshot *
 );
 ```
@@ -360,11 +413,11 @@ typedef struct cl_bridge_adapters {
 } cl_bridge_adapters;
 ```
 
-Expose a concrete fixed-memory `cl_bridge` containing state, manifest, adapters,
-two revisions, last report, dirty/open/attached flags, and explicit reserved
-bytes. Keep the fixed-width prefix exactly 440 bytes before the pointer-bearing
-adapter set, avoiding implicit pointer-alignment padding on 32-bit and 64-bit
-hosts:
+Expose a concrete fixed-memory `cl_bridge` containing state, an immutable
+retained processing snapshot, manifest, adapters, two revisions, last report,
+dirty/open/attached/busy/opened-once flags. Keep the data prefix exactly 624
+bytes before the pointer-bearing adapter set, avoiding implicit pointer-alignment
+padding on ordinary 32-bit and 64-bit GCC hosts:
 
 ```c
 typedef struct cl_bridge {
@@ -372,11 +425,13 @@ typedef struct cl_bridge {
     cl_bridge_report last_report;
     uint32_t state_revision;
     uint32_t processing_revision;
+    cl_processing_snapshot retained_processing_snapshot;
     cl_state state;
     uint8_t dirty_mask;
     uint8_t opened;
     uint8_t input_attached;
-    uint8_t reserved[2];
+    uint8_t busy;
+    uint8_t opened_once;
     cl_bridge_adapters adapters;
 } cl_bridge;
 ```
@@ -385,6 +440,8 @@ Add these exact declarations:
 
 ```c
 size_t cl_bridge_size(void);
+size_t cl_bridge_adapters_offset(void);
+size_t cl_bridge_alignment(void);
 cl_result cl_bridge_init(
     cl_bridge *, const cl_integration_manifest *, const cl_bridge_adapters *
 );
@@ -396,6 +453,11 @@ uint32_t cl_bridge_state_revision(const cl_bridge *);
 uint32_t cl_bridge_processing_revision(const cl_bridge *);
 uint8_t cl_bridge_dirty_mask(const cl_bridge *);
 ```
+
+Implement the alignment query with a C99 `offsetof` probe struct. Add compile-time
+typedef assertions plus host tests for every fixed-data size, the adapter offset
+`624`, and the reported bridge alignment. Do not hard-code total `cl_bridge`
+size because pointer/function-pointer size is platform-dependent.
 
 - [ ] **Step 4: Implement initialization and callback completeness validation**
 
@@ -410,25 +472,60 @@ be `HOST_SIMULATED`, and require every callback:
 - output apply.
 
 Copy the caller structs by value, initialize default state, and invoke no
-callback. Return `CL_ERR_BINDING` for incomplete adapters.
+callback. Return `CL_ERR_BINDING` for incomplete adapters. Runtime-state
+validation occurs here, not later in `cl_bridge_open`.
 
 - [ ] **Step 5: Implement open and close cleanup semantics**
 
 Open must use a local candidate and a local 164-byte blob. Interpret load return
 `0` as decode-required, `1` as exact default, and all other values as failure.
-After lifecycle open succeeds, commit state, present the initial frame, attach
-the internal sink, and set open/attached flags. On presentation or attach
-failure, perform the exact cleanup specified in the design.
+After lifecycle open succeeds, commit state at state/processing revision `1`,
+build the retained processing snapshot, present the initial frame, attach the
+internal sink, and set open/attached flags. Initial presentation is an admission
+gate and is not dirty/retryable. A failed attach must retain no sink. On either
+failure, call close and report both the primary and cleanup raw results.
 
-Close must attempt detach before close, must attempt close even after detach
-failure, and must clear open/attached flags without clearing dirty bits.
+Attach failure is contractually atomic. Detach and close must complete teardown
+even when returning a diagnostic failure. Close must attempt detach before
+close, must attempt close after detach failure, and must clear open/attached
+flags without clearing dirty bits. One initialization permits one open; an open
+after close returns `CL_ERR_REINIT_REQUIRED`.
+
+Use a busy guard around every callback. Reentrant bridge entry or input delivery
+from attach/detach/present/load/save/model/output returns `CL_ERR_BUSY` without
+state, report, or dirty mutation.
 
 - [ ] **Step 6: Run lifecycle tests and mutation checks**
 
 Run the focused module. Then locally mutate one callback pointer to null at a
 time through the ctypes fixture and assert `cl_bridge_init == CL_ERR_BINDING`.
 Assert repeated open returns `CL_ERR_ALREADY_OPEN` and close-before-open returns
-`CL_ERR_NOT_OPEN` without callbacks.
+`CL_ERR_NOT_OPEN` without callbacks. Assert reopen-after-close returns
+`CL_ERR_REINIT_REQUIRED`.
+
+Pin exact result precedence:
+
+- manifest invalid -> `CL_ERR_MANIFEST`;
+- incomplete callbacks -> `CL_ERR_BINDING`;
+- load callback failure -> `CL_ERR_ADAPTER`;
+- loaded blob decode failure -> `CL_ERR_BLOB`;
+- lifecycle open/close failure -> `CL_ERR_LIFECYCLE`;
+- attach failure -> `CL_ERR_INPUT_ATTACHMENT`;
+- detach failure -> `CL_ERR_ADAPTER` unless close also fails, in which case
+  `CL_ERR_LIFECYCLE` wins;
+- initial present and all post-open synchronization callback failures ->
+  `CL_ERR_ADAPTER`; and
+- cleanup close failure overrides an admission present/attach failure.
+
+For failed attach, use a fixture self-check that clears any provisional sink
+before returning nonzero; do not claim the bridge can observe a private retained
+pointer. Test detach and close diagnostic failures and prove the fixture has
+made the sink/resource unreachable before returning. Retain all
+`CFUNCTYPE` objects as fixture attributes. Copy frames with
+`NativeFrame.from_buffer_copy(frame.contents)`, snapshots with
+`ProcessingSnapshot.from_buffer_copy(snapshot.contents)`, save input with
+`ctypes.string_at(data, size)`, and load bytes only after size validation using
+`ctypes.memmove`.
 
 - [ ] **Step 7: Commit lifecycle support**
 
@@ -473,8 +570,12 @@ Add literal assertions for:
 - orientation increments only state revision;
 - screen/editor navigation does not increment processing revision;
 - restricted/no-hit/invalid events change neither revision nor state;
-- a captured sink called after close returns `CL_ERR_NOT_OPEN`; and
-- revision `UINT32_MAX` rejects the operation before mutation.
+- a captured sink called after close, while bridge storage remains alive,
+  returns `CL_ERR_NOT_OPEN`;
+- delivery during attach/detach or another callback returns `CL_ERR_BUSY`;
+- state revision `UINT32_MAX` rejects every real change before mutation; and
+- processing revision `UINT32_MAX` rejects only processing changes, while a
+  screen/orientation-only change can still commit if state revision permits.
 
 - [ ] **Step 2: Run event tests and verify red**
 
@@ -492,18 +593,21 @@ Implement private loops that compare only:
 
 Do not compare screen, editing axis, or orientation for processing changes. Add a
 private report initializer that writes `CL_CALLBACK_NOT_ATTEMPTED` to all six
-callback results without `memset`.
+sync results and all five lifecycle/input/load results without `memset`.
 
 - [ ] **Step 4: Implement canonical event handling**
 
-`cl_bridge_handle_event` must accept only touch and orientation kinds. Use a
-candidate state and call real core transitions. Check both revision overflows
-before committing. On success:
+`cl_bridge_handle_event` must accept only canonical touch and orientation
+records. Require zero reserved bytes; touch requires `value = 0`; orientation
+requires `x = y = 0` and value in `{0, 1, 2}`. Use a candidate state and call
+real core transitions. Check state overflow for every real change and processing
+overflow only after detecting a processing-relevant change. On success:
 
 - increment state revision;
 - mark presentation and persistence dirty;
 - if processing-relevant fields changed, increment processing revision and mark
-  model/live/still/movie dirty;
+  model/live/still/movie dirty, replacing the retained processing snapshot
+  exactly once;
 - set `report.state_committed = 1`; and
 - call the private synchronization entry added as a no-op shell until Task 4.
 
@@ -598,36 +702,51 @@ live, and movie still run and clear. Assert dirty mask equals
 becomes zero.
 
 Also assert screen-only and orientation-only changes call only `present` and
-`save`.
+`save`. Add the critical immutable-retry test: fail model or an output at
+processing revision N, capture the snapshot bytes, apply a screen-only and then
+orientation-only change, retry, and assert the adapter receives byte-identical
+snapshot bytes with the same revision N. Then create a newer processing change
+while N remains dirty and assert the bridge coalesces to one retained snapshot
+for revision N+1 rather than replaying N.
 
 - [ ] **Step 3: Run synchronization tests and verify red**
 
 Expected: dirty bits remain set or callbacks/snapshots are absent.
 
-- [ ] **Step 4: Implement snapshot and effective-base construction**
+- [ ] **Step 4: Implement retained snapshot and effective-base construction**
 
-Build one local `cl_processing_snapshot` per sync call using loops. For a
-built-in selected Look, effective base is that Look. For a Custom Look, use
+Build and store one `cl_processing_snapshot` when open creates revision 1 and
+whenever a processing-relevant change creates a newer revision. Never rebuild it
+for a retry or UI-only change. For a built-in selected Look, effective base is
+that Look. For a Custom Look, use
 `custom_bases[selected_look - CL_BUILT_IN_LOOK_COUNT]`; reject `CL_UNSET` as
-`CL_ERR_STATE` before invoking model/output callbacks.
+`CL_ERR_STATE` before committing the processing change or invoking
+model/output callbacks. A newer processing change replaces the retained
+snapshot and coalesces all already-dirty model/output domains to the new desired
+revision.
 
 - [ ] **Step 5: Implement all six synchronization domains**
 
 `cl_bridge_sync` must process dirty bits in exact order and continue after every
-failure. Normalize each callback's raw integer return into the corresponding
-report slot. Clear only successful bits. Set the overall result to
+failure. Store each callback's raw `int32_t` return in the corresponding report
+slot. Clear only successful bits. Set the overall result to
 `CL_ERR_ADAPTER` if any attempted callback fails.
 
-Persistence uses `cl_encode` into a local 164-byte array and the existing save
-callback. Model uses one snapshot callback. Output uses three independent calls
-and bits. Presentation uses `cl_view_present`.
+Persistence uses `cl_encode` into a local 164-byte array and then invokes the
+existing save callback directly. Presentation uses `cl_view_build` and invokes
+the existing present callback directly. This preserves raw callback results that
+`cl_storage_save`/`cl_view_present` would normalize away. Model uses the retained
+snapshot callback. Output uses three independent calls and bits, all with that
+same retained snapshot.
 
 - [ ] **Step 6: Integrate initial-open synchronization**
 
 When startup load returns missing, mark persistence dirty. For both missing and
-restored state, mark model/live/still/movie dirty. After present and attach
-succeed, call `cl_bridge_sync`. Sync failure leaves the bridge open, returns
-`CL_ERR_ADAPTER`, and retains failed dirty bits for retry.
+restored state, mark model/live/still/movie dirty. After admission present and
+attach succeed, call synchronization starting after presentation so it is not
+presented twice. Sync failure leaves the bridge open, returns `CL_ERR_ADAPTER`,
+and retains failed dirty bits for retry. Assert the exact missing/restored call
+sequences pinned in Task 2.
 
 - [ ] **Step 7: Run focused tests and mutation checks**
 
@@ -696,19 +815,29 @@ are unchanged. Repeat for no-hit and invalid orientation.
 
 - [ ] **Step 4: Add strict compile/link/analyzer tests**
 
-Compile all three C modules with:
+First compile and link the hosted shared library with the exact common flags
+`-std=c99 -Wall -Wextra -Werror -pedantic -I <native-dir>`, treating any warning
+as failure. Assert `creative_look_bridge.c` directly includes only
+`creative_look_bridge.h`; its transitive dependencies come from that public
+header.
+
+Then compile all three C modules freestanding. All object paths must live in one
+test-owned temporary directory, and the relocatable link must use `gcc -r`
+(never standalone `ld`):
 
 ```powershell
-gcc -std=c99 -Wall -Wextra -Werror -pedantic -ffreestanding -fno-builtin -c native/a6400_creative_look/creative_look_core.c
-gcc -std=c99 -Wall -Wextra -Werror -pedantic -ffreestanding -fno-builtin -c native/a6400_creative_look/creative_look_view.c
-gcc -std=c99 -Wall -Wextra -Werror -pedantic -ffreestanding -fno-builtin -c native/a6400_creative_look/creative_look_bridge.c
-gcc -r creative_look_core.o creative_look_view.o creative_look_bridge.o -o creative_look_native.o
-nm -u creative_look_native.o
-gcc -std=c99 -Wall -Wextra -Werror -pedantic -fanalyzer -c native/a6400_creative_look/creative_look_bridge.c
+gcc -std=c99 -Wall -Wextra -Werror -pedantic -I native/a6400_creative_look -ffreestanding -fno-builtin -c native/a6400_creative_look/creative_look_core.c -o <tmp>/creative_look_core.o
+gcc -std=c99 -Wall -Wextra -Werror -pedantic -I native/a6400_creative_look -ffreestanding -fno-builtin -c native/a6400_creative_look/creative_look_view.c -o <tmp>/creative_look_view.o
+gcc -std=c99 -Wall -Wextra -Werror -pedantic -I native/a6400_creative_look -ffreestanding -fno-builtin -c native/a6400_creative_look/creative_look_bridge.c -o <tmp>/creative_look_bridge.o
+gcc -r <tmp>/creative_look_core.o <tmp>/creative_look_view.o <tmp>/creative_look_bridge.o -o <tmp>/creative_look_native.o
+nm -u <tmp>/creative_look_native.o
+gcc -std=c99 -Wall -Wextra -Werror -pedantic -I native/a6400_creative_look -fanalyzer -c native/a6400_creative_look/creative_look_bridge.c -o <tmp>/creative_look_bridge_analyzer.o
 ```
 
 Tests must use temporary directories and assert `nm -u` is empty. They must also
-assert compilation succeeds without warning text.
+assert compilation succeeds without warning text. The ctypes ABI test asserts
+every wire size, natural field offset, `Bridge.adapters.offset == 624`, the C
+offset query, and the C alignment query. It must not hard-code total bridge size.
 
 - [ ] **Step 5: Run all native tests**
 

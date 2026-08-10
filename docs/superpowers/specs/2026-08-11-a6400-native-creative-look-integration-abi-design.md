@@ -130,9 +130,17 @@ contradiction.
 
 ## Adapter interfaces
 
-All adapters are caller-owned fixed structs containing only a context pointer
-and function pointers. Callbacks are synchronous and must not retain pointers
-passed by the bridge.
+All adapters are caller-owned structs containing only a context pointer and
+function pointers. Callbacks are synchronous. They must not retain pointers
+passed by the bridge except for the input sink and sink context explicitly
+registered by a successful `attach`. That pair may be retained only until
+`detach` completes; the bridge storage must outlive that interval and the
+adapter must never invoke the pair afterward.
+
+Callbacks must not reenter a bridge entry point or deliver an input event while
+`attach`, `detach`, or another adapter callback is active. The bridge also owns
+a busy guard and rejects such attempts deterministically rather than allowing
+nested mutation of state, dirtiness, or the last report.
 
 ### Lifecycle adapter
 
@@ -143,13 +151,17 @@ The lifecycle adapter provides:
 
 Both callbacks are required for a host-simulated lifecycle binding. The bridge
 calls `close` exactly once for each successful `open`, including cleanup after a
-later presentation or input-attachment failure.
+later presentation or input-attachment failure. A nonzero `close` result is a
+diagnostic failure, but `close` must still have completed teardown before it
+returns.
 
 ### Presentation adapter
 
 The bridge reuses the existing `cl_view_adapter`. Its `present` callback receives
-a validated, stack-built `cl_view_frame`. A failed presentation remains dirty
-and can be retried without reconstructing platform state.
+a validated, stack-built `cl_view_frame`. Initial presentation is an admission
+gate: if it fails, the bridge closes and the caller must reinitialize before a
+new open attempt. After open succeeds, a failed presentation remains dirty and
+can be retried without reconstructing platform state.
 
 ### Input adapter
 
@@ -158,11 +170,19 @@ The input adapter provides:
 - `attach(context, sink, sink_context)`; and
 - `detach(context)`.
 
-`attach` registers one bridge-owned sink. Host fixtures deliver only canonical
-events through that sink:
+`attach` registers one bridge-owned sink. A successful return authorizes the
+adapter to retain the sink pair until detach. A failed attach is atomic and must
+retain no sink. `detach` must make the sink unreachable before returning even
+when it returns a nonzero diagnostic result.
+
+Host fixtures deliver only canonical events through the registered sink:
 
 - touch at logical milli-unit `x/y` coordinates; or
 - orientation changed to one of the three existing `cl_orientation` values.
+
+Canonical events have zero reserved bytes. Touch events also have `value = 0`.
+Orientation events have `x = 0`, `y = 0`, and a valid orientation value. Any
+other representation is rejected atomically.
 
 The adapter does not define a Sony raw-event layout or coordinate transform.
 The future target adapter must perform that target-specific translation before
@@ -196,6 +216,15 @@ The complete state preserves all twelve built-ins, all six Custom bases, all
 `18 × 8` adjustment bytes, mode flags, and selection. No field is reduced to or
 identified with the five Creative Style setter arguments.
 
+The bridge retains the complete snapshot by value when it creates a processing
+revision. UI-only changes may update current state, presentation, and
+persistence, but they never rewrite the retained processing snapshot. Model and
+output retries for a revision therefore receive byte-identical payloads. If a
+new processing change occurs while an older revision is still dirty, the bridge
+coalesces to the newest desired processing revision: it replaces the retained
+snapshot once, keeps the relevant domains dirty, and does not replay the older
+revision.
+
 ### Output adapter
 
 The output adapter provides `apply(context, output_kind, snapshot)`. The bridge
@@ -214,13 +243,15 @@ semantics only; it does not claim that an α6400 processing sink is known.
 `cl_bridge` is allocation-free and owns all mutable coordination state by value:
 
 - one `cl_state`;
+- one retained immutable `cl_processing_snapshot` for the current processing
+  revision;
 - one validated manifest copy;
 - one adapter-set copy;
 - monotonic state and processing revisions;
-- open and input-attached flags;
+- open, input-attached, busy, and opened-once flags;
 - dirty bits for presentation, persistence, model request, live view, still
   JPEG, and movie; and
-- the most recent normalized operation report.
+- the most recent operation report with raw callback diagnostics.
 
 The bridge exposes read-only access to its current `cl_state`, revisions, dirty
 mask, and last report. It exposes no mutable state pointer.
@@ -229,13 +260,16 @@ mask, and last report. It exposes no mutable state pointer.
 
 ### Initialization
 
-`cl_bridge_init` validates the manifest and callback completeness, copies all
-fixed structs, initializes default state, clears revisions and dirtiness, and
-performs no callback.
+`cl_bridge_init` validates the manifest and callback completeness, copies the
+manifest and adapter structs, initializes default state, clears revisions and
+dirtiness, and performs no callback.
 
-All six binding records must be `HOST_SIMULATED` for `cl_bridge_open`. This
-ensures the host milestone exercises every boundary. Static evidence may remain
-`UNBOUND`; simulation is not evidence.
+All six binding records must be `HOST_SIMULATED` at initialization. This ensures
+the host milestone exercises every boundary. Static evidence may remain
+`UNBOUND`; simulation is not evidence. One initialization admits at most one
+open/close lifecycle session. A second open after close requires reinitializing
+the bridge, so a revision cannot be reused for a different payload in one
+adapter session.
 
 ### Open
 
@@ -247,16 +281,21 @@ Open performs these steps in order:
    value;
 4. call lifecycle open with the candidate;
 5. commit the candidate to bridge state;
-6. mark model and all three outputs dirty;
-7. mark persistence dirty only when no prior blob existed;
-8. build and present the initial frame;
-9. attach the canonical input sink; and
-10. attempt all initially dirty synchronizations.
+6. create state revision `1`, processing revision `1`, and the retained
+   processing snapshot;
+7. mark model and all three outputs dirty;
+8. mark persistence dirty only when no prior blob existed;
+9. build and present the initial frame as an admission gate;
+10. attach the canonical input sink; and
+11. attempt all initially dirty synchronizations.
 
 If lifecycle open fails, no state is opened. If presentation or input attach
-fails after lifecycle open, the bridge detaches only if attachment succeeded,
-calls lifecycle close, returns to closed state, and retains a normalized failure
-report.
+fails after lifecycle open, the bridge calls lifecycle close, returns to closed
+state, and retains both the primary and cleanup callback results. Failed attach
+is atomic, so that path never calls detach. Initial presentation failure is not
+left dirty or retryable; reopening requires reinitialization. An initial
+post-attach synchronization failure instead leaves the bridge open and the
+failed domain dirty.
 
 ### Canonical touch event
 
@@ -267,13 +306,15 @@ For every touch event, the bridge:
 3. applies `cl_view_touch` to the candidate;
 4. leaves state and all dirty bits unchanged for invalid, restricted, or no-hit
    results;
-5. validates and commits a successful candidate;
-6. increments the state revision;
-7. compares processing-relevant fields with the prior state;
-8. marks presentation and persistence dirty;
-9. if processing fields changed, increments processing revision and marks model
-   plus all three outputs dirty; and
-10. invokes deterministic synchronization.
+5. validates a successful candidate;
+6. rejects before mutation if the state revision would overflow;
+7. compares processing-relevant fields with the prior state and, only when they
+   changed, separately rejects if the processing revision would overflow;
+8. commits the candidate and increments the state revision;
+9. marks presentation and persistence dirty;
+10. if processing fields changed, increments the processing revision, replaces
+   the retained snapshot, and marks model plus all three outputs dirty; and
+11. invokes deterministic synchronization.
 
 Processing-relevant fields are selected Look, Custom bases, all adjustments,
 and mode bits. Screen, editing-axis, and orientation changes do not create a
@@ -304,38 +345,63 @@ and all three outputs. A no-op update produces no new revision or callback.
 
 Only successful domains are cleared. A failure never prevents later independent
 domains from being attempted. The report records attempted, succeeded, failed,
-and remaining-dirty masks plus normalized callback results for every domain.
+and remaining-dirty masks plus raw callback results for every domain.
 
 State is the desired source of truth. A successful core transition is never
 rolled back after an external callback failure because synchronous callbacks may
 already have produced irreversible side effects. Instead, failed domains remain
-dirty and `cl_bridge_retry` repeats the exact current revision. Callbacks must be
-idempotent for a repeated `(processing_revision, output_kind)` pair.
+dirty and `cl_bridge_retry` repeats the retained snapshot for that exact
+processing revision. Callbacks must be idempotent for a repeated
+`(processing_revision, output_kind)` pair within one initialized bridge session.
+Persistence and presentation always use current state; model and output always
+use the retained processing snapshot.
 
 ### Close
 
 Close detaches input first and closes lifecycle second. It attempts both even if
-detach fails, records both results, clears open/attached flags, and retains state
-for offline inspection. Close does not silently clear unsynchronized dirty bits.
+detach returns a nonzero diagnostic, records both results, clears open/attached
+flags, and retains state for offline inspection. The adapter contracts require
+both callbacks to complete teardown regardless of diagnostic result, so the
+bridge never loses cleanup ownership. Close does not silently clear
+unsynchronized dirty bits. The bridge cannot reopen until `cl_bridge_init` starts
+a new adapter session.
 
 ## Results and error handling
 
 Bridge entry points return a `cl_result` and fill a caller-supplied fixed
 `cl_bridge_report` when an operation can reach platform callbacks.
 
-The core transition result remains exact. The report separately states:
+The core transition result remains exact. The report separately stores raw
+`int32_t` callback results for:
+
+- lifecycle open and close;
+- input attach and detach;
+- persistence load; and
+- each of the six synchronization domains.
+
+Every unattempted field is `CL_CALLBACK_NOT_ATTEMPTED`. The report also states:
 
 - whether desired state committed;
 - state and processing revision;
 - attempted, succeeded, failed, and dirty masks; and
-- one normalized integer callback result per synchronization domain.
+- the exact operation result and opened state.
 
 New bridge-specific results distinguish invalid manifest, incomplete binding,
-closed/open lifecycle misuse, input attachment failure, and adapter
-synchronization failure. If desired state committed but synchronization failed,
-the bridge returns the adapter-synchronization result and the report explicitly
-sets `state_committed = 1`. Callers therefore never need to infer mutation from
-the return code alone.
+closed/open lifecycle misuse, reinitialization required, busy/reentrant use,
+input attachment failure, and adapter synchronization failure. Result mapping
+is exact: manifest rejection is `CL_ERR_MANIFEST`; incomplete callbacks are
+`CL_ERR_BINDING`; blob decode is `CL_ERR_BLOB`; persistence-load,
+presentation, persistence-save, model, output, and detach diagnostics are
+`CL_ERR_ADAPTER`; lifecycle open/close diagnostics are `CL_ERR_LIFECYCLE`; and
+attach failure is `CL_ERR_INPUT_ATTACHMENT`. Cleanup close failure takes
+precedence over the presentation/attach failure that triggered cleanup. During
+normal close, close failure takes precedence over detach failure. If desired
+state committed but synchronization failed, the bridge returns
+`CL_ERR_ADAPTER` and explicitly sets `state_committed = 1`. Callers therefore
+never need to infer mutation from the return code alone. Closed/open misuse maps
+to `CL_ERR_NOT_OPEN`/`CL_ERR_ALREADY_OPEN`; reopening a closed session maps to
+`CL_ERR_REINIT_REQUIRED`; a guarded reentrant call maps to `CL_ERR_BUSY`; and
+revision overflow maps to `CL_ERR_REVISION`.
 
 Integer revisions fail closed on overflow: the triggering operation is rejected
 before state mutation. This prevents revision reuse in idempotent adapters.
@@ -346,10 +412,13 @@ before state mutation. This prevents revision reuse in idempotent adapters.
 - No allocation, flexible arrays, file I/O, dynamic loading, threads, atomics,
   networking, USB, or firmware operations.
 - No floating point.
-- All public structs have explicit fixed-width fields and reserved bytes where
-  alignment would otherwise be implicit.
-- Public size-query functions expose bridge, manifest, snapshot, event, and
-  report sizes for host ABI tests.
+- Public wire/data structs use explicit fixed-width fields and reserved bytes.
+  Pointer-bearing adapter and bridge structs follow the compiling platform ABI;
+  they are not claimed byte-identical across 32-bit and 64-bit hosts.
+- Cross-module callback result signatures use `int32_t`, not an enum-sized
+  return type.
+- Public size/offset/alignment query functions expose bridge, adapter offset,
+  alignment, manifest, snapshot, event, and report values for host ABI tests.
 - Host and freestanding compilation use warnings as errors.
 - The combined core, view, and bridge relocatable object has zero undefined
   symbols.
@@ -378,8 +447,15 @@ before state mutation. This prevents revision reuse in idempotent adapters.
 - Verify exact open/load/present/attach order and detach/close order.
 - Inject failures at every step and assert cleanup calls, state, flags, and
   reports.
+- Verify missing storage calls
+  `load, open, present, attach, save, model, live_view, still_jpeg, movie`, while
+  restored storage omits only `save`.
+- Verify presentation failure calls `load, open, present, close`; attach failure
+  calls `load, open, present, attach, close`; and neither leaves a retained
+  sink.
 - Deliver touch and all three orientations only through the registered sink.
-- Reject stale sink calls after detach.
+- Reject sink calls during attach/detach or after detach while the bridge storage
+  is still alive.
 
 ### Product coverage
 
@@ -398,6 +474,8 @@ before state mutation. This prevents revision reuse in idempotent adapters.
 - Assert distinct live-view, still-JPEG, and movie calls and dirty bits.
 - Inject one failure per domain and prove successful domains clear while failed
   domains retry the same revision.
+- After an output failure, apply a screen-only or orientation-only change and
+  prove the retry snapshot remains byte-identical to the failed snapshot.
 - Prove screen navigation and orientation do not emit processing requests.
 
 ### Safety
