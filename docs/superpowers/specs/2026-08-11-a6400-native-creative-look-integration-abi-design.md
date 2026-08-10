@@ -248,7 +248,8 @@ semantics only; it does not claim that an α6400 processing sink is known.
 - one validated manifest copy;
 - one adapter-set copy;
 - monotonic state and processing revisions;
-- initialized, open, input-attached, busy, and opened-once flags;
+- an initialization marker plus open, input-attached, busy, and opened-once
+  flags;
 - dirty bits for presentation, persistence, model request, live view, still
   JPEG, and movie; and
 - the most recent operation report with raw callback diagnostics.

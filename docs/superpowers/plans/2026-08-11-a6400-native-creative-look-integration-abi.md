@@ -111,6 +111,7 @@ enum {
 };
 
 #define CL_CALLBACK_NOT_ATTEMPTED ((int32_t)INT32_MIN)
+#define CL_BRIDGE_INITIALIZATION_MARKER UINT32_C(0x434C4231)
 
 typedef enum cl_binding_kind {
     CL_BINDING_LIFECYCLE = 0,
@@ -421,7 +422,7 @@ typedef struct cl_bridge_adapters {
 
 Expose a concrete fixed-memory `cl_bridge` containing state, an immutable
 retained processing snapshot, manifest, adapters, two revisions, last report,
-dirty/open/attached/busy/opened-once/initialized flags. Keep the data prefix exactly 632
+dirty/open/attached/busy/opened-once flags plus an initialization marker. Keep the data prefix exactly 632
 bytes before the pointer-bearing adapter set, avoiding implicit pointer-alignment
 padding on ordinary 32-bit and 64-bit GCC hosts:
 
@@ -432,14 +433,14 @@ typedef struct cl_bridge {
     uint32_t state_revision;
     uint32_t processing_revision;
     cl_processing_snapshot retained_processing_snapshot;
+    uint32_t initialization_marker;
     cl_state state;
     uint8_t dirty_mask;
     uint8_t opened;
     uint8_t input_attached;
     uint8_t busy;
     uint8_t opened_once;
-    uint8_t initialized;
-    uint8_t reserved[7];
+    uint8_t reserved[4];
     cl_bridge_adapters adapters;
 } cl_bridge;
 ```
@@ -483,7 +484,9 @@ Require all-zero bridge storage before first initialization. Before mutation,
 reject reentrant/busy init as `CL_ERR_BUSY` and live open/attached init as
 `CL_ERR_ALREADY_OPEN`. Copy the caller structs through locals so reinitialization
 may safely use the bridge's existing manifest/adapters, initialize default state,
-set `initialized = 1`, and invoke no callback. Reinitialization after close or
+set the exact bridge initialization marker, and invoke no callback. A nonzero
+first-use buffer or unknown marker is rejected as `CL_ERR_STATE`.
+Reinitialization after close or
 failed admission is allowed. Return `CL_ERR_BINDING` for incomplete adapters.
 Runtime-state validation occurs here, not later in `cl_bridge_open`.
 
