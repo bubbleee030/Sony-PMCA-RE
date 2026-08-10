@@ -882,7 +882,9 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
         source = re.sub(r"\\\r?\n", "", source)
         source = re.sub(r"/\*.*?\*/", " ", source, flags=re.DOTALL)
         remainders = re.findall(
-            r"^\s*#\s*include\b(.*)$", source, flags=re.MULTILINE
+            r"^\s*(?:#|%:)\s*include\b(.*)$",
+            source,
+            flags=re.MULTILINE,
         )
         return [
             re.sub(r"\s*//.*$", "", remainder).strip()
@@ -3883,6 +3885,9 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
         self._assert_only_bridge_header_include(
             '  # include   "creative_look_bridge.h"  // direct dependency\n'
         )
+        self._assert_only_bridge_header_include(
+            '%: include"creative_look_bridge.h" // digraph spelling\n'
+        )
         source = BRIDGE_C.read_text(encoding="utf-8")
         with tempfile.TemporaryDirectory(
             dir=self._temporary.name,
@@ -3897,6 +3902,7 @@ if bytes(bridge) != before_bridge or bytes(report) != before_report:
                 ("no_space", '#include"unapproved.h"\n'),
                 ("comment_separator", '#/**/include "unapproved.h"\n'),
                 ("line_splice", '#\\\ninclude "unapproved.h"\n'),
+                ("digraph_marker", '%:include "unapproved.h"\n'),
             )
             for label, prefix in mutations:
                 mutated_source = Path(directory) / f"{label}.c"
