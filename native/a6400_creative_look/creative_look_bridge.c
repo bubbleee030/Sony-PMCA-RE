@@ -720,6 +720,11 @@ cl_result cl_bridge_handle_event(
     if (result != CL_OK) {
         return cl_publish_report(bridge, report, &operation, result);
     }
+    result = cl_validate(&candidate);
+    operation.transition_result = result;
+    if (result != CL_OK) {
+        return cl_publish_report(bridge, report, &operation, result);
+    }
     if (!cl_state_changed(&bridge->state, &candidate)) {
         return cl_publish_report(bridge, report, &operation, CL_OK);
     }

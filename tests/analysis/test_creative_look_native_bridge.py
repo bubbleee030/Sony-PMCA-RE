@@ -865,6 +865,64 @@ class CreativeLookNativeBridgeTests(unittest.TestCase):
                 )
         self.assertEqual(fixture.calls, ["load", "open", "present", "attach"])
 
+    def test_event_rejects_an_invalid_successful_transition_atomically(self):
+        self._require_exports()
+        mutated_view = Path(self._temporary.name) / "invalid-view-touch.c"
+        source = VIEW_SOURCE.read_text(encoding="utf-8")
+        original = """            case CL_UI_ACTION_SELECT_LOOK:
+                return cl_select_look(state, element->primary);
+"""
+        replacement = """            case CL_UI_ACTION_SELECT_LOOK:
+                result = cl_select_look(state, element->primary);
+                if (result == CL_OK) {
+                    state->selected_look = CL_LOOK_COUNT;
+                }
+                return result;
+"""
+        self.assertIn(original, source)
+        mutated_view.write_text(
+            source.replace(original, replacement), encoding="utf-8"
+        )
+        library_path = compile_shared_library(
+            self._temporary.name,
+            "creative_look_bridge_invalid_candidate",
+            [CORE_SOURCE, mutated_view, BRIDGE_C],
+        )
+        mutated_library = ctypes.CDLL(str(library_path))
+        manifest = IntegrationManifest()
+        self.assertEqual(
+            mutated_library.cl_bridge_manifest_host(ctypes.byref(manifest)),
+            CL_OK,
+        )
+        fixture = LifecycleFixture(mutated_library, manifest)
+        self.assertEqual(fixture.initialize(), CL_OK)
+        self.assertEqual(
+            mutated_library.cl_bridge_open(
+                ctypes.byref(fixture.bridge), ctypes.byref(BridgeReport())
+            ),
+            CL_OK,
+        )
+        event = self._event_for_element(fixture, CL_UI_KIND_LOOK, CL_LOOK_VV)
+        before = (
+            bytes(fixture.bridge.state), fixture.bridge.state_revision,
+            fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+        )
+
+        result, report = fixture.deliver(event)
+
+        self.assertEqual(result, CL_ERR_STATE)
+        self._assert_report(
+            report, transition=CL_ERR_STATE, state_revision=1,
+            processing_revision=1, dirty=0x3E, opened=1,
+        )
+        self.assertEqual(
+            (
+                bytes(fixture.bridge.state), fixture.bridge.state_revision,
+                fixture.bridge.processing_revision, fixture.bridge.dirty_mask,
+            ),
+            before,
+        )
+
     def test_processing_revision_tracks_look_base_axis_and_mode_only(self):
         self._require_exports()
         fixture = self._open_fixture()
