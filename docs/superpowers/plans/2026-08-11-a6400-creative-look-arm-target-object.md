@@ -35,6 +35,9 @@ tests.
 - Use official Arm primary sources only. Verify SHA-256 before extraction.
 - Toolchains and built objects live only under ignored `.artifacts/` or an
   automatically cleaned temporary directory.
+- Reject unsafe ZIP entries before extraction. The pinned digest is an
+  independently reviewed contract; this milestone does not claim OpenPGP
+  verification.
 - Production remains allocation-free, I/O-free, dynamic-loader-free,
   thread-free, and fixed-memory.
 - All production changes begin with an observed failing test.
@@ -159,6 +162,8 @@ Create a test-only ABI probe using compile-time array assertions for:
 Compile the probe with the same target flags. Inspect header/attributes and
 require ELF32, little-endian ARM, EABI5, ARMv7-A, Thumb-2, VFPv3-D16, softfp,
 four-byte wchar/enum, and eight-byte stack alignment.
+Require `Tag_ABI_VFP_args` to be absent, while recording and permitting benign
+modern-compiler attributes outside the mandatory/prohibited set.
 
 **Step 5: Add mutation coverage**
 
@@ -213,8 +218,11 @@ record contains only the three proposed labels and an explicit unpublished
 status. It contains no function pointer named as a Sony factory.
 
 Initialization accepts a validated host manifest and caller-owned adapters,
-installs shell-owned lifecycle/presentation/input wrappers, and remains
-mutation-free on invalid input. It cannot promote evidence/runtime/safety.
+requires caller lifecycle/presentation/input entries to be zero, installs
+shell-owned wrappers for those entries, and remains mutation-free on invalid
+input. Caller persistence/model/output functions, contexts, and resources must
+outlive the initialized/open shell and remain caller-owned. It cannot promote
+evidence/runtime/safety.
 
 **Step 3: Implement lifecycle and ownership**
 
@@ -223,6 +231,12 @@ mutation-free on invalid input. It cannot promote evidence/runtime/safety.
 - attach retains the bridge sink/context only until detach completes;
 - `deliver` calls only the currently retained sink;
 - close attempts detach then lifecycle close through the bridge;
+- shell open/attached state mirrors the embedded bridge rather than return
+  codes: a post-attach sync error remains open/deliverable until close, while
+  any completed close invalidates delivery even when teardown reports error;
+- first initialization requires all-zero storage, live reinitialization is
+  rejected without mutation, and reinitialization is permitted only after
+  close;
 - delivery before attach/after detach and reentrant delivery fail without
   mutation; and
 - borrowed callback pointers are never retained except the exact attached
@@ -275,7 +289,8 @@ evidence and require the same ELF/ABI/symbol/safety contracts.
 
 Fail if symbols or relocations contain:
 
-- `ViewCreativeLookToInstance` as a symbol;
+- `ViewCreativeLookToInstance` as an exported or undefined symbol (its one
+  designated metadata-string occurrence is permitted);
 - `dlopen`, `dlsym`, `IdSoTable`, `IdGenerator`, or `openView` references;
 - constructor/init-array publication;
 - Backup/Fsys/Sony path references;

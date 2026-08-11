@@ -59,9 +59,15 @@ https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages
 Its official `.sha256asc` companion is the same URL with `.sha256asc`
 appended and publishes archive SHA-256
 `7936cac895611023ffb22a64b8e426098c7104cb689778c1894572ca840b9ece`.
-Parse that exact companion record and reject the archive before extraction if
-the measured digest differs. Store the verified archive and extracted compiler
-only under ignored `.artifacts/toolchains/`; never commit toolchain binaries.
+That expected digest is independently pinned in this reviewed design and the
+tracked profile; the implementation does not claim OpenPGP signature
+verification. Parse the exact companion record and reject the archive before
+extraction if either the companion or measured archive differs from the pinned
+digest. Before extraction, inspect every ZIP entry and reject absolute paths,
+drive-qualified paths, `..` traversal, symlinks, or any resolved destination
+outside the exact toolchain directory. Store the verified archive and extracted
+compiler only under ignored `.artifacts/toolchains/`; never commit toolchain
+binaries.
 
 The verifier pins the expected release, archive name, compiler target triple,
 and measured digest in a small tracked metadata contract. It must reject a
@@ -100,6 +106,13 @@ attribute set. `nm -u` must be empty without symbol fabrication, filtering, or
 an undefined-symbol allowlist. In particular, no `__aeabi_*`, allocation,
 filesystem, dynamic-loader, networking, USB, device, updater, flash, or process
 symbol may remain unresolved.
+
+Mandatory target attributes are ARMv7-A Application profile, Thumb-2,
+VFPv3-D16, integer-sized enums, four-byte `wchar_t`, and eight-byte stack
+alignment. `Tag_ABI_VFP_args` must be absent; VFP-register argument passing is
+prohibited. Modern-compiler attributes outside this mandatory/prohibited set are
+recorded but are not rejected merely because Sony's older compiler omitted
+them.
 
 The target build emits no `.so`, `.elf` executable, `.bin`, package, partition,
 or flashable artifact. Tests must reject any output extension or ELF type that
@@ -140,21 +153,34 @@ The shell owns:
 
 - one bridge object;
 - one copied `cl_view_frame` for the most recently presented frame;
-- validity and open-state flags; and
+- copied-frame validity and initialization markers; and
 - the exact input sink/context pair retained only during a successful attach.
 
 The shell exposes synchronous initialization, open, close, event delivery, and
 read-only access to its copied frame and bridge state/report. Initialization
 requires an already validated host-simulated manifest and caller-provided
-adapters. The shell replaces only the lifecycle, presentation, and input
-adapter contexts needed to exercise shell ownership; persistence, model, and
-output remain caller-injected host/static adapters.
+adapters. Caller-provided lifecycle, presentation, and input entries must be
+zero and are rejected otherwise; the shell installs its own wrappers for those
+three boundaries. Persistence, model, and output remain caller-injected
+host/static adapters. Their callback functions, contexts, and resources remain
+caller-owned and must outlive the initialized/open shell. Those adapters must
+complete their own resource teardown; the shell never acquires ownership of
+their contexts.
 
 Presentation copies the complete borrowed frame by value before returning.
 Input attach retains the sink/context only until detach completes. Delivery is
 rejected before attach and after detach. All borrowed bridge callback pointers
 remain synchronous-only. The shell cannot turn an unbound adapter into a target
 runtime binding and cannot change any manifest evidence/runtime state.
+
+First use requires all-zero shell storage. Initialization rejects a live/open or
+attached shell without mutation; reinitialization is permitted only after close
+has completed. It must never blindly clear a live bridge or retained sink.
+Shell open/attachment state mirrors the embedded bridge, not the return code:
+an open that reaches successful attach but reports a later synchronization
+failure remains open and attached, permits event delivery/retry, and requires
+close. Any completed close call invalidates shell delivery and clears the
+retained sink even when detach or lifecycle close returns a diagnostic error.
 
 The shell contains proposed identity metadata for offline inspection only:
 
@@ -164,8 +190,10 @@ The shell contains proposed identity metadata for offline inspection only:
 - publication status `PROPOSED_UNPUBLISHED`.
 
 These strings are design identities, not loader registrations. Tests must prove
-that the proposed factory label is not an exported symbol and that no Sony
-registration, `dlopen`, or `dlsym` reference is introduced.
+that the proposed factory label is not an exported or undefined symbol and that
+no Sony registration, `dlopen`, or `dlsym` binding is introduced. The three
+designated proposed-unpublished metadata strings are the only permitted
+Sony-style identity references.
 
 ## Evidence boundary and rejected approaches
 
@@ -219,9 +247,11 @@ Required verification includes:
 8. full analysis discovery at the publication gate, with any timeout reported
    exactly rather than treated as success.
 
-The source allowlist for the target object is limited to the five Creative Look
-headers/sources and generated test-only ABI probes. No Sony binary is executed
-to produce or validate the object.
+The production source allowlist contains exactly eight files:
+`creative_look_core.h/.c`, `creative_look_view.h/.c`,
+`creative_look_bridge.h/.c`, and `creative_look_target.h/.c`. Generated
+test-only ABI probes are separately identified and never become production
+inputs. No Sony binary is executed to produce or validate the object.
 
 ## Acceptance criteria
 
@@ -233,8 +263,10 @@ The milestone is accepted only when all of the following are true:
   attributes and no unresolved symbols;
 - target ABI sizes, alignment, and adapter offset match the table above;
 - the neutral shell passes hosted ownership/lifecycle tests;
-- no Sony factory, menu, persistence, processing, device, package, or install
-  binding appears in production symbols or references;
+- no exported/undefined Sony factory symbol and no menu, loader, persistence,
+  processing, device, package, or install binding appears in production
+  symbols or relocations; only the three designated unpublished identity
+  strings may appear as read-only data;
 - all safety values remain zero; and
 - documentation labels the output target-compiled but runtime-unbound.
 
