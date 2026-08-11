@@ -34,6 +34,7 @@ PRODUCTION_SOURCES = tuple(
         "creative_look_core.c",
         "creative_look_view.c",
         "creative_look_bridge.c",
+        "creative_look_target.c",
     )
 )
 PUBLIC_HEADERS = tuple(
@@ -42,6 +43,7 @@ PUBLIC_HEADERS = tuple(
         "creative_look_core.h",
         "creative_look_view.h",
         "creative_look_bridge.h",
+        "creative_look_target.h",
     )
 )
 ABI_LAYOUTS = {
@@ -53,6 +55,22 @@ ABI_LAYOUTS = {
     "cl_bridge_adapters": {"size": 60, "alignment": 4},
     "cl_bridge": {"size": 692, "alignment": 4},
     "cl_bridge.adapters": {"offset": 632},
+    "cl_target_identity": {"size": 16, "alignment": 4},
+    "cl_target_identity.logical_alias": {"offset": 0},
+    "cl_target_identity.component_label": {"offset": 4},
+    "cl_target_identity.proposed_factory_label": {"offset": 8},
+    "cl_target_identity.publication_status": {"offset": 12},
+    "cl_target_shell": {"size": 1200, "alignment": 4},
+    "cl_target_shell.bridge": {"offset": 0},
+    "cl_target_shell.copied_frame": {"offset": 692},
+    "cl_target_shell.retained_sink": {"offset": 1184},
+    "cl_target_shell.retained_sink_context": {"offset": 1188},
+    "cl_target_shell.initialization_marker": {"offset": 1192},
+    "cl_target_shell.frame_valid": {"offset": 1196},
+    "cl_target_shell.delivering": {"offset": 1197},
+    "cl_target_shell.reserved": {"offset": 1198},
+    "CL_TARGET_SHELL_ABI_VERSION": {"value": 1},
+    "CL_TARGET_PUBLICATION_PROPOSED_UNPUBLISHED": {"value": 0},
 }
 
 TARGET_SHA256 = "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2"
@@ -107,6 +125,78 @@ SAFETY_FIELDS = (
     "camera_test_eligible",
     "installable",
 )
+IDENTITY_LITERALS = (
+    ("logical_alias", "view/CREATIVE_LOOK", 0, 0),
+    ("component_label", "viewCreativeLook.so", 4, 0x14),
+    ("proposed_factory_label", "ViewCreativeLookToInstance", 8, 0x28),
+)
+PROPOSED_FACTORY_LABEL = IDENTITY_LITERALS[-1][1]
+IDENTITY_METADATA_EVIDENCE = {
+    "source": "native/a6400_creative_look/creative_look_target.c",
+    "record_symbol": {
+        "name": "cl_target_proposed_identity",
+        "binding": "LOCAL",
+        "type": "OBJECT",
+        "size": 16,
+        "section_index": 6,
+        "section": ".data.rel.ro.local",
+        "hex": "00000000140000002800000000000000",
+    },
+    "accessor_symbol": {
+        "name": "cl_target_shell_identity",
+        "binding": "GLOBAL",
+        "type": "FUNC",
+        "size": 12,
+        "section_index": 1,
+        "section": ".text",
+    },
+    "string_section": {
+        "index": 4,
+        "name": ".rodata.str1.4",
+        "type": "PROGBITS",
+        "flags": "AMS",
+        "size": 67,
+        "hex": "766965772f43524541544956455f4c4f4f4b00007669657743726561746976654c6f6f6b2e736f005669657743726561746976654c6f6f6b546f496e7374616e636500",
+        "sha256": "867511a4abb0a3b53fbc6930013e2dc31d6542a3466bc195560c59add950cf67",
+    },
+    "record_section": {
+        "index": 6,
+        "name": ".data.rel.ro.local",
+        "type": "PROGBITS",
+        "flags": "WA",
+    },
+    "literals": [
+        {
+            "field": field,
+            "value": value,
+            "record_offset": record_offset,
+            "string_offset": string_offset,
+            "source_occurrences": 1,
+            "object_occurrences": 1,
+            "section_occurrences": 1,
+        }
+        for field, value, record_offset, string_offset in IDENTITY_LITERALS
+    ],
+    "record_relocations": [
+        {
+            "relocation_section": ".rel.data.rel.ro.local",
+            "source_section": ".data.rel.ro.local",
+            "offset": record_offset,
+            "type": "R_ARM_ABS32",
+            "symbol": ".rodata.str1.4",
+            "addend": string_offset,
+        }
+        for _, _, record_offset, string_offset in IDENTITY_LITERALS
+    ],
+    "accessor_relocation": {
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "offset": 0x34C0,
+        "type": "R_ARM_REL32",
+        "symbol": ".data.rel.ro.local",
+    },
+    "factory_symbol_occurrences": 0,
+}
 
 TARGET_SHELL_INITIALIZATION_MARKER = 0x434C5431
 TARGET_PUBLICATION_PROPOSED_UNPUBLISHED = 0
@@ -733,6 +823,61 @@ class CreativeLookArmTargetBuilderTests(unittest.TestCase):
             )
             self.assertEqual(evidence["build"]["compile_flags"], COMPILE_FLAGS)
             self.assertEqual(evidence["build"]["link_mode"], ["-r"])
+            self.assertEqual(
+                [item["path"] for item in evidence["include_closure"]],
+                [
+                    "native/a6400_creative_look/" + path.name
+                    for path in PRODUCTION_SOURCES + PUBLIC_HEADERS
+                ],
+            )
+            self.assertEqual(
+                [(item["source"], item["path"]) for item in evidence["objects"]],
+                [
+                    (
+                        "native/a6400_creative_look/" + source.name,
+                        "$BUILD/" + source.stem + ".o",
+                    )
+                    for source in PRODUCTION_SOURCES
+                ],
+            )
+            link_argv = next(
+                item["argv"]
+                for item in evidence["commands"]
+                if item["purpose"] == "link:natural-relocatable"
+            )
+            self.assertEqual(
+                link_argv[-4:],
+                ["$BUILD/" + source.stem + ".o" for source in PRODUCTION_SOURCES],
+            )
+            self.assertNotIn("$BUILD/creative_look_arm_abi_probe.o", link_argv)
+            for command in evidence["commands"]:
+                if command["purpose"].startswith("inspect:"):
+                    self.assertEqual(command["argv"][-1], "$OUTPUT/creative_look_arm_target.o")
+            target_object = evidence["objects"][-1]
+            self.assertEqual(
+                target_object["undefined_symbols"],
+                [
+                    "cl_bridge_close",
+                    "cl_bridge_init",
+                    "cl_bridge_last_report",
+                    "cl_bridge_open",
+                    "cl_bridge_state",
+                ],
+            )
+            target_names = {
+                item["name"] for item in target_object["symbol_table"]
+            }
+            self.assertTrue(
+                {
+                    "cl_bridge_handle_event",
+                    "cl_assign_custom",
+                    "cl_handle_event",
+                    "cl_set_adjustment",
+                    "cl_set_orientation",
+                    "cl_set_screen",
+                    "cl_set_selected",
+                }.isdisjoint(target_names)
+            )
             self.assertEqual(evidence["elf"]["type"], "ET_REL")
             self.assertEqual(
                 {key: evidence["elf"][key] for key in ("class", "data", "machine", "eabi_version")},
@@ -740,9 +885,27 @@ class CreativeLookArmTargetBuilderTests(unittest.TestCase):
             )
             self.assertEqual(evidence["undefined_symbols"], [])
             self.assertEqual(evidence["abi_layouts"], ABI_LAYOUTS)
+            self.assertEqual(
+                set(evidence["abi_probe"]),
+                {"path", "source_sha256", "object_path", "object_sha256", "linked"},
+            )
+            self.assertEqual(
+                (evidence["abi_probe"]["path"], evidence["abi_probe"]["object_path"], evidence["abi_probe"]["linked"]),
+                ("$BUILD/creative_look_arm_abi_probe.c", "$BUILD/creative_look_arm_abi_probe.o", False),
+            )
+            self.assertRegex(evidence["abi_probe"]["source_sha256"], r"^[0-9a-f]{64}$")
+            self.assertRegex(evidence["abi_probe"]["object_sha256"], r"^[0-9a-f]{64}$")
             self.assertEqual(evidence["attributes"]["mandatory"], TARGET_ATTRIBUTES)
             self.assertNotIn("Tag_ABI_VFP_args", json.dumps(evidence["attributes"]))
             self.assertEqual(evidence["safety_scan"]["forbidden_matches"], [])
+            self.assertEqual(
+                evidence["identity_metadata"],
+                IDENTITY_METADATA_EVIDENCE,
+            )
+            self.assertEqual(
+                [record["source_section"] for record in evidence["relocations"][-3:]],
+                [".data.rel.ro.local"] * 3,
+            )
             self.assertRegex(evidence["raw_record_sha256"], r"^[0-9a-f]{64}$")
             raw_path = output_dir / "creative_look_arm_target.raw.json"
             self.assertTrue(raw_path.is_file())
@@ -853,8 +1016,14 @@ class CreativeLookArmTargetBuilderTests(unittest.TestCase):
                 module.validate_undefined_symbols(symbols)
         with self.assertRaises(module.ArmTargetBuildError):
             module.validate_defined_symbols(["cl_init", "__aeabi_idiv"])
-        valid_sections = "  [ 1] .text PROGBITS 00000000 000034 000004 00 AX 0 0 2\n"
-        self.assertEqual(module._parse_sections(valid_sections), [".text"])
+        valid_sections = (
+            "  [ 0] NULL 00000000 000000 000000 00 0 0 0\n"
+            "  [ 1] .text PROGBITS 00000000 000034 000004 00 AX 0 0 2\n"
+        )
+        self.assertEqual(
+            [item["name"] for item in module._parse_sections(valid_sections)],
+            ["", ".text"],
+        )
         forbidden_families = (
             ".init",
             ".fini",
@@ -883,7 +1052,7 @@ class CreativeLookArmTargetBuilderTests(unittest.TestCase):
             "   1: 00000100     4 FUNC    GLOBAL DEFAULT    1 cl_init\n"
             "   2: 00000104     4 FUNC    GLOBAL DEFAULT    1 cl_bridge_open\n"
         )
-        self.assertEqual(module.validate_full_symbol_table(valid_symbols), 3)
+        self.assertEqual(len(module.validate_full_symbol_table(valid_symbols)), 2)
         for mutation in (
             "   3: 00000108     4 FUNC    LOCAL  DEFAULT    1 _init\n",
             "   3: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND deliberate_undefined\n",
@@ -897,7 +1066,9 @@ class CreativeLookArmTargetBuilderTests(unittest.TestCase):
         module.validate_abi_layouts(ABI_LAYOUTS)
         for name in ABI_LAYOUTS:
             mutated = copy.deepcopy(ABI_LAYOUTS)
-            field = "offset" if name == "cl_bridge.adapters" else "size"
+            field = next(
+                item for item in ("offset", "size", "value") if item in mutated[name]
+            )
             mutated[name][field] += 1
             with self.subTest(layout=name), self.assertRaises(
                 module.ArmTargetBuildError
@@ -910,6 +1081,386 @@ class CreativeLookArmTargetBuilderTests(unittest.TestCase):
                 module.ArmTargetBuildError, "forbidden"
             ):
                 module.scan_source_text(PRODUCTION_SOURCES[0], source + "\n" + forbidden)
+
+    def test_structured_elf_inventory_preserves_operands_and_rejects_publication(self):
+        """Break caught: local symbols/relocation operands or renamed init sections vanish."""
+        module = self._exporter()
+        sections_text = (
+            "  [ 0]                   NULL            00000000 000000 000000 00      0   0  0\n"
+            "  [ 1] .text             PROGBITS        00000000 000034 000008 00  AX  0   0  4\n"
+            "  [ 2] .rel.text         REL             00000000 00003c 000008 08   I  4   1  4\n"
+            "  [ 3] .rodata.str1.4    PROGBITS        00000000 000044 000010 01 AMS  0   0  4\n"
+            "  [ 4] .symtab           SYMTAB          00000000 000054 000040 10      5   2  4\n"
+            "  [ 5] .strtab           STRTAB          00000000 000094 000020 00      0   0  1\n"
+        )
+        sections = module._parse_sections(sections_text)
+        self.assertEqual(
+            sections[1],
+            {
+                "index": 1,
+                "name": ".text",
+                "type": "PROGBITS",
+                "offset": 0x34,
+                "size": 8,
+                "flags": "AX",
+                "link": 0,
+                "info": 0,
+                "alignment": 4,
+            },
+        )
+        relocations_text = (
+            "Relocation section '.rel.text' at offset 0x3c contains 1 entry:\n"
+            " Offset     Info    Type                Sym. Value  Symbol's Name\n"
+            "00000004  00000303 R_ARM_REL32            00000000   .rodata.str1.4 + 14\n"
+        )
+        relocations = module._parse_relocations(
+            relocations_text,
+            sections,
+            {".text": bytes.fromhex("0000000014000000")},
+        )
+        self.assertEqual(
+            relocations,
+            [
+                {
+                    "relocation_section": ".rel.text",
+                    "source_section": ".text",
+                    "offset": 4,
+                    "type": "R_ARM_REL32",
+                    "symbol_value": 0,
+                    "symbol": ".rodata.str1.4",
+                    "addend": 0x14,
+                    "encoded_source_word": "14000000",
+                }
+            ],
+        )
+        factory_operand = copy.deepcopy(relocations)
+        factory_operand[0]["symbol"] = PROPOSED_FACTORY_LABEL
+        with self.assertRaises(module.ArmTargetBuildError):
+            module.validate_relocation_capabilities(factory_operand)
+        with self.assertRaises(module.ArmTargetBuildError):
+            module._parse_relocations(
+                relocations_text.replace("contains 1 entry", "contains 2 entries"),
+                sections,
+                {".text": bytes.fromhex("0000000014000000")},
+            )
+        missing_block_sections = module._parse_sections(
+            sections_text
+            + "  [ 6] .rel.rodata REL 00000000 0000b4 000008 08 I 4 3 4\n"
+        )
+        with self.assertRaises(module.ArmTargetBuildError):
+            module._parse_relocations(
+                relocations_text,
+                missing_block_sections,
+                {".text": bytes.fromhex("0000000014000000"), ".rodata.str1.4": b"\0" * 16},
+            )
+        with self.assertRaises(module.ArmTargetBuildError):
+            module._parse_sections(
+                sections_text
+                + "  [ 6] .text PROGBITS 00000000 0000b4 000004 00 AX 0 0 4\n"
+            )
+        real_evidence = self._profile()["build_evidence"]
+        accessor = next(
+            item
+            for item in real_evidence["symbol_table"]
+            if item["name"] == "cl_target_shell_identity"
+        )
+        module._validate_identity_accessor_relocation(
+            accessor, real_evidence["relocations"], ".data.rel.ro.local"
+        )
+        outside = copy.deepcopy(real_evidence["relocations"])
+        identity_relocation = next(
+            item
+            for item in outside
+            if item["symbol"] == ".data.rel.ro.local"
+        )
+        identity_relocation["offset"] = (accessor["value"] & ~1) + accessor["size"]
+        with self.assertRaises(module.ArmTargetBuildError):
+            module._validate_identity_accessor_relocation(
+                accessor, outside, ".data.rel.ro.local"
+            )
+        factory_record = next(
+            item
+            for item in real_evidence["relocations"]
+            if item["source_section"] == ".data.rel.ro.local"
+            and item["offset"] == 8
+        )
+        module._validate_factory_reference_boundary(
+            real_evidence["relocations"], ".rodata.str1.4", factory_record
+        )
+        extra_factory_reference = copy.deepcopy(real_evidence["relocations"])
+        copied_factory_record = next(
+            item
+            for item in extra_factory_reference
+            if item["source_section"] == ".data.rel.ro.local"
+            and item["offset"] == 8
+        )
+        injected = copy.deepcopy(factory_record)
+        injected.update(
+            {
+                "relocation_section": ".rel.text",
+                "source_section": ".text",
+                "offset": 0,
+                "encoded_source_word": "28000000",
+            }
+        )
+        extra_factory_reference.append(injected)
+        with self.assertRaises(module.ArmTargetBuildError):
+            module._validate_factory_reference_boundary(
+                extra_factory_reference,
+                ".rodata.str1.4",
+                copied_factory_record,
+            )
+        for section_type in ("PREINIT_ARRAY", "INIT_ARRAY", "FINI_ARRAY"):
+            mutated = sections_text + (
+                f"  [ 6] .renamed PROGBITS 00000000 0000b4 000004 00 A 0 0 4\n"
+            ).replace("PROGBITS", section_type)
+            with self.subTest(section_type=section_type), self.assertRaises(
+                module.ArmTargetBuildError
+            ):
+                module._parse_sections(mutated)
+
+        symbols = (
+            "   0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND\n"
+            "   1: 00000100     4 FUNC    GLOBAL DEFAULT    1 cl_init\n"
+            "   2: 00000104     4 FUNC    GLOBAL DEFAULT    1 cl_bridge_open\n"
+            "   3: 00000108     4 FUNC    GLOBAL DEFAULT    1 cl_encode\n"
+        )
+        records = module.validate_full_symbol_table(symbols)
+        self.assertEqual(records[-1]["name"], "cl_encode")
+        for name in (
+            "ViewCreativeLookToInstance",
+            "local_dlopen_alias",
+            "IdSoTableMutation",
+            "MprIf_EncodeStill",
+            "SonyBackupFsys",
+            "firmware_package_writer",
+        ):
+            mutation = f"   4: 0000010c     4 FUNC    LOCAL  DEFAULT    1 {name}\n"
+            with self.subTest(symbol=name), self.assertRaises(
+                module.ArmTargetBuildError
+            ):
+                module.validate_full_symbol_table(symbols + mutation)
+        for mutation in (
+            "   4: 0000010c     4 FUNC    GLOBAL DEFAULT    1 ViewCreativeLookToInstance\n",
+            "   4: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND ViewCreativeLookToInstance\n",
+        ):
+            with self.assertRaises(module.ArmTargetBuildError):
+                module.validate_full_symbol_table(symbols + mutation)
+
+    def test_source_and_object_capability_scans_resist_lexical_obfuscation(self):
+        """Break caught: whitespace/comments/macros/adjacent literals hide Sony joins."""
+        module = self._exporter()
+        safe = (
+            "/* dlopen in explanatory comment only */\n"
+            "int cl_encode(void) { return 0; }\n"
+            'static const char label[] = "neutral";\n'
+        )
+        module.scan_source_text(PRODUCTION_SOURCES[0], safe)
+        module.scan_object_data(b"cl_encode\x00neutral\x00")
+        mutations = (
+            "void f(void) { dlopen /* split */ (0, 0); }",
+            "#define TARGET_LOADER dlopen\nvoid f(void) { TARGET_LOADER(0, 0); }",
+            'const char p[] = "/de" "v/sony";',
+            'const char p[] = "Backup/" "Fsys";',
+            r'const int p[] = L"/sett\151ng";',
+            r'const char p[] = "Mpr\111f";',
+            "static int dlo\\\npen(void) { return 0; }",
+            "#define CAT1(a,b) a ## b\n#define CAT(a,b) CAT1(a,b)\nstatic int CAT(dlo,pen)(void) { return 0; }",
+            "#define DIGRAPH_CAT(a,b) a %:%: b\nstatic int DIGRAPH_CAT(dlo,pen)(void) { return 0; }",
+            "void f(void) { MprIf_EncodeStill(); }",
+            "void f(void) { IdSoTable_openView(); }",
+        )
+        for mutation in mutations:
+            with self.subTest(source=mutation), self.assertRaisesRegex(
+                module.ArmTargetBuildError, "forbidden"
+            ):
+                module.scan_source_text(PRODUCTION_SOURCES[0], safe + mutation)
+        for payload in (
+            b"MprIf_EncodeStill\x00",
+            b"Sony/Backup/Fsys\x00",
+            b"firmware_package_writer\x00",
+            b"IdGenerator_openView\x00",
+            ("/setting\0").encode("utf-16le"),
+            ("/setting\0").encode("utf-32le"),
+        ):
+            with self.subTest(payload=payload), self.assertRaises(
+                module.ArmTargetBuildError
+            ):
+                module.scan_object_data(payload)
+        for include_mutation in (
+            '#inc\\\nlude "untracked.h"\n',
+            '%: include "untracked.h"\n',
+            '??=include "untracked.h"\n',
+            '#include HEADER_NAME\n',
+            '#include <stdio.h>\n',
+        ):
+            with self.subTest(include=include_mutation), self.assertRaises(
+                module.ArmTargetBuildError
+            ):
+                module.scan_include_text(
+                    PRODUCTION_SOURCES[0], include_mutation, {}
+                )
+
+    def test_profile_pins_exact_commands_symbols_relocations_and_identity_chain(self):
+        """Break caught: refreshed digests bless an altered link/inspection inventory."""
+        module = self._module()
+        document = self._document()
+        evidence = document["build_evidence"]
+        module.validate_build_commands(evidence["commands"])
+        command_mutations = []
+        missing_target = copy.deepcopy(evidence["commands"])
+        link = next(item for item in missing_target if item["purpose"] == "link:natural-relocatable")
+        link["argv"] = [item for item in link["argv"] if "creative_look_target.o" not in item]
+        command_mutations.append(missing_target)
+        wrong_inspection = copy.deepcopy(evidence["commands"])
+        inspect = next(item for item in wrong_inspection if item["purpose"] == "inspect:symbol-table")
+        inspect["argv"][-1] = "$BUILD/creative_look_bridge.o"
+        command_mutations.append(wrong_inspection)
+        for commands in command_mutations:
+            with self.assertRaises(module.CreativeLookArmTargetProfileError):
+                module.validate_build_commands(commands)
+
+        mutations = (
+            lambda value: value["build_evidence"].__setitem__("relocations", []),
+            lambda value: value["build_evidence"]["objects"].pop(),
+            lambda value: value["build_evidence"]["abi_probe"].__setitem__(
+                "source_sha256",
+                hashlib.sha256(b"int cl_arm_abi_probe_anchor(void) { return 0; }\n").hexdigest(),
+            ),
+            lambda value: value["build_evidence"]["abi_probe"].__setitem__("object_sha256", "0" * 64),
+            lambda value: value["build_evidence"]["symbol_table"].append(
+                {
+                    "name": "arbitrary_local",
+                    "value": 0,
+                    "size": 4,
+                    "type": "OBJECT",
+                    "binding": "LOCAL",
+                    "visibility": "DEFAULT",
+                    "section_index": 1,
+                    "section": ".text",
+                }
+            ),
+            lambda value: value["build_evidence"]["identity_metadata"]["record_symbol"].__setitem__("size", 12),
+            lambda value: value["build_evidence"]["identity_metadata"]["string_section"].__setitem__("flags", "WAMS"),
+            lambda value: value["build_evidence"]["identity_metadata"]["string_section"].__setitem__(
+                "hex",
+                value["build_evidence"]["identity_metadata"]["string_section"]["hex"]
+                + b"view/EXTRA\0".hex(),
+            ),
+            lambda value: value["build_evidence"]["identity_metadata"].__setitem__("factory_symbol_occurrences", 1),
+            lambda value: value["build_evidence"]["include_closure"].pop(),
+        )
+        for mutate in mutations:
+            candidate = copy.deepcopy(document)
+            mutate(candidate)
+            raw = copy.deepcopy(candidate["build_evidence"])
+            raw.pop("raw_record_sha256")
+            candidate["build_evidence"]["raw_record_sha256"] = hashlib.sha256(
+                (json.dumps(raw, sort_keys=True, separators=(",", ":")) + "\n").encode()
+            ).hexdigest()
+            contract = copy.deepcopy(candidate)
+            contract.pop("contract_sha256")
+            candidate["contract_sha256"] = hashlib.sha256(
+                (json.dumps(contract, sort_keys=True, separators=(",", ":")) + "\n").encode()
+            ).hexdigest()
+            with self.assertRaises(module.CreativeLookArmTargetProfileError):
+                module.validate_creative_look_arm_target_profile(candidate)
+
+    def test_real_factory_relocation_and_elf_type_mutations_are_rejected(self):
+        """Break caught: a real local factory join or altered ELF header passes scans."""
+        module = self._exporter()
+        self._require_real_toolchain()
+        tools = module.resolve_toolchain_tools(TOOLCHAIN_ROOT)
+        environment = dict(os.environ)
+        for key in module.COMPILER_ENVIRONMENT_KEYS:
+            environment.pop(key, None)
+        environment["PATH"] = str((TOOLCHAIN_ROOT / "bin").resolve())
+
+        def run(argv):
+            return subprocess.run(
+                [str(item) for item in argv],
+                cwd=ROOT,
+                env=environment,
+                shell=False,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=module.COMMAND_TIMEOUT_SECONDS,
+            )
+
+        with tempfile.TemporaryDirectory(prefix="creative-look-task4-mutations-") as directory:
+            temporary = Path(directory)
+            source = temporary / "factory-mutation.c"
+            source.write_text(
+                "#include <stddef.h>\n"
+                "static int ViewCreativeLookToInstance(void) { return 7; }\n"
+                "int (*task4_factory_pointer)(void) = ViewCreativeLookToInstance;\n"
+                "extern int MprIf_EncodeStill(void);\n"
+                "int task4_sony_encoder_reference(void) { return MprIf_EncodeStill(); }\n"
+                "const wchar_t task4_wide_path[] = L\"/sett\\151ng\";\n"
+                "const char task4_encoder_name[] = \"Mpr\\111f\";\n",
+                encoding="utf-8",
+            )
+            output = temporary / "factory-mutation.o"
+            run([tools["gcc"], *COMPILE_FLAGS, "-c", source, "-o", output])
+            mutation_bytes = output.read_bytes()
+            self.assertIn(("/setting\0").encode("utf-32le"), mutation_bytes)
+            self.assertIn(b"MprIf\0", mutation_bytes)
+            with self.assertRaises(module.ArmTargetBuildError):
+                module.scan_object_data(mutation_bytes)
+            sections_text = run([tools["readelf"], "-SW", output]).stdout
+            relocations_text = run([tools["readelf"], "-rW", output]).stdout
+            symbols_text = run([tools["readelf"], "-sW", output]).stdout
+            self.assertIn("ViewCreativeLookToInstance", symbols_text)
+            self.assertIn("MprIf_EncodeStill", relocations_text)
+            with self.assertRaisesRegex(module.ArmTargetBuildError, "forbidden symbol"):
+                module.validate_full_symbol_table(symbols_text)
+            sections = module._parse_sections(sections_text)
+            data = module._section_data(output.read_bytes(), sections)
+            relocations = module._parse_relocations(relocations_text, sections, data)
+            with self.assertRaisesRegex(module.ArmTargetBuildError, "forbidden symbol"):
+                module.validate_relocation_capabilities(relocations)
+
+            clean_source = temporary / "elf-mutation.c"
+            clean_source.write_text("int task4_elf_anchor(void) { return 0; }\n", encoding="utf-8")
+            clean_object = temporary / "elf-mutation.o"
+            run([tools["gcc"], *COMPILE_FLAGS, "-c", clean_source, "-o", clean_object])
+            object_bytes = bytearray(clean_object.read_bytes())
+            self.assertEqual(object_bytes[16:18], b"\x01\x00")
+            object_bytes[16:18] = b"\x03\x00"
+            mutated_object = temporary / "elf-dynamic-mutation.o"
+            mutated_object.write_bytes(object_bytes)
+            header = run([tools["readelf"], "-hW", mutated_object]).stdout
+            self.assertIn("DYN", header)
+            with self.assertRaises(module.ArmTargetBuildError):
+                module._parse_elf_header(header)
+
+            probe_source = module._abi_probe_source(ABI_LAYOUTS)
+            self.assertIn(
+                "cl_result (*const cl_probe_deliver_fn)(cl_target_shell *, const cl_input_event *, cl_bridge_report *)",
+                probe_source,
+            )
+            signature_mutation = temporary / "abi-signature-mutation.c"
+            signature_mutation.write_text(
+                probe_source.replace(
+                    "cl_target_shell *, const cl_input_event *, cl_bridge_report *",
+                    "cl_target_shell *, cl_input_event *, cl_bridge_report *",
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(subprocess.CalledProcessError):
+                run(
+                    [
+                        tools["gcc"],
+                        *COMPILE_FLAGS,
+                        "-I",
+                        NATIVE_ROOT,
+                        "-c",
+                        signature_mutation,
+                        "-o",
+                        temporary / "abi-signature-mutation.o",
+                    ]
+                )
 
     def test_profile_build_evidence_mutations_are_rejected(self):
         """Break caught: tracked normalized evidence can drift independently."""

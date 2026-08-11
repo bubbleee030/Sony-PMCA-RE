@@ -69,11 +69,13 @@ BUILD_SOURCE_HASHES = {
     "native/a6400_creative_look/creative_look_core.c": "c1ac9571c1ab1a70955a4d7c6a1a56118f7fa95e06174f310ae6e1e619dec9e5",
     "native/a6400_creative_look/creative_look_view.c": "c50346138d9e14f1e5af050a03018ef8decd1d520abb10fbe6e7f8aa8e3c0090",
     "native/a6400_creative_look/creative_look_bridge.c": "2d96193e572f381c04636538f68eb71528dae3ecfcebb0c9f4c26c46b31e5d51",
+    "native/a6400_creative_look/creative_look_target.c": "8346d8be2326b1b37d1f07e7b20783213d12fc427b86b1d6d3fa8e53e076c7f0",
 }
 BUILD_HEADER_HASHES = {
     "native/a6400_creative_look/creative_look_core.h": "1e82df201879666999373ebfcedfad12da7e9ffdf455708ff3ad93de20c95982",
     "native/a6400_creative_look/creative_look_view.h": "aef9b5536d5eea531905c12f8efa1118175ea3873df66358c62ce5a06c8e9378",
     "native/a6400_creative_look/creative_look_bridge.h": "44004ec81d0d1853be07d625517e2f0e6fc3c396bb023c87f67b4377b9aa1cd0",
+    "native/a6400_creative_look/creative_look_target.h": "2d655ea5820a790ada5f878e7709eb6554d1e89e9b9eb1a77fc4adac73ea7580",
 }
 BUILD_TOOL_PATHS = {
     "gcc": "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
@@ -102,6 +104,22 @@ BUILD_ABI_LAYOUTS = {
     "cl_bridge_adapters": {"size": 60, "alignment": 4},
     "cl_bridge": {"size": 692, "alignment": 4},
     "cl_bridge.adapters": {"offset": 632},
+    "cl_target_identity": {"size": 16, "alignment": 4},
+    "cl_target_identity.logical_alias": {"offset": 0},
+    "cl_target_identity.component_label": {"offset": 4},
+    "cl_target_identity.proposed_factory_label": {"offset": 8},
+    "cl_target_identity.publication_status": {"offset": 12},
+    "cl_target_shell": {"size": 1200, "alignment": 4},
+    "cl_target_shell.bridge": {"offset": 0},
+    "cl_target_shell.copied_frame": {"offset": 692},
+    "cl_target_shell.retained_sink": {"offset": 1184},
+    "cl_target_shell.retained_sink_context": {"offset": 1188},
+    "cl_target_shell.initialization_marker": {"offset": 1192},
+    "cl_target_shell.frame_valid": {"offset": 1196},
+    "cl_target_shell.delivering": {"offset": 1197},
+    "cl_target_shell.reserved": {"offset": 1198},
+    "CL_TARGET_SHELL_ABI_VERSION": {"value": 1},
+    "CL_TARGET_PUBLICATION_PROPOSED_UNPUBLISHED": {"value": 0},
 }
 BUILD_COMMAND_PURPOSES = (
     "identify:gcc",
@@ -113,6 +131,19 @@ BUILD_COMMAND_PURPOSES = (
     "compile:creative_look_core.c",
     "compile:creative_look_view.c",
     "compile:creative_look_bridge.c",
+    "compile:creative_look_target.c",
+    "inspect-object:creative_look_core.c:undefined-symbols",
+    "inspect-object:creative_look_core.c:defined-symbols",
+    "inspect-object:creative_look_core.c:symbol-table",
+    "inspect-object:creative_look_view.c:undefined-symbols",
+    "inspect-object:creative_look_view.c:defined-symbols",
+    "inspect-object:creative_look_view.c:symbol-table",
+    "inspect-object:creative_look_bridge.c:undefined-symbols",
+    "inspect-object:creative_look_bridge.c:defined-symbols",
+    "inspect-object:creative_look_bridge.c:symbol-table",
+    "inspect-object:creative_look_target.c:undefined-symbols",
+    "inspect-object:creative_look_target.c:defined-symbols",
+    "inspect-object:creative_look_target.c:symbol-table",
     "compile:test-only-abi-probe",
     "link:natural-relocatable",
     "inspect:undefined-symbols",
@@ -124,9 +155,123 @@ BUILD_COMMAND_PURPOSES = (
     "inspect:symbol-table",
     "inspect:object-format",
 )
+EXPECTED_IDENTITY_METADATA = {
+    "source": "native/a6400_creative_look/creative_look_target.c",
+    "record_symbol": {
+        "name": "cl_target_proposed_identity",
+        "binding": "LOCAL",
+        "type": "OBJECT",
+        "size": 16,
+        "section_index": 6,
+        "section": ".data.rel.ro.local",
+        "hex": "00000000140000002800000000000000",
+    },
+    "accessor_symbol": {
+        "name": "cl_target_shell_identity",
+        "binding": "GLOBAL",
+        "type": "FUNC",
+        "size": 12,
+        "section_index": 1,
+        "section": ".text",
+    },
+    "string_section": {
+        "index": 4,
+        "name": ".rodata.str1.4",
+        "type": "PROGBITS",
+        "flags": "AMS",
+        "size": 67,
+        "hex": "766965772f43524541544956455f4c4f4f4b00007669657743726561746976654c6f6f6b2e736f005669657743726561746976654c6f6f6b546f496e7374616e636500",
+        "sha256": "867511a4abb0a3b53fbc6930013e2dc31d6542a3466bc195560c59add950cf67",
+    },
+    "record_section": {
+        "index": 6,
+        "name": ".data.rel.ro.local",
+        "type": "PROGBITS",
+        "flags": "WA",
+    },
+    "literals": [
+        {
+            "field": "logical_alias",
+            "value": "view/CREATIVE_LOOK",
+            "record_offset": 0,
+            "string_offset": 0,
+            "source_occurrences": 1,
+            "object_occurrences": 1,
+            "section_occurrences": 1,
+        },
+        {
+            "field": "component_label",
+            "value": "viewCreativeLook.so",
+            "record_offset": 4,
+            "string_offset": 20,
+            "source_occurrences": 1,
+            "object_occurrences": 1,
+            "section_occurrences": 1,
+        },
+        {
+            "field": "proposed_factory_label",
+            "value": "ViewCreativeLookToInstance",
+            "record_offset": 8,
+            "string_offset": 40,
+            "source_occurrences": 1,
+            "object_occurrences": 1,
+            "section_occurrences": 1,
+        },
+    ],
+    "record_relocations": [
+        {
+            "relocation_section": ".rel.data.rel.ro.local",
+            "source_section": ".data.rel.ro.local",
+            "offset": 0,
+            "type": "R_ARM_ABS32",
+            "symbol": ".rodata.str1.4",
+            "addend": 0,
+        },
+        {
+            "relocation_section": ".rel.data.rel.ro.local",
+            "source_section": ".data.rel.ro.local",
+            "offset": 4,
+            "type": "R_ARM_ABS32",
+            "symbol": ".rodata.str1.4",
+            "addend": 20,
+        },
+        {
+            "relocation_section": ".rel.data.rel.ro.local",
+            "source_section": ".data.rel.ro.local",
+            "offset": 8,
+            "type": "R_ARM_ABS32",
+            "symbol": ".rodata.str1.4",
+            "addend": 40,
+        },
+    ],
+    "accessor_relocation": {
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "offset": 13504,
+        "type": "R_ARM_REL32",
+        "symbol": ".data.rel.ro.local",
+    },
+    "factory_symbol_occurrences": 0,
+}
+BUILD_SECTIONS_SHA256 = "15f7fdcb5f2a3caada92cfd88bbaff41e4231aabd1cca387a7d601b6b6974e94"
+BUILD_RELOCATIONS_SHA256 = "93cce4b8f8858cc6b81593df79c7f262e2510c78c7b27eaa0f2f69c89b8846ee"
+BUILD_SYMBOL_TABLE_SHA256 = "e2af6de51002114fc68c2ad9359f9b48e013ad176965b041f2056f39d2c70711"
+BUILD_DEFINED_SYMBOLS_SHA256 = "c92bfdb5b50530b6de2a94782cf29f71169ca7b8ea7d61a0e473157325bbfddd"
+BUILD_COMMANDS_SHA256 = "9551b0ee0f6448d6d98e992ce813dbed5b160d421b985574ef4b6fc86d2befc6"
+BUILD_OBJECT_SHA256 = "1f03b1ab4c722d4f266d272d21bbef230838f621baa079386c324a3c20666a33"
+BUILD_RAW_RECORD_SHA256 = "e4aa64123bb839650b244351bad7b49fb6b1c6a2239e798bc32533f35cc08b50"
+BUILD_OBJECTS_SHA256 = "64b2040474a0b6e81780576e64041d381a0ad03fee378634e8deb5344ae775ad"
+BUILD_ABI_PROBE = {
+    "path": "$BUILD/creative_look_arm_abi_probe.c",
+    "source_sha256": "d0195680332b413812b3030078f4358ebed0826c771fb406fff162eb784048eb",
+    "object_path": "$BUILD/creative_look_arm_abi_probe.o",
+    "object_sha256": "02d75da7425c0de488ef82dec58e53a78c6e17f5ce3dbfe53847500b5442b544",
+    "linked": False,
+}
+BUILD_INCLUDE_CLOSURE_SHA256 = "627e96eeb35004af2ad15cb789d158fe5ae945dd712ce99580b0535b1ee63312"
 READINESS = "ARM_TARGET_OBJECT_COMPILED__RUNTIME_UNBOUND"
 CONCLUSION = (
-    "The portable Creative Look core, view, and bridge were compiled with the "
+    "The portable Creative Look core, view, bridge, and neutral target shell were compiled with the "
     "pinned official Arm GNU Toolchain as one naturally linked ARMv7-A/Thumb-2 "
     "softfp ET_REL object for offline static inspection. The target ABI probe, "
     "empty undefined-symbol result, mandatory attributes, benign extra "
@@ -192,6 +337,128 @@ def _walk_strings(value: object):
             yield from _walk_strings(item)
 
 
+def _expected_build_command_argv() -> list[tuple[str, list[str]]]:
+    gcc = BUILD_TOOL_PATHS["gcc"]
+    native = "native/a6400_creative_look"
+    commands = [
+        (f"identify:{role}", [BUILD_TOOL_PATHS[role], "--version"])
+        for role in ("gcc", "ld", "readelf", "nm", "objdump", "as")
+    ]
+    for source_path in BUILD_SOURCE_HASHES:
+        name = source_path.rsplit("/", 1)[-1]
+        commands.append(
+            (
+                f"compile:{name}",
+                [
+                    gcc,
+                    *COMPILE_FLAGS,
+                    "-I",
+                    native,
+                    "-c",
+                    source_path,
+                    "-o",
+                    f"$BUILD/{name[:-2]}.o",
+                ],
+            )
+        )
+    for source_path in BUILD_SOURCE_HASHES:
+        name = source_path.rsplit("/", 1)[-1]
+        object_path = f"$BUILD/{name[:-2]}.o"
+        commands.extend(
+            (
+                (
+                    f"inspect-object:{name}:undefined-symbols",
+                    [BUILD_TOOL_PATHS["nm"], "-u", "-P", object_path],
+                ),
+                (
+                    f"inspect-object:{name}:defined-symbols",
+                    [BUILD_TOOL_PATHS["nm"], "-g", "--defined-only", "-P", object_path],
+                ),
+                (
+                    f"inspect-object:{name}:symbol-table",
+                    [BUILD_TOOL_PATHS["readelf"], "-sW", object_path],
+                ),
+            )
+        )
+    commands.extend(
+        (
+            (
+                "compile:test-only-abi-probe",
+                [
+                    gcc,
+                    *COMPILE_FLAGS,
+                    "-I",
+                    native,
+                    "-c",
+                    "$BUILD/creative_look_arm_abi_probe.c",
+                    "-o",
+                    "$BUILD/creative_look_arm_abi_probe.o",
+                ],
+            ),
+            (
+                "link:natural-relocatable",
+                [
+                    BUILD_TOOL_PATHS["ld"],
+                    "-r",
+                    "-o",
+                    "$OUTPUT/creative_look_arm_target.o",
+                    *[
+                        f"$BUILD/{path.rsplit('/', 1)[-1][:-2]}.o"
+                        for path in BUILD_SOURCE_HASHES
+                    ],
+                ],
+            ),
+            (
+                "inspect:undefined-symbols",
+                [BUILD_TOOL_PATHS["nm"], "-u", "-P", "$OUTPUT/creative_look_arm_target.o"],
+            ),
+            (
+                "inspect:defined-symbols",
+                [BUILD_TOOL_PATHS["nm"], "-g", "--defined-only", "-P", "$OUTPUT/creative_look_arm_target.o"],
+            ),
+            (
+                "inspect:elf-header",
+                [BUILD_TOOL_PATHS["readelf"], "-hW", "$OUTPUT/creative_look_arm_target.o"],
+            ),
+            (
+                "inspect:arm-attributes",
+                [BUILD_TOOL_PATHS["readelf"], "-AW", "$OUTPUT/creative_look_arm_target.o"],
+            ),
+            (
+                "inspect:sections",
+                [BUILD_TOOL_PATHS["readelf"], "-SW", "$OUTPUT/creative_look_arm_target.o"],
+            ),
+            (
+                "inspect:relocations",
+                [BUILD_TOOL_PATHS["readelf"], "-rW", "$OUTPUT/creative_look_arm_target.o"],
+            ),
+            (
+                "inspect:symbol-table",
+                [BUILD_TOOL_PATHS["readelf"], "-sW", "$OUTPUT/creative_look_arm_target.o"],
+            ),
+            (
+                "inspect:object-format",
+                [BUILD_TOOL_PATHS["objdump"], "-f", "$OUTPUT/creative_look_arm_target.o"],
+            ),
+        )
+    )
+    return commands
+
+
+def validate_build_commands(commands: object) -> None:
+    """Require every compile/link/inspection command and target exactly."""
+    if not isinstance(commands, list):
+        raise CreativeLookArmTargetProfileError("build command sequence differs")
+    expected = _expected_build_command_argv()
+    observed = []
+    for item in commands:
+        if not isinstance(item, dict):
+            raise CreativeLookArmTargetProfileError("build command sequence differs")
+        observed.append((item.get("purpose"), item.get("argv")))
+    if observed != expected or tuple(purpose for purpose, _ in expected) != BUILD_COMMAND_PURPOSES:
+        raise CreativeLookArmTargetProfileError("build command sequence differs")
+
+
 def _validate_build_evidence(evidence: object) -> None:
     record = _exact_dict(
         evidence,
@@ -201,16 +468,21 @@ def _validate_build_evidence(evidence: object) -> None:
             "camera_executed",
             "tools",
             "inputs",
+            "include_closure",
             "build",
             "commands",
+            "abi_probe",
+            "objects",
             "object",
             "elf",
             "attributes",
             "abi_layouts",
             "sections",
             "relocations",
+            "symbol_table",
             "defined_symbols",
             "undefined_symbols",
+            "identity_metadata",
             "safety_scan",
             "raw_record_sha256",
         ),
@@ -259,8 +531,7 @@ def _validate_build_evidence(evidence: object) -> None:
     if not _same_typed_structure(evidence_build, {"compile_flags": COMPILE_FLAGS, "link_mode": ["-r"]}):
         raise CreativeLookArmTargetProfileError("evidence build contract differs")
     commands = record["commands"]
-    if not isinstance(commands, list) or tuple(item.get("purpose") for item in commands if isinstance(item, dict)) != BUILD_COMMAND_PURPOSES:
-        raise CreativeLookArmTargetProfileError("build command sequence differs")
+    validate_build_commands(commands)
     for item in commands:
         command = _exact_dict(
             item,
@@ -277,9 +548,72 @@ def _validate_build_evidence(evidence: object) -> None:
             or not _is_sha256(command["stderr_sha256"])
         ):
             raise CreativeLookArmTargetProfileError("build command record differs")
+    if canonical_digest(commands) != BUILD_COMMANDS_SHA256:
+        raise CreativeLookArmTargetProfileError("build command evidence differs")
+
+    include_closure = record["include_closure"]
+    if not isinstance(include_closure, list) or len(include_closure) != 8:
+        raise CreativeLookArmTargetProfileError("include closure differs")
+    for item in include_closure:
+        include = _exact_dict(item, ("path", "quoted", "system"), "include closure")
+        if (
+            include["path"] not in (set(BUILD_SOURCE_HASHES) | set(BUILD_HEADER_HASHES))
+            or not isinstance(include["quoted"], list)
+            or not all(name in {path.rsplit('/', 1)[-1] for path in BUILD_HEADER_HASHES} for name in include["quoted"])
+            or not isinstance(include["system"], list)
+            or not all(name in ("limits.h", "stddef.h", "stdint.h") for name in include["system"])
+        ):
+            raise CreativeLookArmTargetProfileError("include closure differs")
+    if canonical_digest(include_closure) != BUILD_INCLUDE_CLOSURE_SHA256:
+        raise CreativeLookArmTargetProfileError("include closure differs")
+
+    if not _same_typed_structure(record["abi_probe"], BUILD_ABI_PROBE):
+        raise CreativeLookArmTargetProfileError("ABI probe evidence differs")
+
+    objects = record["objects"]
+    if not isinstance(objects, list) or len(objects) != len(BUILD_SOURCE_HASHES):
+        raise CreativeLookArmTargetProfileError("production object set differs")
+    for item, source in zip(objects, BUILD_SOURCE_HASHES):
+        object_item = _exact_dict(
+            item,
+            (
+                "source",
+                "path",
+                "sha256",
+                "undefined_symbols",
+                "defined_symbols",
+                "symbol_table",
+            ),
+            "production object",
+        )
+        name = source.rsplit("/", 1)[-1][:-2] + ".o"
+        if (
+            object_item["source"] != source
+            or object_item["path"] != "$BUILD/" + name
+            or not _is_sha256(object_item["sha256"])
+            or not isinstance(object_item["undefined_symbols"], list)
+            or object_item["undefined_symbols"] != sorted(set(object_item["undefined_symbols"]))
+            or not isinstance(object_item["defined_symbols"], list)
+            or object_item["defined_symbols"] != sorted(set(object_item["defined_symbols"]))
+            or not isinstance(object_item["symbol_table"], list)
+            or not object_item["symbol_table"]
+        ):
+            raise CreativeLookArmTargetProfileError("production object set differs")
+        for symbol in object_item["symbol_table"]:
+            _exact_dict(
+                symbol,
+                ("name", "value", "size", "type", "binding", "visibility", "section_index", "section"),
+                "production object symbol",
+            )
+    if canonical_digest(objects) != BUILD_OBJECTS_SHA256:
+        raise CreativeLookArmTargetProfileError("production object set differs")
 
     object_record = _exact_dict(record["object"], ("path", "sha256"), "target object")
-    if object_record["path"] != "$OUTPUT/creative_look_arm_target.o" or not _is_sha256(object_record["sha256"]):
+    if (
+        object_record["path"] != "$OUTPUT/creative_look_arm_target.o"
+        or object_record["sha256"] != BUILD_OBJECT_SHA256
+        or not _is_sha256(object_record["sha256"])
+    ):
         raise CreativeLookArmTargetProfileError("target object identity differs")
     if not _same_typed_structure(record["elf"], {
         "class": "ELF32",
@@ -295,14 +629,88 @@ def _validate_build_evidence(evidence: object) -> None:
         raise CreativeLookArmTargetProfileError("built ARM attributes differ")
     if not _same_typed_structure(record["abi_layouts"], BUILD_ABI_LAYOUTS):
         raise CreativeLookArmTargetProfileError("built ABI layout differs")
-    if (
-        not isinstance(record["sections"], list)
-        or ".text" not in record["sections"]
-        or ".ARM.attributes" not in record["sections"]
-        or not isinstance(record["relocations"], list)
-        or not all(isinstance(item, str) and "R_ARM_" in item for item in record["relocations"])
-    ):
+    sections = record["sections"]
+    if not isinstance(sections, list) or not sections:
         raise CreativeLookArmTargetProfileError("section or relocation evidence differs")
+    for index, item in enumerate(sections):
+        section = _exact_dict(
+            item,
+            ("index", "name", "type", "offset", "size", "flags", "link", "info", "alignment"),
+            "section evidence",
+        )
+        if (
+            section["index"] != index
+            or not isinstance(section["name"], str)
+            or not isinstance(section["type"], str)
+            or not isinstance(section["flags"], str)
+            or any(type(section[field]) is not int or section[field] < 0 for field in ("offset", "size", "link", "info", "alignment"))
+        ):
+            raise CreativeLookArmTargetProfileError("section evidence differs")
+    if (
+        not any(item["name"] == ".text" and "X" in item["flags"] for item in sections)
+        or not any(item["name"] == ".ARM.attributes" for item in sections)
+        or canonical_digest(sections) != BUILD_SECTIONS_SHA256
+    ):
+        raise CreativeLookArmTargetProfileError("section evidence differs")
+
+    relocations = record["relocations"]
+    if not isinstance(relocations, list) or not relocations:
+        raise CreativeLookArmTargetProfileError("relocation evidence differs")
+    for item in relocations:
+        relocation = _exact_dict(
+            item,
+            (
+                "relocation_section",
+                "source_section",
+                "offset",
+                "type",
+                "symbol_value",
+                "symbol",
+                "addend",
+                "encoded_source_word",
+            ),
+            "relocation evidence",
+        )
+        if (
+            not isinstance(relocation["relocation_section"], str)
+            or not isinstance(relocation["source_section"], str)
+            or type(relocation["offset"]) is not int
+            or relocation["offset"] < 0
+            or not isinstance(relocation["type"], str)
+            or not relocation["type"].startswith("R_ARM_")
+            or type(relocation["symbol_value"]) is not int
+            or not isinstance(relocation["symbol"], str)
+            or type(relocation["addend"]) not in (int, type(None))
+            or not isinstance(relocation["encoded_source_word"], str)
+            or re.fullmatch(r"[0-9a-f]{8}", relocation["encoded_source_word"]) is None
+        ):
+            raise CreativeLookArmTargetProfileError("relocation evidence differs")
+    if canonical_digest(relocations) != BUILD_RELOCATIONS_SHA256:
+        raise CreativeLookArmTargetProfileError("relocation evidence differs")
+
+    symbols = record["symbol_table"]
+    if not isinstance(symbols, list) or not symbols:
+        raise CreativeLookArmTargetProfileError("symbol table evidence differs")
+    for item in symbols:
+        symbol = _exact_dict(
+            item,
+            ("name", "value", "size", "type", "binding", "visibility", "section_index", "section"),
+            "symbol table evidence",
+        )
+        if (
+            not isinstance(symbol["name"], str)
+            or not symbol["name"]
+            or type(symbol["value"]) is not int
+            or type(symbol["size"]) is not int
+            or not isinstance(symbol["type"], str)
+            or not isinstance(symbol["binding"], str)
+            or not isinstance(symbol["visibility"], str)
+            or type(symbol["section_index"]) not in (int, str)
+            or type(symbol["section"]) not in (str, type(None))
+        ):
+            raise CreativeLookArmTargetProfileError("symbol table evidence differs")
+    if canonical_digest(symbols) != BUILD_SYMBOL_TABLE_SHA256:
+        raise CreativeLookArmTargetProfileError("symbol table evidence differs")
     defined = record["defined_symbols"]
     if (
         not isinstance(defined, list)
@@ -310,9 +718,12 @@ def _validate_build_evidence(evidence: object) -> None:
         or "cl_init" not in defined
         or "cl_bridge_open" not in defined
         or any(symbol.startswith("__aeabi_") or symbol in ("_start", "_init", "_fini") for symbol in defined)
+        or canonical_digest(defined) != BUILD_DEFINED_SYMBOLS_SHA256
         or record["undefined_symbols"] != []
     ):
         raise CreativeLookArmTargetProfileError("symbol evidence differs")
+    if not _same_typed_structure(record["identity_metadata"], EXPECTED_IDENTITY_METADATA):
+        raise CreativeLookArmTargetProfileError("identity metadata evidence differs")
     safety = _exact_dict(record["safety_scan"], ("files", "forbidden_matches"), "safety scan")
     if safety["files"] != list(BUILD_SOURCE_HASHES) + list(BUILD_HEADER_HASHES) or safety["forbidden_matches"] != []:
         raise CreativeLookArmTargetProfileError("safety scan evidence differs")
@@ -320,7 +731,11 @@ def _validate_build_evidence(evidence: object) -> None:
     raw_digest = record["raw_record_sha256"]
     raw_record = copy.deepcopy(record)
     raw_record.pop("raw_record_sha256")
-    if not _is_sha256(raw_digest) or raw_digest != canonical_digest(raw_record):
+    if (
+        not _is_sha256(raw_digest)
+        or raw_digest != BUILD_RAW_RECORD_SHA256
+        or raw_digest != canonical_digest(raw_record)
+    ):
         raise CreativeLookArmTargetProfileError("raw build record digest differs")
 
 
