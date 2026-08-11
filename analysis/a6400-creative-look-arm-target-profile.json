@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "analysis_scope": "offline-static-arm-target-profile",
+  "analysis_scope": "offline-static-arm-target-object",
   "camera_policy": "physically-disconnected",
   "camera_executed": false,
   "target": {
@@ -110,14 +110,645 @@
       "output_suffix": ".o"
     }
   },
+  "build_evidence": {
+    "abi_layouts": {
+      "cl_binding_record": {
+        "alignment": 1,
+        "size": 36
+      },
+      "cl_bridge": {
+        "alignment": 4,
+        "size": 692
+      },
+      "cl_bridge.adapters": {
+        "offset": 632
+      },
+      "cl_bridge_adapters": {
+        "alignment": 4,
+        "size": 60
+      },
+      "cl_bridge_report": {
+        "alignment": 4,
+        "size": 64
+      },
+      "cl_integration_manifest": {
+        "alignment": 2,
+        "size": 228
+      },
+      "cl_processing_snapshot": {
+        "alignment": 4,
+        "size": 164
+      },
+      "cl_state": {
+        "alignment": 1,
+        "size": 155
+      }
+    },
+    "attributes": {
+      "extra": [
+        {
+          "name": "Tag_CPU_name",
+          "tag": 5,
+          "value": "7-A"
+        },
+        {
+          "name": "Tag_ABI_FP_denormal",
+          "tag": 20,
+          "value": "Needed"
+        },
+        {
+          "name": "Tag_ABI_FP_exceptions",
+          "tag": 21,
+          "value": "Needed"
+        },
+        {
+          "name": "Tag_ABI_FP_number_model",
+          "tag": 23,
+          "value": "IEEE 754"
+        },
+        {
+          "name": "Tag_ABI_align_preserved",
+          "tag": 25,
+          "value": "8-byte, except leaf SP"
+        },
+        {
+          "name": "Tag_ABI_optimization_goals",
+          "tag": 30,
+          "value": "Aggressive Speed"
+        },
+        {
+          "name": "Tag_CPU_unaligned_access",
+          "tag": 34,
+          "value": "v6"
+        }
+      ],
+      "mandatory": [
+        {
+          "name": "Tag_CPU_arch",
+          "tag": 6,
+          "value": "v7"
+        },
+        {
+          "name": "Tag_CPU_arch_profile",
+          "tag": 7,
+          "value": "Application"
+        },
+        {
+          "name": "Tag_ARM_ISA_use",
+          "tag": 8,
+          "value": "Yes"
+        },
+        {
+          "name": "Tag_THUMB_ISA_use",
+          "tag": 9,
+          "value": "Thumb-2"
+        },
+        {
+          "name": "Tag_FP_arch",
+          "tag": 10,
+          "value": "VFPv3-D16"
+        },
+        {
+          "name": "Tag_ABI_PCS_wchar_t",
+          "tag": 18,
+          "value": 4
+        },
+        {
+          "name": "Tag_ABI_align_needed",
+          "tag": 24,
+          "value": 8
+        },
+        {
+          "name": "Tag_ABI_enum_size",
+          "tag": 26,
+          "value": 4
+        }
+      ]
+    },
+    "build": {
+      "compile_flags": [
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-fPIC",
+        "-O2",
+        "-finline-stringops=memcpy",
+        "-march=armv7-a",
+        "-mthumb",
+        "-mfpu=vfpv3-d16",
+        "-mfloat-abi=softfp",
+        "-mabi=aapcs-linux",
+        "-fno-unwind-tables",
+        "-fno-asynchronous-unwind-tables"
+      ],
+      "link_mode": [
+        "-r"
+      ]
+    },
+    "camera_executed": false,
+    "commands": [
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+          "--version"
+        ],
+        "purpose": "identify:gcc",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "07f919c02365ffba1d4f5143ce802c07e34be9ed61378c801a642558ac5d5a9d"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-ld.exe",
+          "--version"
+        ],
+        "purpose": "identify:ld",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e4201556ffd74629923b4667ba4fb5b52a901f025f60cbf128894699b1910c88"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "--version"
+        ],
+        "purpose": "identify:readelf",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "016f662a688788e265f08d66b00a0dbfebafdabdb8c9a32a5ca8fd76f1024955"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "--version"
+        ],
+        "purpose": "identify:nm",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "7b771573220d02edde7fdd17353fd9715535b175a479718f3e0a6730394eaad1"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-objdump.exe",
+          "--version"
+        ],
+        "purpose": "identify:objdump",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "a553f9075aa3e7f722f1bfcffe1dcf221deb46fd0ccac3a3a084349fc92237f7"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/arm-none-eabi/bin/as.exe",
+          "--version"
+        ],
+        "purpose": "identify:as",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "2b264d6958735224fc139cdd8c3a02981db719215ae46e86aa35231648ee02b4"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-ffreestanding",
+          "-fno-builtin",
+          "-fPIC",
+          "-O2",
+          "-finline-stringops=memcpy",
+          "-march=armv7-a",
+          "-mthumb",
+          "-mfpu=vfpv3-d16",
+          "-mfloat-abi=softfp",
+          "-mabi=aapcs-linux",
+          "-fno-unwind-tables",
+          "-fno-asynchronous-unwind-tables",
+          "-I",
+          "native/a6400_creative_look",
+          "-c",
+          "native/a6400_creative_look/creative_look_core.c",
+          "-o",
+          "$BUILD/creative_look_core.o"
+        ],
+        "purpose": "compile:creative_look_core.c",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-ffreestanding",
+          "-fno-builtin",
+          "-fPIC",
+          "-O2",
+          "-finline-stringops=memcpy",
+          "-march=armv7-a",
+          "-mthumb",
+          "-mfpu=vfpv3-d16",
+          "-mfloat-abi=softfp",
+          "-mabi=aapcs-linux",
+          "-fno-unwind-tables",
+          "-fno-asynchronous-unwind-tables",
+          "-I",
+          "native/a6400_creative_look",
+          "-c",
+          "native/a6400_creative_look/creative_look_view.c",
+          "-o",
+          "$BUILD/creative_look_view.o"
+        ],
+        "purpose": "compile:creative_look_view.c",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-ffreestanding",
+          "-fno-builtin",
+          "-fPIC",
+          "-O2",
+          "-finline-stringops=memcpy",
+          "-march=armv7-a",
+          "-mthumb",
+          "-mfpu=vfpv3-d16",
+          "-mfloat-abi=softfp",
+          "-mabi=aapcs-linux",
+          "-fno-unwind-tables",
+          "-fno-asynchronous-unwind-tables",
+          "-I",
+          "native/a6400_creative_look",
+          "-c",
+          "native/a6400_creative_look/creative_look_bridge.c",
+          "-o",
+          "$BUILD/creative_look_bridge.o"
+        ],
+        "purpose": "compile:creative_look_bridge.c",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-ffreestanding",
+          "-fno-builtin",
+          "-fPIC",
+          "-O2",
+          "-finline-stringops=memcpy",
+          "-march=armv7-a",
+          "-mthumb",
+          "-mfpu=vfpv3-d16",
+          "-mfloat-abi=softfp",
+          "-mabi=aapcs-linux",
+          "-fno-unwind-tables",
+          "-fno-asynchronous-unwind-tables",
+          "-I",
+          "native/a6400_creative_look",
+          "-c",
+          "$BUILD/creative_look_arm_abi_probe.c",
+          "-o",
+          "$BUILD/creative_look_arm_abi_probe.o"
+        ],
+        "purpose": "compile:test-only-abi-probe",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-ld.exe",
+          "-r",
+          "-o",
+          "$OUTPUT/creative_look_arm_target.o",
+          "$BUILD/creative_look_core.o",
+          "$BUILD/creative_look_view.o",
+          "$BUILD/creative_look_bridge.o"
+        ],
+        "purpose": "link:natural-relocatable",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-u",
+          "-P",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:undefined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-g",
+          "--defined-only",
+          "-P",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:defined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "dabd5777dcd723c05bd740c83b9aaf03648c1586959603230205f9cc6f076939"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-hW",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:elf-header",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "85ee386f7a6ca96de67eab35c2bdcd50cf50298b6450036ac181a2b5a475f91b"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-AW",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:arm-attributes",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "1f9a56cea7920f998d5e85b225a349f8cab360dabc0f06b7e50b17e31c8aaa2b"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-SW",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:sections",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "a62c3baf498c5ef8a8629dd92f25e7e6dd79e1cf023f2bade0ca2240ec7513d0"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-rW",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:relocations",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "2d70e5bfc4083017c9ddb464493045f7440c1ce7d392ce558639ba9220f771cc"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-sW",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:symbol-table",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "8b9044f6ae70f2c2a6ad10cd591752996504d2936031e1d36212986fd4665789"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-objdump.exe",
+          "-f",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:object-format",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "0f04e59c0a09da5ed368fca24f32d6bd17a9c4907a4b409e48bf147370749ee2"
+      }
+    ],
+    "defined_symbols": [
+      "cl_axis_range",
+      "cl_axis_status",
+      "cl_back_to_catalog",
+      "cl_binding_record_size",
+      "cl_blob_size",
+      "cl_bridge_adapters_offset",
+      "cl_bridge_alignment",
+      "cl_bridge_close",
+      "cl_bridge_dirty_mask",
+      "cl_bridge_handle_event",
+      "cl_bridge_init",
+      "cl_bridge_last_report",
+      "cl_bridge_manifest_host",
+      "cl_bridge_open",
+      "cl_bridge_processing_revision",
+      "cl_bridge_report_size",
+      "cl_bridge_retry",
+      "cl_bridge_set_mode",
+      "cl_bridge_size",
+      "cl_bridge_state",
+      "cl_bridge_state_revision",
+      "cl_bridge_sync",
+      "cl_bridge_validate_manifest",
+      "cl_capability_flags",
+      "cl_decode",
+      "cl_encode",
+      "cl_init",
+      "cl_input_event_size",
+      "cl_integration_manifest_size",
+      "cl_is_modified",
+      "cl_open_axis",
+      "cl_processing_snapshot_size",
+      "cl_reset_selected",
+      "cl_select_custom_base",
+      "cl_select_look",
+      "cl_set_axis",
+      "cl_set_mode",
+      "cl_set_orientation",
+      "cl_state_size",
+      "cl_storage_load",
+      "cl_storage_save",
+      "cl_validate",
+      "cl_view_build",
+      "cl_view_frame_size",
+      "cl_view_present",
+      "cl_view_touch"
+    ],
+    "elf": {
+      "class": "ELF32",
+      "data": "little-endian",
+      "eabi_version": 5,
+      "machine": "ARM",
+      "type": "ET_REL"
+    },
+    "inputs": {
+      "headers": [
+        {
+          "path": "native/a6400_creative_look/creative_look_core.h",
+          "sha256": "1e82df201879666999373ebfcedfad12da7e9ffdf455708ff3ad93de20c95982"
+        },
+        {
+          "path": "native/a6400_creative_look/creative_look_view.h",
+          "sha256": "aef9b5536d5eea531905c12f8efa1118175ea3873df66358c62ce5a06c8e9378"
+        },
+        {
+          "path": "native/a6400_creative_look/creative_look_bridge.h",
+          "sha256": "44004ec81d0d1853be07d625517e2f0e6fc3c396bb023c87f67b4377b9aa1cd0"
+        }
+      ],
+      "sources": [
+        {
+          "path": "native/a6400_creative_look/creative_look_core.c",
+          "sha256": "c1ac9571c1ab1a70955a4d7c6a1a56118f7fa95e06174f310ae6e1e619dec9e5"
+        },
+        {
+          "path": "native/a6400_creative_look/creative_look_view.c",
+          "sha256": "c50346138d9e14f1e5af050a03018ef8decd1d520abb10fbe6e7f8aa8e3c0090"
+        },
+        {
+          "path": "native/a6400_creative_look/creative_look_bridge.c",
+          "sha256": "2d96193e572f381c04636538f68eb71528dae3ecfcebb0c9f4c26c46b31e5d51"
+        }
+      ]
+    },
+    "object": {
+      "path": "$OUTPUT/creative_look_arm_target.o",
+      "sha256": "18e2dd527b8af0a5253a36e39dd0ad46a4f5afb3cdc5c883d186563739da446f"
+    },
+    "raw_record_sha256": "0e0cd4e1434a2ef11d228addbdb9bb038e5e616b7ddfe2a88e0ff146a1903ff7",
+    "relocations": [
+      "00000124 00000203 R_ARM_REL32 00000000 .rodata",
+      "000001c0 00000203 R_ARM_REL32 00000000 .rodata",
+      "000005a0 00000203 R_ARM_REL32 00000000 .rodata",
+      "00000998 00003d0a R_ARM_THM_CALL 00000175 cl_validate",
+      "00000a56 00002b0a R_ARM_THM_CALL 0000022d cl_is_modified",
+      "00000c2c 00003e0a R_ARM_THM_CALL 00000181 cl_axis_range",
+      "00000d1a 0000300a R_ARM_THM_CALL 000001c5 cl_axis_status",
+      "00000e54 00004d0a R_ARM_THM_CALL 00000985 cl_view_build",
+      "00000eb4 0000330a R_ARM_THM_CALL 00000609 cl_back_to_catalog",
+      "00000ebc 00004b0a R_ARM_THM_CALL 000005a5 cl_reset_selected",
+      "00000ed0 0000350a R_ARM_THM_CALL 00000509 cl_set_axis",
+      "00000ee0 0000400a R_ARM_THM_CALL 000004a9 cl_open_axis",
+      "00000efc 0000450a R_ARM_THM_CALL 00000419 cl_select_custom_base",
+      "00000f0c 0000470a R_ARM_THM_CALL 0000038d cl_select_look",
+      "00000f3e 00004d0a R_ARM_THM_CALL 00000985 cl_view_build",
+      "00000f7c 00004a0a R_ARM_THM_CALL 00000655 cl_encode",
+      "00000fcc 0000480a R_ARM_THM_CALL 0000071d cl_decode",
+      "000010ea 00004d0a R_ARM_THM_CALL 00000985 cl_view_build",
+      "00001148 00004a0a R_ARM_THM_CALL 00000655 cl_encode",
+      "000014ce 0000250a R_ARM_THM_CALL 000013c9 cl_bridge_validate_manifest",
+      "00001588 00002e0a R_ARM_THM_CALL 00000135 cl_init",
+      "00001692 00002e0a R_ARM_THM_CALL 00000135 cl_init",
+      "0000175a 00004d0a R_ARM_THM_CALL 00000985 cl_view_build",
+      "000018ca 0000480a R_ARM_THM_CALL 0000071d cl_decode",
+      "00001d44 00002003 R_ARM_REL32 000026e9 cl_bridge_input_sink",
+      "00001fc4 0000411e R_ARM_THM_JUMP24 00001e51 cl_bridge_sync",
+      "00002072 0000320a R_ARM_THM_CALL 00000285 cl_set_orientation",
+      "0000207e 00003d0a R_ARM_THM_CALL 00000175 cl_validate",
+      "00002274 0000360a R_ARM_THM_CALL 00000e41 cl_view_touch",
+      "000026e8 0000441e R_ARM_THM_JUMP24 00001fc9 cl_bridge_handle_event",
+      "0000275c 00002f0a R_ARM_THM_CALL 000002dd cl_set_mode"
+    ],
+    "safety_scan": {
+      "files": [
+        "native/a6400_creative_look/creative_look_core.c",
+        "native/a6400_creative_look/creative_look_view.c",
+        "native/a6400_creative_look/creative_look_bridge.c",
+        "native/a6400_creative_look/creative_look_core.h",
+        "native/a6400_creative_look/creative_look_view.h",
+        "native/a6400_creative_look/creative_look_bridge.h"
+      ],
+      "forbidden_matches": []
+    },
+    "schema_version": 1,
+    "scope": "offline-static-arm-target-object",
+    "sections": [
+      "NULL",
+      ".text",
+      ".rel.text",
+      ".rodata",
+      ".data",
+      ".bss",
+      ".comment",
+      ".ARM.attributes",
+      ".symtab",
+      ".strtab",
+      ".shstrtab"
+    ],
+    "tools": [
+      {
+        "path": "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+        "role": "gcc",
+        "sha256": "accf3766d0b53850fcc09ed6b150d44925f9c2f4923f83935692d0e96559d001",
+        "version": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 15.2.1 20251203"
+      },
+      {
+        "path": "$TOOLCHAIN/bin/arm-none-eabi-ld.exe",
+        "role": "ld",
+        "sha256": "94749493e74a5fa5de5b2eb7bb0a7f9d04e07694d35668dca93b75b18f35ec7e",
+        "version": "GNU ld (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 2.45.1.20251203"
+      },
+      {
+        "path": "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+        "role": "readelf",
+        "sha256": "bea94d5da605962fdcdd5b8cb8d4ba9a60017148a59df9c4fbd6aae10852e470",
+        "version": "GNU readelf (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 2.45.1.20251203"
+      },
+      {
+        "path": "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+        "role": "nm",
+        "sha256": "e5278fc0ff7e6ff95640797d16b02a68613cc999d5f17123eedbf9fbd0142415",
+        "version": "GNU nm (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 2.45.1.20251203"
+      },
+      {
+        "path": "$TOOLCHAIN/bin/arm-none-eabi-objdump.exe",
+        "role": "objdump",
+        "sha256": "925cf2bd2d20a5ad4a54886da8ab21dc3de286c489532035f29ec6f092e1e962",
+        "version": "GNU objdump (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 2.45.1.20251203"
+      },
+      {
+        "path": "$TOOLCHAIN/libexec/gcc/arm-none-eabi/15.2.1/cc1.exe",
+        "role": "cc1",
+        "sha256": "ea2b9723ab09655cfd89c08b67f9b4b806d01dca7471059baf4f586a6d7459c4",
+        "version": "arm-none-eabi GCC internal 15.2.1"
+      },
+      {
+        "path": "$TOOLCHAIN/arm-none-eabi/bin/as.exe",
+        "role": "as",
+        "sha256": "1ddac30cb2e3d7ad5f045dae045c2eb2fc42b3084f011605c664fc0af9f03092",
+        "version": "GNU assembler (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 2.45.1.20251203"
+      }
+    ],
+    "undefined_symbols": []
+  },
   "safety": {
     "processing_binding_proven": 0,
     "recovery_validated": 0,
     "camera_test_eligible": 0,
     "installable": 0
   },
-  "readiness": "PINNED_ARM_TARGET_PROFILE_ONLY__NO_TARGET_OBJECT_OR_RUNTIME",
-  "conclusion": "The official Arm GNU Toolchain acquisition contract and the alpha 6400-compatible ARMv7-A/Thumb-2 softfp ET_REL profile are pinned for offline static use only. Mandatory attributes and the absence of hard-float argument passing are enforced, while benign compiler attributes are recorded. No toolchain archive, target object, Sony runtime binding, processing binding, recovery validation, camera-test eligibility, or installability is established by this profile.",
-  "narrative_sha256": "b6c9e3b765008959d76337a5cd818509101bc60d4a089fa941b6b317e68028fc",
-  "contract_sha256": "14989fbf41194b4e61e883281862384bed1e42052c7efbfd88d1cfc03bb48c8f"
+  "readiness": "ARM_TARGET_OBJECT_COMPILED__RUNTIME_UNBOUND",
+  "conclusion": "The portable Creative Look core, view, and bridge were compiled with the pinned official Arm GNU Toolchain as one naturally linked ARMv7-A/Thumb-2 softfp ET_REL object for offline static inspection. The target ABI probe, empty undefined-symbol result, mandatory attributes, benign extra attributes, and normalized build evidence are recorded. No Sony runtime binding, processing binding, recovery validation, camera-test eligibility, or installability is established by this target object.",
+  "narrative_sha256": "50d8c712387ee7d577cfba9b14069b5aca7fa145d84c7fa83be6922085aa161b",
+  "contract_sha256": "f42730d2c5ac574f7dd02e09f76ba297f75ddafc93f0d3257d3a74daeb83e455"
 }
