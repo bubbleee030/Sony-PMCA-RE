@@ -1,15 +1,107 @@
-# α6400 Creative Look Native Core and Bridge
+# α6400 Creative Look Native Core, Bridge, and Target Shell
 
 This directory contains the portable C99 state, interaction, and offline
-integration layers for the α6400 Creative Look work. The code is
-allocation-free, freestanding-compatible, and fixed-memory. Product state and
-public wire/data fields use fixed-width integers; pointer-bearing adapter and
-bridge structs follow the compiling host ABI.
+integration layers plus a neutral target shell layer for the α6400 Creative
+Look work. The code is allocation-free, freestanding-compatible, and
+fixed-memory. Product state and
+public wire/data fields use fixed-width integers. Pointer-bearing records follow
+the compiling ABI: hosted tests exercise their host layouts, while a separately
+compiled ARM probe pins their 32-bit target layouts.
 
 The bridge is an **offline integration simulator and ABI contract**. It is not
 camera-ready or installable firmware, and it supplies no device procedure. Its
-callbacks are exercised by host fixtures only; no Sony runtime identity or
-target-execution profile is assigned.
+callbacks are exercised by host fixtures only; no Sony runtime binding or
+execution is established. The only executable bridge manifest profile is
+`CL_EXECUTION_PROFILE_OFFLINE_HOST`. A tracked ARM compile/ABI target profile
+exists, but it is not a Sony target-runtime execution profile or binding. The
+target shell and relocatable ARM object do not change that boundary.
+
+## Verified ARM target-object evidence
+
+The exact four production modules—core, view, bridge, and target shell—compile
+independently with the digest-verified official Arm GNU Toolchain 15.2.Rel1
+Windows x86_64-hosted AArch32 bare-metal ZIP. The pinned compiler identifies
+itself as `arm-none-eabi` GCC `15.2.1`; the official archive SHA-256 is
+`7936cac895611023ffb22a64b8e426098c7104cb689778c1894572ca840b9ece`.
+The archive digest is pinned from the official checksum companion; this is not
+an OpenPGP-authentication claim. Before executing any tool, the exporter
+requires the exact configured path and pinned SHA-256 for the compiler, linker,
+`readelf`, `nm`, `objdump`, assembler, and `cc1`. It never selects a tool from
+ambient `PATH`.
+
+All four objects use the exact freestanding C99 flags recorded in the target
+profile and combine naturally with `arm-none-eabi-ld -r`. Fresh static evidence
+establishes one ELF32, little-endian ARM EABI5 `ET_REL` object with ARMv7-A,
+Thumb-2, VFPv3-D16, softfp calls, four-byte `wchar_t`, integer-sized enums, and
+eight-byte stack alignment. `Tag_ABI_VFP_args` is absent, and `nm -u -P` is
+byte-for-byte empty. The test-only ABI probe is compiled and hashed separately;
+it is not linked into the production object. No Sony or camera binary is
+executed by this build or inspection.
+
+The pinned 32-bit ARM public layouts are:
+
+| Record | Size | Alignment | Additional pinned offsets |
+|---|---:|---:|---|
+| `cl_state` | 155 | 1 | — |
+| `cl_binding_record` | 36 | 1 | — |
+| `cl_integration_manifest` | 228 | 2 | — |
+| `cl_processing_snapshot` | 164 | 4 | — |
+| `cl_bridge_report` | 64 | 4 | — |
+| `cl_bridge_adapters` | 60 | 4 | — |
+| `cl_bridge` | 692 | 4 | `adapters = 632` |
+| `cl_target_identity` | 16 | 4 | pointers `0, 4, 8`; publication status `12` |
+| `cl_target_shell` | 1200 | 4 | bridge `0`; frame `692`; sink `1184`; context `1188`; marker `1192`; valid `1196`; delivering `1197`; reserved `1198` |
+
+The probe also pins `CL_TARGET_SHELL_ABI_VERSION = 1` and
+`CL_TARGET_PUBLICATION_PROPOSED_UNPUBLISHED = 0`.
+
+This is target-compilation and ABI evidence only. An `ET_REL` object is neither
+an executable nor a loadable camera component, and the evidence does not prove
+Sony loader compatibility, menu reachability, provider construction, or device
+execution.
+
+## Neutral target shell
+
+A caller owns the address-stable `cl_target_shell` storage and must provide it
+as all zeroes on first use. That record owns one embedded bridge, one complete
+copied presentation frame, initialization/frame-valid/delivery markers, and the
+exact input sink/context pair retained during an admitted attachment. After
+successful initialization, the record is self-bound to its own address and is
+non-relocatable: byte-copying or moving an initialized or closed historical
+shell does not create another valid shell.
+
+Initialization requires the caller's lifecycle, presentation, and input
+adapter entries—including their contexts—to be zero. The shell copies the
+manifest and adapter records by value, installs its own synchronous wrappers
+for those three domains, and passes caller-provided persistence, model, and
+output callbacks/contexts through unchanged as borrowed values for the shell
+lifetime. The provider retains ownership of those injected contexts and their
+resources. The shell copies every presented frame by value, retains the
+attached input pair only until
+detach completes, forwards events only through that retained pair, and rejects
+delivery before attachment or after completed close. A post-attach
+synchronization error remains open and deliverable because embedded bridge state,
+not the return code, is authoritative.
+
+The target shell's const metadata API exposes these proposed identities:
+
+| Identity field | Exact value |
+|---|---|
+| Logical alias | `view/CREATIVE_LOOK` |
+| Component label | `viewCreativeLook.so` |
+| Proposed factory label | `ViewCreativeLookToInstance` |
+| Publication status | `CL_TARGET_PUBLICATION_PROPOSED_UNPUBLISHED` (`0`) |
+
+The exact 67 string bytes occupy `.rodata.str1.4`, an allocated `AMS` section
+with no write or execute flag. The local 16-byte pointer/status record occupies
+`.data.rel.ro.local`, which is `WA` in the relocatable object because its three
+pointers require relocation; callers receive only a const identity pointer.
+These are bounded offline metadata, not registrations. The factory label is not
+an exported, local, or undefined symbol; no constructor, init array,
+dynamic-loader call, Sony menu root, `openView` route, provider binding, or
+factory publication is present. Exact Sony lifecycle, menu/resource insertion,
+input delivery, persistence provider, model provider, and output-provider joins
+remain runtime-unbound.
 
 ## Portable product behavior
 
@@ -171,6 +263,15 @@ movie output sink. Donor decryption and runnable donor processing provenance are
 unresolved. Stock recovery remains unvalidated, including exact restoration of
 the TW/region-0 2.00 firmware state.
 
+Target persistence and target processing are separate future milestones. A
+future persistence adapter must first prove a feature-owned path/identity,
+mount lifecycle, 164-byte temp-write/flush/rename atomic flow, and recovery
+behavior without taking an existing Backup record. A future processing
+milestone must independently prove a full-state Creative Look consumer for live
+view, still encoding, or movie; the complete snapshots and host-simulated sinks
+do not establish that consumer.
+Neither milestone follows from the ARM target object or neutral shell.
+
 ## Objective coverage and remaining gates
 
 | Objective | Current evidence/status |
@@ -179,8 +280,8 @@ the TW/region-0 2.00 firmware state.
 | 6 Custom slots | Bridge-exercised offline |
 | 8 adjustment axes | Bridge-exercised offline at minimum, default, and maximum |
 | Landscape plus both portrait orientations | Bridge-exercised offline |
-| Exact 164-byte persistence | Bridge-exercised through host load/save adapters |
-| Sony runtime identities | Absent and unproven |
+| Exact 164-byte host persistence | Bridge-exercised through host load/save adapters only |
+| Sony runtime publication/binding | Absent and unproven; the three proposed identity strings are offline metadata in the no-write string section |
 | Model and three output sinks | Host-simulated only |
 | Donor decryption/processing provenance | Unresolved |
 | Recovery | Unverified |
@@ -193,9 +294,26 @@ recovery gates remain unproven or false.
 
 ## Offline verification
 
-The native analysis suites compile the core, view, and bridge as a host shared
-library and strict hosted/freestanding C99 objects with warnings treated as
-errors. They execute the six adapters, canonical sink, lifecycle failures,
-complete snapshots, exact persistence, per-domain retries, exhaustive product
-matrix, ABI layout, relocatable link, undefined-symbol gate, analyzer, and
-operational-capability source mutations entirely offline.
+The native analysis suites compile the core, view, bridge, and target shell as
+a host shared library and strict hosted/freestanding C99 objects with warnings
+treated as errors. They execute the six adapters, shell-retained canonical
+sink, lifecycle failures, complete frame copies and snapshots, exact
+persistence, per-domain retries, exhaustive product matrix, host/ARM ABI
+layouts, relocatable links, undefined-symbol gates, analyzer, and
+operational-capability mutations entirely offline.
+
+The real target exporter additionally re-verifies the pinned tools and all
+eight production inputs, compiles four ARM objects plus the separate ABI probe,
+records per-object and combined symbol inventories, validates complete section
+and relocation coverage, proves the exact identity string section and local
+pointer-record relocation chain, and republishes nothing unless fresh
+normalized evidence equals the tracked profile.
+
+The production allowlist is exactly four `.c` files plus their four matching
+`.h` files. All eight undergo source-capability and literal include-closure
+scans. The combined object undergoes byte, complete-symbol-table, and complete
+relocation scans that reject menu, loader, storage, Sony processing/encoder,
+device, updater, flash, package, and install capabilities. The three exact
+proposed identity strings are the sole allowed Sony-style identity data. These
+checks are static evidence; they do not publish a Sony factory or satisfy the
+overall α6400-native goal.
