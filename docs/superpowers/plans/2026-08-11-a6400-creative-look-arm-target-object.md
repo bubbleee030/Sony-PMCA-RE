@@ -98,7 +98,8 @@ No tracked code may auto-download during imports or ordinary unit tests.
 The validator must reject:
 
 - wrong target/library hash;
-- missing/extra/renumbered target attributes;
+- missing or changed mandatory target attributes and any prohibited target
+  attribute value; benign extra compiler attributes are recorded;
 - non-official or non-HTTPS URLs;
 - malformed or wrong archive digest;
 - target triple/version drift;
@@ -138,8 +139,9 @@ and asserts no output is written outside it.
 - Resolve compiler, linker, `readelf`, `nm`, and `objdump` by absolute path.
 - Reject missing, relative, outside-toolchain, wrong-target, or wrong-version
   binaries.
-- Allow exactly `creative_look_core.c`, `creative_look_view.c`, and
-  `creative_look_bridge.c` in this task.
+- Compile exactly `creative_look_core.c`, `creative_look_view.c`, and
+  `creative_look_bridge.c`; additionally hash and safety-scan their exact three
+  public headers. Reject an unapproved source or header.
 - Invoke subprocesses without a shell and capture complete diagnostics.
 - Never continue after a command failure.
 
@@ -235,8 +237,9 @@ evidence/runtime/safety.
   codes: a post-attach sync error remains open/deliverable until close, while
   any completed close invalidates delivery even when teardown reports error;
 - first initialization requires all-zero storage, live reinitialization is
-  rejected without mutation, and reinitialization is permitted only after
-  close;
+  rejected without mutation, and reinitialization is permitted after close or
+  any pre-attachment open failure when the embedded bridge is not
+  busy/open/attached;
 - delivery before attach/after detach and reentrant delivery fail without
   mutation; and
 - borrowed callback pointers are never retained except the exact attached
@@ -246,12 +249,17 @@ evidence/runtime/safety.
 
 Verify:
 
-- open callback ordering and cleanup on each admission failure;
+- open ordering plus pre-attachment load failure and post-attachment
+  persistence/model/output synchronization failure behavior; lifecycle,
+  presentation, attach, detach, close, and callback-reentrancy failure
+  precedence remains covered by the existing bridge suite because the shell's
+  fixed wrappers have no production failure-injection seam;
 - copied-frame byte independence after the callback returns;
 - all 12 built-ins, 6 Custom slots, 8 axis min/default/max values, and 3
   orientations through only the retained input sink;
-- detach/close failure precedence and stale-sink rejection;
-- busy/reentrancy rejection for every wrapper callback;
+- stale-sink rejection and post-attach-error delivery/close behavior;
+- busy/reentrancy rejection through caller-injected persistence/model/output
+  callbacks;
 - exact manifest immutability and all four safety zeros; and
 - identity labels are returned but never treated as runtime bindings.
 
@@ -282,8 +290,10 @@ fails the new contract.
 
 **Step 2: Compile/link/inspect all four modules**
 
-Add only `creative_look_target.c` to the allowlist. Regenerate normalized
-evidence and require the same ELF/ABI/symbol/safety contracts.
+Add `creative_look_target.c` to the compile allowlist and
+`creative_look_target.h` to the dependency allowlist. Regenerate normalized
+evidence and require the same ELF/ABI/symbol/safety contracts across all four
+sources and all four headers.
 
 **Step 3: Enforce the non-publication boundary**
 

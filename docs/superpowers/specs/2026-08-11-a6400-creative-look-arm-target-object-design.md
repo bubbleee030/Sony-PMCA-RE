@@ -173,9 +173,11 @@ rejected before attach and after detach. All borrowed bridge callback pointers
 remain synchronous-only. The shell cannot turn an unbound adapter into a target
 runtime binding and cannot change any manifest evidence/runtime state.
 
-First use requires all-zero shell storage. Initialization rejects a live/open or
-attached shell without mutation; reinitialization is permitted only after close
-has completed. It must never blindly clear a live bridge or retained sink.
+First use requires all-zero shell storage. Initialization rejects a busy, open,
+or attached shell without mutation. Reinitialization is permitted after close,
+or after an open attempt that failed before attachment, whenever the embedded
+bridge is not busy/open/attached. It must never blindly clear a live bridge or
+retained sink.
 Shell open/attachment state mirrors the embedded bridge, not the return code:
 an open that reaches successful attach but reports a later synchronization
 failure remains open and attached, permits event delivery/retry, and requires
