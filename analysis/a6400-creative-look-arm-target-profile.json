@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-arm-target-profile",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "target": {
+    "module": "lib/viewUnified2.so",
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+    "elf": {
+      "class": "ELF32",
+      "data": "little-endian",
+      "machine": "ARM",
+      "eabi_version": 5
+    },
+    "attribute_policy": {
+      "mandatory": [
+        {
+          "tag": 6,
+          "name": "Tag_CPU_arch",
+          "value": "v7"
+        },
+        {
+          "tag": 7,
+          "name": "Tag_CPU_arch_profile",
+          "value": "Application"
+        },
+        {
+          "tag": 8,
+          "name": "Tag_ARM_ISA_use",
+          "value": "Yes"
+        },
+        {
+          "tag": 9,
+          "name": "Tag_THUMB_ISA_use",
+          "value": "Thumb-2"
+        },
+        {
+          "tag": 10,
+          "name": "Tag_FP_arch",
+          "value": "VFPv3-D16"
+        },
+        {
+          "tag": 18,
+          "name": "Tag_ABI_PCS_wchar_t",
+          "value": 4
+        },
+        {
+          "tag": 24,
+          "name": "Tag_ABI_align_needed",
+          "value": 8
+        },
+        {
+          "tag": 26,
+          "name": "Tag_ABI_enum_size",
+          "value": 4
+        }
+      ],
+      "prohibited": [
+        {
+          "tag": 28,
+          "name": "Tag_ABI_VFP_args",
+          "presence": "forbidden"
+        }
+      ],
+      "extra_attributes": "record-and-permit"
+    },
+    "float_call_abi": {
+      "kind": "softfp",
+      "hard_float_tag": 28,
+      "hard_float_tag_present": false
+    }
+  },
+  "toolchain": {
+    "vendor": "Arm",
+    "release": "15.2.Rel1",
+    "target_triple": "arm-none-eabi",
+    "archive_basename": "arm-gnu-toolchain-15.2.rel1-mingw-w64-x86_64-arm-none-eabi.zip",
+    "release_url": "https://gitlab.arm.com/tooling/gnu-toolchains-for-arm/-/blob/releases/15.2.rel1/README.md",
+    "archive_url": "https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain/15.2.rel1/arm-gnu-toolchain-15.2.rel1-mingw-w64-x86_64-arm-none-eabi.zip",
+    "checksum_url": "https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain/15.2.rel1/arm-gnu-toolchain-15.2.rel1-mingw-w64-x86_64-arm-none-eabi.zip.sha256asc",
+    "archive_sha256": "7936cac895611023ffb22a64b8e426098c7104cb689778c1894572ca840b9ece",
+    "checksum_record": "7936cac895611023ffb22a64b8e426098c7104cb689778c1894572ca840b9ece *arm-gnu-toolchain-15.2.rel1-mingw-w64-x86_64-arm-none-eabi.zip"
+  },
+  "build": {
+    "compile_flags": [
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-pedantic",
+      "-ffreestanding",
+      "-fno-builtin",
+      "-fPIC",
+      "-O2",
+      "-finline-stringops=memcpy",
+      "-march=armv7-a",
+      "-mthumb",
+      "-mfpu=vfpv3-d16",
+      "-mfloat-abi=softfp",
+      "-mabi=aapcs-linux",
+      "-fno-unwind-tables",
+      "-fno-asynchronous-unwind-tables"
+    ],
+    "link": {
+      "driver": "arm-none-eabi-ld",
+      "mode": [
+        "-r"
+      ],
+      "output_type": "ET_REL",
+      "output_suffix": ".o"
+    }
+  },
+  "safety": {
+    "processing_binding_proven": 0,
+    "recovery_validated": 0,
+    "camera_test_eligible": 0,
+    "installable": 0
+  },
+  "readiness": "PINNED_ARM_TARGET_PROFILE_ONLY__NO_TARGET_OBJECT_OR_RUNTIME",
+  "conclusion": "The official Arm GNU Toolchain acquisition contract and the alpha 6400-compatible ARMv7-A/Thumb-2 softfp ET_REL profile are pinned for offline static use only. Mandatory attributes and the absence of hard-float argument passing are enforced, while benign compiler attributes are recorded. No toolchain archive, target object, Sony runtime binding, processing binding, recovery validation, camera-test eligibility, or installability is established by this profile.",
+  "narrative_sha256": "b6c9e3b765008959d76337a5cd818509101bc60d4a089fa941b6b317e68028fc",
+  "contract_sha256": "14989fbf41194b4e61e883281862384bed1e42052c7efbfd88d1cfc03bb48c8f"
+}
