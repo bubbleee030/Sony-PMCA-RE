@@ -89,7 +89,7 @@ compiler. The intended flags are:
 
 ```text
 -std=c99 -Wall -Wextra -Werror -pedantic
--ffreestanding -fno-builtin -fPIC -Os
+-ffreestanding -fno-builtin -fPIC -O2 -finline-stringops=memcpy
 -march=armv7-a -mthumb -mfpu=vfpv3-d16 -mfloat-abi=softfp
 -mabi=aapcs-linux
 -fno-unwind-tables -fno-asynchronous-unwind-tables
@@ -98,6 +98,13 @@ compiler. The intended flags are:
 The implementation test must fail closed if the selected compiler rejects a
 flag. A flag may be changed only with a documented compiler diagnostic and a
 replacement that preserves the pinned ELF/EABI/softfp contract.
+
+A real preflight with the pinned compiler established the optimization choice:
+`-Os` left `__aeabi_idiv` and `memcpy` undefined in the natural combined
+object. `-O2 -finline-stringops=memcpy` produced the same required target
+attributes with an empty `nm -u`, without support stubs, symbol fabrication, or
+filtering. Those two flags are therefore part of the exact contract, not a
+performance preference.
 
 Combine the four objects naturally with the matching
 `arm-none-eabi-ld -r`. The combined output must be `ET_REL`, never `ET_EXEC` or

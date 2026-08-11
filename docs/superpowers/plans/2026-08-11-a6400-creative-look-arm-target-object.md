@@ -173,6 +173,8 @@ Each of these must fail:
 
 - substitute hard-float;
 - substitute ARMv6 or remove Thumb;
+- replace the exact `-O2 -finline-stringops=memcpy` pair with `-Os` and require
+  rejection of the resulting `__aeabi_idiv`/`memcpy` dependencies;
 - link as executable/shared object;
 - add one deliberate undefined symbol;
 - add one `__aeabi_*` reference;
