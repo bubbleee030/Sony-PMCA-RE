@@ -1,0 +1,5347 @@
+{
+  "schema_version": 1,
+  "analysis_scope": "offline-static-arm-target-object",
+  "camera_policy": "physically-disconnected",
+  "camera_executed": false,
+  "target": {
+    "module": "lib/viewUnified2.so",
+    "sha256": "1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2",
+    "elf": {
+      "class": "ELF32",
+      "data": "little-endian",
+      "machine": "ARM",
+      "eabi_version": 5
+    },
+    "attribute_policy": {
+      "mandatory": [
+        {
+          "tag": 6,
+          "name": "Tag_CPU_arch",
+          "value": "v7"
+        },
+        {
+          "tag": 7,
+          "name": "Tag_CPU_arch_profile",
+          "value": "Application"
+        },
+        {
+          "tag": 8,
+          "name": "Tag_ARM_ISA_use",
+          "value": "Yes"
+        },
+        {
+          "tag": 9,
+          "name": "Tag_THUMB_ISA_use",
+          "value": "Thumb-2"
+        },
+        {
+          "tag": 10,
+          "name": "Tag_FP_arch",
+          "value": "VFPv3-D16"
+        },
+        {
+          "tag": 18,
+          "name": "Tag_ABI_PCS_wchar_t",
+          "value": 4
+        },
+        {
+          "tag": 24,
+          "name": "Tag_ABI_align_needed",
+          "value": 8
+        },
+        {
+          "tag": 26,
+          "name": "Tag_ABI_enum_size",
+          "value": 4
+        }
+      ],
+      "prohibited": [
+        {
+          "tag": 28,
+          "name": "Tag_ABI_VFP_args",
+          "presence": "forbidden"
+        }
+      ],
+      "extra_attributes": "record-and-permit"
+    },
+    "float_call_abi": {
+      "kind": "softfp",
+      "hard_float_tag": 28,
+      "hard_float_tag_present": false
+    }
+  },
+  "toolchain": {
+    "vendor": "Arm",
+    "release": "15.2.Rel1",
+    "target_triple": "arm-none-eabi",
+    "archive_basename": "arm-gnu-toolchain-15.2.rel1-mingw-w64-x86_64-arm-none-eabi.zip",
+    "release_url": "https://gitlab.arm.com/tooling/gnu-toolchains-for-arm/-/blob/releases/15.2.rel1/README.md",
+    "archive_url": "https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain/15.2.rel1/arm-gnu-toolchain-15.2.rel1-mingw-w64-x86_64-arm-none-eabi.zip",
+    "checksum_url": "https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain/15.2.rel1/arm-gnu-toolchain-15.2.rel1-mingw-w64-x86_64-arm-none-eabi.zip.sha256asc",
+    "archive_sha256": "7936cac895611023ffb22a64b8e426098c7104cb689778c1894572ca840b9ece",
+    "checksum_record": "7936cac895611023ffb22a64b8e426098c7104cb689778c1894572ca840b9ece *arm-gnu-toolchain-15.2.rel1-mingw-w64-x86_64-arm-none-eabi.zip"
+  },
+  "build": {
+    "compile_flags": [
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-pedantic",
+      "-ffreestanding",
+      "-fno-builtin",
+      "-fPIC",
+      "-O2",
+      "-finline-stringops=memcpy",
+      "-march=armv7-a",
+      "-mthumb",
+      "-mfpu=vfpv3-d16",
+      "-mfloat-abi=softfp",
+      "-mabi=aapcs-linux",
+      "-fno-unwind-tables",
+      "-fno-asynchronous-unwind-tables"
+    ],
+    "link": {
+      "driver": "arm-none-eabi-ld",
+      "mode": [
+        "-r"
+      ],
+      "output_type": "ET_REL",
+      "output_suffix": ".o"
+    }
+  },
+  "build_evidence": {
+    "abi_layouts": {
+      "CL_TARGET_PUBLICATION_PROPOSED_UNPUBLISHED": {
+        "value": 0
+      },
+      "CL_TARGET_SHELL_ABI_VERSION": {
+        "value": 1
+      },
+      "cl_binding_record": {
+        "alignment": 1,
+        "size": 36
+      },
+      "cl_bridge": {
+        "alignment": 4,
+        "size": 692
+      },
+      "cl_bridge.adapters": {
+        "offset": 632
+      },
+      "cl_bridge_adapters": {
+        "alignment": 4,
+        "size": 60
+      },
+      "cl_bridge_report": {
+        "alignment": 4,
+        "size": 64
+      },
+      "cl_integration_manifest": {
+        "alignment": 2,
+        "size": 228
+      },
+      "cl_processing_snapshot": {
+        "alignment": 4,
+        "size": 164
+      },
+      "cl_state": {
+        "alignment": 1,
+        "size": 155
+      },
+      "cl_target_identity": {
+        "alignment": 4,
+        "size": 16
+      },
+      "cl_target_identity.component_label": {
+        "offset": 4
+      },
+      "cl_target_identity.logical_alias": {
+        "offset": 0
+      },
+      "cl_target_identity.proposed_factory_label": {
+        "offset": 8
+      },
+      "cl_target_identity.publication_status": {
+        "offset": 12
+      },
+      "cl_target_shell": {
+        "alignment": 4,
+        "size": 1200
+      },
+      "cl_target_shell.bridge": {
+        "offset": 0
+      },
+      "cl_target_shell.copied_frame": {
+        "offset": 692
+      },
+      "cl_target_shell.delivering": {
+        "offset": 1197
+      },
+      "cl_target_shell.frame_valid": {
+        "offset": 1196
+      },
+      "cl_target_shell.initialization_marker": {
+        "offset": 1192
+      },
+      "cl_target_shell.reserved": {
+        "offset": 1198
+      },
+      "cl_target_shell.retained_sink": {
+        "offset": 1184
+      },
+      "cl_target_shell.retained_sink_context": {
+        "offset": 1188
+      }
+    },
+    "abi_probe": {
+      "linked": false,
+      "object_path": "$BUILD/creative_look_arm_abi_probe.o",
+      "object_sha256": "02d75da7425c0de488ef82dec58e53a78c6e17f5ce3dbfe53847500b5442b544",
+      "path": "$BUILD/creative_look_arm_abi_probe.c",
+      "source_sha256": "d0195680332b413812b3030078f4358ebed0826c771fb406fff162eb784048eb"
+    },
+    "attributes": {
+      "extra": [
+        {
+          "name": "Tag_CPU_name",
+          "tag": 5,
+          "value": "7-A"
+        },
+        {
+          "name": "Tag_ABI_FP_denormal",
+          "tag": 20,
+          "value": "Needed"
+        },
+        {
+          "name": "Tag_ABI_FP_exceptions",
+          "tag": 21,
+          "value": "Needed"
+        },
+        {
+          "name": "Tag_ABI_FP_number_model",
+          "tag": 23,
+          "value": "IEEE 754"
+        },
+        {
+          "name": "Tag_ABI_align_preserved",
+          "tag": 25,
+          "value": "8-byte, except leaf SP"
+        },
+        {
+          "name": "Tag_ABI_optimization_goals",
+          "tag": 30,
+          "value": "Aggressive Speed"
+        },
+        {
+          "name": "Tag_CPU_unaligned_access",
+          "tag": 34,
+          "value": "v6"
+        }
+      ],
+      "mandatory": [
+        {
+          "name": "Tag_CPU_arch",
+          "tag": 6,
+          "value": "v7"
+        },
+        {
+          "name": "Tag_CPU_arch_profile",
+          "tag": 7,
+          "value": "Application"
+        },
+        {
+          "name": "Tag_ARM_ISA_use",
+          "tag": 8,
+          "value": "Yes"
+        },
+        {
+          "name": "Tag_THUMB_ISA_use",
+          "tag": 9,
+          "value": "Thumb-2"
+        },
+        {
+          "name": "Tag_FP_arch",
+          "tag": 10,
+          "value": "VFPv3-D16"
+        },
+        {
+          "name": "Tag_ABI_PCS_wchar_t",
+          "tag": 18,
+          "value": 4
+        },
+        {
+          "name": "Tag_ABI_align_needed",
+          "tag": 24,
+          "value": 8
+        },
+        {
+          "name": "Tag_ABI_enum_size",
+          "tag": 26,
+          "value": 4
+        }
+      ]
+    },
+    "build": {
+      "compile_flags": [
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-fPIC",
+        "-O2",
+        "-finline-stringops=memcpy",
+        "-march=armv7-a",
+        "-mthumb",
+        "-mfpu=vfpv3-d16",
+        "-mfloat-abi=softfp",
+        "-mabi=aapcs-linux",
+        "-fno-unwind-tables",
+        "-fno-asynchronous-unwind-tables"
+      ],
+      "link_mode": [
+        "-r"
+      ]
+    },
+    "camera_executed": false,
+    "commands": [
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+          "--version"
+        ],
+        "purpose": "identify:gcc",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "07f919c02365ffba1d4f5143ce802c07e34be9ed61378c801a642558ac5d5a9d"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-ld.exe",
+          "--version"
+        ],
+        "purpose": "identify:ld",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e4201556ffd74629923b4667ba4fb5b52a901f025f60cbf128894699b1910c88"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "--version"
+        ],
+        "purpose": "identify:readelf",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "016f662a688788e265f08d66b00a0dbfebafdabdb8c9a32a5ca8fd76f1024955"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "--version"
+        ],
+        "purpose": "identify:nm",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "7b771573220d02edde7fdd17353fd9715535b175a479718f3e0a6730394eaad1"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-objdump.exe",
+          "--version"
+        ],
+        "purpose": "identify:objdump",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "a553f9075aa3e7f722f1bfcffe1dcf221deb46fd0ccac3a3a084349fc92237f7"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/arm-none-eabi/bin/as.exe",
+          "--version"
+        ],
+        "purpose": "identify:as",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "2b264d6958735224fc139cdd8c3a02981db719215ae46e86aa35231648ee02b4"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-ffreestanding",
+          "-fno-builtin",
+          "-fPIC",
+          "-O2",
+          "-finline-stringops=memcpy",
+          "-march=armv7-a",
+          "-mthumb",
+          "-mfpu=vfpv3-d16",
+          "-mfloat-abi=softfp",
+          "-mabi=aapcs-linux",
+          "-fno-unwind-tables",
+          "-fno-asynchronous-unwind-tables",
+          "-I",
+          "native/a6400_creative_look",
+          "-c",
+          "native/a6400_creative_look/creative_look_core.c",
+          "-o",
+          "$BUILD/creative_look_core.o"
+        ],
+        "purpose": "compile:creative_look_core.c",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-ffreestanding",
+          "-fno-builtin",
+          "-fPIC",
+          "-O2",
+          "-finline-stringops=memcpy",
+          "-march=armv7-a",
+          "-mthumb",
+          "-mfpu=vfpv3-d16",
+          "-mfloat-abi=softfp",
+          "-mabi=aapcs-linux",
+          "-fno-unwind-tables",
+          "-fno-asynchronous-unwind-tables",
+          "-I",
+          "native/a6400_creative_look",
+          "-c",
+          "native/a6400_creative_look/creative_look_view.c",
+          "-o",
+          "$BUILD/creative_look_view.o"
+        ],
+        "purpose": "compile:creative_look_view.c",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-ffreestanding",
+          "-fno-builtin",
+          "-fPIC",
+          "-O2",
+          "-finline-stringops=memcpy",
+          "-march=armv7-a",
+          "-mthumb",
+          "-mfpu=vfpv3-d16",
+          "-mfloat-abi=softfp",
+          "-mabi=aapcs-linux",
+          "-fno-unwind-tables",
+          "-fno-asynchronous-unwind-tables",
+          "-I",
+          "native/a6400_creative_look",
+          "-c",
+          "native/a6400_creative_look/creative_look_bridge.c",
+          "-o",
+          "$BUILD/creative_look_bridge.o"
+        ],
+        "purpose": "compile:creative_look_bridge.c",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-ffreestanding",
+          "-fno-builtin",
+          "-fPIC",
+          "-O2",
+          "-finline-stringops=memcpy",
+          "-march=armv7-a",
+          "-mthumb",
+          "-mfpu=vfpv3-d16",
+          "-mfloat-abi=softfp",
+          "-mabi=aapcs-linux",
+          "-fno-unwind-tables",
+          "-fno-asynchronous-unwind-tables",
+          "-I",
+          "native/a6400_creative_look",
+          "-c",
+          "native/a6400_creative_look/creative_look_target.c",
+          "-o",
+          "$BUILD/creative_look_target.o"
+        ],
+        "purpose": "compile:creative_look_target.c",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-u",
+          "-P",
+          "$BUILD/creative_look_core.o"
+        ],
+        "purpose": "inspect-object:creative_look_core.c:undefined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-g",
+          "--defined-only",
+          "-P",
+          "$BUILD/creative_look_core.o"
+        ],
+        "purpose": "inspect-object:creative_look_core.c:defined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "d96af43b3275938fc11c0a14d2eb85e8cfd4a881eda394d244e9f1be26c069bd"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-sW",
+          "$BUILD/creative_look_core.o"
+        ],
+        "purpose": "inspect-object:creative_look_core.c:symbol-table",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "783b2088655f601c2107285105e77a0384f9ee7803c79a021f5b0cca903e15f3"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-u",
+          "-P",
+          "$BUILD/creative_look_view.o"
+        ],
+        "purpose": "inspect-object:creative_look_view.c:undefined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "602d33a2f3f3f4383c9155be2dc321675d5505695d9220a0e7d9f43425343c84"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-g",
+          "--defined-only",
+          "-P",
+          "$BUILD/creative_look_view.o"
+        ],
+        "purpose": "inspect-object:creative_look_view.c:defined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e7a03f6de0566d5844516ca978161cfc76c36439c27faca03770ed1718db4eb3"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-sW",
+          "$BUILD/creative_look_view.o"
+        ],
+        "purpose": "inspect-object:creative_look_view.c:symbol-table",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "3f39e1d7c79f2aed5465acc5f7440a17a38ae7fa5091dc49f6ff27d0c64daf0c"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-u",
+          "-P",
+          "$BUILD/creative_look_bridge.o"
+        ],
+        "purpose": "inspect-object:creative_look_bridge.c:undefined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e8aa47d4fc658f3b5b2f1f72a9149648ee082d604dcf94e1339fdc77e583c654"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-g",
+          "--defined-only",
+          "-P",
+          "$BUILD/creative_look_bridge.o"
+        ],
+        "purpose": "inspect-object:creative_look_bridge.c:defined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "17e3f612cd1b7e6229afeca3ac930d291e2827ee8da7b3ec6d9c64efca16b878"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-sW",
+          "$BUILD/creative_look_bridge.o"
+        ],
+        "purpose": "inspect-object:creative_look_bridge.c:symbol-table",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "d747d00f3eee9883db3bd637a6e98fa65f3dffa3165f93bafc0b6422493d9c8a"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-u",
+          "-P",
+          "$BUILD/creative_look_target.o"
+        ],
+        "purpose": "inspect-object:creative_look_target.c:undefined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "d3786c99ca8ee600a9eeea0995ac90e472a00bb2870b0c2ee1f36bfd8487c175"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-g",
+          "--defined-only",
+          "-P",
+          "$BUILD/creative_look_target.o"
+        ],
+        "purpose": "inspect-object:creative_look_target.c:defined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "79c0dd4d7f32091ec7357bac1f2ee59d8a80b51d8a128d7451b7022244fece93"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-sW",
+          "$BUILD/creative_look_target.o"
+        ],
+        "purpose": "inspect-object:creative_look_target.c:symbol-table",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "46861cea3b7c1348e06c3cf3a2a689f914e04a95a033616ff2a7dcc6cf37de32"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-pedantic",
+          "-ffreestanding",
+          "-fno-builtin",
+          "-fPIC",
+          "-O2",
+          "-finline-stringops=memcpy",
+          "-march=armv7-a",
+          "-mthumb",
+          "-mfpu=vfpv3-d16",
+          "-mfloat-abi=softfp",
+          "-mabi=aapcs-linux",
+          "-fno-unwind-tables",
+          "-fno-asynchronous-unwind-tables",
+          "-I",
+          "native/a6400_creative_look",
+          "-c",
+          "$BUILD/creative_look_arm_abi_probe.c",
+          "-o",
+          "$BUILD/creative_look_arm_abi_probe.o"
+        ],
+        "purpose": "compile:test-only-abi-probe",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-ld.exe",
+          "-r",
+          "-o",
+          "$OUTPUT/creative_look_arm_target.o",
+          "$BUILD/creative_look_core.o",
+          "$BUILD/creative_look_view.o",
+          "$BUILD/creative_look_bridge.o",
+          "$BUILD/creative_look_target.o"
+        ],
+        "purpose": "link:natural-relocatable",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-u",
+          "-P",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:undefined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+          "-g",
+          "--defined-only",
+          "-P",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:defined-symbols",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "0baa6d58e77bcdd4868081d08bee5ae57c0ff142f8f7aa62452c4f0e1567d62d"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-hW",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:elf-header",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "526767eeffa4cf69890a18d2c2a734abbca15eec5b5aebbf79753b49a52bee7b"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-AW",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:arm-attributes",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "1f9a56cea7920f998d5e85b225a349f8cab360dabc0f06b7e50b17e31c8aaa2b"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-SW",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:sections",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "5aabb83df4179e74c8c8bb5dd8847befede8a876cd08a536477644b43d1668b6"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-rW",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:relocations",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "c47893390cce34d8a5fad1310dabbca085aaa644b701778f8d4eb9ed656aeda6"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+          "-sW",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:symbol-table",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "7ede3609c734a57192d1ee9789fa16519b836a004bbe9a2a7a5ace262a46e89d"
+      },
+      {
+        "argv": [
+          "$TOOLCHAIN/bin/arm-none-eabi-objdump.exe",
+          "-f",
+          "$OUTPUT/creative_look_arm_target.o"
+        ],
+        "purpose": "inspect:object-format",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "0f04e59c0a09da5ed368fca24f32d6bd17a9c4907a4b409e48bf147370749ee2"
+      }
+    ],
+    "defined_symbols": [
+      "cl_axis_range",
+      "cl_axis_status",
+      "cl_back_to_catalog",
+      "cl_binding_record_size",
+      "cl_blob_size",
+      "cl_bridge_adapters_offset",
+      "cl_bridge_alignment",
+      "cl_bridge_close",
+      "cl_bridge_dirty_mask",
+      "cl_bridge_handle_event",
+      "cl_bridge_init",
+      "cl_bridge_last_report",
+      "cl_bridge_manifest_host",
+      "cl_bridge_open",
+      "cl_bridge_processing_revision",
+      "cl_bridge_report_size",
+      "cl_bridge_retry",
+      "cl_bridge_set_mode",
+      "cl_bridge_size",
+      "cl_bridge_state",
+      "cl_bridge_state_revision",
+      "cl_bridge_sync",
+      "cl_bridge_validate_manifest",
+      "cl_capability_flags",
+      "cl_decode",
+      "cl_encode",
+      "cl_init",
+      "cl_input_event_size",
+      "cl_integration_manifest_size",
+      "cl_is_modified",
+      "cl_open_axis",
+      "cl_processing_snapshot_size",
+      "cl_reset_selected",
+      "cl_select_custom_base",
+      "cl_select_look",
+      "cl_set_axis",
+      "cl_set_mode",
+      "cl_set_orientation",
+      "cl_state_size",
+      "cl_storage_load",
+      "cl_storage_save",
+      "cl_target_shell_alignment",
+      "cl_target_shell_bridge_state",
+      "cl_target_shell_close",
+      "cl_target_shell_copied_frame",
+      "cl_target_shell_deliver",
+      "cl_target_shell_identity",
+      "cl_target_shell_init",
+      "cl_target_shell_last_report",
+      "cl_target_shell_open",
+      "cl_target_shell_size",
+      "cl_validate",
+      "cl_view_build",
+      "cl_view_frame_size",
+      "cl_view_present",
+      "cl_view_touch"
+    ],
+    "elf": {
+      "class": "ELF32",
+      "data": "little-endian",
+      "eabi_version": 5,
+      "machine": "ARM",
+      "type": "ET_REL"
+    },
+    "identity_metadata": {
+      "accessor_relocation": {
+        "offset": 13504,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": ".data.rel.ro.local",
+        "type": "R_ARM_REL32"
+      },
+      "accessor_symbol": {
+        "binding": "GLOBAL",
+        "name": "cl_target_shell_identity",
+        "section": ".text",
+        "section_index": 1,
+        "size": 12,
+        "type": "FUNC"
+      },
+      "factory_symbol_occurrences": 0,
+      "literals": [
+        {
+          "field": "logical_alias",
+          "object_occurrences": 1,
+          "record_offset": 0,
+          "section_occurrences": 1,
+          "source_occurrences": 1,
+          "string_offset": 0,
+          "value": "view/CREATIVE_LOOK"
+        },
+        {
+          "field": "component_label",
+          "object_occurrences": 1,
+          "record_offset": 4,
+          "section_occurrences": 1,
+          "source_occurrences": 1,
+          "string_offset": 20,
+          "value": "viewCreativeLook.so"
+        },
+        {
+          "field": "proposed_factory_label",
+          "object_occurrences": 1,
+          "record_offset": 8,
+          "section_occurrences": 1,
+          "source_occurrences": 1,
+          "string_offset": 40,
+          "value": "ViewCreativeLookToInstance"
+        }
+      ],
+      "record_relocations": [
+        {
+          "addend": 0,
+          "offset": 0,
+          "relocation_section": ".rel.data.rel.ro.local",
+          "source_section": ".data.rel.ro.local",
+          "symbol": ".rodata.str1.4",
+          "type": "R_ARM_ABS32"
+        },
+        {
+          "addend": 20,
+          "offset": 4,
+          "relocation_section": ".rel.data.rel.ro.local",
+          "source_section": ".data.rel.ro.local",
+          "symbol": ".rodata.str1.4",
+          "type": "R_ARM_ABS32"
+        },
+        {
+          "addend": 40,
+          "offset": 8,
+          "relocation_section": ".rel.data.rel.ro.local",
+          "source_section": ".data.rel.ro.local",
+          "symbol": ".rodata.str1.4",
+          "type": "R_ARM_ABS32"
+        }
+      ],
+      "record_section": {
+        "flags": "WA",
+        "index": 6,
+        "name": ".data.rel.ro.local",
+        "type": "PROGBITS"
+      },
+      "record_symbol": {
+        "binding": "LOCAL",
+        "hex": "00000000140000002800000000000000",
+        "name": "cl_target_proposed_identity",
+        "section": ".data.rel.ro.local",
+        "section_index": 6,
+        "size": 16,
+        "type": "OBJECT"
+      },
+      "source": "native/a6400_creative_look/creative_look_target.c",
+      "string_section": {
+        "flags": "AMS",
+        "hex": "766965772f43524541544956455f4c4f4f4b00007669657743726561746976654c6f6f6b2e736f005669657743726561746976654c6f6f6b546f496e7374616e636500",
+        "index": 4,
+        "name": ".rodata.str1.4",
+        "sha256": "867511a4abb0a3b53fbc6930013e2dc31d6542a3466bc195560c59add950cf67",
+        "size": 67,
+        "type": "PROGBITS"
+      }
+    },
+    "include_closure": [
+      {
+        "path": "native/a6400_creative_look/creative_look_core.c",
+        "quoted": [
+          "creative_look_core.h"
+        ],
+        "system": []
+      },
+      {
+        "path": "native/a6400_creative_look/creative_look_view.c",
+        "quoted": [
+          "creative_look_view.h"
+        ],
+        "system": []
+      },
+      {
+        "path": "native/a6400_creative_look/creative_look_bridge.c",
+        "quoted": [
+          "creative_look_bridge.h"
+        ],
+        "system": []
+      },
+      {
+        "path": "native/a6400_creative_look/creative_look_target.c",
+        "quoted": [
+          "creative_look_target.h"
+        ],
+        "system": []
+      },
+      {
+        "path": "native/a6400_creative_look/creative_look_core.h",
+        "quoted": [],
+        "system": [
+          "stddef.h",
+          "stdint.h"
+        ]
+      },
+      {
+        "path": "native/a6400_creative_look/creative_look_view.h",
+        "quoted": [
+          "creative_look_core.h"
+        ],
+        "system": []
+      },
+      {
+        "path": "native/a6400_creative_look/creative_look_bridge.h",
+        "quoted": [
+          "creative_look_view.h"
+        ],
+        "system": [
+          "limits.h"
+        ]
+      },
+      {
+        "path": "native/a6400_creative_look/creative_look_target.h",
+        "quoted": [
+          "creative_look_bridge.h"
+        ],
+        "system": []
+      }
+    ],
+    "inputs": {
+      "headers": [
+        {
+          "path": "native/a6400_creative_look/creative_look_core.h",
+          "sha256": "1e82df201879666999373ebfcedfad12da7e9ffdf455708ff3ad93de20c95982"
+        },
+        {
+          "path": "native/a6400_creative_look/creative_look_view.h",
+          "sha256": "aef9b5536d5eea531905c12f8efa1118175ea3873df66358c62ce5a06c8e9378"
+        },
+        {
+          "path": "native/a6400_creative_look/creative_look_bridge.h",
+          "sha256": "44004ec81d0d1853be07d625517e2f0e6fc3c396bb023c87f67b4377b9aa1cd0"
+        },
+        {
+          "path": "native/a6400_creative_look/creative_look_target.h",
+          "sha256": "2d655ea5820a790ada5f878e7709eb6554d1e89e9b9eb1a77fc4adac73ea7580"
+        }
+      ],
+      "sources": [
+        {
+          "path": "native/a6400_creative_look/creative_look_core.c",
+          "sha256": "c1ac9571c1ab1a70955a4d7c6a1a56118f7fa95e06174f310ae6e1e619dec9e5"
+        },
+        {
+          "path": "native/a6400_creative_look/creative_look_view.c",
+          "sha256": "c50346138d9e14f1e5af050a03018ef8decd1d520abb10fbe6e7f8aa8e3c0090"
+        },
+        {
+          "path": "native/a6400_creative_look/creative_look_bridge.c",
+          "sha256": "2d96193e572f381c04636538f68eb71528dae3ecfcebb0c9f4c26c46b31e5d51"
+        },
+        {
+          "path": "native/a6400_creative_look/creative_look_target.c",
+          "sha256": "8346d8be2326b1b37d1f07e7b20783213d12fc427b86b1d6d3fa8e53e076c7f0"
+        }
+      ]
+    },
+    "object": {
+      "path": "$OUTPUT/creative_look_arm_target.o",
+      "sha256": "1f03b1ab4c722d4f266d272d21bbef230838f621baa079386c324a3c20666a33"
+    },
+    "objects": [
+      {
+        "defined_symbols": [
+          "cl_axis_range",
+          "cl_axis_status",
+          "cl_back_to_catalog",
+          "cl_blob_size",
+          "cl_capability_flags",
+          "cl_decode",
+          "cl_encode",
+          "cl_init",
+          "cl_is_modified",
+          "cl_open_axis",
+          "cl_reset_selected",
+          "cl_select_custom_base",
+          "cl_select_look",
+          "cl_set_axis",
+          "cl_set_mode",
+          "cl_set_orientation",
+          "cl_state_size",
+          "cl_validate"
+        ],
+        "path": "$BUILD/creative_look_core.o",
+        "sha256": "02f66ac7cdf8b9bd024a88bbef72edde2eed2de8a76aec454ccce67d857a1515",
+        "source": "native/a6400_creative_look/creative_look_core.c",
+        "symbol_table": [
+          {
+            "binding": "LOCAL",
+            "name": "creative_look_core.c",
+            "section": null,
+            "section_index": "ABS",
+            "size": 0,
+            "type": "FILE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".text",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".data",
+            "section": null,
+            "section_index": 3,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".bss",
+            "section": null,
+            "section_index": 4,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_axis_availability",
+            "section": null,
+            "section_index": 1,
+            "size": 74,
+            "type": "FUNC",
+            "value": 1,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_validate_internal",
+            "section": null,
+            "section_index": 1,
+            "size": 220,
+            "type": "FUNC",
+            "value": 77,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 292,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 296,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 448,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 452,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 1440,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 1444,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".rodata",
+            "section": null,
+            "section_index": 5,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 5,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_axis_maximums",
+            "section": null,
+            "section_index": 5,
+            "size": 8,
+            "type": "OBJECT",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_axis_minimums",
+            "section": null,
+            "section_index": 5,
+            "size": 8,
+            "type": "OBJECT",
+            "value": 8,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".comment",
+            "section": null,
+            "section_index": 6,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".ARM.attributes",
+            "section": null,
+            "section_index": 7,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_state_size",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 297,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_blob_size",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 301,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_capability_flags",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 305,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_init",
+            "section": null,
+            "section_index": 1,
+            "size": 64,
+            "type": "FUNC",
+            "value": 309,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_validate",
+            "section": null,
+            "section_index": 1,
+            "size": 10,
+            "type": "FUNC",
+            "value": 373,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_axis_range",
+            "section": null,
+            "section_index": 1,
+            "size": 68,
+            "type": "FUNC",
+            "value": 385,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_axis_status",
+            "section": null,
+            "section_index": 1,
+            "size": 102,
+            "type": "FUNC",
+            "value": 453,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_is_modified",
+            "section": null,
+            "section_index": 1,
+            "size": 86,
+            "type": "FUNC",
+            "value": 557,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_set_orientation",
+            "section": null,
+            "section_index": 1,
+            "size": 86,
+            "type": "FUNC",
+            "value": 645,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_set_mode",
+            "section": null,
+            "section_index": 1,
+            "size": 174,
+            "type": "FUNC",
+            "value": 733,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_select_look",
+            "section": null,
+            "section_index": 1,
+            "size": 140,
+            "type": "FUNC",
+            "value": 909,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_select_custom_base",
+            "section": null,
+            "section_index": 1,
+            "size": 142,
+            "type": "FUNC",
+            "value": 1049,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_open_axis",
+            "section": null,
+            "section_index": 1,
+            "size": 96,
+            "type": "FUNC",
+            "value": 1193,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_set_axis",
+            "section": null,
+            "section_index": 1,
+            "size": 156,
+            "type": "FUNC",
+            "value": 1289,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_reset_selected",
+            "section": null,
+            "section_index": 1,
+            "size": 98,
+            "type": "FUNC",
+            "value": 1445,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_back_to_catalog",
+            "section": null,
+            "section_index": 1,
+            "size": 74,
+            "type": "FUNC",
+            "value": 1545,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_encode",
+            "section": null,
+            "section_index": 1,
+            "size": 198,
+            "type": "FUNC",
+            "value": 1621,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_decode",
+            "section": null,
+            "section_index": 1,
+            "size": 220,
+            "type": "FUNC",
+            "value": 1821,
+            "visibility": "DEFAULT"
+          }
+        ],
+        "undefined_symbols": []
+      },
+      {
+        "defined_symbols": [
+          "cl_storage_load",
+          "cl_storage_save",
+          "cl_view_build",
+          "cl_view_frame_size",
+          "cl_view_present",
+          "cl_view_touch"
+        ],
+        "path": "$BUILD/creative_look_view.o",
+        "sha256": "5b57bbcbc16246bb8f7f3e02144e3b323d84969a444cf1fe3d738bfbea30089c",
+        "source": "native/a6400_creative_look/creative_look_view.c",
+        "symbol_table": [
+          {
+            "binding": "LOCAL",
+            "name": "creative_look_view.c",
+            "section": null,
+            "section_index": "ABS",
+            "size": 0,
+            "type": "FILE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".text",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".data",
+            "section": null,
+            "section_index": 3,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".bss",
+            "section": null,
+            "section_index": 4,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_divide_positive",
+            "section": null,
+            "section_index": 1,
+            "size": 388,
+            "type": "FUNC",
+            "value": 1,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 10,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 30,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 1698,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 1704,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".comment",
+            "section": null,
+            "section_index": 5,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".ARM.attributes",
+            "section": null,
+            "section_index": 6,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_view_frame_size",
+            "section": null,
+            "section_index": 1,
+            "size": 6,
+            "type": "FUNC",
+            "value": 389,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_view_build",
+            "section": null,
+            "section_index": 1,
+            "size": 1212,
+            "type": "FUNC",
+            "value": 397,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_validate",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_is_modified",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_axis_range",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_axis_status",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_view_touch",
+            "section": null,
+            "section_index": 1,
+            "size": 232,
+            "type": "FUNC",
+            "value": 1609,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_back_to_catalog",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_reset_selected",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_set_axis",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_open_axis",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_select_custom_base",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_select_look",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_view_present",
+            "section": null,
+            "section_index": 1,
+            "size": 60,
+            "type": "FUNC",
+            "value": 1841,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_storage_save",
+            "section": null,
+            "section_index": 1,
+            "size": 64,
+            "type": "FUNC",
+            "value": 1901,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_encode",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_storage_load",
+            "section": null,
+            "section_index": 1,
+            "size": 78,
+            "type": "FUNC",
+            "value": 1965,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_decode",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          }
+        ],
+        "undefined_symbols": [
+          "cl_axis_range",
+          "cl_axis_status",
+          "cl_back_to_catalog",
+          "cl_decode",
+          "cl_encode",
+          "cl_is_modified",
+          "cl_open_axis",
+          "cl_reset_selected",
+          "cl_select_custom_base",
+          "cl_select_look",
+          "cl_set_axis",
+          "cl_validate"
+        ]
+      },
+      {
+        "defined_symbols": [
+          "cl_binding_record_size",
+          "cl_bridge_adapters_offset",
+          "cl_bridge_alignment",
+          "cl_bridge_close",
+          "cl_bridge_dirty_mask",
+          "cl_bridge_handle_event",
+          "cl_bridge_init",
+          "cl_bridge_last_report",
+          "cl_bridge_manifest_host",
+          "cl_bridge_open",
+          "cl_bridge_processing_revision",
+          "cl_bridge_report_size",
+          "cl_bridge_retry",
+          "cl_bridge_set_mode",
+          "cl_bridge_size",
+          "cl_bridge_state",
+          "cl_bridge_state_revision",
+          "cl_bridge_sync",
+          "cl_bridge_validate_manifest",
+          "cl_input_event_size",
+          "cl_integration_manifest_size",
+          "cl_processing_snapshot_size"
+        ],
+        "path": "$BUILD/creative_look_bridge.o",
+        "sha256": "71b3af748103cabf9c801613d14b2831d4c447e09da0169f1554082f511a0767",
+        "source": "native/a6400_creative_look/creative_look_bridge.c",
+        "symbol_table": [
+          {
+            "binding": "LOCAL",
+            "name": "creative_look_bridge.c",
+            "section": null,
+            "section_index": "ABS",
+            "size": 0,
+            "type": "FILE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".text",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".data",
+            "section": null,
+            "section_index": 3,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".bss",
+            "section": null,
+            "section_index": 4,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_build_processing_snapshot",
+            "section": null,
+            "section_index": 1,
+            "size": 118,
+            "type": "FUNC",
+            "value": 1,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_synchronize_state",
+            "section": null,
+            "section_index": 1,
+            "size": 752,
+            "type": "FUNC",
+            "value": 121,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 3408,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_bridge_input_sink",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 5877,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 3412,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".comment",
+            "section": null,
+            "section_index": 5,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".ARM.attributes",
+            "section": null,
+            "section_index": 6,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_view_build",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_encode",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_binding_record_size",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 873,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_integration_manifest_size",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 877,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_input_event_size",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 881,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_processing_snapshot_size",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 885,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_report_size",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 889,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_size",
+            "section": null,
+            "section_index": 1,
+            "size": 6,
+            "type": "FUNC",
+            "value": 893,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_adapters_offset",
+            "section": null,
+            "section_index": 1,
+            "size": 6,
+            "type": "FUNC",
+            "value": 901,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_alignment",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 909,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_manifest_host",
+            "section": null,
+            "section_index": 1,
+            "size": 66,
+            "type": "FUNC",
+            "value": 913,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_validate_manifest",
+            "section": null,
+            "section_index": 1,
+            "size": 174,
+            "type": "FUNC",
+            "value": 981,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_init",
+            "section": null,
+            "section_index": 1,
+            "size": 434,
+            "type": "FUNC",
+            "value": 1157,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_init",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_open",
+            "section": null,
+            "section_index": 1,
+            "size": 1820,
+            "type": "FUNC",
+            "value": 1593,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_decode",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_close",
+            "section": null,
+            "section_index": 1,
+            "size": 264,
+            "type": "FUNC",
+            "value": 3413,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_sync",
+            "section": null,
+            "section_index": 1,
+            "size": 372,
+            "type": "FUNC",
+            "value": 3677,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_retry",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 4049,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_handle_event",
+            "section": null,
+            "section_index": 1,
+            "size": 1824,
+            "type": "FUNC",
+            "value": 4053,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_set_orientation",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_validate",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_view_touch",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_set_mode",
+            "section": null,
+            "section_index": 1,
+            "size": 1162,
+            "type": "FUNC",
+            "value": 5881,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_set_mode",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_state",
+            "section": null,
+            "section_index": 1,
+            "size": 8,
+            "type": "FUNC",
+            "value": 7045,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_last_report",
+            "section": null,
+            "section_index": 1,
+            "size": 6,
+            "type": "FUNC",
+            "value": 7053,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_state_revision",
+            "section": null,
+            "section_index": 1,
+            "size": 8,
+            "type": "FUNC",
+            "value": 7061,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_processing_revision",
+            "section": null,
+            "section_index": 1,
+            "size": 8,
+            "type": "FUNC",
+            "value": 7069,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_dirty_mask",
+            "section": null,
+            "section_index": 1,
+            "size": 8,
+            "type": "FUNC",
+            "value": 7077,
+            "visibility": "DEFAULT"
+          }
+        ],
+        "undefined_symbols": [
+          "cl_decode",
+          "cl_encode",
+          "cl_init",
+          "cl_set_mode",
+          "cl_set_orientation",
+          "cl_validate",
+          "cl_view_build",
+          "cl_view_touch"
+        ]
+      },
+      {
+        "defined_symbols": [
+          "cl_target_shell_alignment",
+          "cl_target_shell_bridge_state",
+          "cl_target_shell_close",
+          "cl_target_shell_copied_frame",
+          "cl_target_shell_deliver",
+          "cl_target_shell_identity",
+          "cl_target_shell_init",
+          "cl_target_shell_last_report",
+          "cl_target_shell_open",
+          "cl_target_shell_size"
+        ],
+        "path": "$BUILD/creative_look_target.o",
+        "sha256": "b3508f5747d83c1d6609c1f7ca20aa7aed6344c7afc1c0da78816f4b81537ce1",
+        "source": "native/a6400_creative_look/creative_look_target.c",
+        "symbol_table": [
+          {
+            "binding": "LOCAL",
+            "name": "creative_look_target.c",
+            "section": null,
+            "section_index": "ABS",
+            "size": 0,
+            "type": "FILE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".text",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".data",
+            "section": null,
+            "section_index": 3,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".bss",
+            "section": null,
+            "section_index": 4,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_target_shell_is_initialized",
+            "section": null,
+            "section_index": 1,
+            "size": 148,
+            "type": "FUNC",
+            "value": 1,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 128,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_target_lifecycle_open",
+            "section": null,
+            "section_index": 1,
+            "size": 156,
+            "type": "FUNC",
+            "value": 297,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_target_lifecycle_close",
+            "section": null,
+            "section_index": 1,
+            "size": 148,
+            "type": "FUNC",
+            "value": 149,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_target_present",
+            "section": null,
+            "section_index": 1,
+            "size": 188,
+            "type": "FUNC",
+            "value": 613,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_target_attach",
+            "section": null,
+            "section_index": 1,
+            "size": 188,
+            "type": "FUNC",
+            "value": 801,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_target_detach",
+            "section": null,
+            "section_index": 1,
+            "size": 160,
+            "type": "FUNC",
+            "value": 453,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 148,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 276,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 296,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 432,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 452,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 592,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 612,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 780,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 800,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 968,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 988,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 1372,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 1392,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 1532,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 1552,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 1740,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 1760,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 2012,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 2032,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 2160,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 2180,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 2308,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$t",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 2328,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 1,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 2336,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".rodata.str1.4",
+            "section": null,
+            "section_index": 5,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 5,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".data.rel.ro.local",
+            "section": null,
+            "section_index": 6,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "$d",
+            "section": null,
+            "section_index": 6,
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": "cl_target_proposed_identity",
+            "section": null,
+            "section_index": 6,
+            "size": 16,
+            "type": "OBJECT",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".comment",
+            "section": null,
+            "section_index": 8,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "LOCAL",
+            "name": ".ARM.attributes",
+            "section": null,
+            "section_index": 9,
+            "size": 0,
+            "type": "SECTION",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_target_shell_size",
+            "section": null,
+            "section_index": 1,
+            "size": 6,
+            "type": "FUNC",
+            "value": 989,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_target_shell_alignment",
+            "section": null,
+            "section_index": 1,
+            "size": 4,
+            "type": "FUNC",
+            "value": 997,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_target_shell_init",
+            "section": null,
+            "section_index": 1,
+            "size": 392,
+            "type": "FUNC",
+            "value": 1001,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_init",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_target_shell_open",
+            "section": null,
+            "section_index": 1,
+            "size": 160,
+            "type": "FUNC",
+            "value": 1393,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_open",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_target_shell_close",
+            "section": null,
+            "section_index": 1,
+            "size": 208,
+            "type": "FUNC",
+            "value": 1553,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_close",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_target_shell_deliver",
+            "section": null,
+            "section_index": 1,
+            "size": 110,
+            "type": "FUNC",
+            "value": 1761,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_target_shell_copied_frame",
+            "section": null,
+            "section_index": 1,
+            "size": 160,
+            "type": "FUNC",
+            "value": 1873,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_target_shell_bridge_state",
+            "section": null,
+            "section_index": 1,
+            "size": 148,
+            "type": "FUNC",
+            "value": 2033,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_state",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_target_shell_last_report",
+            "section": null,
+            "section_index": 1,
+            "size": 148,
+            "type": "FUNC",
+            "value": 2181,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_bridge_last_report",
+            "section": null,
+            "section_index": "UND",
+            "size": 0,
+            "type": "NOTYPE",
+            "value": 0,
+            "visibility": "DEFAULT"
+          },
+          {
+            "binding": "GLOBAL",
+            "name": "cl_target_shell_identity",
+            "section": null,
+            "section_index": 1,
+            "size": 12,
+            "type": "FUNC",
+            "value": 2329,
+            "visibility": "DEFAULT"
+          }
+        ],
+        "undefined_symbols": [
+          "cl_bridge_close",
+          "cl_bridge_init",
+          "cl_bridge_last_report",
+          "cl_bridge_open",
+          "cl_bridge_state"
+        ]
+      }
+    ],
+    "raw_record_sha256": "e4aa64123bb839650b244351bad7b49fb6b1c6a2239e798bc32533f35cc08b50",
+    "relocations": [
+      {
+        "addend": null,
+        "encoded_source_word": "8c000000",
+        "offset": 292,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": ".rodata",
+        "symbol_value": 0,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "1e000000",
+        "offset": 448,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": ".rodata",
+        "symbol_value": 0,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "6c000000",
+        "offset": 1440,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": ".rodata",
+        "symbol_value": 0,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 2456,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_validate",
+        "symbol_value": 373,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 2646,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_is_modified",
+        "symbol_value": 557,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 3116,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_axis_range",
+        "symbol_value": 385,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 3354,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_axis_status",
+        "symbol_value": 453,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 3668,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_view_build",
+        "symbol_value": 2437,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 3764,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_back_to_catalog",
+        "symbol_value": 1545,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 3772,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_reset_selected",
+        "symbol_value": 1445,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 3792,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_set_axis",
+        "symbol_value": 1289,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 3808,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_open_axis",
+        "symbol_value": 1193,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 3836,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_select_custom_base",
+        "symbol_value": 1049,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 3852,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_select_look",
+        "symbol_value": 909,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 3902,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_view_build",
+        "symbol_value": 2437,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 3964,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_encode",
+        "symbol_value": 1621,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 4044,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_decode",
+        "symbol_value": 1821,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 4330,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_view_build",
+        "symbol_value": 2437,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 4424,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_encode",
+        "symbol_value": 1621,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 5326,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_bridge_validate_manifest",
+        "symbol_value": 5065,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 5512,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_init",
+        "symbol_value": 309,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 5778,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_init",
+        "symbol_value": 309,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 5978,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_view_build",
+        "symbol_value": 2437,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 6346,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_decode",
+        "symbol_value": 1821,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "b2050000",
+        "offset": 7492,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_bridge_input_sink",
+        "symbol_value": 9961,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7febf",
+        "offset": 8132,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_bridge_sync",
+        "symbol_value": 7761,
+        "type": "R_ARM_THM_JUMP24"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 8306,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_set_orientation",
+        "symbol_value": 645,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 8318,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_validate",
+        "symbol_value": 373,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 8820,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_view_touch",
+        "symbol_value": 3649,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7febf",
+        "offset": 9960,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_bridge_handle_event",
+        "symbol_value": 8137,
+        "type": "R_ARM_THM_JUMP24"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 10076,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_set_mode",
+        "symbol_value": 733,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "48000000",
+        "offset": 11296,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "40000000",
+        "offset": 11300,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "30000000",
+        "offset": 11304,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "20000000",
+        "offset": 11308,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "18000000",
+        "offset": 11312,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "48000000",
+        "offset": 11444,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "40000000",
+        "offset": 11448,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "30000000",
+        "offset": 11452,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "20000000",
+        "offset": 11456,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "18000000",
+        "offset": 11460,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "50000000",
+        "offset": 11600,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "48000000",
+        "offset": 11604,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "38000000",
+        "offset": 11608,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "28000000",
+        "offset": 11612,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "1c000000",
+        "offset": 11616,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "52000000",
+        "offset": 11760,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "4a000000",
+        "offset": 11764,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "3a000000",
+        "offset": 11768,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "2a000000",
+        "offset": 11772,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "22000000",
+        "offset": 11776,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "6e000000",
+        "offset": 11948,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "66000000",
+        "offset": 11952,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "56000000",
+        "offset": 11956,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "46000000",
+        "offset": 11960,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "3e000000",
+        "offset": 11964,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "68000000",
+        "offset": 12136,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "60000000",
+        "offset": 12140,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "50000000",
+        "offset": 12144,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "40000000",
+        "offset": 12148,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "38000000",
+        "offset": 12152,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 12468,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_bridge_init",
+        "symbol_value": 5241,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "7a000000",
+        "offset": 12540,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "76000000",
+        "offset": 12544,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "72000000",
+        "offset": 12548,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "70000000",
+        "offset": 12552,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "6c000000",
+        "offset": 12556,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7febf",
+        "offset": 12688,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_bridge_open",
+        "symbol_value": 5677,
+        "type": "R_ARM_THM_JUMP24"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "50000000",
+        "offset": 12700,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "48000000",
+        "offset": 12704,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "38000000",
+        "offset": 12708,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "28000000",
+        "offset": 12712,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "20000000",
+        "offset": 12716,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7feff",
+        "offset": 12856,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_bridge_close",
+        "symbol_value": 7497,
+        "type": "R_ARM_THM_CALL"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "7e000000",
+        "offset": 12908,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "76000000",
+        "offset": 12912,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "66000000",
+        "offset": 12916,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "56000000",
+        "offset": 12920,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "4e000000",
+        "offset": 12924,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "50000000",
+        "offset": 13180,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "48000000",
+        "offset": 13184,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "38000000",
+        "offset": 13188,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "28000000",
+        "offset": 13192,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "20000000",
+        "offset": 13196,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7febf",
+        "offset": 13322,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_bridge_state",
+        "symbol_value": 11129,
+        "type": "R_ARM_THM_JUMP24"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "48000000",
+        "offset": 13328,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "40000000",
+        "offset": 13332,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "30000000",
+        "offset": 13336,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "20000000",
+        "offset": 13340,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "18000000",
+        "offset": 13344,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "fff7febf",
+        "offset": 13470,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_bridge_last_report",
+        "symbol_value": 11137,
+        "type": "R_ARM_THM_JUMP24"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "48000000",
+        "offset": 13476,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_open",
+        "symbol_value": 11465,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "40000000",
+        "offset": 13480,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_lifecycle_close",
+        "symbol_value": 11317,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "30000000",
+        "offset": 13484,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_present",
+        "symbol_value": 11781,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "20000000",
+        "offset": 13488,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_attach",
+        "symbol_value": 11969,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "18000000",
+        "offset": 13492,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": "cl_target_detach",
+        "symbol_value": 11621,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "02000000",
+        "offset": 13504,
+        "relocation_section": ".rel.text",
+        "source_section": ".text",
+        "symbol": ".data.rel.ro.local",
+        "symbol_value": 0,
+        "type": "R_ARM_REL32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "00000000",
+        "offset": 0,
+        "relocation_section": ".rel.data.rel.ro.local",
+        "source_section": ".data.rel.ro.local",
+        "symbol": ".rodata.str1.4",
+        "symbol_value": 0,
+        "type": "R_ARM_ABS32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "14000000",
+        "offset": 4,
+        "relocation_section": ".rel.data.rel.ro.local",
+        "source_section": ".data.rel.ro.local",
+        "symbol": ".rodata.str1.4",
+        "symbol_value": 0,
+        "type": "R_ARM_ABS32"
+      },
+      {
+        "addend": null,
+        "encoded_source_word": "28000000",
+        "offset": 8,
+        "relocation_section": ".rel.data.rel.ro.local",
+        "source_section": ".data.rel.ro.local",
+        "symbol": ".rodata.str1.4",
+        "symbol_value": 0,
+        "type": "R_ARM_ABS32"
+      }
+    ],
+    "safety_scan": {
+      "files": [
+        "native/a6400_creative_look/creative_look_core.c",
+        "native/a6400_creative_look/creative_look_view.c",
+        "native/a6400_creative_look/creative_look_bridge.c",
+        "native/a6400_creative_look/creative_look_target.c",
+        "native/a6400_creative_look/creative_look_core.h",
+        "native/a6400_creative_look/creative_look_view.h",
+        "native/a6400_creative_look/creative_look_bridge.h",
+        "native/a6400_creative_look/creative_look_target.h"
+      ],
+      "forbidden_matches": []
+    },
+    "schema_version": 1,
+    "scope": "offline-static-arm-target-object",
+    "sections": [
+      {
+        "alignment": 0,
+        "flags": "",
+        "index": 0,
+        "info": 0,
+        "link": 0,
+        "name": "",
+        "offset": 0,
+        "size": 0,
+        "type": "NULL"
+      },
+      {
+        "alignment": 4,
+        "flags": "AX",
+        "index": 1,
+        "info": 0,
+        "link": 0,
+        "name": ".text",
+        "offset": 52,
+        "size": 13508,
+        "type": "PROGBITS"
+      },
+      {
+        "alignment": 4,
+        "flags": "I",
+        "index": 2,
+        "info": 1,
+        "link": 11,
+        "name": ".rel.text",
+        "offset": 17536,
+        "size": 776,
+        "type": "REL"
+      },
+      {
+        "alignment": 4,
+        "flags": "A",
+        "index": 3,
+        "info": 0,
+        "link": 0,
+        "name": ".rodata",
+        "offset": 13560,
+        "size": 16,
+        "type": "PROGBITS"
+      },
+      {
+        "alignment": 4,
+        "flags": "AMS",
+        "index": 4,
+        "info": 0,
+        "link": 0,
+        "name": ".rodata.str1.4",
+        "offset": 13576,
+        "size": 67,
+        "type": "PROGBITS"
+      },
+      {
+        "alignment": 1,
+        "flags": "WA",
+        "index": 5,
+        "info": 0,
+        "link": 0,
+        "name": ".data",
+        "offset": 13643,
+        "size": 0,
+        "type": "PROGBITS"
+      },
+      {
+        "alignment": 4,
+        "flags": "WA",
+        "index": 6,
+        "info": 0,
+        "link": 0,
+        "name": ".data.rel.ro.local",
+        "offset": 13644,
+        "size": 16,
+        "type": "PROGBITS"
+      },
+      {
+        "alignment": 4,
+        "flags": "I",
+        "index": 7,
+        "info": 6,
+        "link": 11,
+        "name": ".rel.data.rel.ro.local",
+        "offset": 18312,
+        "size": 24,
+        "type": "REL"
+      },
+      {
+        "alignment": 1,
+        "flags": "WA",
+        "index": 8,
+        "info": 0,
+        "link": 0,
+        "name": ".bss",
+        "offset": 13660,
+        "size": 0,
+        "type": "NOBITS"
+      },
+      {
+        "alignment": 1,
+        "flags": "MS",
+        "index": 9,
+        "info": 0,
+        "link": 0,
+        "name": ".comment",
+        "offset": 13660,
+        "size": 280,
+        "type": "PROGBITS"
+      },
+      {
+        "alignment": 1,
+        "flags": "",
+        "index": 10,
+        "info": 0,
+        "link": 0,
+        "name": ".ARM.attributes",
+        "offset": 13940,
+        "size": 49,
+        "type": "ARM_ATTRIBUTES"
+      },
+      {
+        "alignment": 4,
+        "flags": "",
+        "index": 11,
+        "info": 72,
+        "link": 12,
+        "name": ".symtab",
+        "offset": 13992,
+        "size": 2048,
+        "type": "SYMTAB"
+      },
+      {
+        "alignment": 1,
+        "flags": "",
+        "index": 12,
+        "info": 0,
+        "link": 0,
+        "name": ".strtab",
+        "offset": 16040,
+        "size": 1493,
+        "type": "STRTAB"
+      },
+      {
+        "alignment": 1,
+        "flags": "",
+        "index": 13,
+        "info": 0,
+        "link": 0,
+        "name": ".shstrtab",
+        "offset": 18336,
+        "size": 119,
+        "type": "STRTAB"
+      }
+    ],
+    "symbol_table": [
+      {
+        "binding": "LOCAL",
+        "name": ".text",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "SECTION",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": ".rodata",
+        "section": ".rodata",
+        "section_index": 3,
+        "size": 0,
+        "type": "SECTION",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": ".rodata.str1.4",
+        "section": ".rodata.str1.4",
+        "section_index": 4,
+        "size": 0,
+        "type": "SECTION",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": ".data",
+        "section": ".data",
+        "section_index": 5,
+        "size": 0,
+        "type": "SECTION",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": ".data.rel.ro.local",
+        "section": ".data.rel.ro.local",
+        "section_index": 6,
+        "size": 0,
+        "type": "SECTION",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": ".bss",
+        "section": ".bss",
+        "section_index": 8,
+        "size": 0,
+        "type": "SECTION",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": ".comment",
+        "section": ".comment",
+        "section_index": 9,
+        "size": 0,
+        "type": "SECTION",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": ".ARM.attributes",
+        "section": ".ARM.attributes",
+        "section_index": 10,
+        "size": 0,
+        "type": "SECTION",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "creative_look_core.c",
+        "section": null,
+        "section_index": "ABS",
+        "size": 0,
+        "type": "FILE",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_axis_availability",
+        "section": ".text",
+        "section_index": 1,
+        "size": 74,
+        "type": "FUNC",
+        "value": 1,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_validate_internal",
+        "section": ".text",
+        "section_index": 1,
+        "size": 220,
+        "type": "FUNC",
+        "value": 77,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 292,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 296,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 448,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 452,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 1440,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 1444,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".rodata",
+        "section_index": 3,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_axis_maximums",
+        "section": ".rodata",
+        "section_index": 3,
+        "size": 8,
+        "type": "OBJECT",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_axis_minimums",
+        "section": ".rodata",
+        "section_index": 3,
+        "size": 8,
+        "type": "OBJECT",
+        "value": 8,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "creative_look_view.c",
+        "section": null,
+        "section_index": "ABS",
+        "size": 0,
+        "type": "FILE",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_divide_positive",
+        "section": ".text",
+        "section_index": 1,
+        "size": 388,
+        "type": "FUNC",
+        "value": 2041,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 2040,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 2050,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 2070,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 3738,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 3744,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "creative_look_bridge.c",
+        "section": null,
+        "section_index": "ABS",
+        "size": 0,
+        "type": "FILE",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_build_processing_snapshot",
+        "section": ".text",
+        "section_index": 1,
+        "size": 118,
+        "type": "FUNC",
+        "value": 4085,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 4084,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_synchronize_state",
+        "section": ".text",
+        "section_index": 1,
+        "size": 752,
+        "type": "FUNC",
+        "value": 4205,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 7492,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_bridge_input_sink",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 9961,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 7496,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "creative_look_target.c",
+        "section": null,
+        "section_index": "ABS",
+        "size": 0,
+        "type": "FILE",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_target_shell_is_initialized",
+        "section": ".text",
+        "section_index": 1,
+        "size": 148,
+        "type": "FUNC",
+        "value": 11169,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 11168,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 11296,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_target_lifecycle_open",
+        "section": ".text",
+        "section_index": 1,
+        "size": 156,
+        "type": "FUNC",
+        "value": 11465,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_target_lifecycle_close",
+        "section": ".text",
+        "section_index": 1,
+        "size": 148,
+        "type": "FUNC",
+        "value": 11317,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_target_present",
+        "section": ".text",
+        "section_index": 1,
+        "size": 188,
+        "type": "FUNC",
+        "value": 11781,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_target_attach",
+        "section": ".text",
+        "section_index": 1,
+        "size": 188,
+        "type": "FUNC",
+        "value": 11969,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_target_detach",
+        "section": ".text",
+        "section_index": 1,
+        "size": 160,
+        "type": "FUNC",
+        "value": 11621,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 11316,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 11444,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 11464,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 11600,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 11620,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 11760,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 11780,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 11948,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 11968,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 12136,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 12156,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 12540,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 12560,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 12700,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 12720,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 12908,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 12928,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 13180,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 13200,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 13328,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 13348,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 13476,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$t",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 13496,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".text",
+        "section_index": 1,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 13504,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".rodata.str1.4",
+        "section_index": 4,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "$d",
+        "section": ".data.rel.ro.local",
+        "section_index": 6,
+        "size": 0,
+        "type": "NOTYPE",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "LOCAL",
+        "name": "cl_target_proposed_identity",
+        "section": ".data.rel.ro.local",
+        "section_index": 6,
+        "size": 16,
+        "type": "OBJECT",
+        "value": 0,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_input_event_size",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 4965,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_processing_revision",
+        "section": ".text",
+        "section_index": 1,
+        "size": 8,
+        "type": "FUNC",
+        "value": 11153,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_close",
+        "section": ".text",
+        "section_index": 1,
+        "size": 264,
+        "type": "FUNC",
+        "value": 7497,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_validate_manifest",
+        "section": ".text",
+        "section_index": 1,
+        "size": 174,
+        "type": "FUNC",
+        "value": 5065,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_view_frame_size",
+        "section": ".text",
+        "section_index": 1,
+        "size": 6,
+        "type": "FUNC",
+        "value": 2429,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_init",
+        "section": ".text",
+        "section_index": 1,
+        "size": 434,
+        "type": "FUNC",
+        "value": 5241,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_target_shell_open",
+        "section": ".text",
+        "section_index": 1,
+        "size": 160,
+        "type": "FUNC",
+        "value": 12561,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_open",
+        "section": ".text",
+        "section_index": 1,
+        "size": 1820,
+        "type": "FUNC",
+        "value": 5677,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_state_revision",
+        "section": ".text",
+        "section_index": 1,
+        "size": 8,
+        "type": "FUNC",
+        "value": 11145,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_last_report",
+        "section": ".text",
+        "section_index": 1,
+        "size": 6,
+        "type": "FUNC",
+        "value": 11137,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_is_modified",
+        "section": ".text",
+        "section_index": 1,
+        "size": 86,
+        "type": "FUNC",
+        "value": 557,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_report_size",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 4973,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_target_shell_identity",
+        "section": ".text",
+        "section_index": 1,
+        "size": 12,
+        "type": "FUNC",
+        "value": 13497,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_target_shell_alignment",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 12165,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_state_size",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 297,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_target_shell_init",
+        "section": ".text",
+        "section_index": 1,
+        "size": 392,
+        "type": "FUNC",
+        "value": 12169,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_init",
+        "section": ".text",
+        "section_index": 1,
+        "size": 64,
+        "type": "FUNC",
+        "value": 309,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_set_mode",
+        "section": ".text",
+        "section_index": 1,
+        "size": 174,
+        "type": "FUNC",
+        "value": 733,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_axis_status",
+        "section": ".text",
+        "section_index": 1,
+        "size": 102,
+        "type": "FUNC",
+        "value": 453,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_size",
+        "section": ".text",
+        "section_index": 1,
+        "size": 6,
+        "type": "FUNC",
+        "value": 4977,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_set_orientation",
+        "section": ".text",
+        "section_index": 1,
+        "size": 86,
+        "type": "FUNC",
+        "value": 645,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_back_to_catalog",
+        "section": ".text",
+        "section_index": 1,
+        "size": 74,
+        "type": "FUNC",
+        "value": 1545,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_capability_flags",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 305,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_set_axis",
+        "section": ".text",
+        "section_index": 1,
+        "size": 156,
+        "type": "FUNC",
+        "value": 1289,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_view_touch",
+        "section": ".text",
+        "section_index": 1,
+        "size": 232,
+        "type": "FUNC",
+        "value": 3649,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_target_shell_copied_frame",
+        "section": ".text",
+        "section_index": 1,
+        "size": 160,
+        "type": "FUNC",
+        "value": 13041,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_target_shell_close",
+        "section": ".text",
+        "section_index": 1,
+        "size": 208,
+        "type": "FUNC",
+        "value": 12721,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_integration_manifest_size",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 4961,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_retry",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 8133,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_target_shell_bridge_state",
+        "section": ".text",
+        "section_index": 1,
+        "size": 148,
+        "type": "FUNC",
+        "value": 13201,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_manifest_host",
+        "section": ".text",
+        "section_index": 1,
+        "size": 66,
+        "type": "FUNC",
+        "value": 4997,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_target_shell_last_report",
+        "section": ".text",
+        "section_index": 1,
+        "size": 148,
+        "type": "FUNC",
+        "value": 13349,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_target_shell_size",
+        "section": ".text",
+        "section_index": 1,
+        "size": 6,
+        "type": "FUNC",
+        "value": 12157,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_state",
+        "section": ".text",
+        "section_index": 1,
+        "size": 8,
+        "type": "FUNC",
+        "value": 11129,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_blob_size",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 301,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_processing_snapshot_size",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 4969,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_validate",
+        "section": ".text",
+        "section_index": 1,
+        "size": 10,
+        "type": "FUNC",
+        "value": 373,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_target_shell_deliver",
+        "section": ".text",
+        "section_index": 1,
+        "size": 110,
+        "type": "FUNC",
+        "value": 12929,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_axis_range",
+        "section": ".text",
+        "section_index": 1,
+        "size": 68,
+        "type": "FUNC",
+        "value": 385,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_binding_record_size",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 4957,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_open_axis",
+        "section": ".text",
+        "section_index": 1,
+        "size": 96,
+        "type": "FUNC",
+        "value": 1193,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_sync",
+        "section": ".text",
+        "section_index": 1,
+        "size": 372,
+        "type": "FUNC",
+        "value": 7761,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_storage_load",
+        "section": ".text",
+        "section_index": 1,
+        "size": 78,
+        "type": "FUNC",
+        "value": 4005,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_adapters_offset",
+        "section": ".text",
+        "section_index": 1,
+        "size": 6,
+        "type": "FUNC",
+        "value": 4985,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_handle_event",
+        "section": ".text",
+        "section_index": 1,
+        "size": 1824,
+        "type": "FUNC",
+        "value": 8137,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_select_custom_base",
+        "section": ".text",
+        "section_index": 1,
+        "size": 142,
+        "type": "FUNC",
+        "value": 1049,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_view_present",
+        "section": ".text",
+        "section_index": 1,
+        "size": 60,
+        "type": "FUNC",
+        "value": 3881,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_select_look",
+        "section": ".text",
+        "section_index": 1,
+        "size": 140,
+        "type": "FUNC",
+        "value": 909,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_decode",
+        "section": ".text",
+        "section_index": 1,
+        "size": 220,
+        "type": "FUNC",
+        "value": 1821,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_set_mode",
+        "section": ".text",
+        "section_index": 1,
+        "size": 1162,
+        "type": "FUNC",
+        "value": 9965,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_encode",
+        "section": ".text",
+        "section_index": 1,
+        "size": 198,
+        "type": "FUNC",
+        "value": 1621,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_reset_selected",
+        "section": ".text",
+        "section_index": 1,
+        "size": 98,
+        "type": "FUNC",
+        "value": 1445,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_dirty_mask",
+        "section": ".text",
+        "section_index": 1,
+        "size": 8,
+        "type": "FUNC",
+        "value": 11161,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_view_build",
+        "section": ".text",
+        "section_index": 1,
+        "size": 1212,
+        "type": "FUNC",
+        "value": 2437,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_bridge_alignment",
+        "section": ".text",
+        "section_index": 1,
+        "size": 4,
+        "type": "FUNC",
+        "value": 4993,
+        "visibility": "DEFAULT"
+      },
+      {
+        "binding": "GLOBAL",
+        "name": "cl_storage_save",
+        "section": ".text",
+        "section_index": 1,
+        "size": 64,
+        "type": "FUNC",
+        "value": 3941,
+        "visibility": "DEFAULT"
+      }
+    ],
+    "tools": [
+      {
+        "path": "$TOOLCHAIN/bin/arm-none-eabi-gcc.exe",
+        "role": "gcc",
+        "sha256": "accf3766d0b53850fcc09ed6b150d44925f9c2f4923f83935692d0e96559d001",
+        "version": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 15.2.1 20251203"
+      },
+      {
+        "path": "$TOOLCHAIN/bin/arm-none-eabi-ld.exe",
+        "role": "ld",
+        "sha256": "94749493e74a5fa5de5b2eb7bb0a7f9d04e07694d35668dca93b75b18f35ec7e",
+        "version": "GNU ld (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 2.45.1.20251203"
+      },
+      {
+        "path": "$TOOLCHAIN/bin/arm-none-eabi-readelf.exe",
+        "role": "readelf",
+        "sha256": "bea94d5da605962fdcdd5b8cb8d4ba9a60017148a59df9c4fbd6aae10852e470",
+        "version": "GNU readelf (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 2.45.1.20251203"
+      },
+      {
+        "path": "$TOOLCHAIN/bin/arm-none-eabi-nm.exe",
+        "role": "nm",
+        "sha256": "e5278fc0ff7e6ff95640797d16b02a68613cc999d5f17123eedbf9fbd0142415",
+        "version": "GNU nm (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 2.45.1.20251203"
+      },
+      {
+        "path": "$TOOLCHAIN/bin/arm-none-eabi-objdump.exe",
+        "role": "objdump",
+        "sha256": "925cf2bd2d20a5ad4a54886da8ab21dc3de286c489532035f29ec6f092e1e962",
+        "version": "GNU objdump (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 2.45.1.20251203"
+      },
+      {
+        "path": "$TOOLCHAIN/libexec/gcc/arm-none-eabi/15.2.1/cc1.exe",
+        "role": "cc1",
+        "sha256": "ea2b9723ab09655cfd89c08b67f9b4b806d01dca7471059baf4f586a6d7459c4",
+        "version": "arm-none-eabi GCC internal 15.2.1"
+      },
+      {
+        "path": "$TOOLCHAIN/arm-none-eabi/bin/as.exe",
+        "role": "as",
+        "sha256": "1ddac30cb2e3d7ad5f045dae045c2eb2fc42b3084f011605c664fc0af9f03092",
+        "version": "GNU assembler (Arm GNU Toolchain 15.2.Rel1 (Build arm-15.86)) 2.45.1.20251203"
+      }
+    ],
+    "undefined_symbols": []
+  },
+  "safety": {
+    "processing_binding_proven": 0,
+    "recovery_validated": 0,
+    "camera_test_eligible": 0,
+    "installable": 0
+  },
+  "readiness": "ARM_TARGET_OBJECT_COMPILED__RUNTIME_UNBOUND",
+  "conclusion": "The portable Creative Look core, view, bridge, and neutral target shell were compiled with the pinned official Arm GNU Toolchain as one naturally linked ARMv7-A/Thumb-2 softfp ET_REL object for offline static inspection. The target ABI probe, empty undefined-symbol result, mandatory attributes, benign extra attributes, and normalized build evidence are recorded. No Sony runtime binding, processing binding, recovery validation, camera-test eligibility, or installability is established by this target object.",
+  "narrative_sha256": "19941d9f312735db412761e4d63562fc7881c768cb54cd0f0f357a88ea86bdce",
+  "contract_sha256": "c46e5c56386a3b26c31d98e6a9234f2cd543e476610784e71b0e5083499aa97a"
+}
