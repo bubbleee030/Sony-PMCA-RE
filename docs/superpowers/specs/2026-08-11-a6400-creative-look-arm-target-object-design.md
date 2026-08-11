@@ -31,7 +31,7 @@ image-processing output consumes Creative Look state.
 
 The target profile is pinned to the authenticated Taiwan/region-0 2.00
 `lib/viewUnified2.so`, SHA-256
-`1e2867b6fcbfe1fc627a5fa30fd8751cbc02a8650632ee962675609ba4b6e7f2`.
+`1e2867b6bff2d4fd4d3b93bacf8c7da0b9a86f266b4ba1763230e33badb6e7f2`.
 Its ELF attributes establish:
 
 - ELF32, little-endian, ARM, EABI version 5;
